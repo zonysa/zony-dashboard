@@ -134,61 +134,62 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       {/* Filter Section */}
       {(enableFiltering || enableGlobalSearch) && (
-        <div className="">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Global Search */}
-            {enableGlobalSearch && (
-              <div className="flex flex-col gap-2 items-start space-x-2">
-                <span className="text-sm font-medium whitespace-nowrap">
-                  Partner Name
-                </span>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder={searchPlaceholder}
-                    value={localSearch}
-                    onChange={(e) => setLocalSearch(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && applyFilters()}
-                    className="pl-9 w-64"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Dynamic Filters */}
-            {enableFiltering &&
-              filterConfigs.map((config) => (
-                <div
-                  key={config.key}
-                  className="flex flex-col gap-2 items-start space-x-2"
-                >
+        <div>
+          <div className="flex flex-wrap justify-between items-end gap-4">
+            <div className="w-5/6 flex gap-4">
+              {/* Global Search */}
+              {enableGlobalSearch && (
+                <div className="flex flex-1 flex-col gap-2 items-start space-x-2">
                   <span className="text-sm font-medium whitespace-nowrap">
-                    {config.label}
+                    Partner Name
                   </span>
-                  <Select
-                    value={localFilters[config.key] || ""}
-                    onValueChange={(value) =>
-                      updateLocalFilter(config.key, value)
-                    }
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue placeholder={config.placeholder} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(config.options || getUniqueValues(config.key)).map(
-                        (option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <span className="capitalize">{option.label}</span>
-                          </SelectItem>
-                        )
-                      )}
-                    </SelectContent>
-                  </Select>
+                  <div className="w-full relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder={searchPlaceholder}
+                      value={localSearch}
+                      onChange={(e) => setLocalSearch(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && applyFilters()}
+                      className="pl-9"
+                    />
+                  </div>
                 </div>
-              ))}
+              )}
 
+              {/* Dynamic Filters */}
+              {enableFiltering &&
+                filterConfigs.map((config) => (
+                  <div
+                    key={config.key}
+                    className="flex flex-col gap-2 items-start space-x-2"
+                  >
+                    <span className="text-sm font-medium whitespace-nowrap">
+                      {config.label}
+                    </span>
+                    <Select
+                      value={localFilters[config.key] || ""}
+                      onValueChange={(value) =>
+                        updateLocalFilter(config.key, value)
+                      }
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder={config.placeholder} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(config.options || getUniqueValues(config.key)).map(
+                          (option) => (
+                            <SelectItem key={option.value} value={option.value}>
+                              <span className="capitalize">{option.label}</span>
+                            </SelectItem>
+                          )
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ))}
+            </div>
             {/* Action Buttons */}
-            <div className="flex items-center space-x-2 ml-auto">
+            <div className="flex items-end space-x-2 ml-auto">
               {hasActiveFilters && (
                 <Button variant="outline" onClick={clearFilters}>
                   <X />
