@@ -18,11 +18,11 @@ function AuthHeader() {
 
   const getTitle = () => {
     switch (pathname) {
-      case "/login":
+      case "/auth/login":
         return "Login";
-      case "/verify-otp":
+      case "/auth/verify-otp":
         return "Verify OTP";
-      case "/forgot-password":
+      case "/auth/forgot-password":
         return "Reset Password";
       default:
         return "Authentication";

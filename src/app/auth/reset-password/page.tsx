@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import { LoginForm } from "@/components/auth/LoginForm";
+import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
 
 export default function Page() {
   return (
@@ -15,7 +15,7 @@ export default function Page() {
         height={388}
       />
       <div className="w-full max-w-2/4 z-1">
-        <LoginForm />
+        <ResetPasswordForm />
       </div>
     </div>
   );
