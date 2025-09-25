@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useLogin } from "@/hooks/useAuth";
-import { LoginFormData, loginSchema } from "@/lib/shc/auth";
+import { LoginFormData, loginSchema } from "@/lib/schema/auth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

@@ -2,6 +2,22 @@
 
 import * as React from "react";
 import Image from "next/image";
+import {
+  LayoutDashboard,
+  Users,
+  Package,
+  BarChart3,
+  Settings,
+  Map,
+  Bell,
+  Ticket,
+  LogOut,
+  Handshake,
+  Store,
+  UserRound,
+  Headset,
+  Truck,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -10,7 +26,6 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarRail,
-  useSidebar,
 } from "@/components/ui/sidebar";
 
 // This is sample data.
@@ -24,74 +39,79 @@ const data = {
     {
       title: "Overview",
       url: "/",
-      icon: "overview",
+      icon: LayoutDashboard,
     },
     {
       title: "Supervisors",
       url: "/supervisors",
-      icon: "supervisors",
+      icon: Users,
     },
     {
       title: "Partners",
       url: "/partners",
-      icon: "partners",
+      icon: UserRound,
     },
     {
       title: "PUDO Points",
       url: "/pudos",
-      icon: "pudos",
+      icon: Store,
     },
     {
       title: "Zones",
       url: "/zones",
-      icon: "zones",
+      icon: Map,
     },
     {
       title: "Reports & Analytics",
       url: "/reports-analytics",
-      icon: "reports-analytics",
+      icon: BarChart3,
     },
-    {
-      title: "System Alerts",
-      url: "/system-alerts",
-      icon: "system-alerts",
-    },
-    {
-      title: "Roles & Permissions",
-      url: "/roles-permissions",
-      icon: "roles-permissions",
-    },
+    // {
+    //   title: "System Alerts",
+    //   url: "/system-alerts",
+    //   icon: Bell,
+    // },
+    // {
+    //   title: "Roles & Permissions",
+    //   url: "/roles-permissions",
+    //   icon: Settings,
+    // },
     {
       title: "Parcels",
       url: "/parcels",
-      icon: "parcels",
+      icon: Package,
     },
     {
       title: "Clients",
       url: "/clients",
-      icon: "clients",
+      icon: Handshake,
     },
     {
       title: "Tickets",
       url: "/tickets",
-      icon: "tickets",
+      icon: Ticket,
     },
     {
       title: "Customer Service",
-      url: "protected/customer-service",
-      icon: "customer-service",
+      url: "/customer-service",
+      icon: Headset,
+    },
+    {
+      title: "Courier",
+      url: "/courier",
+      icon: Truck,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
       url: "/settings",
-      icon: "settings",
+      icon: Settings,
     },
     {
       title: "Logout",
       url: "#",
-      icon: "logout",
+      icon: LogOut,
     },
   ],
 };
@@ -102,7 +122,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader className="ps-6 pt-8">
         <Image src="/icons/zony-logo.svg" alt="Logo" width={74} height={36} />
       </SidebarHeader>
-      <SidebarContent className="mt-4 ms-3">
+      <SidebarContent>
         <NavMain items={data.navMain} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>

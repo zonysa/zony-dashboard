@@ -41,5 +41,9 @@ module.exports = {
         },
       },
     },
+    fontSize: {
+      xs: ["0.75"],
+      sm: ["0.875rem", { lineHeight: "1.25rem" }],
+    },
   },
 };

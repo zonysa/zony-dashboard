@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -9,32 +8,33 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
+import { type LucideIcon } from "lucide-react";
+
 export function NavMain({
   items,
 }: {
   items: {
     title: string;
     url: string;
-    icon?: any;
+    icon?: LucideIcon;
   }[];
 }) {
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
-                <Image
-                  alt={item.title}
-                  src={`/icons/${item.icon}.svg`}
-                  width={24}
-                  height={24}
-                />
-                <span>{item.title}</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+        <SidebarMenu className="gap-4">
+          {items.map((item) => {
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild>
+                  <a href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>

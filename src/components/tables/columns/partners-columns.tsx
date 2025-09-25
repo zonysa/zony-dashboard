@@ -54,7 +54,7 @@ export const columns: ColumnDef<Partner>[] = [
       const getStatusVariant = (status: string) => {
         switch (status) {
           case "Active":
-            return "default"; // or "success" if you have a success variant
+            return "sucess";
           case "Inactive":
             return "secondary";
           case "Pending":

@@ -3,11 +3,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Branch } from "@/lib/types/branches.types";
 import { ColumnDef } from "@tanstack/react-table";
+import { Circle } from "lucide-react";
 
 const getStatusVariant = (status: string) => {
   switch (status) {
     case "Active":
-      return "default";
+      return "success";
     case "Inactive":
       return "secondary";
     case "Pending":
@@ -19,16 +20,14 @@ const getStatusVariant = (status: string) => {
   }
 };
 
-const getUsageColor = (usage: number) => {
-  if (usage >= 80) return "text-green-600";
-  if (usage >= 50) return "text-yellow-600";
-  return "text-red-600";
-};
-
-const getUsageIndicator = (usage: number) => {
-  if (usage >= 80) return "🟢";
-  if (usage >= 50) return "🟡";
-  return "🔴";
+const getUsageClasses = (usage: number) => {
+  if (usage >= 80) {
+    return { text: "text-green-500", fill: "fill-green-500" };
+  } else if (usage >= 50) {
+    return { text: "text-yellow-500", fill: "fill-yellow-500" };
+  } else {
+    return { text: "text-red-500", fill: "fill-red-500" };
+  }
 };
 
 export const branchColumns: ColumnDef<Branch>[] = [
@@ -112,14 +111,13 @@ export const branchColumns: ColumnDef<Branch>[] = [
     header: "Point Usage",
     cell: ({ row }) => {
       const pointUsage = row.getValue("pointUsage") as number;
+      const classes = getUsageClasses(pointUsage);
 
       return (
-        <div className="flex items-center justify-center space-x-2">
-          <span className={`font-medium ${getUsageColor(pointUsage)}`}>
-            {pointUsage}%
-          </span>
-          <span>{getUsageIndicator(pointUsage)}</span>
-        </div>
+        <Badge variant="outline" className={classes.text}>
+          <Circle className={`w-2 h-2 text-transparent fill ${classes.fill}`} />
+          {pointUsage}%
+        </Badge>
       );
     },
   },

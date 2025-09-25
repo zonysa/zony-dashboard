@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { type Icon } from "@tabler/icons-react";
-import Image from "next/image";
 
 import {
   SidebarGroup,
@@ -30,12 +29,7 @@ export function NavSecondary({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <a href={item.url}>
-                  <Image
-                    alt={item.title}
-                    src={`/icons/${item.icon}.svg`}
-                    width={24}
-                    height={24}
-                  />
+                  {item.icon && <item.icon width={24} height={24} />}
                   <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>

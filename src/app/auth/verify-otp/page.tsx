@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/form";
 
 // Import our validation schema and hook
-import { otpSchema, OtpFormData } from "@/lib/shc/auth";
+import { otpSchema, OtpFormData } from "@/lib/schema/auth";
 import { useVerifyOtp } from "@/hooks/useAuth";
 
 interface OTPRouteParams {
@@ -49,7 +49,7 @@ export default function VerifyOtpPage() {
       setEmail(pendingEmail);
     } else {
       // If no pending email, redirect to login
-      router.push("auth/login");
+      router.push("/");
     }
   }, [router]);
 
@@ -72,7 +72,7 @@ export default function VerifyOtpPage() {
     switch (from) {
       case "login":
         // Complete the login process
-        router.replace("/dashboard"); // or wherever users go after login
+        router.replace("/"); // or wherever users go after login
         break;
 
       case "forgot_password":

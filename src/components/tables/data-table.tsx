@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   useReactTable,
   ColumnFiltersState,
+  Row,
 } from "@tanstack/react-table";
 import {
   Table,
@@ -26,7 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
 
 interface FilterOption {
   value: string;
@@ -47,11 +48,13 @@ interface DataTableProps<TData, TValue> {
   filterConfigs?: FilterConfig[];
   enableGlobalSearch?: boolean;
   searchPlaceholder?: string;
+  onRowClick?: (row: Row<TData>) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onRowClick,
   enableFiltering = false,
   filterConfigs = [],
   enableGlobalSearch = false,
@@ -135,13 +138,13 @@ export function DataTable<TData, TValue>({
       {/* Filter Section */}
       {(enableFiltering || enableGlobalSearch) && (
         <div>
-          <div className="flex flex-wrap justify-between items-end gap-4">
+          <div className="flex flex-nowrap justify-between items-end gap-4">
             <div className="w-5/6 flex gap-4">
               {/* Global Search */}
               {enableGlobalSearch && (
                 <div className="flex flex-1 flex-col gap-2 items-start space-x-2">
                   <span className="text-sm font-medium whitespace-nowrap">
-                    Partner Name
+                    Search
                   </span>
                   <div className="w-full relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -196,11 +199,13 @@ export function DataTable<TData, TValue>({
                 </Button>
               )}
               <Button
+                className="py-4.5"
                 onClick={applyFilters}
-                className="uppercase"
-                variant="default"
+                variant="outline"
+                size="sm"
               >
                 Apply Filter
+                <Filter className="w-6 h-6" />
               </Button>
             </div>
           </div>
@@ -233,7 +238,7 @@ export function DataTable<TData, TValue>({
       {/* Table */}
       <div className="overflow-hidden rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -257,6 +262,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => onRowClick?.(row)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

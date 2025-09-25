@@ -12,7 +12,7 @@ export default function ProtectedLayout({
       <AppSidebar />
       <SidebarInset>
         <Header />
-        {children}
+        <div className="w-full mt-16">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );
