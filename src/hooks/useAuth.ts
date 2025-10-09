@@ -1,17 +1,49 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { authApi } from "@/lib/services/auth/auth";
+import {
+  login,
+  register,
+  forgotPassword,
+  verifyOtp,
+  logout,
+} from "@/lib/services/auth";
+import { ForgotPasswordResponse } from "@/lib/schema/auth";
+
+interface LoginInput {
+  email: string;
+  password: string;
+  remember_me: boolean;
+}
+
+type user = {
+  email: string;
+  last_login: string;
+  role: string;
+  username: string;
+};
+
+interface LoginResponse {
+  access_token: string;
+  message: string;
+  refresh_token: string;
+  status: string;
+  user: user;
+}
 
 // Login hook
 export function useLogin() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: authApi.login,
+  return useMutation<LoginResponse, Error, LoginInput>({
+    mutationFn: login,
     onSuccess: (response) => {
-      const { user, token, refreshToken } = response.data;
+      const {
+        user,
+        access_token: token,
+        refresh_token: refreshToken,
+      } = response;
 
       // Store tokens
       localStorage.setItem("authToken", token);
@@ -32,7 +64,7 @@ export function useLogin() {
       });
 
       // Redirect to dashboard
-      router.push("/dashboard");
+      router.push("/");
     },
     onError: (error: Error) => {
       console.error("Login failed:", error);
@@ -47,32 +79,32 @@ export function useLogin() {
 }
 
 // Register hook
-// export function useRegister() {
-//   const router = useRouter();
+export function useRegister() {
+  const router = useRouter();
 
-//   return useMutation({
-//     mutationFn: authApi.register,
-//     onSuccess: (response) => {
-//       toast.success('Registration successful! Please verify your email.');
+  return useMutation({
+    mutationFn: register,
+    onSuccess: (response) => {
+      toast.success("Registration successful! Please verify your email.");
 
-//       // Store email for OTP verification
-//       const email = response.data.user.email;
-//       sessionStorage.setItem('pendingVerificationEmail', email);
+      // Store email for OTP verification
+      const email = response.data.user.email;
+      sessionStorage.setItem("pendingVerificationEmail", email);
 
-//       // Redirect to OTP verification
-//       router.push('/verify-otp');
-//     },
-//     onError: (error: Error) => {
-//       console.error('Registration failed:', error);
-//       toast.error(error.message || 'Registration failed. Please try again.');
-//     },
-//   });
-// }
+      // Redirect to OTP verification
+      router.push("/verify-otp");
+    },
+    onError: (error: Error) => {
+      console.error("Registration failed:", error);
+      toast.error(error.message || "Registration failed. Please try again.");
+    },
+  });
+}
 
 // Forgot password hook
 export function useForgotPassword() {
-  return useMutation({
-    mutationFn: authApi.forgotPassword,
+  return useMutation<ForgotPasswordResponse, Error, string>({
+    mutationFn: forgotPassword,
     onSuccess: (response) => {
       toast(response.message || "Password reset email sent!", {
         action: {
@@ -99,7 +131,7 @@ export function useVerifyOtp() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: authApi.verifyOtp,
+    mutationFn: verifyOtp,
     onSuccess: (response) => {
       const { user, token, refreshToken } = response.data;
 
@@ -134,7 +166,7 @@ export function useLogout() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: authApi.logout,
+    mutationFn: logout,
     onSuccess: () => {
       // Clear tokens
       localStorage.removeItem("authToken");

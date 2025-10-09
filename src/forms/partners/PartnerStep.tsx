@@ -19,21 +19,10 @@ import {
 import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/hooks/useMutliStepForm";
+import { PartnerInfoData } from "@/lib/schema/partner-form.schema";
 
-interface PartnerFormData {
-  "commercial-registration"?: File;
-  type?: string;
-  "unified-number"?: string;
-  "payout-per-parcels"?: string;
-  "paymout-per-order"?: string;
-  currency?: string;
-  responsableInfo?: string;
-  bankAccountInfo?: string;
-}
-
-export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
+export const PartnerStep: React.FC<StepComponentProps<PartnerInfoData>> = ({
   form,
-  onNext,
   onBack,
   onSubmit,
   isFirstStep,
@@ -52,7 +41,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
         {/* Commercial Registration File Upload */}
         <FormField
           control={control}
-          name="commercial-registration"
+          name="commercialRegistration"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Commercial Registration</FormLabel>
@@ -66,6 +55,25 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               <FormDescription>
                 Upload your commercial registration document (PDF or image)
               </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="partnerName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Partner Name</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Enter name for this partner"
+                  autoComplete="off"
+                />
+              </FormControl>
+              <FormDescription>Your business registration name</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -112,7 +120,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
 
           <FormField
             control={control}
-            name="unified-number"
+            name="unifiedNumber"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Unified Number</FormLabel>
@@ -136,7 +144,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={control}
-            name="payout-per-parcels"
+            name="payoutPerParcels"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Payout Per Parcel</FormLabel>
@@ -157,32 +165,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
             )}
           />
 
-          <FormField
-            control={control}
-            name="paymout-per-order"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Payout Per Order</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    type="number"
-                    step="0.01"
-                    placeholder="0.00"
-                    autoComplete="off"
-                  />
-                </FormControl>
-                <FormDescription>
-                  Amount paid per order processed
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        {/* Currency Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Currency Selection */}
           <FormField
             control={control}
             name="currency"
@@ -191,9 +174,9 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                 <FormLabel>Currency</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value || "USD"}
+                  defaultValue={field.value || "SAR"}
                 >
-                  <FormControl>
+                  <FormControl className="w-full">
                     <SelectTrigger>
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
@@ -201,10 +184,8 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                   <SelectContent>
                     <SelectItem value="USD">US Dollar (USD)</SelectItem>
                     <SelectItem value="EUR">Euro (EUR)</SelectItem>
-                    <SelectItem value="GBP">British Pound (GBP)</SelectItem>
                     <SelectItem value="EGP">Egyptian Pound (EGP)</SelectItem>
                     <SelectItem value="SAR">Saudi Riyal (SAR)</SelectItem>
-                    <SelectItem value="AED">UAE Dirham (AED)</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormDescription>

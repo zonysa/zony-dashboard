@@ -35,17 +35,18 @@ export function LoginForm({
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      emailOrPhone: "test@example.com", // Pre-fill for testing
-      password: "password123", // Pre-fill for testing
-      rememberMe: false,
+      email: "admin@email.com",
+      password: "00000000",
+      rememberMe: true,
     },
   });
 
   const onSubmit = (data: LoginFormData) => {
-    loginMutation.mutate(data, {
-      onSuccess: () => {
-        router.replace("/auth/verify-otp");
-      },
+    // console.log("Hello");
+    loginMutation.mutate({
+      email: data.email,
+      password: data.password,
+      remember_me: data.rememberMe,
     });
   };
 
@@ -61,7 +62,7 @@ export function LoginForm({
               <FormField
                 // className="flex flex-col gap-6"
                 control={form.control}
-                name="emailOrPhone"
+                name="email"
                 render={({ field }) => (
                   <FormItem className="grid gap-3">
                     <FormLabel htmlFor="email" className="font-normal">
@@ -146,7 +147,11 @@ export function LoginForm({
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full mt-6 py-3.5">
+              <Button
+                disabled={loginMutation.isPending}
+                type="submit"
+                className="w-full mt-6 py-3.5"
+              >
                 {loginMutation.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

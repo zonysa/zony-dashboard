@@ -69,7 +69,7 @@ function Header() {
         );
       case "/courier":
         return (
-          <Button size="sm" onClick={() => router.push("/courier/create")}>
+          <Button onClick={() => router.push("/courier/create")}>
             Create Courier
           </Button>
         );

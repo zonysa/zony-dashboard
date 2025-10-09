@@ -36,6 +36,7 @@ export const useMultiStepForm = <T extends Record<string, any>>({
   onStepChange,
   persistState = false,
   storageKey = "multistep-form",
+  onComplete,
 }: UseMultiStepFormOptions<T>) => {
   // Initialize step from localStorage if persistState is enabled
   const getInitialStep = () => {
@@ -55,6 +56,7 @@ export const useMultiStepForm = <T extends Record<string, any>>({
   };
 
   const [currentStep, setCurrentStep] = useState(getInitialStep);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<T>({
     defaultValues: getInitialData(),
     mode: "onChange",
@@ -126,6 +128,22 @@ export const useMultiStepForm = <T extends Record<string, any>>({
         setCurrentStep(currentStep + 1);
       } else {
         console.log("Final submission ", data);
+        setIsSubmitting(true);
+
+        try {
+          if (onComplete) {
+            await onComplete(data);
+          }
+
+          if (persistState) {
+            clearPersistedData();
+          }
+        } catch (err) {
+          console.log("Error in onComplete:", err);
+          throw err;
+        } finally {
+          setIsSubmitting(false);
+        }
       }
     },
     [currentStep, steps.length]
@@ -140,6 +158,7 @@ export const useMultiStepForm = <T extends Record<string, any>>({
     currentStepConfig,
     form,
     steps,
+    isSubmitting,
 
     // Actions
     nextStep,

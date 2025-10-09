@@ -1,9 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 
-// Environment configuration
-const IS_MOCK_MODE = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Create axios instance
 export const apiClient: AxiosInstance = axios.create({

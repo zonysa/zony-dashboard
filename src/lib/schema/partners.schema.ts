@@ -18,17 +18,43 @@ export const partnerTypeSchema = z.enum([
   "logistics hub",
 ]);
 
+// Main Partner Schema
 export const partnerSchema = z.object({
   id: z.string(),
   name: z.string().min(1, "Partner name is required"),
   type: partnerTypeSchema,
-  city: z.string().min(1, "City is required"),
-  district: z.string().min(1, "District is required"),
-  pudos: z.number().min(0, "PUDOs must be positive"),
   status: partnerStatusSchema,
+  commercial_registration: z
+    .string()
+    .min(1, "Commercial registration is required"),
+  payout_per_parcel: z.coerce
+    .number()
+    .min(1, "Payout per parcel must be positive"),
+  currency: z.enum(["USD", "EUR", "EGP", "SAR"]),
+  unified_number: z.string().min(1, "Unified number is required"),
+  bank_name: z.string().min(1, "Bank name is required"),
+  bank_holder_name: z.string().min(1, "Bank holder name is required"),
+  bank_account_number: z.string().min(1, "Bank account number is required"),
+  IBAN: z.string().min(1, "IBAN is required"),
+  representative_id: z.string().uuid("Invalid representative ID"),
+
+  // Optional fields that might come from API
+  pudos: z.number().min(0, "PUDOs must be positive").optional(),
+  created_at: z.string().datetime().optional(),
+  updated_at: z.string().datetime().optional(),
 });
 
-// Request/Response schemas
+// Schema for creating partner (without id)
+export const createPartnerSchema = partnerSchema.omit({
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
+
+// Schema for updating partner (all fields optional except id)
+export const updatePartnerSchema = partnerSchema.omit({ id: true }).partial();
+
+// Partners Query Schema (for list/pagination)
 export const partnersQuerySchema = z.object({
   page: z.number().min(1).default(1),
   limit: z.number().min(1).max(100).default(50),
@@ -38,6 +64,7 @@ export const partnersQuerySchema = z.object({
   filters: z.record(z.string()).default({}),
 });
 
+// Partner Respone Schema
 export const partnersResponseSchema = z.object({
   data: z.array(partnerSchema),
   total: z.number(),
@@ -72,15 +99,15 @@ export interface PartnerStats {
 
 // Service interface
 export interface IPartnersService {
-  getPartners(params: PartnersQuery): Promise<PartnersResponse>;
-  getPartnerById(id: string): Promise<Partner>;
+  // getPartners(params: PartnersQuery): Promise<PartnersResponse>;
+  // getPartnerById(id: string): Promise<Partner>;
   createPartner(data: Omit<Partner, "id">): Promise<Partner>;
-  updatePartner(
-    id: string,
-    updates: Partial<Omit<Partner, "id">>
-  ): Promise<Partner>;
-  deletePartner(id: string): Promise<{ success: boolean; deletedId: string }>;
-  getFilterOptions(): Promise<PartnerFilterOptions>;
-  searchPartners(term: string, limit?: number): Promise<Partner[]>;
-  getStats(): Promise<PartnerStats>;
+  // updatePartner(
+  //   id: string,
+  //   updates: Partial<Omit<Partner, "id">>
+  // ): Promise<Partner>;
+  // deletePartner(id: string): Promise<{ success: boolean; deletedId: string }>;
+  // getFilterOptions(): Promise<PartnerFilterOptions>;
+  // searchPartners(term: string, limit?: number): Promise<Partner[]>;
+  // getStats(): Promise<PartnerStats>;
 }

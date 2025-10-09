@@ -20,16 +20,31 @@ export const passwordSchema = z
 
 // Login schema
 export const loginSchema = z.object({
-  emailOrPhone: z
+  email: emailSchema,
+  password: z.string().min(1, "Password is required"),
+  rememberMe: z.boolean().default(true),
+});
+
+// Register Schema
+export const registerSchema = z.object({
+  username: z
     .string()
-    .min(1, "Email or phone number is required")
-    .refine((value) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
-      return emailRegex.test(value) || phoneRegex.test(value);
-    }, "Please enter a valid email address or phone number"),
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must be less than 30 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone_number: z
+    .string()
+    .regex(/^[0-9]{10,15}$/, "Please enter a valid phone number"),
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-  rememberMe: z.boolean().default(false),
+  role_id: z
+    .number({
+      error: "Role is required",
+    })
+    .int()
+    .min(1, "Invalid role")
+    .max(7, "Invalid role"),
 });
 
 // Forgot password schema
@@ -58,7 +73,13 @@ export const otpSchema = z.object({
   email: z.string().email().optional(),
 });
 
+export interface ForgotPasswordResponse {
+  message: string;
+  success: boolean;
+}
+
 export type LoginFormData = z.infer<typeof loginSchema>;
+export type RegisterFormData = z.infer<typeof registerSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type OtpFormData = z.infer<typeof otpSchema>;

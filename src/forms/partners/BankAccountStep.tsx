@@ -27,28 +27,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-
-interface BankAccountFormData {
-  "bank-name"?: string;
-  "account-holder-name"?: string;
-  "account-number"?: string;
-  iban?: string;
-  "swift-code"?: string;
-  "bank-branch"?: string;
-  "account-type"?: string;
-  "bank-statement"?: File;
-  "confirm-details"?: boolean;
-  "terms-accepted"?: boolean;
-}
+import { BankAccountInfoData } from "@/lib/schema/partner-form.schema";
 
 export const BankAccountStep: React.FC<
-  StepComponentProps<BankAccountFormData>
+  StepComponentProps<BankAccountInfoData>
 > = ({ form, onNext, onBack, onSubmit, isFirstStep, isLastStep }) => {
   const { control, watch } = form;
 
   // Watch form values for validation
-  const confirmDetails = watch("confirm-details");
-  const termsAccepted = watch("terms-accepted");
+  // const confirmDetails = watch("confirmDetails");
+  // const termsAccepted = watch("termsAccepted");
 
   return (
     <Form {...form}>
@@ -64,7 +52,7 @@ export const BankAccountStep: React.FC<
           <CardContent>
             <FormField
               control={control}
-              name="bank-statement"
+              name="bankStatement"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Bank Statement</FormLabel>
@@ -97,7 +85,7 @@ export const BankAccountStep: React.FC<
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={control}
-                name="bank-name"
+                name="bankName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Bank Name</FormLabel>
@@ -135,7 +123,7 @@ export const BankAccountStep: React.FC<
 
               <FormField
                 control={control}
-                name="account-holder-name"
+                name="accountHolderName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Account Holder Name</FormLabel>
@@ -158,7 +146,7 @@ export const BankAccountStep: React.FC<
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={control}
-                name="account-number"
+                name="accountNumber"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Account Number</FormLabel>
@@ -173,46 +161,12 @@ export const BankAccountStep: React.FC<
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={control}
-                name="account-type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl className="w-full">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select account type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="checking">
-                          Checking Account
-                        </SelectItem>
-                        <SelectItem value="savings">Savings Account</SelectItem>
-                        <SelectItem value="business">
-                          Business Account
-                        </SelectItem>
-                        <SelectItem value="current">Current Account</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={control}
                 name="iban"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>IBAN (Optional)</FormLabel>
+                    <FormLabel>IBAN</FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -227,49 +181,7 @@ export const BankAccountStep: React.FC<
                   </FormItem>
                 )}
               />
-
-              <FormField
-                control={control}
-                name="swift-code"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>SWIFT/BIC Code (Optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Enter SWIFT code"
-                        autoComplete="off"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      For international transfers
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
-
-            <FormField
-              control={control}
-              name="bank-branch"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Bank Branch</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="Enter branch name or address"
-                      autoComplete="off"
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Branch where the account is held
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </CardContent>
         </Card>
 
@@ -284,7 +196,7 @@ export const BankAccountStep: React.FC<
           <CardContent className="space-y-4">
             <FormField
               control={control}
-              name="confirm-details"
+              name="confirmDetails"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
@@ -308,7 +220,7 @@ export const BankAccountStep: React.FC<
 
             <FormField
               control={control}
-              name="terms-accepted"
+              name="termsAccepted"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                   <FormControl>
