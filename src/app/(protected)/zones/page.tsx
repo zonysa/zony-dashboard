@@ -3,28 +3,31 @@
 import { DataTable } from "@/components/tables/data-table";
 import React from "react";
 import { columns } from "@/components/tables/columns/zones-columns";
-import { mockZones as data } from "@/lib/data/mocks/zones.mock";
 import { useRouter } from "next/navigation";
 import { Row } from "@tanstack/react-table";
-import { Zone } from "@/lib/schema/zones.schema";
+import { ZoneTable } from "@/lib/schema/zones.schema";
+import { useGetZones } from "@/lib/hooks/useZone";
 
-function page() {
-  const router = useRouter();
+export default function Page() {
+  const { data: zones } = useGetZones();
 
   const filterConfigs = [
     { key: "city", label: "City", placeholder: "All Cities" },
+    { key: "district", label: "district", placeholder: "All Districts" },
+    { key: "supervisor", label: "Supervisor", placeholder: "All Supervisor" },
   ];
 
-  const handleRowClick = (row: Row<Zone>) => {
+  const router = useRouter();
+  const handleRowClick = (row: Row<ZoneTable>) => {
     const zoneId = row.getValue("zoneId") as string;
     router.replace(`/zones/${zoneId}`);
   };
 
   return (
-    <div className="container mx-auto py-10 px-6">
+    <div className="py-10 px-6">
       <DataTable
         columns={columns}
-        data={data}
+        data={zones ? zones.zones : []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
@@ -34,5 +37,3 @@ function page() {
     </div>
   );
 }
-
-export default page;

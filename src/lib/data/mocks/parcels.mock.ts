@@ -1,4 +1,4 @@
-import { Parcel } from "@/lib/schema/parcels.schema";
+import { Parcel } from "@/lib/schema/parcel.schema";
 
 export const mockParcels: Parcel[] = [
   {

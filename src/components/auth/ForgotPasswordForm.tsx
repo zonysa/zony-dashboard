@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useForgotPassword } from "@/hooks/useAuth";
+import { useForgotPassword } from "@/lib/hooks/useAuth";
 import { ForgotPasswordFormData, forgotPasswordSchema } from "@/lib/shc/auth";
 import { useRouter } from "next/navigation";
 

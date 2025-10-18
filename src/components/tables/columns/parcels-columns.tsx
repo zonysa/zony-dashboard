@@ -1,61 +1,55 @@
 "use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Parcel } from "@/lib/schema/parcels.schema";
+import { ParcelTable } from "@/lib/schema/parcel.schema";
 
-export const columns: ColumnDef<Parcel>[] = [
+export const columns: ColumnDef<ParcelTable>[] = [
   {
-    accessorKey: "trackingNumber",
-    header: "TN",
+    accessorKey: "tracking_number",
+    header: "Tracking Number",
     cell: ({ row }) => {
-      const trackingNumber = row.getValue("trackingNumber") as string;
-      return <div className="font-mono text-sm">{trackingNumber}</div>;
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "pudoId",
-    header: "PUDO ID",
-    cell: ({ row }) => {
-      const pudoId = row.getValue("pudoId") as string;
+      const pudoId = row.getValue("tracking_number") as string;
       return <div className="font-mono text-sm">{pudoId}</div>;
     },
     filterFn: "includesString",
   },
   {
-    accessorKey: "courierId",
+    accessorKey: "courier_id",
     header: "Coureir ID",
     cell: ({ row }) => {
-      const courierId = row.getValue("courierId") as string;
+      const courierId = row.getValue("courier_id") as string;
       return <div className="font-mono text-sm">{courierId}</div>;
     },
     filterFn: "includesString",
   },
   {
-    accessorKey: "city",
+    accessorKey: "city_name",
     header: "City",
     cell: ({ row }) => {
-      const city = row.getValue("city") as string;
+      const city = row.getValue("city_name") as string;
       return <div className="font-medium capitalize">{city}</div>;
     },
     filterFn: "equalsString",
   },
   {
-    accessorKey: "zone",
+    accessorKey: "zone_name",
     header: "Zone",
     cell: ({ row }) => {
-      const zone = row.getValue("zone") as string;
+      const zone = row.getValue("zone_name") as string;
       return <div className="text-sm">{zone}</div>;
     },
     filterFn: "includesString",
   },
   {
-    accessorKey: "receivingDate",
+    accessorKey: "receiving_date",
     header: "Receiving Date",
     cell: ({ row }) => {
-      const receivingDate = row.getValue("receivingDate") as Date;
+      const receivingDate = row.getValue("receiving_date") as Date;
       return (
-        <div className="text-sm">{receivingDate.toLocaleDateString()}</div>
+        <div className="text-sm">
+          {receivingDate ? receivingDate.toString() : "NA"}
+        </div>
       );
     },
   },
@@ -85,10 +79,10 @@ export const columns: ColumnDef<Parcel>[] = [
     filterFn: "equalsString",
   },
   {
-    accessorKey: "client",
+    accessorKey: "client_name",
     header: "Client",
     cell: ({ row }) => {
-      const client = row.getValue("client") as string;
+      const client = row.getValue("client_name") as string;
       return <div className="font-medium">{client}</div>;
     },
     filterFn: "includesString",

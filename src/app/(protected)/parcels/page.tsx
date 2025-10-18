@@ -2,34 +2,36 @@
 
 import { columns } from "@/components/tables/columns/parcels-columns";
 import { DataTable } from "@/components/tables/data-table";
-import { mockParcels as data } from "@/lib/data/mocks/parcels.mock";
-import { Parcel } from "@/lib/schema/parcels.schema";
+import { useGetParcels } from "@/lib/hooks/useParcel";
+import { ParcelTable } from "@/lib/schema/parcel.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const { data: parcels } = useGetParcels();
+
   const filterConfigs = [
     { key: "date", label: "Date", placeholder: "Date" },
-    { key: "client", label: "Client", placeholder: "All Clients" },
-    { key: "city", label: "City", placeholder: "All Cities" },
-    { key: "zone", label: "Zone", placeholder: "All Zones" },
+    { key: "client_name", label: "Client", placeholder: "All Clients" },
+    { key: "city_name", label: "City", placeholder: "All Cities" },
+    { key: "zone_name", label: "Zone", placeholder: "All Zones" },
   ];
 
   const router = useRouter();
-  const handleRowClick = (row: Row<Parcel>) => {
-    const zoneId = row.getValue("TN") as string;
+  const handleRowClick = (row: Row<ParcelTable>) => {
+    const zoneId = row.getValue("tn") as string;
     router.replace(`/parcels/${zoneId}`);
   };
 
   return (
-    <div className="container mx-auto py-10 px-6">
+    <div className="py-10 px-6">
       <DataTable
         columns={columns}
-        data={data}
+        data={parcels?.parcels || []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
-        searchPlaceholder="Search partners..."
+        searchPlaceholder="Search parcels..."
         onRowClick={handleRowClick}
       />
     </div>

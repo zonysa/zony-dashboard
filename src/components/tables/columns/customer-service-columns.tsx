@@ -1,7 +1,7 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { CustomerServiceProps } from "@/lib/schema/customer-services.schema";
+import { CustomerServiceProps } from "@/lib/schema/customer-service.schema";
 
 export const columns: ColumnDef<CustomerServiceProps>[] = [
   {

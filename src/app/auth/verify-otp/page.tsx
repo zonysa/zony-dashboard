@@ -25,8 +25,8 @@ import {
 } from "@/components/ui/form";
 
 // Import our validation schema and hook
-import { otpSchema, OtpFormData } from "@/lib/schema/auth";
-import { useVerifyOtp } from "@/hooks/useAuth";
+import { otpSchema, OtpFormData } from "@/lib/schema/auth.schema";
+import { useVerifyOtp } from "@/lib/hooks/useAuth";
 
 interface OTPRouteParams {
   email: string;

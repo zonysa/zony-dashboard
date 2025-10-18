@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Form,
   FormControl,
@@ -12,25 +12,16 @@ import { Input } from "@/components/ui/input";
 
 import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
-import { StepComponentProps } from "@/hooks/useMutliStepForm";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-interface ResponsiblePersonFormData {
-  "full-name"?: string;
-  "phone-number"?: string;
-  "identity-document"?: File;
-}
+import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
+import { ResponsiblData } from "@/lib/schema/branch.schema";
+import { Button } from "@/components/ui/button";
+import { Eye, EyeOff } from "lucide-react";
 
 export const ResponsiblePersonStep: React.FC<
-  StepComponentProps<ResponsiblePersonFormData>
+  StepComponentProps<ResponsiblData>
 > = ({ form, onNext, onBack, onSubmit, isFirstStep, isLastStep }) => {
   const { control } = form;
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
     <Form {...form}>
@@ -38,19 +29,58 @@ export const ResponsiblePersonStep: React.FC<
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={control}
-            name="full-name"
+            name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel>First Name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder="Enter Full Name"
-                    autoComplete="name"
+                    placeholder="Enter first name"
+                    autoComplete="fistName"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="lastName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter last name"
+                    autoComplete="lastName"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email Address</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    type="email"
+                    placeholder="Enter email address"
+                    autoComplete="email"
                   />
                 </FormControl>
                 <FormDescription>
-                  Legal name of the responsible person
+                  Primary contact email for the responsible person
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -59,7 +89,7 @@ export const ResponsiblePersonStep: React.FC<
 
           <FormField
             control={control}
-            name="phone-number"
+            name="phoneNumber"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
@@ -67,13 +97,69 @@ export const ResponsiblePersonStep: React.FC<
                   <Input
                     {...field}
                     type="tel"
-                    placeholder="Enter Phone Number"
+                    placeholder="Enter phone number"
                     autoComplete="tel"
                   />
                 </FormControl>
                 <FormDescription>
-                  Contact number for urgent communications
+                  Include country code (e.g., +20 123 456 7890)
                 </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Username</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="Enter first name"
+                    autoComplete="given-name"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="grid">
+                <FormLabel htmlFor="password" className="font-normal">
+                  Password
+                </FormLabel>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Enter Password"
+                      // disabled={loginMutation.isPending}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -83,7 +169,7 @@ export const ResponsiblePersonStep: React.FC<
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
         <FormField
           control={control}
-          name="identity-document"
+          name="identityDocument"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Identity (Optional)</FormLabel>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Branch } from "@/lib/types/branches.types";
+import { BranchTable } from "@/lib/schema/branch.schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { Circle } from "lucide-react";
 
@@ -30,23 +30,25 @@ const getUsageClasses = (usage: number) => {
   }
 };
 
-export const branchColumns: ColumnDef<Branch>[] = [
+export const branchColumns: ColumnDef<BranchTable>[] = [
   {
-    accessorKey: "partnerName",
-    header: "Partner Name",
+    accessorKey: "id",
+    header: "ID",
     filterFn: "includesString",
     cell: ({ row }) => {
-      const partnerName = row.getValue("partnerName") as string;
-      return <div className="font-medium">{partnerName}</div>;
+      const pudoId = row.getValue("id") as string;
+      return <div className="font-mono text-sm">{pudoId}</div>;
     },
   },
   {
-    accessorKey: "pudoId",
-    header: "PUDO ID",
+    accessorKey: "name",
+    header: "Branch Name",
     filterFn: "includesString",
     cell: ({ row }) => {
-      const pudoId = row.getValue("pudoId") as string;
-      return <div className="font-mono text-sm">{pudoId}</div>;
+      const branchName = row.getValue("name") as string;
+      return (
+        <div className="font-medium">{branchName ? branchName : "NA"}</div>
+      );
     },
   },
   {
@@ -54,7 +56,7 @@ export const branchColumns: ColumnDef<Branch>[] = [
     header: "City",
     cell: ({ row }) => {
       const city = row.getValue("city") as string;
-      return <div className="font-medium">{city}</div>;
+      return <div className="font-medium">{city ? city : "NA"}</div>;
     },
     filterFn: "equalsString",
   },
@@ -63,7 +65,7 @@ export const branchColumns: ColumnDef<Branch>[] = [
     header: "Zone",
     cell: ({ row }) => {
       const zone = row.getValue("zone") as string;
-      return <div className="text-center font-medium">{zone}</div>;
+      return <div className="font-medium">{zone ? zone : "NA"}</div>;
     },
     filterFn: "equalsString",
   },
@@ -72,7 +74,11 @@ export const branchColumns: ColumnDef<Branch>[] = [
     header: "Districts",
     cell: ({ row }) => {
       const district = row.getValue("district") as string;
-      return <div className="capitalize">{district}</div>;
+      return (
+        <div className="capitalize font-medium">
+          {district ? district : "NA"}
+        </div>
+      );
     },
     filterFn: "equalsString",
   },
@@ -82,8 +88,8 @@ export const branchColumns: ColumnDef<Branch>[] = [
     cell: ({ row }) => {
       const totalParcels = row.getValue("totalParcels") as number;
       return (
-        <div className="text-center font-medium text-orange-600">
-          {totalParcels.toLocaleString()}
+        <div className="font-medium text-orange-600">
+          {totalParcels ? totalParcels.toLocaleString() : "NA"}
         </div>
       );
     },
@@ -93,7 +99,9 @@ export const branchColumns: ColumnDef<Branch>[] = [
     header: "Supervisor",
     cell: ({ row }) => {
       const supervisor = row.getValue("supervisor") as string;
-      return <div className="font-medium">{supervisor}</div>;
+      return (
+        <div className="font-medium">{supervisor ? supervisor : "NA"}</div>
+      );
     },
     filterFn: "includesString",
   },
@@ -116,7 +124,7 @@ export const branchColumns: ColumnDef<Branch>[] = [
       return (
         <Badge variant="outline" className={classes.text}>
           <Circle className={`w-2 h-2 text-transparent fill ${classes.fill}`} />
-          {pointUsage}%
+          {pointUsage ? pointUsage : 20}%
         </Badge>
       );
     },

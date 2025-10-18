@@ -13,18 +13,56 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter, usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { BellDot, Plus } from "lucide-react";
-import { useState } from "react";
+import { BellDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CreateZone } from "@/forms/CreateZone";
+import { LocationDropDown } from "./ui/LocatoinDropdown";
+
+interface BreadcrumbSegment {
+  label: string;
+  href: string;
+  isLast: boolean;
+}
 
 function Header() {
-  const [openCreateZone, setOpenCreateZone] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  const formatPathname = (path: string) => {
-    return path.replace(/^\//, "").charAt(0).toUpperCase() + path.slice(2);
+  // Generate breadcrumb segments from pathname
+  const getBreadcrumbSegments = (): BreadcrumbSegment[] => {
+    const segments = pathname.split("/").filter(Boolean);
+
+    const breadcrumbs: BreadcrumbSegment[] = [
+      { label: "Home", href: "/", isLast: segments.length === 0 },
+    ];
+
+    segments.forEach((segment, index) => {
+      const href = "/" + segments.slice(0, index + 1).join("/");
+      const label = formatSegment(segment);
+      const isLast = index === segments.length - 1;
+
+      breadcrumbs.push({ label, href, isLast });
+    });
+
+    return breadcrumbs;
+  };
+
+  const formatSegment = (segment: string): string => {
+    // Handle special cases
+    const specialCases: Record<string, string> = {
+      pudos: "Branches",
+      "customer-service": "Customer Service",
+      create: "Create New",
+    };
+
+    if (specialCases[segment]) {
+      return specialCases[segment];
+    }
+
+    // Default formatting: capitalize first letter and replace hyphens
+    return segment
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const getHeaderButton = () => {
@@ -74,25 +112,16 @@ function Header() {
           </Button>
         );
       case "/zones":
-        return (
-          <div>
-            <Button size="sm" onClick={() => setOpenCreateZone(true)}>
-              Create Zone
-              <Plus />
-            </Button>
-            <CreateZone
-              open={openCreateZone}
-              onOpenChange={setOpenCreateZone}
-            />
-          </div>
-        );
+        return <LocationDropDown />;
       default:
         return null;
     }
   };
 
+  const breadcrumbSegments = getBreadcrumbSegments();
+
   return (
-    <header className="fixed w-[90%] top-0 z-40 pe-32 ps-6 bg-background/95 backdrblur supports-[backdropop--filter]:bg-background/60 flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:w-12/12 group-has-data-[collapsible=icon]/sidebar-wrapper:pe-12 border-b border-border">
+    <header className="fixed w-[90%] top-0 z-40 pe-32 ps-6 bg-background/95 backdrblur supports-[backdropop--filter]:bg-background/60 flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:w-12/12 group-has-data-[collapsible=icon]/sidebar-wrapper:pe-12 border-b border-border">
       <SidebarTrigger className="-ml-1" />
       <Separator
         orientation="vertical"
@@ -101,15 +130,23 @@ function Header() {
       <div className="w-full flex justify-between items-center gap-2 px-4">
         <Breadcrumb className="flex justify-start gap-2 items-start">
           <BreadcrumbList>
-            <BreadcrumbItem className="hidden md:block">
-              <BreadcrumbLink href="#">
-                {formatPathname(pathname)}
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator className="hidden md:block" />
-            <BreadcrumbItem>
-              <BreadcrumbPage></BreadcrumbPage>
-            </BreadcrumbItem>
+            {breadcrumbSegments.map((segment, index) => (
+              <React.Fragment key={segment.href}>
+                <BreadcrumbItem>
+                  {segment.isLast ? (
+                    <BreadcrumbPage>{segment.label}</BreadcrumbPage>
+                  ) : (
+                    <BreadcrumbLink
+                      href={segment.href}
+                      className="cursor-pointer hover:text-foreground transition-colors"
+                    >
+                      {segment.label}
+                    </BreadcrumbLink>
+                  )}
+                </BreadcrumbItem>
+                {!segment.isLast && <BreadcrumbSeparator />}
+              </React.Fragment>
+            ))}
           </BreadcrumbList>
         </Breadcrumb>
         <div className="w-auto flex justify-end items-center gap-3">

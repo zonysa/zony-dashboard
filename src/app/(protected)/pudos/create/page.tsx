@@ -1,22 +1,41 @@
 "use client";
 
 import { MultiStepForm } from "@/forms/MultiStepForm";
-import { PUDOInfoStep } from "@/forms/pudo/PUDOInfoStep";
 import { ResponsiblePersonStep } from "@/forms/pudo/ResponsibleStep";
 import { OperatingHoursStep } from "@/forms/pudo/OperatingHours";
-import { useMultiStepForm } from "@/hooks/useMutliStepForm";
-import { PUDOFormData } from "@/lib/schema/pudo-form.schema";
+import { useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
+import { BranchInfoStep } from "@/forms/pudo/BranchInfoStep";
+import { BranchFormData } from "@/lib/schema/branch.schema";
 
 export default function Page() {
   const formSteps = [
     {
-      id: "pudo-info",
+      id: "responsible",
+      title: "Responsible Person",
+      description: "Person responsible for this PUDO location",
+      component: ResponsiblePersonStep,
+      validation: async (data: BranchFormData) => {
+        // Validate responsible person fields
+        if (!data["email"]) {
+          console.log("Email is required");
+          return false;
+        }
+        if (!data["phoneNumber"]) {
+          console.log("Phone number is required");
+          return false;
+        }
+        // Identity document is optional, so no validation needed
+        return true;
+      },
+    },
+    {
+      id: "pudoInfo",
       title: "PUDO Info",
       description: "PUDO location and branch details",
-      component: PUDOInfoStep,
-      validation: async (data: PUDOFormData) => {
+      component: BranchInfoStep,
+      validation: async (data: BranchFormData) => {
         // Validate PUDO info fields
-        if (!data["branch-name"]) {
+        if (!data["branchName"]) {
           console.log("Branch name is required");
           return false;
         }
@@ -32,38 +51,20 @@ export default function Page() {
           console.log("Zone is required");
           return false;
         }
-        if (!data["short-address"]) {
+        if (!data["address"]) {
           console.log("Address is required");
           return false;
         }
         return true;
       },
     },
+
     {
-      id: "responsible-person",
-      title: "Responsible Person",
-      description: "Person responsible for this PUDO location",
-      component: ResponsiblePersonStep,
-      validation: async (data: PUDOFormData) => {
-        // Validate responsible person fields
-        if (!data["full-name"]) {
-          console.log("Full name is required");
-          return false;
-        }
-        if (!data["phone-number"]) {
-          console.log("Phone number is required");
-          return false;
-        }
-        // Identity document is optional, so no validation needed
-        return true;
-      },
-    },
-    {
-      id: "operating-hours",
+      id: "operatingHours",
       title: "Operating Hours",
       description: "Set your PUDO location operating hours",
       component: OperatingHoursStep,
-      validation: async (data: PUDOFormData) => {
+      validation: async (data: BranchFormData) => {
         // Operating hours validation
         // If 24/7 is selected, no other validation needed
         if (data["24-7"]) {
@@ -71,7 +72,7 @@ export default function Page() {
         }
 
         // Check if at least one day has operating hours set
-        const operatingHours = data["operating-hours"];
+        const operatingHours = data["operatingHours"];
         if (!operatingHours) {
           console.log("Operating hours must be configured");
           return false;
@@ -101,17 +102,14 @@ export default function Page() {
     },
   ];
 
-  const multiStep = useMultiStepForm<PUDOFormData>({
+  const multiStep = useMultiStepForm<BranchFormData>({
     steps: formSteps,
     defaultValues: {
       // Set default values for the form
-      "establishment-type": "",
       city: "",
       district: "",
       zone: "",
-      "account-type": "",
-      "bank-name": "",
-      "same-hours-everyday": false,
+      sameHoursEveryday: false,
       "24-7": false,
       "confirm-details": false,
       "terms-accepted": false,
@@ -165,18 +163,6 @@ export default function Page() {
 
       // Here you would typically send the data to your API
       try {
-        // Example API call:
-        // const response = await fetch("/api/pudo/register", {
-        //   method: "POST",
-        //   headers: { "Content-Type": "application/json" },
-        //   body: JSON.stringify(data),
-        // });
-        //
-        // if (response.ok) {
-        //   // Handle success - redirect or show success message
-        //   console.log("Registration successful!");
-        // }
-
         // For now, just log the data
         console.log("Form data to submit:", data);
 

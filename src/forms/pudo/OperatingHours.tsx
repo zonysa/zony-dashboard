@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StepNavigation } from "@/forms/StepNavigation";
-import { StepComponentProps } from "@/hooks/useMutliStepForm";
+import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import {
   Card,
   CardContent,

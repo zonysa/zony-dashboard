@@ -84,6 +84,8 @@ export function DataTable<TData, TValue>({
 
   // Extract unique values for filter options if not provided
   const getUniqueValues = (key: string): FilterOption[] => {
+    if (!data || data.length === 0) return [];
+
     const values = Array.from(new Set(data.map((item: any) => item[key])))
       .filter(Boolean)
       .sort();
@@ -262,6 +264,7 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer"
                   onClick={() => onRowClick?.(row)}
                 >
                   {row.getVisibleCells().map((cell) => (

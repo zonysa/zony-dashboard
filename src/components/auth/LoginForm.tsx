@@ -17,16 +17,16 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useLogin } from "@/hooks/useAuth";
-import { LoginFormData, loginSchema } from "@/lib/schema/auth";
+import { useLogin } from "@/lib/hooks/useAuth";
+import { LoginFormData, loginSchema } from "@/lib/schema/auth.schema";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
+  // const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
 
   // Use our mock-enabled hook
@@ -42,7 +42,6 @@ export function LoginForm({
   });
 
   const onSubmit = (data: LoginFormData) => {
-    // console.log("Hello");
     loginMutation.mutate({
       email: data.email,
       password: data.password,

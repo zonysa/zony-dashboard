@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { StepConfig } from "@/hooks/useMutliStepForm";
+import { StepConfig } from "@/lib/hooks/useMutliStepForm";
 import { ProgressBar } from "./ProgressBar";
 
 interface MultiStepFormProps<T> {

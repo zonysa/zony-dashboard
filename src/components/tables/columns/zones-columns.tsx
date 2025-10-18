@@ -1,16 +1,15 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Zone } from "@/lib/schema/zones.schema";
-import { useRouter } from "next/navigation";
+import { ZoneRes } from "@/lib/schema/zones.schema";
 
-export const columns: ColumnDef<Zone>[] = [
+export const columns: ColumnDef<ZoneRes>[] = [
   {
-    accessorKey: "zoneId",
+    accessorKey: "id",
     header: "Zone ID",
     cell: ({ row }) => {
-      const zoneId = row.getValue("zoneId") as string;
-      return <div className="font-mono text-sm">{zoneId}</div>;
+      const id = row.getValue("id") as string;
+      return <div className="font-mono text-sm">{id}</div>;
     },
     filterFn: "includesString",
   },
@@ -19,35 +18,43 @@ export const columns: ColumnDef<Zone>[] = [
     header: "City",
     cell: ({ row }) => {
       const city = row.getValue("city") as string;
-      return <div className="font-medium">{city}</div>;
+      return <div className="font-medium">{city ? city : "NA"}</div>;
     },
     filterFn: "equalsString",
   },
   {
-    accessorKey: "districts",
+    accessorKey: "district",
     header: "Districts",
     cell: ({ row }) => {
-      const districts = row.getValue("districts") as string;
-      return <div className="capitalize">{districts}</div>;
+      const districts = row.getValue("district");
+      return (
+        <div className="capitalize">
+          {districts ? districts.map((d) => <span>{d}</span>) : "NA"}
+        </div>
+      );
     },
     filterFn: "includesString",
   },
   {
-    accessorKey: "pudoPoints",
+    accessorKey: "totalPudos",
     header: "PUDO Points",
     cell: ({ row }) => {
-      const pudoPoints = row.getValue("pudoPoints") as number;
-      return <div className="text-center font-medium">{pudoPoints}</div>;
+      const totPudos = row.getValue("totalPudos") as number;
+      return (
+        <div className="text-center font-medium">
+          {totPudos ? totPudos.toLocalString() : "NA"}
+        </div>
+      );
     },
   },
   {
-    accessorKey: "parcels",
+    accessorKey: "totalParcels",
     header: "Parcels",
     cell: ({ row }) => {
-      const parcels = row.getValue("parcels") as number;
+      const parcels = row.getValue("totalParcels") as number;
       return (
         <div className="text-center font-medium">
-          {parcels.toLocaleString()}
+          {parcels ? parcels.toLocaleString() : "NA"}
         </div>
       );
     },
@@ -57,7 +64,9 @@ export const columns: ColumnDef<Zone>[] = [
     header: "Supervisor",
     cell: ({ row }) => {
       const supervisor = row.getValue("supervisor") as string;
-      return <div className="font-medium">{supervisor}</div>;
+      return (
+        <div className="font-medium">{supervisor ? supervisor : "NA"}</div>
+      );
     },
     filterFn: "includesString",
   },

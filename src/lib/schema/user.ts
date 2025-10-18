@@ -1,6 +1,6 @@
 // lib/validations/user.ts - User-related schemas
 import { z } from "zod";
-import { emailSchema, phoneSchema } from "./auth";
+import { emailSchema, phoneSchema } from "./auth.schema";
 
 // Profile update schema
 export const profileUpdateSchema = z.object({

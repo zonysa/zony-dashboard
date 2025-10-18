@@ -4,9 +4,7 @@ import { mockCustomerService as data } from "@/lib/data/mocks/customer-service.m
 
 export default async function Page() {
   const filterConfigs = [
-    { key: "date", label: "Date", placeholder: "Date" },
-    { key: "action-taken", label: "Action Taken", placeholder: "All Actions" },
-    { key: "rating", label: "Rating", placeholder: "All Ratings" },
+    { key: "status", label: "Status", placeholder: "Choose Status" },
   ];
   return (
     <div className="w-full py-10 px-6">

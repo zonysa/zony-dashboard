@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ReactQueryProvider } from "@/provider/reactQueryProvidor";
+import { Toaster } from "sonner";
 
 const poppins = localFont({
   src: [
@@ -42,7 +43,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} antialiased`}>
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <ReactQueryProvider>
+          <Toaster position="top-center" richColors />
+          {children}
+        </ReactQueryProvider>
       </body>
     </html>
   );

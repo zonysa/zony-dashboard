@@ -1,6 +1,6 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { StepConfig } from "@/hooks/useMutliStepForm";
+import { StepConfig } from "@/lib/hooks/useMutliStepForm";
 
 interface ProgressBarProps {
   steps: StepConfig[];

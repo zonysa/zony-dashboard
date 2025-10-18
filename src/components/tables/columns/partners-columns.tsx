@@ -2,9 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge"; // Adjust import path as needed
-import { Partner } from "@/lib/schema/partners.schema";
+import { table } from "@/lib/schema/partner.schema";
 
-export const columns: ColumnDef<Partner>[] = [
+export const columns: ColumnDef<table>[] = [
   {
     accessorKey: "name",
     header: "Partner",
@@ -20,29 +20,12 @@ export const columns: ColumnDef<Partner>[] = [
     filterFn: "equalsString",
   },
   {
-    accessorKey: "city",
-    header: "City",
-    cell: ({ row }) => {
-      const city = row.getValue("city") as string;
-      return <div className="font-medium">{city}</div>;
-    },
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "district",
-    header: "District",
-    cell: ({ row }) => {
-      const district = row.getValue("district") as string;
-      return <div className="capitalize">{district}</div>;
-    },
-    filterFn: "equalsString",
-  },
-  {
     accessorKey: "pudos",
     header: "PUDOs",
     cell: ({ row }) => {
-      const pudos = row.getValue("pudos") as number;
-      return <div className="text-center font-medium">{pudos}</div>;
+      // const pudos = row.getValue("pudos") as number;
+      // return <div className="text-center font-medium">{pudos}</div>;
+      return <div className="text-center font-medium">15</div>;
     },
   },
   {
