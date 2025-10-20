@@ -19,8 +19,8 @@ export default function Page() {
 
   const router = useRouter();
   const handleRowClick = (row: Row<ParcelTable>) => {
-    const zoneId = row.getValue("tn") as string;
-    router.replace(`/parcels/${zoneId}`);
+    const parcelId = row.getValue("tn") as string;
+    router.replace(`/parcels/4`);
   };
 
   return (

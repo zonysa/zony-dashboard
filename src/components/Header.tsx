@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { BellDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LocationDropDown } from "./ui/LocatoinDropdown";
+import CreateParcelSheet from "./CreateParcelDiaglog";
 
 interface BreadcrumbSegment {
   label: string;
@@ -65,6 +66,10 @@ function Header() {
       .join(" ");
   };
 
+  const handleNavigateProfile = () => {
+    router.push("/profile");
+  };
+
   const getHeaderButton = () => {
     switch (pathname) {
       case "/partners":
@@ -85,11 +90,8 @@ function Header() {
         );
 
       case "/parcels":
-        return (
-          <Button size="sm" onClick={() => router.push("/parcles/create")}>
-            Create Parcel
-          </Button>
-        );
+        return <CreateParcelSheet />;
+
       case "/supervisors":
         return (
           <Button size="sm" onClick={() => router.push("/supervisors/create")}>
@@ -117,7 +119,6 @@ function Header() {
         return null;
     }
   };
-
   const breadcrumbSegments = getBreadcrumbSegments();
 
   return (
@@ -152,7 +153,10 @@ function Header() {
         <div className="w-auto flex justify-end items-center gap-3">
           {getHeaderButton()}
           <BellDot width={22} height={22} />
-          <Avatar className="circle border border-gray-800 w-[34px] h-[34px]">
+          <Avatar
+            onClick={handleNavigateProfile}
+            className="circle border border-gray-800 w-[34px] h-[34px] cursor-pointer"
+          >
             <AvatarImage alt="@evilrabbit" />
             <AvatarFallback className="text-[12px]">ER</AvatarFallback>
           </Avatar>

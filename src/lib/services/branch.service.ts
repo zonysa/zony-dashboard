@@ -24,3 +24,39 @@ export const getBranches = async (filters: BranchFilterOptions) => {
     url: `/pudos${params.toString() ? `?${params.toString()}` : ""}`,
   });
 };
+
+// Get Partner By Id
+export const getBranchById = async (id: string) => {
+  return apiCall({
+    method: "GET",
+    url: `/pudos/${id}`,
+  });
+};
+
+// Get Branch Parcels
+export const getBranchParcels = async (id: string) => {
+  return apiCall({
+    method: "GET",
+    url: `/pudos/${id}/parcels`,
+  });
+};
+
+// Update Parcel by ID
+export const updaetBranch = async (
+  id: string,
+  data: Partial<BranchFormData>
+) => {
+  return apiCall({
+    method: "PATCH",
+    url: `/branch/${id}`,
+    data,
+  });
+};
+
+// Delete Branch by ID
+export const deleteBranch = async (id: string) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/branch/${id}`,
+  });
+};

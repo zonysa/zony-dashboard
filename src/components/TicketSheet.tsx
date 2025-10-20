@@ -1,4 +1,5 @@
 "use client";
+
 import { Pen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -189,12 +190,12 @@ const TicketActionsCell = ({ row }) => {
           </div>
 
           <SheetFooter className="border-t pt-4">
-            <SheetClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </SheetClose>
             <Button type="submit" onClick={handleSubmit(onSubmit)}>
               Save Changes
             </Button>
+            <SheetClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </SheetClose>
           </SheetFooter>
         </SheetContent>
       </Sheet>

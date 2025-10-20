@@ -25,3 +25,39 @@ export const getPartners = async (filters: partnerFilterOptions) => {
     url: `/partners${params.toString() ? `?${params.toString()}` : ""}`,
   });
 };
+
+// Get Partner by ID
+export const getPartner = async (id: string) => {
+  return apiCall({
+    method: "GET",
+    url: `/partners/${id}`,
+  });
+};
+
+// Get Partner Branches
+export const getPartnerBranches = async (id: string) => {
+  return apiCall({
+    method: "GET",
+    url: `/partners/${id}/pudos`,
+  });
+};
+
+// Update Partner by ID
+export const updatetPartner = async (
+  id: string,
+  data: Partial<PartnerFormData>
+) => {
+  return apiCall({
+    method: "PATCH",
+    url: `/partners/${id}`,
+    data,
+  });
+};
+
+// Delete Partner by ID
+export const deletePartner = async (id: string) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/partners/${id}`,
+  });
+};

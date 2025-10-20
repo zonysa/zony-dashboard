@@ -25,7 +25,7 @@ export const columns: ColumnDef<table>[] = [
     cell: ({ row }) => {
       // const pudos = row.getValue("pudos") as number;
       // return <div className="text-center font-medium">{pudos}</div>;
-      return <div className="text-center font-medium">15</div>;
+      return <div className="font-medium">15</div>;
     },
   },
   {

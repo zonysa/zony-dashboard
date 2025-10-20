@@ -7,6 +7,23 @@ import {
   OtpFormData,
 } from "@/lib/schema/auth.schema.js";
 
+// Get all users
+export const getUsers = async (filters?: { role_id?: string | number }) => {
+  return apiCall({
+    method: "GET",
+    url: "/users",
+    params: filters,
+  });
+};
+
+// Get user by ID
+export const getUser = async (id: string | number) => {
+  return apiCall({
+    method: "GET",
+    url: `/users/${id}`,
+  });
+};
+
 // Real API functions
 export const login = async (data: LoginFormData) => {
   return apiCall({

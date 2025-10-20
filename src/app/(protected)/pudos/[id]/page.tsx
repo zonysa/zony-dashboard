@@ -1,15 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataTable } from "@/components/tables/data-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { branchColumns } from "@/components/tables/columns/branches-columns";
-import { mockBranches as parcelsData } from "@/lib/data/mocks/branches.mock";
 import { Star, User, Store, FileStack } from "lucide-react";
 import DataItem from "@/components/ui/DataItem";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useGetBranchById, useGetBranchParcels } from "@/lib/hooks/useBranch";
+import { useParams } from "next/navigation";
+import { SectionCards } from "@/components/ui/section-cards";
 
 interface BranchDetailsProps {
   branchData?: {
@@ -28,6 +30,24 @@ interface BranchDetailsProps {
 }
 
 function BranchDetails({ branchData }: BranchDetailsProps) {
+  const params = useParams();
+  const branchId = params.id as string;
+
+  const { data: branch } = useGetBranchById(branchId);
+  const {
+    data: parcels,
+    isLoading,
+    isError,
+    error,
+  } = useGetBranchParcels(branchId);
+
+  useEffect(() => {
+    if (isError) {
+      console.log(error);
+    }
+    console.log(parcels);
+  }, [parcels, isLoading, isError, error]);
+
   const defaultData = {
     title: "Wafa Pharmacy",
     rating: 4.6,
@@ -139,17 +159,6 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
           </div>
         </TabsList>
 
-        <TabsContent className="w-full px-6" value="branch-parcels">
-          <DataTable
-            columns={branchColumns}
-            data={parcelsData}
-            enableFiltering={true}
-            filterConfigs={filterConfigs}
-            enableGlobalSearch={true}
-            searchPlaceholder="Search PUDO name..."
-          />
-        </TabsContent>
-
         <TabsContent className="flex flex-col gap-6" value="branch-info">
           {/* Branch Info Card */}
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
@@ -164,7 +173,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label="Name"
-                  value={formData.name}
+                  value={branch?.pudo?.name}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("name", value)}
                 />
@@ -175,7 +184,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
               <div className="grid grid-cols-1 gap-3">
                 <DataItem
                   label="Location"
-                  value={formData.location}
+                  value={branch?.pudo?.address}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("location", value)}
                 />
@@ -315,6 +324,17 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
           </Card>
         </TabsContent>
 
+        <TabsContent className="w-full px-6" value="branch-parcels">
+          <DataTable
+            columns={branchColumns}
+            data={parcels?.parcels || []}
+            enableFiltering={true}
+            filterConfigs={filterConfigs}
+            enableGlobalSearch={true}
+            searchPlaceholder="Search PUDO name..."
+          />
+        </TabsContent>
+
         <TabsContent className="w-full px-6" value="operating-hours">
           <Card className="w-full flex flex-col pt-0 overflow-hidden">
             <h1 className="px-4 border-b py-3 bg-gray-50 font-semibold">
@@ -328,7 +348,13 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent className="w-full px-6" value="kpis"></TabsContent>
+        <TabsContent className="w-full px-6" value="kpis">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <SectionCards />
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

@@ -4,11 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { branchColumns } from "@/components/tables/columns/branches-columns";
 import { DataTable } from "@/components/tables/data-table";
-import { mockBranches } from "@/lib/data/mocks/branches.mock";
 import { DollarSign, User } from "lucide-react";
 import DataItem from "@/components/ui/DataItem";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useParams } from "next/navigation";
+import { useGetPartner, useGetPartnerBranches } from "@/lib/hooks/usePartner";
 
 interface PartnerDataProps {
   partnerData?: {
@@ -24,6 +25,12 @@ interface PartnerDataProps {
 }
 
 function PartnerDetails({ partnerData }: PartnerDataProps) {
+  const params = useParams();
+  const partnerId = params.id as string;
+
+  const { data: partner } = useGetPartner(partnerId);
+  const { data: branches } = useGetPartnerBranches(partnerId);
+
   const filterConfigs = [
     { key: "city", label: "City", placeholder: "All Cities" },
     { key: "zone", label: "Zone", placeholder: "All Zones" },
@@ -126,7 +133,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label="Name"
-                  value={data.name}
+                  value={partner?.partner?.name}
                   isEditable={editStates.representative}
                   onChange={(value) => updateFormData("name", value)}
                 />
@@ -328,7 +335,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
           <div className="w-full">
             <DataTable
               columns={branchColumns}
-              data={mockBranches}
+              data={branches?.pudos || []}
               enableFiltering={true}
               filterConfigs={filterConfigs}
               enableGlobalSearch={true}

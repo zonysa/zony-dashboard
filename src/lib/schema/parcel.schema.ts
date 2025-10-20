@@ -86,9 +86,9 @@ export interface parcelFilterOptions {
 }
 
 export const parcelSchema = z.object({
-  tracking_number: z.string().min(1, "Tracking number is required"),
   barcode: z.string().min(1, "Barcode is required"),
-  pickup_period: z
+  tn: z.string(),
+  pickupPeriod: z
     .number()
     .int()
     .positive("Pickup period must be a positive integer"),
@@ -99,9 +99,9 @@ export const parcelSchema = z.object({
   delivering_date: z
     .string()
     .datetime({ message: "Invalid delivering date format" }),
-  client_id: z.number().int().positive("Client ID must be a positive integer"),
-  pudo_id: z.number().int().positive("PUDO ID must be a positive integer"),
-  customer_id: z.string().uuid("Invalid customer ID format"),
+  client: z.number().int().positive("Client ID must be a positive integer"),
+  branch: z.number().int().positive("PUDO ID must be a positive integer"),
+  customer: z.string().uuid("Invalid customer ID format"),
 });
 
 // Type inference

@@ -20,10 +20,17 @@ import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
+import { MapPin, Plus } from "lucide-react";
 import { BranchFormData } from "@/lib/schema/branch.schema";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { CityRes } from "@/lib/schema/city.schema";
+import { useWatch } from "react-hook-form";
+import { ZoneRes } from "@/lib/schema/zones.schema";
+import { DistrictBase } from "@/lib/schema/district.schema";
+import { useGetZones } from "@/lib/hooks/useZone";
+import { useGetDistricts } from "@/lib/hooks/useDistrict";
+import { useGetPartners } from "@/lib/hooks/usePartner";
+import CreateUserSheet from "@/components/CreateUserSheet";
 
 export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
   form,
@@ -34,9 +41,19 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
   isLastStep,
 }) => {
   const { control } = form;
+  const selectedCity = useWatch({
+    control,
+    name: "city",
+  });
+  const selectedZone = useWatch({
+    control,
+    name: "zone",
+  });
+
+  const { data: partners } = useGetPartners();
   const { data: cities } = useGetCities();
-  // const { data: zones } = useGetCities(city);
-  // const { data: district } = useGetCities(zone);
+  const { data: zones } = useGetZones(selectedCity || "");
+  const { data: district } = useGetDistricts(selectedZone || "");
 
   return (
     <Form {...form}>
@@ -135,7 +152,6 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               </FormItem>
             )}
           />
-
           <FormField
             control={control}
             name="zone"
@@ -143,19 +159,26 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               <FormItem>
                 <FormLabel>Zone</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(Number(value));
+                  }}
                   defaultValue={field.value}
+                  disabled={!selectedCity}
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select zone" />
+                      <SelectValue placeholder="Select Zone" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="zone1">Zone 1</SelectItem>
-                    <SelectItem value="zone2">Zone 2</SelectItem>
-                    <SelectItem value="zone3">Zone 3</SelectItem>
-                    <SelectItem value="zone4">Zone 4</SelectItem>
+                    {zones?.zones.map((zone: ZoneRes) => (
+                      <SelectItem
+                        key={zone.id}
+                        value={zone.id.toLocaleString()}
+                      >
+                        {zone.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -172,22 +195,31 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               <FormItem>
                 <FormLabel>District</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => {
+                    field.onChange(Number(value));
+                  }}
                   defaultValue={field.value}
+                  disabled={!selectedZone}
                 >
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select district" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="district1">District 1</SelectItem>
-                    <SelectItem value="district2">District 2</SelectItem>
-                    <SelectItem value="district3">District 3</SelectItem>
-                    <SelectItem value="district4">District 4</SelectItem>
-                    <SelectItem value="district5">District 5</SelectItem>
-                  </SelectContent>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select District" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {district?.districts.map((district: DistrictBase) => (
+                        <SelectItem
+                          key={district.id}
+                          value={district.id.toLocaleString()}
+                        >
+                          {district.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </div>
                 </Select>
+                <FormDescription> </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -216,27 +248,75 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
           />
         </div>
 
-        <FormField
-          control={control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Short Address</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Enter address"
-                  autoComplete="street-address"
-                />
-              </FormControl>
-              <FormDescription>
-                Brief address description for easy identification
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="partner"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Partner</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(Number(value));
+                  }}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Partner" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {partners?.partners.map((partner: DistrictBase) => (
+                      <SelectItem
+                        key={partner.id}
+                        value={partner.id.toLocaleString()}
+                      >
+                        {partner.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="responsible"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Responsible</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(Number(value));
+                  }}
+                  defaultValue={field.value}
+                >
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select city" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {district?.districts.map((district: DistrictBase) => (
+                        <SelectItem
+                          key={district.id}
+                          value={district.id.toLocaleString()}
+                        >
+                          {district.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                    <CreateUserSheet />
+                  </div>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
         <StepNavigation
           onBack={onBack}
           onNext={onNext}

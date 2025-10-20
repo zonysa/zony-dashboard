@@ -24,3 +24,31 @@ export const getParcels = async (filters: parcelFilterOptions) => {
     url: `/parcels${params.toString() ? `?${params.toString()}` : ""}`,
   });
 };
+
+// Get Single Parcel by ID
+export const getParcelById = async (id: string) => {
+  return apiCall({
+    method: "GET",
+    url: `/parcels/${id}`,
+  });
+};
+
+// Update Parcel by ID
+export const updateParcel = async (
+  id: string,
+  data: Partial<ParcelFormData>
+) => {
+  return apiCall({
+    method: "PATCH",
+    url: `/parcels/${id}`,
+    data,
+  });
+};
+
+// Delete Parcel by ID
+export const deleteParcel = async (id: string) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/parcels/${id}`,
+  });
+};

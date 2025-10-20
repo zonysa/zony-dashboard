@@ -1,11 +1,25 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ComingSoon } from "@/components/ui/coming-soon";
 import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useGetParcelById } from "@/lib/hooks/useParcel";
 import { ArrowRight, Clock, Package, Store, Truck, User } from "lucide-react";
 import Link from "next/link";
+import { notFound, useParams } from "next/navigation";
 
-export default async function Page() {
+export default function Page() {
+  const params = useParams();
+  const parcelId = params.id as string;
+
+  const { data: parcel, isLoading } = useGetParcelById(parcelId || "");
+
+  if (!parcelId) {
+    notFound();
+  }
+
   const trackingData = {
     trackingNumber: "#1234AS54SQ",
     pickupEndsAt: "41:34:17",
@@ -21,8 +35,6 @@ export default async function Page() {
     courierPhoneNumber: "0120213012",
   };
 
-  const pudoId = 1;
-
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
       <Tabs defaultValue="info" className="w-full">
@@ -32,7 +44,7 @@ export default async function Page() {
             <TabsTrigger value="pudos">Parcel Tracking</TabsTrigger>
           </div>
         </TabsList>
-        <TabsContent value="info" className="container mx-auto py-10">
+        <TabsContent value="info" className=" py-10">
           <div className="flex flex-col gap-6">
             {/* Tracking Information Card */}
             <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
@@ -44,10 +56,7 @@ export default async function Page() {
               />
               <CardContent className="flex-1 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <DataItem
-                    label="Tracking Number"
-                    value={trackingData.trackingNumber}
-                  />
+                  <DataItem label="Tracking Number" value={parcel?.parcel.id} />
                   <DataItem
                     label="Pickup Ends At"
                     value={trackingData.pickupEndsAt}
@@ -158,7 +167,7 @@ export default async function Page() {
                 </div>
               </CardContent>
               <Link
-                href={`/pudos/${pudoId}`}
+                href={`/pudos/${parcelId}`}
                 className="w-1/4 bg-primary hover:bg-primary/80 py-2 text-center text-white rounded-md text-sm font-medium transition-colors"
               >
                 View Pickup Point
@@ -190,6 +199,14 @@ export default async function Page() {
               </Button>
             </Card>
           </div>
+        </TabsContent>
+        <TabsContent value="pudos" className="py-10 px-6">
+          <ComingSoon
+            variant="card"
+            title="Prcel Tracking"
+            description="Secure payment processing will be available soon"
+            icon="clock"
+          />
         </TabsContent>
       </Tabs>
     </div>

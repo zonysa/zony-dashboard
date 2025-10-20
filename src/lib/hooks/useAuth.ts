@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -7,6 +7,8 @@ import {
   forgotPassword,
   verifyOtp,
   logout,
+  getUsers,
+  getUser,
 } from "@/lib/services/auth.service";
 import { ForgotPasswordResponse } from "@/lib/schema/auth.schema";
 
@@ -29,6 +31,39 @@ interface LoginResponse {
   refresh_token: string;
   status: string;
   user: user;
+}
+
+// Query keys
+export const userKeys = {
+  all: ["users"] as const,
+  lists: () => [...userKeys.all, "list"] as const,
+  list: (filters?: { role_id?: string | number }) =>
+    [...userKeys.lists(), { filters }] as const,
+  details: () => [...userKeys.all, "detail"] as const,
+  detail: (id: string | number) => [...userKeys.details(), id] as const,
+};
+
+// Get all users hook
+export function useGetUsers(filters?: { role_id?: string | number }) {
+  return useQuery({
+    queryKey: userKeys.list(filters),
+    queryFn: () => getUsers(filters),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+}
+
+// Get user by ID hook
+export function useGetUser(id: string | number, enabled = true) {
+  return useQuery({
+    queryKey: userKeys.detail(id),
+    queryFn: () => getUser(id),
+    enabled: !!id && enabled,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
 }
 
 // Login hook

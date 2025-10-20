@@ -10,25 +10,6 @@ import { BranchFormData } from "@/lib/schema/branch.schema";
 export default function Page() {
   const formSteps = [
     {
-      id: "responsible",
-      title: "Responsible Person",
-      description: "Person responsible for this PUDO location",
-      component: ResponsiblePersonStep,
-      validation: async (data: BranchFormData) => {
-        // Validate responsible person fields
-        if (!data["email"]) {
-          console.log("Email is required");
-          return false;
-        }
-        if (!data["phoneNumber"]) {
-          console.log("Phone number is required");
-          return false;
-        }
-        // Identity document is optional, so no validation needed
-        return true;
-      },
-    },
-    {
       id: "pudoInfo",
       title: "PUDO Info",
       description: "PUDO location and branch details",
