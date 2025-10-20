@@ -2,7 +2,7 @@ import { apiCall } from "@/lib/services/apiClient";
 import {
   LoginFormData,
   RegisterFormData,
-  ForgotPasswordFormData,
+  RequestPasswordFormData,
   ResetPasswordFormData,
   OtpFormData,
 } from "@/lib/schema/auth.schema.js";
@@ -41,10 +41,10 @@ export const register = async (data: RegisterFormData) => {
   });
 };
 
-export const forgotPassword = async (data: ForgotPasswordFormData) => {
+export const requestPassword = async (data: RequestPasswordFormData) => {
   return apiCall({
     method: "POST",
-    url: "/auth/forgot-password",
+    url: "/auth/request-reset",
     data,
   });
 };

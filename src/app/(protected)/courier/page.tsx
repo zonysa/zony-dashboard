@@ -4,11 +4,12 @@ import { DataTable } from "@/components/tables/data-table";
 import React from "react";
 import { columns } from "@/components/tables/columns/courier-columns";
 import { mockCouriers as data } from "@/lib/data/mocks/couriers.mock";
-import { useRouter } from "next/navigation";
 import { Row } from "@tanstack/react-table";
 import { Courier } from "@/lib/schema/couriers.schema";
+import { useRouter } from "next/navigation";
 
 function page() {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const router = useRouter();
 
   const filterConfigs = [

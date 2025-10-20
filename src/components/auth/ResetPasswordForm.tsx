@@ -1,8 +1,9 @@
+"use client";
+
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -17,52 +18,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
-
-// Reset password schema
-const resetPasswordSchema = z
-  .object({
-    newPassword: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-      ),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
-
-interface ResetPasswordRequest {
-  email: string;
-  token: string;
-  newPassword: string;
-  confirmPassword: string;
-}
-
-// API function for resetting password
-const resetPasswordAPI = async (data: ResetPasswordRequest) => {
-  // Replace with your actual API endpoint
-  const response = await fetch("/api/auth/reset-password", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Failed to reset password");
-  }
-
-  return response.json();
-};
+import {
+  ResetPasswordFormData,
+  resetPasswordSchema,
+} from "@/lib/schema/auth.schema";
+import { useResetPassword } from "@/lib/hooks/useAuth";
 
 export function ResetPasswordForm({
   className,
@@ -73,45 +33,34 @@ export function ResetPasswordForm({
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Get email and token from URL parameters
-  const email = searchParams.get("email") || "";
   const token = searchParams.get("token") || "";
+  console.log("Token from URL:", token); // Add this
 
   // Reset password mutation
-  const resetPasswordMutation = useMutation({
-    mutationFn: resetPasswordAPI,
-    onSuccess: () => {
-      // Redirect to login with success message
-      router.replace(
-        "/auth/login?message=Password reset successfully. Please sign in with your new password."
-      );
-    },
-    onError: (error: any) => {
-      console.error("Reset password error:", error);
-    },
-  });
+  const resetPasswordMutation = useResetPassword();
 
   const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      newPassword: "",
+      password: "",
       confirmPassword: "",
     },
   });
 
   const onSubmit = (data: ResetPasswordFormData) => {
-    if (!email || !token) {
-      form.setError("newPassword", {
+    console.log("Form submitted!", data); // Add this
+    console.log("Token:", token); // Add this
+
+    if (!token) {
+      form.setError("password", {
         message: "Invalid reset link. Please request a new password reset.",
       });
       return;
     }
 
     resetPasswordMutation.mutate({
-      email,
       token,
-      newPassword: data.newPassword,
-      confirmPassword: data.confirmPassword,
+      new_password: data.password,
     });
   };
 
@@ -126,7 +75,7 @@ export function ResetPasswordForm({
     return strength;
   };
 
-  const passwordStrength = getPasswordStrength(form.watch("newPassword") || "");
+  const passwordStrength = getPasswordStrength(form.watch("password") || "");
   const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
   const strengthColors = [
     "bg-red-500",
@@ -141,11 +90,6 @@ export function ResetPasswordForm({
       <Card>
         <CardHeader>
           <CardTitle>Create New Password</CardTitle>
-          <p className="text-sm text-gray-600">
-            {email
-              ? `Create a new password for ${email}`
-              : "Enter your new password below"}
-          </p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -153,7 +97,7 @@ export function ResetPasswordForm({
               {/* New Password Field */}
               <FormField
                 control={form.control}
-                name="newPassword"
+                name="password"
                 render={({ field }) => (
                   <FormItem className="grid">
                     <FormLabel htmlFor="newPassword" className="font-normal">
@@ -214,7 +158,6 @@ export function ResetPasswordForm({
                   </FormItem>
                 )}
               />
-
               {/* Confirm Password Field */}
               <FormField
                 control={form.control}
@@ -258,7 +201,6 @@ export function ResetPasswordForm({
                   </FormItem>
                 )}
               />
-
               {/* Password Requirements */}
               <div className="bg-gray-50 p-4 rounded-md">
                 <p className="text-sm font-medium text-gray-700 mb-2">
@@ -269,7 +211,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        form.watch("newPassword")?.length >= 8
+                        form.watch("password")?.length >= 8
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}
@@ -280,7 +222,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        /[a-z]/.test(form.watch("newPassword") || "")
+                        /[a-z]/.test(form.watch("password") || "")
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}
@@ -291,7 +233,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        /[A-Z]/.test(form.watch("newPassword") || "")
+                        /[A-Z]/.test(form.watch("password") || "")
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}
@@ -302,7 +244,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        /\d/.test(form.watch("newPassword") || "")
+                        /\d/.test(form.watch("password") || "")
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}
@@ -311,14 +253,11 @@ export function ResetPasswordForm({
                   </li>
                 </ul>
               </div>
-
               {/* Submit Button */}
               <Button
                 type="submit"
                 className="w-full mt-6 py-3.5"
-                disabled={
-                  resetPasswordMutation.isPending || !form.formState.isValid
-                }
+                disabled={resetPasswordMutation.isPending}
               >
                 {resetPasswordMutation.isPending ? (
                   <>
@@ -329,14 +268,12 @@ export function ResetPasswordForm({
                   "Reset Password"
                 )}
               </Button>
-
               {/* Display error if any */}
               {resetPasswordMutation.error && (
                 <div className="text-sm text-red-500 text-center p-3 bg-red-50 rounded-md">
                   {resetPasswordMutation.error.message}
                 </div>
               )}
-
               {/* Back to Login Link */}
               <div className="text-center">
                 <Button

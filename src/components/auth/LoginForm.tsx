@@ -139,7 +139,7 @@ export function LoginForm({
                 />
 
                 <Link
-                  href="/auth/forgot-password"
+                  href="/auth/request-password"
                   className="text-sm underline-offset-4 hover:underline text-primary"
                 >
                   Forgot your password?

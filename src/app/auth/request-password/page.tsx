@@ -1,16 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
+import { RequestPasswordForm } from "@/components/auth/RequestPasswordForm";
 
 export default function Page() {
-  const router = useRouter();
-
-  const handleNavToOTP = () => {
-    router.replace("/auth/otp");
-  };
-
   return (
     <div className="flex flex-col gap-3 min-w-full items-center justify-starjt  md:p-10">
       <Image
@@ -21,7 +14,7 @@ export default function Page() {
         height={388}
       />
       <div className="w-full max-w-2/4 z-1">
-        <ForgotPasswordForm />
+        <RequestPasswordForm />
       </div>
     </div>
   );

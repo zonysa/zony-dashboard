@@ -4,13 +4,13 @@ import { toast } from "sonner";
 import {
   login,
   register,
-  forgotPassword,
+  requestPassword,
   verifyOtp,
   logout,
   getUsers,
   getUser,
+  resetPassword,
 } from "@/lib/services/auth.service";
-import { ForgotPasswordResponse } from "@/lib/schema/auth.schema";
 
 interface LoginInput {
   email: string;
@@ -65,6 +65,22 @@ export function useGetUser(id: string | number, enabled = true) {
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
+
+export const useResetPassword = () => {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: resetPassword,
+    onSuccess: () => {
+      router.replace(
+        "/auth/login?message=Password reset successfully. Please sign in with your new password."
+      );
+    },
+    onError: (error) => {
+      console.error("Reset password error:", error);
+    },
+  });
+};
 
 // Login hook
 export function useLogin() {
@@ -133,9 +149,9 @@ export function useRegister() {
 }
 
 // Forgot password hook
-export function useForgotPassword() {
-  return useMutation<ForgotPasswordResponse, Error, string>({
-    mutationFn: forgotPassword,
+export function useRequestPassword() {
+  return useMutation({
+    mutationFn: requestPassword,
     onSuccess: (response) => {
       toast(response.message || "Password reset email sent!", {
         action: {
@@ -225,19 +241,3 @@ export function useLogout() {
     },
   });
 }
-
-// Get current user hook
-// export function useCurrentUser() {
-//   const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-
-//   return useQuery({
-//     queryKey: ['user', 'profile'],
-//     queryFn: async () => {
-//       if (!token) throw new Error('No auth token');
-//       return authApi.getProfile?.(token) || { data: { user: null } };
-//     },
-//     enabled: !!token,
-//     staleTime: 5 * 60 * 1000, // 5 minutes
-//     retry: 1,
-//   });
-// }

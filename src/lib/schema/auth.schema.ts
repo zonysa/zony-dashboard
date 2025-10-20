@@ -53,14 +53,20 @@ export const registerSchema = z.object({
 });
 
 // Forgot password schema
-export const forgotPasswordSchema = z.object({
+export const requestPasswordSchema = z.object({
   email: emailSchema,
 });
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  newPassword: string;
+  confirmPassword: string;
+}
 
 // Reset password schema
 export const resetPasswordSchema = z
   .object({
-    token: z.string().min(1, "Token is required"),
     password: passwordSchema,
     confirmPassword: z.string(),
   })
@@ -85,6 +91,6 @@ export interface ForgotPasswordResponse {
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
-export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+export type RequestPasswordFormData = z.infer<typeof requestPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type OtpFormData = z.infer<typeof otpSchema>;

@@ -14,33 +14,37 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { useForgotPassword } from "@/lib/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { useRequestPassword } from "@/lib/hooks/useAuth";
+import {
+  RequestPasswordFormData,
+  requestPasswordSchema,
+} from "@/lib/schema/auth.schema";
 
-export function ForgotPasswordForm({
+export function RequestPasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
 
   // Use our mock-enabled hook
-  const forgetPasswordMutation = useForgotPassword();
+  const forgetPasswordMutation = useRequestPassword();
 
-  const form = useForm<ForgotPasswordFormData>({
-    resolver: zodResolver(forgotPasswordSchema),
+  const form = useForm<RequestPasswordFormData>({
+    resolver: zodResolver(requestPasswordSchema),
     defaultValues: {
-      email: "test@example.com", // Pre-fill for testing
+      email: "malokokha2@gmail.com",
     },
   });
 
   const {
-    formState: { isDirty, isValid },
+    formState: { isDirty },
   } = form;
 
-  const onSubmit = (data: ForgotPasswordFormData) => {
+  const onSubmit = (data: RequestPasswordFormData) => {
     forgetPasswordMutation.mutate(data, {
       onSuccess: () => {
-        router.replace("/auth/verify-otp");
+        router.replace("/auth/reset-password");
       },
     });
   };

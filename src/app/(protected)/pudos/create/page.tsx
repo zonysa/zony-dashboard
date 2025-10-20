@@ -6,8 +6,13 @@ import { OperatingHoursStep } from "@/forms/pudo/OperatingHours";
 import { useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { BranchInfoStep } from "@/forms/pudo/BranchInfoStep";
 import { BranchFormData } from "@/lib/schema/branch.schema";
+import { useRegister } from "@/lib/hooks/useAuth";
+import { useCreateBranch } from "@/lib/hooks/useBranch";
 
 export default function Page() {
+  const register = useRegister();
+  const branchMutation = useCreateBranch();
+
   const formSteps = [
     {
       id: "pudoInfo",
@@ -144,8 +149,33 @@ export default function Page() {
 
       // Here you would typically send the data to your API
       try {
-        // For now, just log the data
-        console.log("Form data to submit:", data);
+        const partnerData = {
+          // Branch info
+          name: data.name,
+          address: data.address,
+          status: "active",
+          gallery: [],
+          oprating_hours: {},
+          municipal_license: data.municipalLicense,
+          password: "00000000",
+
+          // bank
+          bank_name: data.bankName,
+          bank_holder_name: data.accountHolderName,
+          bank_account_number: data.accountNumber,
+          IBAN: data.iban,
+        };
+
+        const registerResponse = await register.mutateAsync(
+          partnerData.representative
+        );
+        const representativeId =
+          registerResponse.user?.id || "40d2dfeb-d594-4248-b0ae-4c8b7eac2e03";
+
+        await partnerMutation.mutateAsync({
+          ...partnerData.partnerInfo,
+          representative_id: representativeId,
+        });
 
         // You can also show a success notification
         alert("PUDO Registration submitted successfully!");
