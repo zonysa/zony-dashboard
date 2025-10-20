@@ -136,7 +136,7 @@ const CreateUserSheet = () => {
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Last Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Enter Last Name" {...field} />
                       </FormControl>
