@@ -86,7 +86,9 @@ export function DataTable<TData, TValue>({
   const getUniqueValues = (key: string): FilterOption[] => {
     if (!data || data.length === 0) return [];
 
-    const values = Array.from(new Set(data.map((item: any) => item[key])))
+    const values = Array.from(
+      new Set(data.map((item) => (item as Record<string, unknown>)[key]))
+    )
       .filter(Boolean)
       .sort();
     return values.map((value) => ({
@@ -218,7 +220,7 @@ export function DataTable<TData, TValue>({
               <span className="text-sm text-gray-600">Active filters:</span>
               {localSearch && (
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs">
-                  Search: "{localSearch}"
+                  Search: {localSearch}
                 </span>
               )}
               {Object.entries(localFilters).map(([key, value]) =>

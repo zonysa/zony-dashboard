@@ -3,7 +3,7 @@
 import { columns } from "@/components/tables/columns/partners-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetPartners } from "@/lib/hooks/usePartner";
-import { table } from "@/lib/schema/partner.schema";
+import { PartnerDetails, table } from "@/lib/schema/partner.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
@@ -16,7 +16,7 @@ export default function Page() {
   ];
 
   const router = useRouter();
-  const handleRowClick = (row: Row<table>) => {
+  const handleRowClick = (row: Row<PartnerDetails>) => {
     const partnerId = row.getValue("name");
     router.replace(`/partners/${partnerId}`);
   };

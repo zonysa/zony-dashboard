@@ -27,16 +27,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BankAccountInfoData } from "@/lib/schema/partner-form.schema";
+import { PartnerFormData } from "@/lib/schema/partner.schema";
 
-export const BankAccountStep: React.FC<
-  StepComponentProps<BankAccountInfoData>
-> = ({ form, onNext, onBack, onSubmit, isFirstStep, isLastStep }) => {
-  const { control, watch } = form;
-
-  // Watch form values for validation
-  // const confirmDetails = watch("confirmDetails");
-  // const termsAccepted = watch("termsAccepted");
+export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
+  form,
+  onNext,
+  onBack,
+  onSubmit,
+  isFirstStep,
+  isLastStep,
+}) => {
+  const { control } = form;
 
   return (
     <Form {...form}>

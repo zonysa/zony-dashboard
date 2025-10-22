@@ -1,5 +1,5 @@
 import React from "react";
-import { UseFormReturn } from "react-hook-form";
+import { FieldValues, UseFormReturn } from "react-hook-form";
 import {
   Card,
   CardContent,
@@ -7,10 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { StepConfig } from "@/lib/hooks/useMutliStepForm";
 import { ProgressBar } from "./ProgressBar";
+import { StepConfig } from "@/lib/hooks/useMutliStepForm";
 
-interface MultiStepFormProps<T> {
+interface MultiStepFormProps<T extends FieldValues> {
   steps: StepConfig<T>[];
   currentStep: number;
   currentStepConfig: StepConfig<T>;
@@ -25,7 +25,7 @@ interface MultiStepFormProps<T> {
   cardProps?: React.ComponentProps<typeof Card>;
 }
 
-export const MultiStepForm = <T extends Record<string, any>>({
+export const MultiStepForm = <T extends FieldValues>({
   steps,
   currentStep,
   currentStepConfig,

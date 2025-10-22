@@ -2,7 +2,7 @@ import { z } from "zod";
 import { registerSchema } from "./auth.schema";
 
 // API Response Interfaces
-export interface BranchRes {
+export interface BranchDetails {
   id: number;
   branch_name: string;
   establishment_name: string;
@@ -24,24 +24,20 @@ export interface BranchRes {
   status: string;
 }
 
-export interface BranchTable {
-  id: string;
-  branchName: string;
-  city: string;
-  zone: string;
-  district: string;
-  supervisor: string;
-  totalParcles: number;
-  status: string;
-  pointUsage: number;
-}
-
+// Get Branches
 export interface GetBranchesRes {
-  branches: BranchRes[];
+  pudos: BranchDetails[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+}
+
+// Get Branch
+export interface GetBranchRes {
+  message: string;
+  pudo: BranchDetails;
+  status: string;
 }
 
 // Filter Options
@@ -82,7 +78,7 @@ export const establishmentTypeSchema = z.enum([
   "other",
 ]);
 
-// Step 1: Responsible Person Schema
+// Responsible Person Schema
 export const responsibleSchema = registerSchema.extend({
   identityDocument: z.instanceof(File).optional(),
 });
@@ -95,16 +91,19 @@ export const branchInfoSchema = z.object({
   zone: z.string().min(1, "Zone is required"),
   location: z.string().optional(),
   address: z.string().min(1, "Address is required"),
-  branchPhotos: z.array(z.instanceof(File)).optional(),
+  branchPhoto: z.instanceof(File).optional(),
   municipalLicense: z.instanceof(File).optional(),
+  partner_id: z.string(),
+  responsible: z.string(),
 });
 
-// Step 3: Operating Hours Schema
+// Step 2: Operating Hours Schema
 export const operatingHoursSchema = z.object({
   sameHoursEveryday: z.boolean().default(false),
   twentyFourSeven: z.boolean().default(false),
   operatingHours: z
     .record(
+      z.string(),
       z.object({
         enabled: z.boolean(),
         from: z.string(),
@@ -113,12 +112,12 @@ export const operatingHoursSchema = z.object({
       })
     )
     .optional(),
+  termsAccepted: z.boolean().optional(),
+  confirmDetails: z.boolean().optional(),
 });
 
 // Combined Schemas
-export const branchSchema = responsibleSchema
-  .and(branchInfoSchema)
-  .and(operatingHoursSchema);
+export const branchSchema = branchInfoSchema.and(operatingHoursSchema);
 
 // Query Schema for listing branches
 export const branchesQuerySchema = z.object({

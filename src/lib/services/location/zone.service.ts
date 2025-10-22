@@ -1,7 +1,22 @@
-import { GetZonesFilter } from "@/lib/schema/zones.schema";
+import {
+  GetZonesRes,
+  ZoneFormData,
+  GetZonesFilter,
+  GetZoneRes,
+  CreateZoneRes,
+} from "@/lib/schema/zones.schema";
 import { apiCall } from "../apiClient";
+import {
+  GetCouriersRes,
+  GetCustomerServicesRes,
+  GetSupervisorsRes,
+} from "@/lib/schema/user.schema";
+import { GetDistrictsRes } from "@/lib/schema/district.schema";
 
-export const createZone = async (data: string) => {
+// Create Zone
+export const createZone = async (
+  data: ZoneFormData
+): Promise<CreateZoneRes> => {
   return apiCall({
     method: "POST",
     url: "/zones",
@@ -9,16 +24,90 @@ export const createZone = async (data: string) => {
   });
 };
 
-export const getZones = async (filters?: GetZonesFilter) => {
+// Get Zones
+export const getZones = async (
+  filters?: GetZonesFilter
+): Promise<GetZonesRes> => {
   const params = new URLSearchParams();
 
-  if (filters?.cityId) params.append("city", filters.cityId.toString());
+  if (filters?.cityId) params.append("city_id", filters.cityId.toString());
   if (filters?.districtId)
-    params.append("district", filters.districtId.toString());
-  if (filters?.zoneId) params.append("zone", filters.zoneId.toString());
+    params.append("district_id", filters.districtId.toString());
+  if (filters?.zoneId) params.append("zone_id", filters.zoneId.toString());
+  // if (filters?.status)
+  //   params.append("status", filters.status);
+  // if (filters?.search)
+  //   params.append("search", filters.search);
+  // if (filters?.page)
+  //   params.append("page", filters.page.toString());
+  // if (filters?.limit)
+  //   params.append("limit", filters.limit.toString());
 
   return apiCall({
     method: "GET",
     url: `/zones${params.toString() ? `?${params.toString()}` : ""}`,
+  });
+};
+
+// Get Zone by ID
+export const getZone = async (id: string): Promise<GetZoneRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/zones/${id}`,
+  });
+};
+
+// Get Zone by ID
+export const getZoneCustomerServices = async (
+  id: string
+): Promise<GetCustomerServicesRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/zones/${id}/customer-service`,
+  });
+};
+
+// Get Zone by ID
+export const getZoneCouriers = async (id: string): Promise<GetCouriersRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/zones/${id}/couriers`,
+  });
+};
+
+// Get Zone by ID
+export const getZoneSupervisors = async (
+  id: string
+): Promise<GetSupervisorsRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/zones/${id}/supervisors`,
+  });
+};
+
+// Get Zone by ID
+export const getZoneDistricts = async (
+  id: string
+): Promise<GetDistrictsRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/zones/${id}/districts`,
+  });
+};
+
+// Update Zone by ID
+export const updateZone = async (id: string, data: Partial<ZoneFormData>) => {
+  return apiCall({
+    method: "PATCH",
+    url: `/zones/${id}`,
+    data,
+  });
+};
+
+// Delete Zone by ID
+export const deleteZone = async (id: string) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/zones/${id}`,
   });
 };

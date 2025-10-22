@@ -1,7 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { BranchTable } from "@/lib/schema/branch.schema";
+import { BranchDetails } from "@/lib/schema/branch.schema";
+import { ParcelDetails } from "@/lib/schema/parcel.schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { Circle } from "lucide-react";
 
@@ -30,7 +31,7 @@ const getUsageClasses = (usage: number) => {
   }
 };
 
-export const branchColumns: ColumnDef<BranchTable>[] = [
+export const branchColumns: ColumnDef<BranchDetails>[] = [
   {
     accessorKey: "id",
     header: "ID",

@@ -1,4 +1,6 @@
 import {
+  GetParcelRes,
+  getParcelsRes,
   parcelFilterOptions,
   ParcelFormData,
 } from "@/lib/schema/parcel.schema";
@@ -11,6 +13,7 @@ import {
   getParcels,
   updateParcel,
 } from "../services/parcel.service";
+import Error from "next/error";
 
 // Query keys for consistency
 export const parcelKeys = {
@@ -30,7 +33,7 @@ export function useCreateParcel() {
 
 // Get parcels
 export function useGetParcels(filters?: parcelFilterOptions) {
-  return useQuery({
+  return useQuery<getParcelsRes, Error>({
     queryKey: parcelKeys.list(JSON.stringify(filters) || ""),
     queryFn: () => getParcels(filters || {}),
     staleTime: 5 * 60 * 1000, // Keep fresh for 5 minutes
@@ -41,8 +44,8 @@ export function useGetParcels(filters?: parcelFilterOptions) {
 }
 
 // Get single parcel by ID
-export function useGetParcelById(id: string, enabled = true) {
-  return useQuery({
+export function useGetParcel(id: string, enabled = true) {
+  return useQuery<GetParcelRes>({
     queryKey: parcelKeys.detail(id),
     queryFn: () => getParcelById(id),
     enabled: !!id && enabled, // Only run if ID exists and enabled

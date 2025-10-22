@@ -1,24 +1,19 @@
 "use client";
+
 import { MultiStepForm } from "@/forms/MultiStepForm";
 import { BankAccountStep } from "@/forms/partners/BankAccountStep";
 import { PartnerStep } from "@/forms/partners/PartnerInfoStep";
-import { RepresentativeStep } from "@/forms/partners/RepresentativeStep";
-import { useRegister } from "@/lib/hooks/useAuth";
-import { useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
+import { StepConfig, useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { useCreatePartner } from "@/lib/hooks/usePartner";
 import { PartnerFormData } from "@/lib/schema/partner.schema";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Page() {
-  const register = useRegister();
   const partnerMutation = useCreatePartner();
+  const router = useRouter();
 
-  const formSteps = [
-    {
-      id: "representative",
-      title: "Representative",
-      description: "Step description",
-      component: RepresentativeStep,
-    },
+  const formSteps: StepConfig<PartnerFormData>[] = [
     {
       id: "partner",
       title: "Partner",
@@ -69,42 +64,23 @@ export default function Page() {
     onComplete: async (data: PartnerFormData) => {
       const partnerData = {
         // partner info
-        partnerInfo: {
-          name: data.partnerName,
-          type: data.type,
-          status: "Active",
-          commercial_registration: "asdfas",
-          payout_per_parcel: Number(data.payoutPerParcel),
-          unified_number: data.unifiedNumber,
-          currency: data.currency,
+        name: data.partnerName,
+        type: data.type,
+        status: "Active",
+        commercial_registration: "asdfas",
+        payout_per_parcel: Number(data.payoutPerParcel),
+        unified_number: data.unifiedNumber,
+        currency: data.currency,
 
-          // bank
-          bank_name: data.bankName,
-          bank_holder_name: data.accountHolderName,
-          bank_account_number: data.accountNumber,
-          IBAN: data.iban,
-        },
-        representative: {
-          username: data.username,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          email: data.email,
-          phone_number: data.phoneNumber,
-          password: data.password,
-          role_id: 2,
-        },
+        // bank
+        bank_name: data.bankName,
+        bank_holder_name: data.accountHolderName,
+        bank_account_number: data.accountNumber,
+        IBAN: data.iban,
+
+        // representative
+        representative_id: String(data.representative),
       };
-
-      const registerResponse = await register.mutateAsync(
-        partnerData.representative
-      );
-      const representativeId =
-        registerResponse.user?.id || "40d2dfeb-d594-4248-b0ae-4c8b7eac2e03";
-
-      await partnerMutation.mutateAsync({
-        ...partnerData.partnerInfo,
-        representative_id: representativeId,
-      });
     },
     persistState: false,
   });

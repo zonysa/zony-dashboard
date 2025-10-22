@@ -34,8 +34,8 @@ import { DistrictFormData, DistrictSchema } from "@/lib/schema/district.schema";
 import { useCreateDistrict } from "@/lib/hooks/useDistrict";
 import { useGetZones } from "@/lib/hooks/useZone";
 import { useGetCities } from "@/lib/hooks/useCity";
-import { ZoneRes } from "@/lib/schema/zones.schema";
-import { CityRes } from "@/lib/schema/city.schema";
+import { CityDetails } from "@/lib/schema/city.schema";
+import { ZoneDetails } from "@/lib/schema/zones.schema";
 
 type Props = {
   open: boolean;
@@ -48,7 +48,7 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
     defaultValues: {
       name: "",
       // zone: "",
-      city: "",
+      city_id: 0,
     },
   });
 
@@ -59,17 +59,16 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
 
   const { control } = form;
   async function onSubmit(data: DistrictFormData) {
-    console.log(data);
     try {
       await districtMutation.mutateAsync(
         {
           name: data.name,
-          city_id: Number(data.city),
-          // zone_id: Number(data.zone),
+          city_id: Number(data.city_id),
+          zone_id: data.zone_id ? Number(data.zone_id) : null,
         },
         {
-          onSuccess: () => {
-            toast.success(`District ${data.name} created successfuly`);
+          onSuccess: (data) => {
+            toast.success(`District ${data.district.name} created successfuly`);
             onOpenChange(false);
             form.reset();
           },
@@ -123,13 +122,13 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
 
             <FormField
               control={control}
-              name="city"
+              name="city_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-normal">City</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value?.toString()}
+                    value={field.value.toLocaleString()}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -137,8 +136,8 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {cities?.cities?.map((city: CityRes) => (
-                        <SelectItem key={city.id} value={city.id.toString()}>
+                      {cities?.cities?.map((city: CityDetails) => (
+                        <SelectItem key={city.id} value={String(city.id)}>
                           {city.name}
                         </SelectItem>
                       ))}
@@ -151,13 +150,13 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
 
             <FormField
               control={control}
-              name="zone"
+              name="zone_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="font-normal">Zone (optional)</FormLabel>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value?.toString()}
+                    value={field.value?.toLocaleString()}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -165,7 +164,7 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {zones?.zones?.map((zone: ZoneRes) => (
+                      {zones?.zones?.map((zone: ZoneDetails) => (
                         <SelectItem key={zone.id} value={zone.id.toString()}>
                           {zone.name}
                         </SelectItem>

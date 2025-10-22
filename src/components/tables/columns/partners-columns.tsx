@@ -2,9 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge"; // Adjust import path as needed
-import { table } from "@/lib/schema/partner.schema";
+import { PartnerDetails } from "@/lib/schema/partner.schema";
 
-export const columns: ColumnDef<table>[] = [
+export const columns: ColumnDef<PartnerDetails>[] = [
   {
     accessorKey: "name",
     header: "Partner",
@@ -37,7 +37,7 @@ export const columns: ColumnDef<table>[] = [
       const getStatusVariant = (status: string) => {
         switch (status) {
           case "Active":
-            return "sucess";
+            return "success";
           case "Inactive":
             return "secondary";
           case "Pending":

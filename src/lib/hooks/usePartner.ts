@@ -1,9 +1,12 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+
 import {
+  GetPartnerRes,
+  GetPartnersRes,
   partnerFilterOptions,
   PartnerFormData,
 } from "@/lib/schema/partner.schema";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import {
   createPartner,
   deletePartner,
@@ -12,6 +15,7 @@ import {
   getPartners,
   updatetPartner,
 } from "../services/partner.service";
+import { GetBranchesRes } from "../schema/branch.schema";
 
 // Query keys for consistency
 export const partnerKeys = {
@@ -27,9 +31,6 @@ export const partnerKeys = {
 export function useCreatePartner() {
   return useMutation({
     mutationFn: createPartner,
-    onSuccess: () => {
-      toast.success("Partner created successfully");
-    },
     onError: (error) => {
       toast.error(error?.message || "Failed to create partner");
     },
@@ -38,7 +39,7 @@ export function useCreatePartner() {
 
 // Get Partners
 export function useGetPartners(filters?: partnerFilterOptions) {
-  return useQuery({
+  return useQuery<GetPartnersRes>({
     queryKey: partnerKeys.list(JSON.stringify(filters) || ""),
     queryFn: () => getPartners(filters || {}),
     staleTime: 5 * 60 * 1000, // Keep fresh for 5 minutes
@@ -50,7 +51,7 @@ export function useGetPartners(filters?: partnerFilterOptions) {
 
 // Get Partner by ID hook
 export function useGetPartner(id: string, enabled = true) {
-  return useQuery({
+  return useQuery<GetPartnerRes>({
     queryKey: partnerKeys.detail(id),
     queryFn: () => getPartner(id),
     enabled: !!id && enabled,
@@ -63,7 +64,7 @@ export function useGetPartner(id: string, enabled = true) {
 
 // Get Partner Branches
 export function useGetPartnerBranches(id: string, enabled = true) {
-  return useQuery({
+  return useQuery<GetBranchesRes>({
     queryKey: partnerKeys.branches(id),
     queryFn: () => getPartnerBranches(id),
     enabled: !!id && enabled, // Only run if ID exists and enabled

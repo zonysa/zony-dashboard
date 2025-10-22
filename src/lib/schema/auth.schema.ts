@@ -1,9 +1,25 @@
 import { z } from "zod";
 
-export const emailSchema = z
-  .string()
-  .min(1, "Email is required")
-  .email("Please enter a valid email address");
+export type User = {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  phone_number: string;
+  avatar: string | null;
+  birth_date: string | null;
+  city: string | null;
+  country: string | null;
+  gender: string | null;
+  identity: string | null;
+  is_active: boolean;
+  last_login: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export const emailSchema = z.string().min(1, "Email is required");
 
 export const phoneSchema = z
   .string()
@@ -21,13 +37,13 @@ export const passwordSchema = z
 export interface login {
   email: string;
   password: string;
-  rememberMe: boolean;
+  remember_me: boolean;
 }
 // Login schema
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Password is required"),
-  rememberMe: z.boolean().default(true),
+  remember_me: z.boolean().default(true),
 });
 
 // Register Schema
@@ -67,10 +83,11 @@ export interface ResetPasswordRequest {
 // Reset password schema
 export const resetPasswordSchema = z
   .object({
-    password: passwordSchema,
-    confirmPassword: z.string(),
+    token: z.string().optional(),
+    new_password: passwordSchema,
+    confirmPassword: z.string().optional(),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.new_password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
@@ -84,10 +101,36 @@ export const otpSchema = z.object({
   email: z.string().email().optional(),
 });
 
-export interface ForgotPasswordResponse {
+export type LoginResponse = {
+  access_token: string;
+  refresh_token: string;
+  user?: User; // optionally include user data
+};
+
+export type RegisterRequest = {
+  email: string;
+  password: string;
+  first_name: string;
+  last_name: string;
+};
+
+export type RegisterResponse = {
+  user: User;
+  message?: string;
+};
+
+export interface RequestPasswordResponse {
   message: string;
   success: boolean;
 }
+
+export type VerifyOtpResponse = {
+  message: string;
+  success: boolean;
+  user?: User;
+  access_token?: string;
+  refresh_token?: string;
+};
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;

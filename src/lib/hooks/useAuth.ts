@@ -1,6 +1,9 @@
+"use client";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
 import {
   login,
   register,
@@ -11,27 +14,14 @@ import {
   getUser,
   resetPassword,
 } from "@/lib/services/auth.service";
-
-interface LoginInput {
-  email: string;
-  password: string;
-  remember_me: boolean;
-}
-
-type user = {
-  email: string;
-  last_login: string;
-  role: string;
-  username: string;
-};
-
-interface LoginResponse {
-  access_token: string;
-  message: string;
-  refresh_token: string;
-  status: string;
-  user: user;
-}
+import { GetUsersRes } from "../schema/user.schema";
+import {
+  LoginFormData,
+  LoginResponse,
+  RegisterResponse,
+  RequestPasswordResponse,
+  VerifyOtpResponse,
+} from "../schema/auth.schema";
 
 // Query keys
 export const userKeys = {
@@ -45,7 +35,7 @@ export const userKeys = {
 
 // Get all users hook
 export function useGetUsers(filters?: { role_id?: string | number }) {
-  return useQuery({
+  return useQuery<GetUsersRes, Error>({
     queryKey: userKeys.list(filters),
     queryFn: () => getUsers(filters),
     staleTime: 5 * 60 * 1000,
@@ -87,7 +77,7 @@ export function useLogin() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  return useMutation<LoginResponse, Error, LoginInput>({
+  return useMutation<LoginResponse, Error, LoginFormData>({
     mutationFn: login,
     onSuccess: (response) => {
       const {
@@ -133,7 +123,7 @@ export function useLogin() {
 export function useRegister() {
   return useMutation({
     mutationFn: register,
-    onSuccess: (res) => {
+    onSuccess: (res: RegisterResponse) => {
       // toast.success("Registration successful! Please verify your email.");
 
       // Store email for OTP verification
@@ -152,7 +142,7 @@ export function useRegister() {
 export function useRequestPassword() {
   return useMutation({
     mutationFn: requestPassword,
-    onSuccess: (response) => {
+    onSuccess: (response: RequestPasswordResponse) => {
       toast(response.message || "Password reset email sent!", {
         action: {
           label: "Undo",
@@ -179,13 +169,13 @@ export function useVerifyOtp() {
 
   return useMutation({
     mutationFn: verifyOtp,
-    onSuccess: (response) => {
-      const { user, token, refreshToken } = response.data;
+    onSuccess: (response: VerifyOtpResponse) => {
+      const { user, access_token, refresh_token } = response;
 
       // Store tokens
-      localStorage.setItem("authToken", token);
-      if (refreshToken) {
-        localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("authToken", access_token || "");
+      if (refresh_token) {
+        localStorage.setItem("refreshToken", refresh_token);
       }
 
       // Clear pending verification email

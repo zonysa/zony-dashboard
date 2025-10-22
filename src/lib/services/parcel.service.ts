@@ -1,4 +1,9 @@
-import { parcelFilterOptions, ParcelFormData } from "../schema/parcel.schema";
+import {
+  GetParcelRes,
+  getParcelsRes,
+  parcelFilterOptions,
+  ParcelFormData,
+} from "../schema/parcel.schema";
 import { apiCall } from "./apiClient";
 
 // Create Partner
@@ -11,7 +16,9 @@ export const createParcel = async (data: ParcelFormData) => {
 };
 
 // Get Partners
-export const getParcels = async (filters: parcelFilterOptions) => {
+export const getParcels = async (
+  filters: parcelFilterOptions
+): Promise<getParcelsRes> => {
   const params = new URLSearchParams();
 
   if (filters?.date) params.append("date", filters.date.toISOString());
@@ -26,7 +33,7 @@ export const getParcels = async (filters: parcelFilterOptions) => {
 };
 
 // Get Single Parcel by ID
-export const getParcelById = async (id: string) => {
+export const getParcelById = async (id: string): Promise<GetParcelRes> => {
   return apiCall({
     method: "GET",
     url: `/parcels/${id}`,

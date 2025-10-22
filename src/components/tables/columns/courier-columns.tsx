@@ -1,15 +1,15 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { Courier } from "@/lib/schema/couriers.schema";
+import { UserDetails } from "@/lib/schema/user.schema";
 
-export const columns: ColumnDef<Courier>[] = [
+export const columns: ColumnDef<UserDetails>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "first_name",
     header: "Name",
     cell: ({ row }) => {
-      const name = row.getValue("name") as string;
-      return <div className="font-medium">{name}</div>;
+      const firstName = row.getValue("first_name") as string;
+      return <div className="font-medium">{firstName}</div>;
     },
     filterFn: "includesString",
   },
@@ -37,19 +37,6 @@ export const columns: ColumnDef<Courier>[] = [
     cell: ({ row }) => {
       const zone = row.getValue("zone") as string;
       return <div className="text-sm">{zone}</div>;
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "districts",
-    header: "Districts",
-    cell: ({ row }) => {
-      const districts = row.getValue("districts") as string;
-      return (
-        <Badge variant="secondary" className="text-xs">
-          {districts}
-        </Badge>
-      );
     },
     filterFn: "includesString",
   },

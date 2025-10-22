@@ -1,20 +1,21 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { StepConfig } from "@/lib/hooks/useMutliStepForm";
+import { FieldValues } from "react-hook-form";
 
-interface ProgressBarProps {
-  steps: StepConfig[];
+interface ProgressBarProps<T extends FieldValues> {
+  steps: StepConfig<T>[];
   currentStep: number;
   className?: string;
   variant?: "default" | "minimal" | "numbered";
 }
 
-export const ProgressBar: React.FC<ProgressBarProps> = ({
+export const ProgressBar = <T extends FieldValues>({
   steps,
   currentStep,
   className,
   variant = "default",
-}) => {
+}: ProgressBarProps<T>) => {
   if (variant === "minimal") {
     return (
       <div className={cn("w-full bg-gray-200 rounded-full h-2", className)}>

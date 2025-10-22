@@ -5,7 +5,7 @@ import React from "react";
 import { columns } from "@/components/tables/columns/zones-columns";
 import { useRouter } from "next/navigation";
 import { Row } from "@tanstack/react-table";
-import { ZoneTable } from "@/lib/schema/zones.schema";
+import { ZoneDetails } from "@/lib/schema/zones.schema";
 import { useGetZones } from "@/lib/hooks/useZone";
 
 export default function Page() {
@@ -18,8 +18,8 @@ export default function Page() {
   ];
 
   const router = useRouter();
-  const handleRowClick = (row: Row<ZoneTable>) => {
-    const zoneId = row.getValue("zoneId") as string;
+  const handleRowClick = (row: Row<ZoneDetails>) => {
+    const zoneId = row.getValue("id") as string;
     router.replace(`/zones/${zoneId}`);
   };
 

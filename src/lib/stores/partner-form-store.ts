@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { PartnerFormData } from "@/lib/schema/partner-form.schema";
+import { PartnerFormData } from "../schema/partner.schema";
 
 interface PartnerFormStore {
   // State
@@ -18,16 +18,11 @@ interface PartnerFormStore {
 }
 
 const initialFormData: Partial<PartnerFormData> = {
-  type: "",
+  type: "convenience store",
   unifiedNumber: "",
-  payoutPerOrder: "",
-  payoutPerParcels: "",
-  currency: "",
-  name: "",
-  phoneNumber: "",
-  jobTitle: "",
-  idNumber: "",
-  email: "",
+  payoutPerParcel: 1.0,
+  currency: "EGP",
+  partnerName: "",
   accountHolderName: "",
   bankName: "",
   accountNumber: "",

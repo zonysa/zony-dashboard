@@ -1,5 +1,5 @@
 import {
-  CityBase,
+  CityDetails,
   CreateCityRes,
   GetCitiesRes,
 } from "@/lib/schema/city.schema";
@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export const cityKeys = {
   all: ["cities"] as const,
   lists: () => [...cityKeys.all, "list"] as const,
-  list: (filters: string) => [...cityKeys.lists(), { filters }] as const,
+  list: () => [...cityKeys.lists()] as const,
   details: () => [...cityKeys.all, "detail"] as const,
   detail: (id: string) => [...cityKeys.details(), id] as const,
 };
@@ -20,7 +20,7 @@ export const cityKeys = {
 export function useCreateCity() {
   const queryClient = useQueryClient();
 
-  return useMutation<CreateCityRes, Error, CityBase>({
+  return useMutation<CreateCityRes, Error, CityDetails>({
     mutationFn: createCity,
     onSuccess: (response) => {
       // Show success message
@@ -46,10 +46,10 @@ export function useCreateCity() {
 }
 
 // Get Cities Hook
-export function useGetCities(filters?: string) {
-  return useQuery<GetCitiesRes, Error>({
-    queryKey: cityKeys.list(filters || ""),
-    queryFn: () => getCities(filters),
+export function useGetCities() {
+  return useQuery<GetCitiesRes>({
+    queryKey: cityKeys.list(),
+    queryFn: () => getCities(),
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (formerly cacheTime)
     retry: 3, // Retry failed requests 3 times

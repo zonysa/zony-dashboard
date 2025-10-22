@@ -1,9 +1,11 @@
 "use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { ZoneRes } from "@/lib/schema/zones.schema";
+import { ZoneDetails } from "@/lib/schema/zones.schema";
+import { DistrictBase } from "@/lib/schema/district.schema";
 
-export const columns: ColumnDef<ZoneRes>[] = [
+export const columns: ColumnDef<ZoneDetails>[] = [
   {
     accessorKey: "id",
     header: "Zone ID",
@@ -23,26 +25,13 @@ export const columns: ColumnDef<ZoneRes>[] = [
     filterFn: "equalsString",
   },
   {
-    accessorKey: "district",
-    header: "Districts",
-    cell: ({ row }) => {
-      const districts = row.getValue("district");
-      return (
-        <div className="capitalize">
-          {districts ? districts.map((d) => <span>{d}</span>) : "NA"}
-        </div>
-      );
-    },
-    filterFn: "includesString",
-  },
-  {
     accessorKey: "totalPudos",
     header: "PUDO Points",
     cell: ({ row }) => {
       const totPudos = row.getValue("totalPudos") as number;
       return (
         <div className="text-center font-medium">
-          {totPudos ? totPudos.toLocalString() : "NA"}
+          {totPudos ? totPudos : "NA"}
         </div>
       );
     },

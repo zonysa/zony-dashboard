@@ -7,7 +7,7 @@ export interface DistrictBase {
   zone_id: number | null;
 }
 
-export type CreateDistrict = Omit<DistrictBase, "id" | "zone_id">;
+export type CreateDistrict = Omit<DistrictBase, "id">;
 
 export interface CreateDistrictRes {
   district: DistrictBase;
@@ -29,8 +29,8 @@ export interface GetDistrictsRes {
 // Base Schema
 export const DistrictSchema = z.object({
   name: z.string(),
-  city: z.string(),
-  zone: z.string().optional(),
+  city_id: z.number(),
+  zone_id: z.number().nullable(),
 });
 
 // Types

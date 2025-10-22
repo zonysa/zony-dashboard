@@ -31,6 +31,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Ticket } from "@/lib/schema/tickets.schema";
+import { Row } from "@tanstack/react-table";
 
 // Define your form type
 type TicketActionForm = {
@@ -38,7 +40,11 @@ type TicketActionForm = {
   comment: string;
 };
 
-const TicketActionsCell = ({ row }) => {
+type TicketActionsCellProps = {
+  row: Row<Ticket>;
+};
+
+const TicketActionsCell = ({ row }: TicketActionsCellProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const ticket = row.original; // Get all ticket data
 
@@ -113,7 +119,9 @@ const TicketActionsCell = ({ row }) => {
                 <Label className="text-sm font-medium text-muted-foreground">
                   Created Date
                 </Label>
-                <p className="text-sm">{ticket.createdDate || "N/A"}</p>
+                <p className="text-sm">
+                  {ticket.createdAt.toLocaleDateString() || "N/A"}
+                </p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">

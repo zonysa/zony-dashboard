@@ -42,7 +42,7 @@ export function ResetPasswordForm({
   const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      password: "",
+      new_password: "",
       confirmPassword: "",
     },
   });
@@ -52,7 +52,7 @@ export function ResetPasswordForm({
     console.log("Token:", token); // Add this
 
     if (!token) {
-      form.setError("password", {
+      form.setError("new_password", {
         message: "Invalid reset link. Please request a new password reset.",
       });
       return;
@@ -60,7 +60,7 @@ export function ResetPasswordForm({
 
     resetPasswordMutation.mutate({
       token,
-      new_password: data.password,
+      new_password: data.new_password,
     });
   };
 
@@ -75,7 +75,9 @@ export function ResetPasswordForm({
     return strength;
   };
 
-  const passwordStrength = getPasswordStrength(form.watch("password") || "");
+  const passwordStrength = getPasswordStrength(
+    form.watch("new_password") || ""
+  );
   const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
   const strengthColors = [
     "bg-red-500",
@@ -97,7 +99,7 @@ export function ResetPasswordForm({
               {/* New Password Field */}
               <FormField
                 control={form.control}
-                name="password"
+                name="new_password"
                 render={({ field }) => (
                   <FormItem className="grid">
                     <FormLabel htmlFor="newPassword" className="font-normal">
@@ -211,7 +213,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        form.watch("password")?.length >= 8
+                        form.watch("new_password")?.length >= 8
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}
@@ -222,7 +224,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        /[a-z]/.test(form.watch("password") || "")
+                        /[a-z]/.test(form.watch("new_password") || "")
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}
@@ -233,7 +235,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        /[A-Z]/.test(form.watch("password") || "")
+                        /[A-Z]/.test(form.watch("new_password") || "")
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}
@@ -244,7 +246,7 @@ export function ResetPasswordForm({
                     <span
                       className={cn(
                         "w-2 h-2 rounded-full mr-2",
-                        /\d/.test(form.watch("password") || "")
+                        /\d/.test(form.watch("new_password") || "")
                           ? "bg-green-500"
                           : "bg-gray-300"
                       )}

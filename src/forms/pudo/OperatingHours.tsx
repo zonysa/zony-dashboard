@@ -2,7 +2,6 @@ import React from "react";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,37 +16,19 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StepNavigation } from "@/forms/StepNavigation";
-import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-
-interface OperatingHoursFormData {
-  "same-hours-everyday"?: boolean;
-  "24-7"?: boolean;
-  "operating-hours"?: {
-    [key: string]: {
-      enabled: boolean;
-      to: string;
-      from: string;
-      breakHour: string;
-    };
-  };
-}
+import { BranchFormData } from "@/lib/schema/branch.schema";
+import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 
 export const OperatingHoursStep: React.FC<
-  StepComponentProps<OperatingHoursFormData>
+  StepComponentProps<BranchFormData>
 > = ({ form, onNext, onBack, onSubmit, isFirstStep, isLastStep }) => {
   const { control, watch, setValue } = form;
 
-  const sameHoursEveryday = watch("same-hours-everyday");
-  const is24_7 = watch("24-7");
+  const sameHoursEveryday = watch("sameHoursEveryday");
+  const is24_7 = watch("twentyFourSeven");
+  const operatingHours = watch("operatingHours");
 
   const days = [
     "saturday",
@@ -79,17 +60,19 @@ export const OperatingHoursStep: React.FC<
 
   // Handle same hours everyday checkbox
   const handleSameHoursEveryday = (checked: boolean) => {
-    if (checked && sameHoursEveryday) {
-      // Get the first day's hours
-      const firstDayHours = form.getValues(`operating-hours.saturday`);
+    if (checked) {
+      // Get the first day's hours (saturday)
+      const firstDayHours = operatingHours?.saturday;
       if (firstDayHours) {
         // Apply to all days
+        const newOperatingHours = { ...operatingHours };
         days.forEach((day) => {
-          setValue(`operating-hours.${day}`, {
+          newOperatingHours[day] = {
             ...firstDayHours,
             enabled: true,
-          });
+          };
         });
+        setValue("operatingHours", newOperatingHours);
       }
     }
   };
@@ -97,21 +80,70 @@ export const OperatingHoursStep: React.FC<
   // Handle 24/7 checkbox
   const handle24_7 = (checked: boolean) => {
     if (checked) {
+      const newOperatingHours: Record<
+        string,
+        {
+          enabled: boolean;
+          from: string;
+          to: string;
+          breakHour?: string;
+        }
+      > = {};
+
       days.forEach((day) => {
-        setValue(`operating-hours.${day}`, {
+        newOperatingHours[day] = {
           enabled: true,
-          to: "00:00",
-          from: "23:59",
+          from: "00:00",
+          to: "23:59",
           breakHour: "00:00",
-        });
+        };
       });
+      setValue("operatingHours", newOperatingHours);
     }
   };
 
   // Toggle day enabled/disabled
   const toggleDay = (day: string) => {
-    const currentValue = watch(`operating-hours.${day}.enabled`);
-    setValue(`operating-hours.${day}.enabled`, !currentValue);
+    const currentHours = operatingHours || {};
+    const currentDay = currentHours[day];
+    const newOperatingHours = {
+      ...currentHours,
+      [day]: {
+        ...(currentDay || { from: "09:00", to: "17:00", breakHour: "12:00" }),
+        enabled: !currentDay?.enabled,
+      },
+    };
+    setValue("operatingHours", newOperatingHours);
+  };
+
+  // Get day hours safely
+  const getDayHours = (day: string) => {
+    return (
+      operatingHours?.[day] || {
+        enabled: true,
+        from: "09:00",
+        to: "17:00",
+        breakHour: "12:00",
+      }
+    );
+  };
+
+  // Update specific day field
+  const updateDayField = (
+    day: string,
+    field: "from" | "to" | "breakHour",
+    value: string
+  ) => {
+    const currentHours = operatingHours || {};
+    const dayHours = getDayHours(day);
+    const newOperatingHours = {
+      ...currentHours,
+      [day]: {
+        ...dayHours,
+        [field]: value,
+      },
+    };
+    setValue("operatingHours", newOperatingHours);
   };
 
   return (
@@ -121,7 +153,7 @@ export const OperatingHoursStep: React.FC<
         <div className="flex gap-8">
           <FormField
             control={control}
-            name="same-hours-everyday"
+            name="sameHoursEveryday"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                 <FormControl>
@@ -142,7 +174,7 @@ export const OperatingHoursStep: React.FC<
 
           <FormField
             control={control}
-            name="24-7"
+            name="twentyFourSeven"
             render={({ field }) => (
               <FormItem className="flex flex-row items-center space-x-3 space-y-0">
                 <FormControl>
@@ -167,16 +199,16 @@ export const OperatingHoursStep: React.FC<
           {/* Header */}
           <div className="grid grid-cols-[120px_1fr_1fr_1fr_48px] gap-4 pb-2">
             <div></div>
-            <div className="text-sm font-medium text-center">To</div>
             <div className="text-sm font-medium text-center">From</div>
+            <div className="text-sm font-medium text-center">To</div>
             <div className="text-sm font-medium text-center">Break Hour</div>
             <div></div>
           </div>
 
           {/* Days */}
           {days.map((day) => {
-            const dayEnabled =
-              watch(`operating-hours.${day}.enabled`) !== false;
+            const dayHours = getDayHours(day);
+            const dayEnabled = dayHours.enabled !== false;
 
             return (
               <div
@@ -188,104 +220,89 @@ export const OperatingHoursStep: React.FC<
                 {/* Day Name */}
                 <div className="capitalize font-medium">{day}</div>
 
-                {/* To Time */}
-                <FormField
-                  control={control}
-                  name={`operating-hours.${day}.to`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || "10:00"}
-                        disabled={is24_7 || !dayEnabled}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue>
-                              {timeOptions.find(
-                                (opt) => opt.value === (field.value || "10:00")
-                              )?.label || "10:00 AM"}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {timeOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* From Time */}
-                <FormField
-                  control={control}
-                  name={`operating-hours.${day}.from`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || "10:00"}
-                        disabled={is24_7 || !dayEnabled}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue>
-                              {timeOptions.find(
-                                (opt) => opt.value === (field.value || "10:00")
-                              )?.label || "10:00 AM"}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {timeOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormItem>
+                  <Select
+                    onValueChange={(value) =>
+                      updateDayField(day, "from", value)
+                    }
+                    value={dayHours.from}
+                    disabled={is24_7 || !dayEnabled}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {timeOptions.find(
+                            (opt) => opt.value === dayHours.from
+                          )?.label || "9:00 AM"}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+
+                {/* To Time */}
+                <FormItem>
+                  <Select
+                    onValueChange={(value) => updateDayField(day, "to", value)}
+                    value={dayHours.to}
+                    disabled={is24_7 || !dayEnabled}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {timeOptions.find((opt) => opt.value === dayHours.to)
+                            ?.label || "5:00 PM"}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
 
                 {/* Break Hour */}
-                <FormField
-                  control={control}
-                  name={`operating-hours.${day}.breakHour`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value || "10:00"}
-                        disabled={is24_7 || !dayEnabled}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue>
-                              {timeOptions.find(
-                                (opt) => opt.value === (field.value || "10:00")
-                              )?.label || "10:00 AM"}
-                            </SelectValue>
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {timeOptions.map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <FormItem>
+                  <Select
+                    onValueChange={(value) =>
+                      updateDayField(day, "breakHour", value)
+                    }
+                    value={dayHours.breakHour}
+                    disabled={is24_7 || !dayEnabled}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          {timeOptions.find(
+                            (opt) => opt.value === dayHours.breakHour
+                          )?.label || "12:00 PM"}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {timeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
 
                 {/* Remove/Toggle Button */}
                 <Button

@@ -1,9 +1,9 @@
 "use client";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { CustomerServiceProps } from "@/lib/schema/customer-service.schema";
+import { UserDetails } from "@/lib/schema/user.schema";
 
-export const columns: ColumnDef<CustomerServiceProps>[] = [
+export const customerServiceColumns: ColumnDef<UserDetails>[] = [
   {
     accessorKey: "name",
     header: "Name",
@@ -24,7 +24,7 @@ export const columns: ColumnDef<CustomerServiceProps>[] = [
   },
   {
     accessorKey: "email",
-    header: "e-mail",
+    header: "Email",
     cell: ({ row }) => {
       const email = row.getValue("email") as string;
       return (

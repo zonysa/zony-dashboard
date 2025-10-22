@@ -40,29 +40,27 @@ const Page: React.FC = () => {
 
   async function onSubmit() {
     try {
-      const data = form.getValues();
-      await registerMutation.mutateAsync(
-        {
-          first_name: data.firstName,
-          last_name: data.lastName,
-          phone_number: data.phoneNumber,
-          email: data.email,
-          password: data.password,
-          username: data.username,
-          role_id: 6,
+      const formData = form.getValues();
+      const apiData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone_number: formData.phoneNumber,
+        email: formData.email,
+        password: formData.password,
+        username: formData.username,
+        role_id: 6,
+      };
+      await registerMutation.mutateAsync(apiData, {
+        onSuccess: () => {
+          toast.success(
+            `Courier ${apiData.first_name} ${apiData.last_name} created successfuly`
+          );
+          form.reset();
         },
-        {
-          onSuccess: () => {
-            toast.success(
-              `Courier ${data.firstName} ${data.lastName} created successfuly`
-            );
-            form.reset();
-          },
-          onError: (error) => {
-            toast.error(`Error ${error.message}`);
-          },
-        }
-      );
+        onError: (error) => {
+          toast.error(`Error ${error.message}`);
+        },
+      });
 
       form.reset();
     } catch (error) {

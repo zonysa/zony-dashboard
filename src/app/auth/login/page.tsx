@@ -14,7 +14,7 @@ export default function Page() {
         width={630}
         height={388}
       />
-      <div className="w-full max-w-2/4 z-1">
+      <div className="w-full max-w-1/3 z-1">
         <LoginForm />
       </div>
     </div>

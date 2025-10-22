@@ -3,7 +3,7 @@
 import { branchColumns } from "@/components/tables/columns/branches-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetBranches } from "@/lib/hooks/useBranch";
-import { BranchTable } from "@/lib/schema/branch.schema";
+import { BranchDetails } from "@/lib/schema/branch.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
@@ -18,7 +18,7 @@ export default function Page() {
   ];
 
   const router = useRouter();
-  const handleRowClick = (row: Row<BranchTable>) => {
+  const handleRowClick = (row: Row<BranchDetails>) => {
     const pudoId = row.getValue("id") as string;
     router.replace(`/pudos/${pudoId}`);
   };

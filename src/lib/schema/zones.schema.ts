@@ -8,14 +8,15 @@ export const ZONE_STATUS = {
 } as const;
 
 export type ZoneStatus = (typeof ZONE_STATUS)[keyof typeof ZONE_STATUS];
+type ZoneCoordinates = {
+  lng: string;
+  lat: string;
+};
 
-interface ZoneBase {
+export interface ZoneDetails {
   id: number;
   name: string;
   status: ZoneStatus;
-}
-
-export interface ZoneRes extends ZoneBase {
   city_name: string;
   district_names?: string[];
   total_pudos?: number;
@@ -24,16 +25,7 @@ export interface ZoneRes extends ZoneBase {
   rating?: string;
   created_at: string;
   updated_at: string;
-}
-
-export interface ZoneTable {
-  id: string;
-  city: string;
-  districts: string[];
-  totalPudos: number;
-  totalParcels: number;
-  suptervisor: string;
-  status: string;
+  coordinates: ZoneCoordinates;
 }
 
 export interface CreateZoneReq {
@@ -43,34 +35,29 @@ export interface CreateZoneReq {
   districts_ids?: number[];
 }
 
-// Dashboard Table
-export interface ZoneTable {
-  id: string;
-  city: string;
-  districts: string;
-  pudos: number;
-  parcels: number;
-  supervisor: string;
-  status: ZoneStatus;
-}
-
 // Create Zone Response
 export interface CreateZoneRes {
   message: string;
   status: "success" | "error";
-  zone: ZoneRes;
+  zone: ZoneDetails;
 }
 
 // Get Zones Response
 export interface GetZonesRes {
   message: string;
   status: "success" | "error";
-  zones: ZoneRes[];
+  zones: ZoneDetails[];
   current_page: number;
   next_page: number | null;
   prev_page: number | null;
   total_zones: number;
   total_pages: number;
+}
+
+export interface GetZoneRes {
+  message: string;
+  status: string;
+  zone: ZoneDetails;
 }
 
 // Query Paramaters
@@ -85,9 +72,15 @@ export const ZoneSchema = z
   .object({
     name: z.string().trim().min(1, "name is required"),
     status: z.enum(["active", "inactive"]).optional(),
-    city: z.number().int().positive(),
-
-    districts: z.array(z.number().int().positive()).optional(),
+    city_id: z.number().int().positive(),
+    districts: z
+      .array(
+        z.object({
+          label: z.string(),
+          value: z.string(),
+        })
+      )
+      .optional(),
   })
   .strict();
 

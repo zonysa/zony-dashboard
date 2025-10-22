@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ComingSoon } from "@/components/ui/coming-soon";
 import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetParcelById } from "@/lib/hooks/useParcel";
+import { useGetParcel } from "@/lib/hooks/useParcel";
 import { ArrowRight, Clock, Package, Store, Truck, User } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
@@ -14,7 +14,7 @@ export default function Page() {
   const params = useParams();
   const parcelId = params.id as string;
 
-  const { data: parcel, isLoading } = useGetParcelById(parcelId || "");
+  const { data: parcel } = useGetParcel(parcelId || "");
 
   if (!parcelId) {
     notFound();
@@ -56,7 +56,10 @@ export default function Page() {
               />
               <CardContent className="flex-1 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <DataItem label="Tracking Number" value={parcel?.parcel.id} />
+                  <DataItem
+                    label="Tracking Number"
+                    value={String(parcel?.parcel?.id ?? "")}
+                  />
                   <DataItem
                     label="Pickup Ends At"
                     value={trackingData.pickupEndsAt}

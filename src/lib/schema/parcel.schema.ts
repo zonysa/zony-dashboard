@@ -11,25 +11,6 @@ export interface ParcelTable {
   client: string;
 }
 
-// Type for individual parcel item
-export type ParcelItem = {
-  city_name: string;
-  client_name: string;
-  courier_id: string;
-  id: number;
-  pudo_id: number;
-  receiving_date: string;
-  status:
-    | "waiting_confirmation"
-    | "pending"
-    | "in_transit"
-    | "delivered"
-    | "cancelled"
-    | "failed";
-  tracking_number: string;
-  zone_name: string;
-};
-
 // Type for parcel details
 export type ParcelDetails = {
   barcode: string;
@@ -58,7 +39,7 @@ export type ParcelDetails = {
 };
 
 // Type for the getParcel API response
-export type GetParcelResponse = {
+export type GetParcelRes = {
   message: string;
   parcel: ParcelDetails;
   status: "success" | "error";
@@ -69,7 +50,7 @@ export type getParcelsRes = {
   current_page: number;
   message: string;
   next_page: number | null;
-  parcels: ParcelItem[];
+  parcels: ParcelDetails[];
   prev_page: number | null;
   status: "success" | "error";
   total_pages: number;
@@ -87,8 +68,8 @@ export interface parcelFilterOptions {
 
 export const parcelSchema = z.object({
   barcode: z.string().min(1, "Barcode is required"),
-  tn: z.string(),
-  pickupPeriod: z
+  tracking_number: z.string(),
+  pickup_period: z
     .number()
     .int()
     .positive("Pickup period must be a positive integer"),
@@ -99,9 +80,9 @@ export const parcelSchema = z.object({
   delivering_date: z
     .string()
     .datetime({ message: "Invalid delivering date format" }),
-  client: z.number().int().positive("Client ID must be a positive integer"),
-  branch: z.number().int().positive("PUDO ID must be a positive integer"),
-  customer: z.string().uuid("Invalid customer ID format"),
+  client_id: z.number().int().positive("Client ID must be a positive integer"),
+  pudo_id: z.number().int().positive("PUDO ID must be a positive integer"),
+  customer_id: z.string().uuid("Invalid customer ID format"),
 });
 
 // Type inference

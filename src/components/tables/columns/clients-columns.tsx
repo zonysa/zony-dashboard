@@ -24,7 +24,7 @@ export const columns: ColumnDef<Client>[] = [
     cell: ({ row }) => {
       // You'll need to add this field to your API response or calculate it
       const totalParcels = row.original.total_parcels || 0;
-      return <div className="text-center font-medium">{totalParcels}</div>;
+      return <div className="font-medium">{totalParcels}</div>;
     },
   },
   {
@@ -33,7 +33,7 @@ export const columns: ColumnDef<Client>[] = [
     cell: ({ row }) => {
       // You'll need to add this field to your API response or calculate it
       const deliveryRate = row.original.delivery_rate || 0;
-      return <div className="text-center font-medium">{deliveryRate}%</div>;
+      return <div className="font-medium">{deliveryRate}%</div>;
     },
   },
   {
@@ -42,7 +42,7 @@ export const columns: ColumnDef<Client>[] = [
     cell: ({ row }) => {
       // You'll need to add this field to your API response or calculate it
       const pudoPoints = row.original.pudo_points_used || 0;
-      return <div className="text-center font-medium">{pudoPoints}</div>;
+      return <div className="font-medium">{pudoPoints}</div>;
     },
   },
   {
@@ -53,7 +53,7 @@ export const columns: ColumnDef<Client>[] = [
       const getStatusVariant = (status: string) => {
         switch (status.toLowerCase()) {
           case "active":
-            return "sucess";
+            return "success";
           case "inactive":
             return "secondary";
           case "pending":

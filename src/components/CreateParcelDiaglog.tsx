@@ -32,11 +32,10 @@ import { ParcelFormData } from "@/lib/schema/parcel.schema";
 import { Input } from "./ui/input";
 import { useGetClients } from "@/lib/hooks/useClient";
 import { Client } from "@/lib/schema/client.schema";
-import { Branch } from "@/lib/types/branches.types";
 import { useGetBranches } from "@/lib/hooks/useBranch";
 import { useCreateParcel } from "@/lib/hooks/useParcel";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { BranchDetails } from "@/lib/schema/branch.schema";
 
 const CreateParcelSheet = () => {
   const { data: clients } = useGetClients();
@@ -46,9 +45,9 @@ const CreateParcelSheet = () => {
 
   const form = useForm<ParcelFormData>({
     defaultValues: {
-      customer: "3fa89b70-e87c-44de-b1e9-f027f9e67679",
+      customer_id: "3fa89b70-e87c-44de-b1e9-f027f9e67679",
       barcode: "ABC-abc-1234",
-      tn: "2131231312",
+      tracking_number: "2131231312",
     },
     mode: "onChange",
   });
@@ -65,20 +64,20 @@ const CreateParcelSheet = () => {
       console.log("Form submitted:", data);
       await parcelMutation.mutateAsync(
         {
-          tracking_number: data.tn,
+          tracking_number: data.tracking_number,
           barcode: data.barcode,
           pickup_period: 2,
           status: "pending",
           receiving_date: "2025-10-1 10:10:10 AM",
           delivering_date: "2025-10-2 11:00:00 PM",
-          client_id: Number(data.client),
-          pudo_id: Number(data.branch),
-          customer_id: data.customer,
+          client_id: Number(data.client_id),
+          pudo_id: Number(data.pudo_id),
+          customer_id: data.customer_id,
         },
         {
           onSuccess: () => {
             toast.success(
-              `Parcel created successfully with tracking number ${data.tn}`
+              `Parcel created successfully with tracking number ${data.tracking_number}`
             );
             form.reset();
             setDialogOpen(false);
@@ -125,7 +124,7 @@ const CreateParcelSheet = () => {
 
                 <FormField
                   control={control}
-                  name="tn"
+                  name="tracking_number"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tracking Number</FormLabel>
@@ -153,7 +152,7 @@ const CreateParcelSheet = () => {
 
                 <FormField
                   control={control}
-                  name="customer"
+                  name="customer_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Customer ID</FormLabel>
@@ -174,13 +173,13 @@ const CreateParcelSheet = () => {
 
                 <FormField
                   control={control}
-                  name="client"
+                  name="client_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Client</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={String(field.value)}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -205,13 +204,13 @@ const CreateParcelSheet = () => {
 
                 <FormField
                   control={control}
-                  name="branch"
+                  name="pudo_id"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>PUDO Branch</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        defaultValue={String(field.value)}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
@@ -219,12 +218,12 @@ const CreateParcelSheet = () => {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {branches?.pudos?.map((branch: Branch) => (
+                          {branches?.pudos?.map((branch: BranchDetails) => (
                             <SelectItem
                               key={branch.id}
                               value={branch.id.toString()}
                             >
-                              {branch.name}
+                              {branch.branch_name}
                             </SelectItem>
                           ))}
                         </SelectContent>

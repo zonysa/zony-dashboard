@@ -9,9 +9,10 @@ import { Star, User, Store, FileStack } from "lucide-react";
 import DataItem from "@/components/ui/DataItem";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useGetBranchById, useGetBranchParcels } from "@/lib/hooks/useBranch";
+import { useGetBranch, useGetBranchParcels } from "@/lib/hooks/useBranch";
 import { useParams } from "next/navigation";
 import { SectionCards } from "@/components/ui/section-cards";
+import { columns } from "@/components/tables/columns/parcels-columns";
 
 interface BranchDetailsProps {
   branchData?: {
@@ -33,7 +34,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
   const params = useParams();
   const branchId = params.id as string;
 
-  const { data: branch } = useGetBranchById(branchId);
+  const { data: branch } = useGetBranch(branchId);
   const {
     data: parcels,
     isLoading,
@@ -80,6 +81,8 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
     location: data.location,
     name: data.name,
     phoneNum: data.phoneNum,
+    responsibleName: data.name,
+    responsiblePhone: data.phoneNum,
   });
 
   const toggleEdit = (section: keyof typeof editStates) => {
@@ -105,6 +108,8 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
       location: data.location,
       name: data.name,
       phoneNum: data.phoneNum,
+      responsibleName: data.name,
+      responsiblePhone: data.phoneNum,
     });
     setEditStates((prev) => ({
       ...prev,
@@ -173,7 +178,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label="Name"
-                  value={branch?.pudo?.name}
+                  value={String(branch?.pudo?.branch_name)}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("name", value)}
                 />
@@ -184,7 +189,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
               <div className="grid grid-cols-1 gap-3">
                 <DataItem
                   label="Location"
-                  value={branch?.pudo?.address}
+                  value={String(branch?.pudo?.short_address)}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("location", value)}
                 />
@@ -326,7 +331,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
 
         <TabsContent className="w-full px-6" value="branch-parcels">
           <DataTable
-            columns={branchColumns}
+            columns={columns}
             data={parcels?.parcels || []}
             enableFiltering={true}
             filterConfigs={filterConfigs}

@@ -2,9 +2,18 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
-import { ParcelTable } from "@/lib/schema/parcel.schema";
+import { ParcelDetails } from "@/lib/schema/parcel.schema";
 
-export const columns: ColumnDef<ParcelTable>[] = [
+export const columns: ColumnDef<ParcelDetails>[] = [
+  {
+    accessorKey: "id",
+    header: "ID",
+    cell: ({ row }) => {
+      const parcelId = row.getValue("id") as string;
+      return <div className="font-mono text-sm">{parcelId}</div>;
+    },
+    filterFn: "includesString",
+  },
   {
     accessorKey: "tracking_number",
     header: "Tracking Number",

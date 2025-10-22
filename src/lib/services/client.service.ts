@@ -1,9 +1,11 @@
-import { ClientFormData } from "../schema/client.schema";
+import { ClientFormData, ClientsResponse } from "../schema/client.schema";
 import { apiCall } from "./apiClient";
 
 // Get all clients
-export const getClients = async (filters?: Record<string, any>) => {
-  return apiCall({
+export const getClients = async (
+  filters?: Record<string, unknown>
+): Promise<ClientsResponse> => {
+  return apiCall<ClientsResponse>({
     method: "GET",
     url: "/clients",
     params: filters,

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { registerSchema } from "./auth.schema";
 
-export interface CustomerServiceProps {
+export interface CustomerServiceDetails {
   id: string;
   employeeId: string;
   name: string;

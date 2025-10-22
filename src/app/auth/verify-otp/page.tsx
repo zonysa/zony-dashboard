@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 
@@ -28,16 +28,9 @@ import {
 import { otpSchema, OtpFormData } from "@/lib/schema/auth.schema";
 import { useVerifyOtp } from "@/lib/hooks/useAuth";
 
-interface OTPRouteParams {
-  email: string;
-  type: "email_verification" | "password_reset";
-  from: "login" | "forgot_password";
-}
-
 export default function VerifyOtpPage() {
   const router = useRouter();
   const verifyOtpMutation = useVerifyOtp();
-  const { email: userEmall, type, from } = useSearchParams<OTPRouteParams>();
 
   // Get email from session storage (set during registration)
   const [email, setEmail] = React.useState<string>("");
@@ -65,31 +58,10 @@ export default function VerifyOtpPage() {
   const isComplete = otpValue.length === 6;
 
   const onSubmit = (data: OtpFormData) => {
-    // verifyOtpMutation.mutate({
-    //   ...data,
-    //   email: email, // Ensure email is included
-    // });
-    switch (from) {
-      case "login":
-        // Complete the login process
-        router.replace("/"); // or wherever users go after login
-        break;
-
-      case "forgot_password":
-        // Navigate to reset password with token
-        router.push({
-          pathname: "/reset-password",
-          params: {
-            email,
-            token: data?.token || "verified",
-          },
-        });
-        break;
-
-      default:
-        // Fallback
-        router.back();
-    }
+    verifyOtpMutation.mutate({
+      ...data,
+      email: email, // Ensure email is included
+    });
   };
 
   const handleResendOtp = () => {
@@ -209,7 +181,7 @@ export default function VerifyOtpPage() {
               {/* Resend OTP */}
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-2">
-                  Didn't receive the code?
+                  Didnt receive the code?
                 </p>
                 <Button
                   type="button"

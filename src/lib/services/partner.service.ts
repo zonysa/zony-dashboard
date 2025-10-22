@@ -1,4 +1,7 @@
+import { GetBranchesRes } from "../schema/branch.schema";
 import {
+  GetPartnerRes,
+  GetPartnersRes,
   partnerFilterOptions,
   PartnerFormData,
 } from "../schema/partner.schema";
@@ -14,7 +17,9 @@ export const createPartner = async (data: PartnerFormData) => {
 };
 
 // Get Partners
-export const getPartners = async (filters: partnerFilterOptions) => {
+export const getPartners = async (
+  filters: partnerFilterOptions
+): Promise<GetPartnersRes> => {
   const params = new URLSearchParams();
 
   if (filters?.type) params.append("type", filters.type);
@@ -27,7 +32,7 @@ export const getPartners = async (filters: partnerFilterOptions) => {
 };
 
 // Get Partner by ID
-export const getPartner = async (id: string) => {
+export const getPartner = async (id: string): Promise<GetPartnerRes> => {
   return apiCall({
     method: "GET",
     url: `/partners/${id}`,
@@ -35,7 +40,9 @@ export const getPartner = async (id: string) => {
 };
 
 // Get Partner Branches
-export const getPartnerBranches = async (id: string) => {
+export const getPartnerBranches = async (
+  id: string
+): Promise<GetBranchesRes> => {
   return apiCall({
     method: "GET",
     url: `/partners/${id}/pudos`,

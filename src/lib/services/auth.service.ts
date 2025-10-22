@@ -1,14 +1,22 @@
 import { apiCall } from "@/lib/services/apiClient";
 import {
   LoginFormData,
-  RegisterFormData,
   RequestPasswordFormData,
   ResetPasswordFormData,
   OtpFormData,
+  LoginResponse,
+  RegisterRequest,
+  RegisterResponse,
+  RequestPasswordResponse,
+  VerifyOtpResponse,
 } from "@/lib/schema/auth.schema.js";
+import { RegisterApiRequest } from "@/lib/types/api.types";
+import { GetUserRes, GetUsersRes } from "../schema/user.schema";
 
 // Get all users
-export const getUsers = async (filters?: { role_id?: string | number }) => {
+export const getUsers = async (filters?: {
+  role_id?: string | number;
+}): Promise<GetUsersRes> => {
   return apiCall({
     method: "GET",
     url: "/users",
@@ -25,7 +33,7 @@ export const getUser = async (id: string | number) => {
 };
 
 // Real API functions
-export const login = async (data: LoginFormData) => {
+export const login = async (data: LoginFormData): Promise<LoginResponse> => {
   return apiCall({
     method: "POST",
     url: "/auth/login",
@@ -33,7 +41,9 @@ export const login = async (data: LoginFormData) => {
   });
 };
 
-export const register = async (data: RegisterFormData) => {
+export const register = async (
+  data: RegisterApiRequest
+): Promise<RegisterResponse> => {
   return apiCall({
     method: "POST",
     url: "/auth/register",
@@ -41,7 +51,9 @@ export const register = async (data: RegisterFormData) => {
   });
 };
 
-export const requestPassword = async (data: RequestPasswordFormData) => {
+export const requestPassword = async (
+  data: RequestPasswordFormData
+): Promise<RequestPasswordResponse> => {
   return apiCall({
     method: "POST",
     url: "/auth/request-reset",
@@ -57,7 +69,9 @@ export const resetPassword = async (data: ResetPasswordFormData) => {
   });
 };
 
-export const verifyOtp = async (data: OtpFormData) => {
+export const verifyOtp = async (
+  data: OtpFormData
+): Promise<VerifyOtpResponse> => {
   return apiCall({
     method: "POST",
     url: "/auth/verify-otp",

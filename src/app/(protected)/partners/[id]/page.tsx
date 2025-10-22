@@ -133,7 +133,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label="Name"
-                  value={partner?.partner?.name}
+                  value={String(partner?.partner?.name)}
                   isEditable={editStates.representative}
                   onChange={(value) => updateFormData("name", value)}
                 />

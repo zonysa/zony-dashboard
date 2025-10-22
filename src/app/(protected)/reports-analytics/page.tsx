@@ -1,15 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "@/components/tables/data-table";
-import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { branchColumns } from "@/components/tables/columns/branches-columns";
-import { mockBranches as parcelsData } from "@/lib/data/mocks/branches.mock";
-import { Star, User, Store, FileStack } from "lucide-react";
-import DataItem from "@/components/ui/DataItem";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
 import { SectionCards } from "@/components/ui/section-cards";
 
 interface BranchDetailsProps {

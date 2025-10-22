@@ -1,15 +1,12 @@
 import { useState, useCallback } from "react";
-import { useForm, UseFormReturn } from "react-hook-form";
+import {
+  DefaultValues,
+  FieldValues,
+  useForm,
+  UseFormReturn,
+} from "react-hook-form";
 
-export interface StepConfig<T = unknown> {
-  id: string;
-  title: string;
-  description?: string;
-  component: React.ComponentType<StepComponentProps<T>>;
-  validation?: (data: T) => boolean | Promise<boolean>;
-}
-
-export interface StepComponentProps<T = unknown> {
+export interface StepComponentProps<T extends FieldValues = FieldValues> {
   form: UseFormReturn<T>;
   onNext: () => void;
   onBack: () => void;
@@ -21,7 +18,16 @@ export interface StepComponentProps<T = unknown> {
   data?: T;
 }
 
-export interface UseMultiStepFormOptions<T> {
+export interface StepConfig<T extends FieldValues = FieldValues> {
+  id: string;
+  title: string;
+  description?: string;
+  fields?: (keyof T)[];
+  component: React.ComponentType<StepComponentProps<T>>;
+  validation?: (data: T) => boolean | Promise<boolean>;
+}
+
+export interface UseMultiStepFormOptions<T extends FieldValues> {
   steps: StepConfig<T>[];
   defaultValues?: Partial<T>;
   onComplete?: (data: T) => void | Promise<void>;
@@ -30,7 +36,7 @@ export interface UseMultiStepFormOptions<T> {
   storageKey?: string;
 }
 
-export const useMultiStepForm = <T extends Record<string, any>>({
+export const useMultiStepForm = <T extends Record<string, unknown>>({
   steps,
   defaultValues,
   onStepChange,
@@ -115,7 +121,7 @@ export const useMultiStepForm = <T extends Record<string, any>>({
 
   const resetForm = useCallback(() => {
     setCurrentStep(0);
-    reset(defaultValues);
+    reset(defaultValues as DefaultValues<T>);
     clearPersistedData();
   }, [reset, defaultValues, clearPersistedData]);
 

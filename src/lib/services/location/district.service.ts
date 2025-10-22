@@ -1,7 +1,13 @@
-import { CreateDistrict } from "@/lib/schema/district.schema";
+import {
+  CreateDistrict,
+  CreateDistrictRes,
+  GetDistrictsRes,
+} from "@/lib/schema/district.schema";
 import { apiCall } from "../apiClient";
 
-export const createDistrict = async (data: CreateDistrict) => {
+export const createDistrict = async (
+  data: CreateDistrict
+): Promise<CreateDistrictRes> => {
   return apiCall({
     method: "POST",
     url: "/districts",
@@ -9,7 +15,9 @@ export const createDistrict = async (data: CreateDistrict) => {
   });
 };
 
-export const getDistricts = async (cityId?: number) => {
+export const getDistricts = async (
+  cityId?: number
+): Promise<GetDistrictsRes> => {
   const params = new URLSearchParams();
 
   if (cityId) {

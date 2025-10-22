@@ -1,7 +1,4 @@
-import {
-  customerServiceFilterOptions,
-  CustomerServiceFormData,
-} from "../schema/customer-service.schema";
+import { customerServiceFilterOptions } from "../schema/customer-service.schema";
 import { apiCall } from "./apiClient";
 
 // Get CustomerServices

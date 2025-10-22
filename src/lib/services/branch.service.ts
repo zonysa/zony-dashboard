@@ -1,4 +1,10 @@
-import { BranchFilterOptions, BranchFormData } from "../schema/branch.schema";
+import {
+  BranchFilterOptions,
+  BranchFormData,
+  GetBranchesRes,
+  GetBranchRes,
+} from "../schema/branch.schema";
+import { getParcelsRes } from "../schema/parcel.schema";
 import { apiCall } from "./apiClient";
 
 // Create Partner
@@ -11,7 +17,9 @@ export const createBranch = async (data: BranchFormData) => {
 };
 
 // Get Partners
-export const getBranches = async (filters: BranchFilterOptions) => {
+export const getBranches = async (
+  filters: BranchFilterOptions
+): Promise<GetBranchesRes> => {
   const params = new URLSearchParams();
 
   if (filters?.city) params.append("city", filters.city);
@@ -26,7 +34,7 @@ export const getBranches = async (filters: BranchFilterOptions) => {
 };
 
 // Get Partner By Id
-export const getBranchById = async (id: string) => {
+export const getBranchById = async (id: string): Promise<GetBranchRes> => {
   return apiCall({
     method: "GET",
     url: `/pudos/${id}`,
@@ -34,7 +42,7 @@ export const getBranchById = async (id: string) => {
 };
 
 // Get Branch Parcels
-export const getBranchParcels = async (id: string) => {
+export const getBranchParcels = async (id: string): Promise<getParcelsRes> => {
   return apiCall({
     method: "GET",
     url: `/pudos/${id}/parcels`,

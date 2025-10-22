@@ -32,12 +32,12 @@ export function LoginForm({
   // Use our mock-enabled hook
   const loginMutation = useLogin();
 
-  const form = useForm<LoginFormData>({
+  const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "admin@email.com",
       password: "00000000",
-      rememberMe: true,
+      remember_me: true,
     },
   });
 
@@ -45,7 +45,7 @@ export function LoginForm({
     loginMutation.mutate({
       email: data.email,
       password: data.password,
-      remember_me: data.rememberMe,
+      remember_me: data.remember_me ?? true,
     });
   };
 
@@ -121,12 +121,12 @@ export function LoginForm({
               <div className="flex justify-between items-center">
                 <FormField
                   control={form.control}
-                  name="rememberMe"
+                  name="remember_me"
                   render={({ field }) => (
                     <FormItem className="flex items-center space-x-3 space-y-0">
                       <FormControl>
                         <Checkbox
-                          checked={field.value}
+                          checked={field.value ?? false}
                           onCheckedChange={field.onChange}
                           disabled={loginMutation.isPending}
                         />

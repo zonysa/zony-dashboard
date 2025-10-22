@@ -1,3 +1,5 @@
+"use client";
+
 import { DataTable } from "@/components/tables/data-table";
 import {
   Card,
@@ -8,54 +10,45 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { branchColumns } from "@/components/tables/columns/branches-columns";
-import { mockBranches as data } from "@/lib/data/mocks/branches.mock";
-import { MapPin } from "lucide-react";
-
-interface BranchDetailsProps {
-  branchData?: {
-    partnerName: string;
-    responsiblePerson: string;
-    phoneNumber: string;
-    representativeName: string;
-    representativePhone: string;
-    branchLocation: string;
-    rating: number;
-    photos: string[];
-    mapUrl?: string;
-    coordinates?: {
-      lat: number;
-      lng: number;
-    };
-  };
-}
+import { ArrowUpRight, Map, MapPin, User } from "lucide-react";
+import { useParams } from "next/navigation";
+import {
+  useGetZone,
+  useGetZoneCouriers,
+  useGetZoneCustomerServices,
+  useGetZoneDistricts,
+  useGetZoneSupervisors,
+} from "@/lib/hooks/useZone";
+import { columns } from "@/components/tables/columns/courier-columns";
+import { useGetBranches } from "@/lib/hooks/useBranch";
+import { customerServiceColumns } from "@/components/tables/columns/customer-service-columns";
+import Link from "next/link";
+import DataItem from "@/components/ui/DataItem";
 
 function BranchDetails() {
-  const initialData = {
-    zone: "RUH-5",
-    city: "Cairo",
-    districts: "Maadi, Helwan",
-    statue: "Active",
-    supervisor: "Naif Elmtary",
-    createdOn: "10/09/2025",
-    totalParcels: 310,
-    photos: [
-      "/api/placeholder/240/180", // Mall corridor
-      "/api/placeholder/240/180", // Clothing store
-      "/api/placeholder/240/180", // Store interior
-    ],
-    mapUrl: "/api/placeholder/800/300", // Map placeholder
+  const param = useParams();
+  const zoneId = String(param.id);
+
+  const { data: zone } = useGetZone(String(zoneId));
+  const { data: districts } = useGetZoneDistricts(zoneId);
+  const { data: supervisors } = useGetZoneSupervisors(zoneId);
+  const { data: couriers } = useGetZoneCouriers(zoneId);
+  const { data: branches } = useGetBranches({ zone: zoneId });
+  const { data: customerServices } = useGetZoneCustomerServices(zoneId);
+
+  const filterConfigs = [
+    { key: "city", label: "City", placeholder: "All Cities" },
+    { key: "district", label: "District", placeholder: "All Districts" },
+    { key: "status", label: "Status", placeholder: "All Statuses" },
+  ];
+
+  const data = {
+    mapUrl: "https://placehold.co/600x400",
     coordinates: {
       lat: 38.2527,
       lng: -85.7585,
     },
   };
-
-  const filterConfigs = [
-    { key: "city", label: "City", placeholder: "All Cities" },
-    { key: "zone", label: "Zone", placeholder: "All Zones" },
-    { key: "district", label: "District", placeholder: "All Districts" },
-    { key: "status", label: "Status", placeholder: "All Statuses" },
-  ];
 
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
@@ -64,100 +57,64 @@ function BranchDetails() {
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
             <TabsTrigger value="zone-details">Zone Info</TabsTrigger>
             <TabsTrigger value="branchs">Assigned Branchs</TabsTrigger>
+            <TabsTrigger value="couriers">Couriers</TabsTrigger>
+            <TabsTrigger value="customerServices">
+              Customer Services
+            </TabsTrigger>
           </div>
         </TabsList>
 
-        <TabsContent className="w-full px-8" value="branchs">
-          <DataTable
-            columns={branchColumns}
-            data={data}
-            enableFiltering={true}
-            filterConfigs={filterConfigs}
-            enableGlobalSearch={true}
-            searchPlaceholder="Search Branch Name..."
-          />
-        </TabsContent>
-
-        <TabsContent className="flex flex-col gap-6 px-6" value="zone-details">
+        <TabsContent className="flex flex-col gap-6" value="zone-details">
           {/* Branch Info Card */}
-          <Card className="flex flex-row border-0 border-b rounded-0 shadow-transparent">
-            <CardHeader className="w-1/4 flex flex-col items-start justify-start">
-              <CardTitle>Zone Details</CardTitle>
-              <CardDescription>
-                Branch Info Branch Info Branch Info Branch Info
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 space-y-3">
-              {/* Info Items */}
+
+          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+            <DataItem
+              isHeading={true}
+              label="Zone Details"
+              value="Branch information and location details"
+              icon={Map}
+              iconClassName="text-black"
+            />
+            <CardContent className="w-2/4 flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div className=" flex flex-col gap-1">
-                  <span className="text-gray-500 text-sm">Zone ID</span>
-                  <span className="text-gray-900 text-sm font-semibold">
-                    {initialData.zone}
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500 text-sm">
-                    Responsible Personal
-                  </span>
-                  <span className="text-gray-900 text-sm font-semibold">
-                    {initialData.city}
-                  </span>
-                </div>
+                <DataItem label="Zone Id" value={String(zone?.zone?.id)} />
+                <DataItem label="Zone Name" value={String(zone?.zone?.name)} />
               </div>
-
               <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500 text-sm">Phone Number</span>
-                  <span className="text-gray-900 text-sm font-semibold">
-                    {initialData.districts}
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <span className="text-gray-500 text-sm">
-                    Representative Name
-                  </span>
-                  <span className="text-gray-900 text-sm font-semibold">
-                    {initialData.statue}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <span className="text-gray-500 text-sm">Phone Number</span>
-                <span className="text-gray-900 text-sm font-semibold">
-                  {initialData.supervisor}
-                </span>
+                <DataItem label="City" value={String(zone?.zone?.city_name)} />
+                <DataItem
+                  label="District"
+                  value={String(zone?.zone?.district_names)}
+                />
               </div>
             </CardContent>
           </Card>
 
-          {/* Branch Photo Card */}
-          <Card className="flex flex-row border-0 border-b rounded-0 shadow-transparent">
-            <CardHeader className="w-1/4 flex flex-col items-start justify-start">
-              <CardTitle>Branch Photo</CardTitle>
-              <CardDescription>
-                Branch Info Branch Info Branch Info Branch Info
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 px-4 py-4">
-              <div className="grid grid-cols-3 gap-2">
-                {initialData.photos.map((photo, index) => (
-                  <div
-                    key={index}
-                    className="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
-                  >
-                    <img
-                      src={photo}
-                      alt={`Branch photo ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
+          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+            <DataItem
+              isHeading={true}
+              label="Zone Supervisor"
+              value="Branch information and location details"
+              icon={User}
+              iconClassName="text-black"
+            />
+            <CardContent className="w-2/4 flex-1 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <DataItem
+                  label="Name"
+                  value={String(supervisors?.supervisors[0].first_name)}
+                />
+                <DataItem
+                  label="Phone Number"
+                  value={String(supervisors?.supervisors[0].phone_number)}
+                />
               </div>
             </CardContent>
+            <div className="flex gap-2">
+              <Link href={`users/${supervisors?.supervisors[0].id}`}>
+                <ArrowUpRight />
+              </Link>
+            </div>
           </Card>
 
           {/* Location Card */}
@@ -176,17 +133,13 @@ function BranchDetails() {
                     <span className="text-gray-500 text-sm">
                       Branch Location
                     </span>
-                    <span className="text-gray-900 text-sm font-semibold flex items-start gap-2">
-                      <MapPin className="w-4 h-4 mt-0.5 text-gray-500 flex-shrink-0" />
-                      {data.branchLocation}
-                    </span>
                   </div>
 
                   {/* Map */}
                   <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
                     {data.mapUrl ? (
                       <img
-                        src={data.mapUrl}
+                        src="/"
                         alt="Branch location map"
                         className="w-full h-full object-cover"
                       />
@@ -200,6 +153,39 @@ function BranchDetails() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent className="w-full px-8" value="branchs">
+          <DataTable
+            columns={branchColumns}
+            data={branches?.pudos ?? []}
+            enableFiltering={true}
+            filterConfigs={filterConfigs}
+            enableGlobalSearch={true}
+            searchPlaceholder="Search Branch Name..."
+          />
+        </TabsContent>
+
+        <TabsContent className="w-full px-8" value="couriers">
+          <DataTable
+            columns={columns}
+            data={couriers?.couriers ?? []}
+            enableFiltering={true}
+            filterConfigs={filterConfigs}
+            enableGlobalSearch={true}
+            searchPlaceholder="Search Courier Name..."
+          />
+        </TabsContent>
+
+        <TabsContent className="w-full px-8" value="customerServices">
+          <DataTable
+            columns={customerServiceColumns}
+            data={customerServices?.customer_service ?? []}
+            enableFiltering={true}
+            filterConfigs={filterConfigs}
+            enableGlobalSearch={true}
+            searchPlaceholder="Search Courier Name..."
+          />
         </TabsContent>
       </Tabs>
     </div>

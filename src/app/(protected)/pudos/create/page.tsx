@@ -1,19 +1,16 @@
 "use client";
 
 import { MultiStepForm } from "@/forms/MultiStepForm";
-import { ResponsiblePersonStep } from "@/forms/pudo/ResponsibleStep";
 import { OperatingHoursStep } from "@/forms/pudo/OperatingHours";
-import { useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
+import { StepConfig, useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { BranchInfoStep } from "@/forms/pudo/BranchInfoStep";
 import { BranchFormData } from "@/lib/schema/branch.schema";
-import { useRegister } from "@/lib/hooks/useAuth";
 import { useCreateBranch } from "@/lib/hooks/useBranch";
 
 export default function Page() {
-  const register = useRegister();
   const branchMutation = useCreateBranch();
 
-  const formSteps = [
+  const formSteps: StepConfig<BranchFormData>[] = [
     {
       id: "pudoInfo",
       title: "PUDO Info",
@@ -44,7 +41,6 @@ export default function Page() {
         return true;
       },
     },
-
     {
       id: "operatingHours",
       title: "Operating Hours",
@@ -53,7 +49,7 @@ export default function Page() {
       validation: async (data: BranchFormData) => {
         // Operating hours validation
         // If 24/7 is selected, no other validation needed
-        if (data["24-7"]) {
+        if (data["twentyFourSeven"]) {
           return true;
         }
 
@@ -96,10 +92,10 @@ export default function Page() {
       district: "",
       zone: "",
       sameHoursEveryday: false,
-      "24-7": false,
-      "confirm-details": false,
-      "terms-accepted": false,
-      "operating-hours": {
+      twentyFourSeven: false,
+      confirmDetails: false,
+      termsAccepted: false,
+      operatingHours: {
         saturday: {
           enabled: true,
           to: "18:00",
@@ -149,36 +145,21 @@ export default function Page() {
 
       // Here you would typically send the data to your API
       try {
-        const partnerData = {
+        const branchData = {
           // Branch info
-          name: data.name,
+          name: data.branchName,
           address: data.address,
           status: "active",
           gallery: [],
-          oprating_hours: {},
-          municipal_license: data.municipalLicense,
+          oprating_hours: data.operatingHours,
+          municipal_license: "13213123",
           password: "00000000",
 
-          // bank
-          bank_name: data.bankName,
-          bank_holder_name: data.accountHolderName,
-          bank_account_number: data.accountNumber,
-          IBAN: data.iban,
+          // Responsible
+          responsible_id: data.responsible,
         };
 
-        const registerResponse = await register.mutateAsync(
-          partnerData.representative
-        );
-        const representativeId =
-          registerResponse.user?.id || "40d2dfeb-d594-4248-b0ae-4c8b7eac2e03";
-
-        await partnerMutation.mutateAsync({
-          ...partnerData.partnerInfo,
-          representative_id: representativeId,
-        });
-
-        // You can also show a success notification
-        alert("PUDO Registration submitted successfully!");
+        console.log("Branch Data", branchData);
       } catch (error) {
         console.error("Error submitting form:", error);
         alert("Error submitting registration. Please try again.");

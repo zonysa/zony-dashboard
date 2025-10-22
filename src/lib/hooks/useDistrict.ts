@@ -2,25 +2,13 @@ import {
   DistrictBase,
   CreateDistrictRes,
   GetDistrictsRes,
+  DistrictFormData,
 } from "@/lib/schema/district.schema";
 import {
   createDistrict,
   getDistricts,
 } from "@/lib/services/location/district.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-
-interface TransformedDistrict {
-  id: number;
-  name: string;
-  cityId: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface TransformedDistrictResponse
-  extends Omit<GetDistrictsRes, "districts"> {
-  districts: TransformedDistrict[];
-}
 
 // Query keys for consistency
 export const districtKeys = {
@@ -35,7 +23,7 @@ export const districtKeys = {
 export function useCreateDistrict() {
   const queryClient = useQueryClient();
 
-  return useMutation<CreateDistrictRes, Error, DistrictBase>({
+  return useMutation<CreateDistrictRes, Error, DistrictFormData>({
     mutationFn: createDistrict,
     onSuccess: () => {
       // Show success message
@@ -49,8 +37,8 @@ export function useCreateDistrict() {
 
 // Get Cities Hook
 export function useGetDistricts(cityId?: number) {
-  return useQuery<GetDistrictsRes, Error, TransformedDistrictResponse>({
-    queryKey: districtKeys.list(cityId),
+  return useQuery<GetDistrictsRes>({
+    queryKey: districtKeys.list(cityId?.toString() || ""),
     queryFn: () => getDistricts(cityId),
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (formerly cacheTime)

@@ -10,4 +10,9 @@ export interface Ticket {
   rating: number;
   createdAt: Date;
   updatedAt: Date;
+  priority?: string;
+  assignedTo?: string;
+  category?: string;
+  description?: string;
+  title?: string;
 }

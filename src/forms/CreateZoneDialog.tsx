@@ -28,12 +28,12 @@ import { ZoneFormData } from "@/lib/schema/zones.schema";
 import { Input } from "@/components/ui/input";
 import { useCreateZone } from "@/lib/hooks/useZone";
 import { useGetCities } from "@/lib/hooks/useCity";
-import { CityRes } from "@/lib/schema/city.schema";
 import { toast } from "sonner";
 import { useGetDistricts } from "@/lib/hooks/useDistrict";
 import { DistrictBase } from "@/lib/schema/district.schema";
 import { Spinner } from "@/components/ui/spinner";
 import MultipleSelector from "@/components/ui/multiple-selector";
+import { CityDetails } from "@/lib/schema/city.schema";
 
 type CreateZoneProps = {
   open: boolean;
@@ -49,16 +49,14 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
   const form = useForm<ZoneFormData>({
     defaultValues: {
       name: "",
-      city: 0,
+      city_id: 0,
       districts: [],
     },
     mode: "onChange",
   });
 
-  const cityId = form.watch("city");
-  const { data: districts } = useGetDistricts(
-    cityId ? cityId.toString() : undefined
-  );
+  const cityId = form.watch("city_id");
+  const { data: districts } = useGetDistricts(Number(cityId) ?? null);
   const { data: cities } = useGetCities();
 
   const zoneMutation = useCreateZone();
@@ -82,7 +80,7 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
       await zoneMutation.mutateAsync(
         {
           name: data.name,
-          city_id: Number(data.city), // Convert to number for API
+          city_id: Number(data.city_id), // Convert to number for API
           status: "active",
           // districts: data.districts.map(d => Number(d.value))
         },
@@ -142,7 +140,7 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
             />
             <FormField
               control={control}
-              name="city"
+              name="city_id"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>City</FormLabel>
@@ -159,8 +157,8 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent defaultValue="Cairo">
-                      {cities?.cities.map((city: CityRes) => (
-                        <SelectItem key={city.id} value={city.id.toString()}>
+                      {cities?.cities.map((city: CityDetails) => (
+                        <SelectItem key={city.id} value={String(city.id)}>
                           {city.name}
                         </SelectItem>
                       ))}
