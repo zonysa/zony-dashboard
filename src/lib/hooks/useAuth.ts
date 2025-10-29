@@ -22,6 +22,7 @@ import {
   RequestPasswordResponse,
   VerifyOtpResponse,
 } from "../schema/auth.schema";
+import { useAuthStore } from "@/lib/stores/auth-store";
 
 // Query keys
 export const userKeys = {
@@ -76,6 +77,7 @@ export const useResetPassword = () => {
 export function useLogin() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
 
   return useMutation<LoginResponse, Error, LoginFormData>({
     mutationFn: login,
@@ -94,6 +96,11 @@ export function useLogin() {
 
       // Update cache with user data
       queryClient.setQueryData(["user", "profile"], { data: { user } });
+
+      // Update Zustand auth store
+      if (user) {
+        setUser(user);
+      }
 
       // Show success message
       toast.success("Success", {
@@ -166,6 +173,7 @@ export function useRequestPassword() {
 export function useVerifyOtp() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const setUser = useAuthStore((state) => state.setUser);
 
   return useMutation({
     mutationFn: verifyOtp,
@@ -184,6 +192,11 @@ export function useVerifyOtp() {
       // Update cache with user data
       queryClient.setQueryData(["user", "profile"], { data: { user } });
 
+      // Update Zustand auth store
+      if (user) {
+        setUser(user);
+      }
+
       // Show success message
       toast.success("Email verified successfully!");
 
@@ -201,6 +214,7 @@ export function useVerifyOtp() {
 export function useLogout() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const logoutStore = useAuthStore((state) => state.logout);
 
   return useMutation({
     mutationFn: logout,
@@ -212,6 +226,9 @@ export function useLogout() {
 
       // Clear all cached data
       queryClient.clear();
+
+      // Clear Zustand auth store
+      logoutStore();
 
       // Show success message
       toast.success("Logged out successfully");
@@ -225,6 +242,9 @@ export function useLogout() {
       localStorage.removeItem("refreshToken");
       sessionStorage.clear();
       queryClient.clear();
+
+      // Clear Zustand auth store
+      logoutStore();
 
       console.error("Logout error:", error);
       router.push("/login");

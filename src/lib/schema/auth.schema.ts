@@ -1,22 +1,21 @@
 import { z } from "zod";
 
 export type User = {
-  id: string;
+  id?: string;
   email: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
   username: string;
-  phone_number: string;
-  avatar: string | null;
-  birth_date: string | null;
-  city: string | null;
-  country: string | null;
-  gender: string | null;
-  identity: string | null;
-  is_active: boolean;
-  last_login: string;
-  created_at: string;
-  updated_at: string;
+  phone_number?: string;
+  avatar?: string | null;
+  birth_date?: string | null;
+  city?: string | null;
+  country?: string | null;
+  gender?: string | null;
+  identity?: string | null;
+  is_active?: boolean;
+  last_login?: string;
+  role: string; // Role from API: "admin", "supervisor", "customer", etc.
 };
 
 export const emailSchema = z.string().min(1, "Email is required");

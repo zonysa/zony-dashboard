@@ -9,7 +9,6 @@ import {
   BarChart3,
   Settings,
   Map,
-  Bell,
   Ticket,
   LogOut,
   Handshake,
@@ -27,104 +26,108 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { Permission } from "@/lib/rbac/permissions";
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+// Navigation items with required permissions
+const navItems = [
+  {
+    title: "Overview",
+    url: "/",
+    icon: LayoutDashboard,
+    permission: Permission.VIEW_DASHBOARD,
   },
-  navMain: [
-    {
-      title: "Overview",
-      url: "/",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Supervisors",
-      url: "/supervisors",
-      icon: Users,
-    },
-    {
-      title: "Partners",
-      url: "/partners",
-      icon: UserRound,
-    },
-    {
-      title: "PUDO Points",
-      url: "/pudos",
-      icon: Store,
-    },
-    {
-      title: "Zones",
-      url: "/zones",
-      icon: Map,
-    },
-    {
-      title: "Reports & Analytics",
-      url: "/reports-analytics",
-      icon: BarChart3,
-    },
-    // {
-    //   title: "System Alerts",
-    //   url: "/system-alerts",
-    //   icon: Bell,
-    // },
-    // {
-    //   title: "Roles & Permissions",
-    //   url: "/roles-permissions",
-    //   icon: Settings,
-    // },
-    {
-      title: "Parcels",
-      url: "/parcels",
-      icon: Package,
-    },
-    {
-      title: "Clients",
-      url: "/clients",
-      icon: Handshake,
-    },
-    {
-      title: "Tickets",
-      url: "/tickets",
-      icon: Ticket,
-    },
-    {
-      title: "Customer Service",
-      url: "/customer-service",
-      icon: Headset,
-    },
-    {
-      title: "Courier",
-      url: "/courier",
-      icon: Truck,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
-    },
-    {
-      title: "Logout",
-      url: "#",
-      icon: LogOut,
-    },
-  ],
-};
+  {
+    title: "Supervisors",
+    url: "/supervisors",
+    icon: Users,
+    permission: Permission.VIEW_SUPERVISORS,
+  },
+  {
+    title: "Partners",
+    url: "/partners",
+    icon: UserRound,
+    permission: Permission.VIEW_PARTNERS,
+  },
+  {
+    title: "PUDO Points",
+    url: "/pudos",
+    icon: Store,
+    permission: Permission.VIEW_PUDOS,
+  },
+  {
+    title: "Zones",
+    url: "/zones",
+    icon: Map,
+    permission: Permission.VIEW_ZONES,
+  },
+  {
+    title: "Reports & Analytics",
+    url: "/reports-analytics",
+    icon: BarChart3,
+    permission: Permission.VIEW_REPORTS,
+  },
+  {
+    title: "Parcels",
+    url: "/parcels",
+    icon: Package,
+    permission: Permission.VIEW_PARCELS,
+  },
+  {
+    title: "Clients",
+    url: "/clients",
+    icon: Handshake,
+    permission: Permission.VIEW_CLIENTS,
+  },
+  {
+    title: "Tickets",
+    url: "/tickets",
+    icon: Ticket,
+    permission: Permission.VIEW_TICKETS,
+  },
+  {
+    title: "Customer Service",
+    url: "/customer-service",
+    icon: Headset,
+    permission: Permission.VIEW_CUSTOMER_SERVICE,
+  },
+  {
+    title: "Courier",
+    url: "/courier",
+    icon: Truck,
+    permission: Permission.VIEW_COURIER,
+  },
+];
+
+const navSecondary = [
+  {
+    title: "Settings",
+    url: "/settings",
+    icon: Settings,
+  },
+  {
+    title: "Logout",
+    url: "#",
+    icon: LogOut,
+  },
+];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+
+  // Filter navigation items based on user permissions
+  const filteredNavItems = React.useMemo(() => {
+    return navItems.filter((item) => hasPermission(item.permission));
+  }, [hasPermission]);
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="ps-6 pt-8">
         <Image src="/icons/zony-logo.svg" alt="Logo" width={74} height={36} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={filteredNavItems} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

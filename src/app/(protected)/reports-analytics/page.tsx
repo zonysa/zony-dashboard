@@ -123,7 +123,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
 
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
-      <Tabs defaultValue="core-financial" className="w-full gap-6">
+        <Tabs defaultValue="core-financial" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
             <TabsTrigger value="core-financial">Core Financial</TabsTrigger>

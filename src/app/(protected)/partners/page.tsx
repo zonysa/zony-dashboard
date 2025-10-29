@@ -3,7 +3,7 @@
 import { columns } from "@/components/tables/columns/partners-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetPartners } from "@/lib/hooks/usePartner";
-import { PartnerDetails, table } from "@/lib/schema/partner.schema";
+import { PartnerDetails } from "@/lib/schema/partner.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
