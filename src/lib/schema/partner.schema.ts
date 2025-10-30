@@ -111,3 +111,19 @@ export type PartnerFormData = z.infer<typeof partnerSchema>;
 export type RepresentativeFormData = z.infer<typeof representativeSchema>;
 export type BankFormData = z.infer<typeof bankSchema>;
 export type PartnersQuery = z.infer<typeof partnersQuerySchema>;
+
+// API Request Type (snake_case for backend)
+export type CreatePartnerRequest = {
+  name: string;
+  type: z.infer<typeof partnerTypeSchema>;
+  status: z.infer<typeof partnerStatusSchema>;
+  commercial_registration: string;
+  payout_per_parcel: number;
+  unified_number: string;
+  currency: "USD" | "EUR" | "EGP" | "SAR";
+  bank_name: string;
+  bank_holder_name: string;
+  bank_account_number: string;
+  IBAN: string;
+  representative_id: string;
+};

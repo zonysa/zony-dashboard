@@ -5,11 +5,11 @@ import { UserDetails } from "@/lib/schema/user.schema";
 
 export const customerServiceColumns: ColumnDef<UserDetails>[] = [
   {
-    accessorKey: "name",
+    accessorKey: "first_name",
     header: "Name",
     cell: ({ row }) => {
-      const name = row.getValue("name") as string;
-      return <div className="font-medium text-blue-600">{name}</div>;
+      const name = row.getValue("first_name") as string;
+      return <div className="font-medium ">{name}</div>;
     },
     filterFn: "includesString",
   },

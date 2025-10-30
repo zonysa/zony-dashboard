@@ -67,11 +67,7 @@ const CreateParcelSheet = () => {
           tracking_number: data.tracking_number,
           barcode: data.barcode,
           pickup_period: 2,
-          status: "pending",
-          receiving_date: "2025-10-1 10:10:10 AM",
-          delivering_date: "2025-10-2 11:00:00 PM",
           client_id: Number(data.client_id),
-          pudo_id: Number(data.pudo_id),
           customer_id: data.customer_id,
         },
         {
@@ -201,41 +197,13 @@ const CreateParcelSheet = () => {
                     </FormItem>
                   )}
                 />
-
-                <FormField
-                  control={control}
-                  name="pudo_id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>PUDO Branch</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={String(field.value)}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a branch" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {branches?.pudos?.map((branch: BranchDetails) => (
-                            <SelectItem
-                              key={branch.id}
-                              value={branch.id.toString()}
-                            >
-                              {branch.branch_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               {/* Footer Actions */}
               <SheetFooter className="w-full gap-2 pt-6 border-t px-0">
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Creating..." : "Create Parcel"}
+                </Button>
                 <SheetClose asChild>
                   <Button
                     type="button"
@@ -245,9 +213,6 @@ const CreateParcelSheet = () => {
                     Cancel
                   </Button>
                 </SheetClose>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating..." : "Create Parcel"}
-                </Button>
               </SheetFooter>
             </form>
           </Form>

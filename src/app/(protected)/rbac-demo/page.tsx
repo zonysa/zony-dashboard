@@ -2,14 +2,12 @@
 
 import { ProtectedRoute, Can, RoleGuard } from "@/components/auth";
 import { Permission } from "@/lib/rbac/permissions";
-import { UserRole } from "@/lib/rbac/roles";
 import { usePermissions } from "@/lib/hooks/usePermissions";
 import { useUser } from "@/lib/stores/auth-store";
 
 export default function RBACDemoPage() {
   const user = useUser();
   const {
-    roleId,
     roleName,
     hasPermission,
     hasAnyPermission,
@@ -37,9 +35,6 @@ export default function RBACDemoPage() {
               </p>
               <p>
                 <strong>Email:</strong> {user.email}
-              </p>
-              <p>
-                <strong>Role ID:</strong> {roleId}
               </p>
               <p>
                 <strong>Role Name:</strong> {roleName || "Unknown"}
@@ -106,9 +101,7 @@ export default function RBACDemoPage() {
                 <li>
                   Create: {canCreate(Permission.CREATE_PARCELS) ? "✅" : "❌"}
                 </li>
-                <li>
-                  Edit: {canEdit(Permission.EDIT_PARCELS) ? "✅" : "❌"}
-                </li>
+                <li>Edit: {canEdit(Permission.EDIT_PARCELS) ? "✅" : "❌"}</li>
                 <li>
                   Delete: {canDelete(Permission.DELETE_PARCELS) ? "✅" : "❌"}
                 </li>
@@ -241,7 +234,7 @@ export default function RBACDemoPage() {
 
           <div className="space-y-4">
             <RoleGuard
-              allowedRoles={[UserRole.SUPERVISOR]}
+              allowedRoles={["supervisor"]}
               fallback={
                 <div className="rounded border border-red-500 bg-red-50 p-4 text-red-700">
                   Only Supervisors can see this content
@@ -254,7 +247,7 @@ export default function RBACDemoPage() {
             </RoleGuard>
 
             <RoleGuard
-              allowedRoles={[UserRole.REPRESENTATIVE, UserRole.RESPONSIBLE]}
+              allowedRoles={["representative", "responsible"]}
               fallback={
                 <div className="rounded border border-yellow-500 bg-yellow-50 p-4 text-yellow-700">
                   Only Representatives and Responsible users can see this
@@ -267,11 +260,7 @@ export default function RBACDemoPage() {
             </RoleGuard>
 
             <RoleGuard
-              allowedRoles={[
-                UserRole.CUSTOMER_SERVICE,
-                UserRole.COURIER,
-                UserRole.CUSTOMER,
-              ]}
+              allowedRoles={["customer_service", "courier", "customer"]}
               fallback={
                 <div className="rounded border border-purple-500 bg-purple-50 p-4 text-purple-700">
                   Only Customer Service, Couriers, and Customers can see this

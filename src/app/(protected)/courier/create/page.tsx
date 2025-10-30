@@ -20,10 +20,14 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/useAuth";
+import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
+import { useRouter } from "next/navigation";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const registerMutation = useRegister();
+
+  const router = useRouter();
 
   const form = useForm<CustomerServiceFormData>({
     defaultValues: {
@@ -56,6 +60,7 @@ const Page: React.FC = () => {
             `Courier ${apiData.first_name} ${apiData.last_name} created successfuly`
           );
           form.reset();
+          router.push("/courier");
         },
         onError: (error) => {
           toast.error(`Error ${error.message}`);

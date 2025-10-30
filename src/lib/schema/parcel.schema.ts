@@ -73,15 +73,23 @@ export const parcelSchema = z.object({
     .number()
     .int()
     .positive("Pickup period must be a positive integer"),
-  status: z.enum(["pending", "in_transit", "delivered", "cancelled", "failed"]),
+  status: z
+    .enum(["pending", "in_transit", "delivered", "cancelled", "failed"])
+    .optional(),
   receiving_date: z
     .string()
-    .datetime({ message: "Invalid receiving date format" }),
+    .datetime({ message: "Invalid receiving date format" })
+    .optional(),
   delivering_date: z
     .string()
-    .datetime({ message: "Invalid delivering date format" }),
+    .datetime({ message: "Invalid delivering date format" })
+    .optional(),
   client_id: z.number().int().positive("Client ID must be a positive integer"),
-  pudo_id: z.number().int().positive("PUDO ID must be a positive integer"),
+  pudo_id: z
+    .number()
+    .int()
+    .positive("PUDO ID must be a positive integer")
+    .optional(),
   customer_id: z.string().uuid("Invalid customer ID format"),
 });
 

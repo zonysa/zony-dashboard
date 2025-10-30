@@ -1,4 +1,5 @@
 import AuthHeader from "@/components/auth/AuthHeader";
+import { AuthRedirect } from "@/components/auth/AuthRedirect";
 
 export default function AuthLayout({
   children,
@@ -6,9 +7,11 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-10 w-full items-center justify-start px-6 pt-6 ">
-      <AuthHeader />
-      {children}
-    </div>
+    <AuthRedirect>
+      <div className="flex flex-col gap-10 w-full items-center justify-start px-6 pt-6 ">
+        <AuthHeader />
+        {children}
+      </div>
+    </AuthRedirect>
   );
 }

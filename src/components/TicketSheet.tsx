@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Ticket } from "@/lib/schema/tickets.schema";
+import { TicketDetails } from "@/lib/schema/tickets.schema";
 import { Row } from "@tanstack/react-table";
 
 // Define your form type
@@ -41,7 +41,7 @@ type TicketActionForm = {
 };
 
 type TicketActionsCellProps = {
-  row: Row<Ticket>;
+  row: Row<TicketDetails>;
 };
 
 const TicketActionsCell = ({ row }: TicketActionsCellProps) => {
@@ -93,9 +93,15 @@ const TicketActionsCell = ({ row }: TicketActionsCellProps) => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
-                  Title
+                  Tracking Number
                 </Label>
-                <p className="text-sm">{ticket.title || "N/A"}</p>
+                <p className="text-sm">{ticket.tracking_number || "N/A"}</p>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-muted-foreground">
+                  ID
+                </Label>
+                <p className="text-sm">{ticket.id || "N/A"}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
@@ -105,39 +111,37 @@ const TicketActionsCell = ({ row }: TicketActionsCellProps) => {
               </div>
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
-                  Priority
+                  Action Taken
                 </Label>
-                <p className="text-sm">{ticket.priority || "N/A"}</p>
+                <p className="text-sm">{ticket.action_taken || "N/A"}</p>
               </div>
-              <div>
+              {/* <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Assigned To
                 </Label>
                 <p className="text-sm">{ticket.assignedTo || "Unassigned"}</p>
-              </div>
+              </div> */}
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Created Date
                 </Label>
-                <p className="text-sm">
-                  {ticket.createdAt.toLocaleDateString() || "N/A"}
-                </p>
+                <p className="text-sm">{ticket.created_at || "N/A"}</p>
               </div>
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
-                  Category
+                  Zone Name
                 </Label>
-                <p className="text-sm">{ticket.category || "N/A"}</p>
+                <p className="text-sm">{ticket.zone_name || "N/A"}</p>
               </div>
             </div>
 
-            {ticket.description && (
+            {ticket.comment && (
               <div>
                 <Label className="text-sm font-medium text-muted-foreground">
                   Description
                 </Label>
                 <p className="text-sm mt-1 p-3 bg-muted rounded-md">
-                  {ticket.description}
+                  {ticket.comment}
                 </p>
               </div>
             )}

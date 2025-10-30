@@ -153,7 +153,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="representative"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Responsible</FormLabel>
+                  <FormLabel>Representative</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -257,7 +257,11 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
           />
         </form>
       </Form>
-      <CreateUserSheet open={showUserSheet} onOpenChange={setShowUserSheet} />
+      <CreateUserSheet
+        open={showUserSheet}
+        onOpenChange={setShowUserSheet}
+        userRole={2}
+      />
     </>
   );
 };
