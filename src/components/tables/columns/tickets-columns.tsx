@@ -2,21 +2,21 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Star } from "lucide-react";
-import { Ticket } from "@/lib/schema/tickets.schema";
 
 import Link from "next/link";
 import TicketActionsCell from "@/components/TicketSheet";
+import { TicketDetails } from "@/lib/schema/tickets.schema";
 
-export const columns: ColumnDef<Ticket>[] = [
+export const columns: ColumnDef<TicketDetails>[] = [
   {
-    accessorKey: "trackingNumber",
+    accessorKey: "tracking_number",
     header: "TN",
     cell: ({ row }) => {
-      const trackingNumber = row.getValue("trackingNumber") as string;
+      const trackingNumber = row.getValue("tracking_number") as string;
       return (
         <Link
           href={`/parcels/${trackingNumber}`}
-          className="font-mono text-sm text-blue-600"
+          className="font-mono text-sm text-primary"
         >
           {trackingNumber}
         </Link>
@@ -25,44 +25,55 @@ export const columns: ColumnDef<Ticket>[] = [
     filterFn: "includesString",
   },
   {
-    accessorKey: "pudo",
+    accessorKey: "pudo_name",
     header: "PUDO",
     cell: ({ row }) => {
-      const pudo = row.getValue("pudo") as string;
+      const pudo = row.getValue("pudo_name") as string;
       return <div className="font-medium">{pudo}</div>;
     },
     filterFn: "includesString",
+  },
+  {
+    accessorKey: "zone_name",
+    header: "Zone Name",
+    cell: ({ row }) => {
+      const zone = row.getValue("zone_name") as string;
+      return <div className="font-medium">{zone}</div>;
+    },
+    filterFn: "includesString",
+  },
+  {
+    accessorKey: "action_taken",
+    header: "Action Taken",
+    cell: ({ row }) => {
+      const actionTaken = row.getValue("action_taken") as string;
+      const getStatusVariant = (actionTaken: string) => {
+        switch (actionTaken) {
+          case "resolved":
+            return "success";
+          case "cancelled":
+            return "destructive";
+          case "pending":
+            return "outline";
+          case "investigating":
+            return "secondary";
+          default:
+            return "secondary";
+        }
+      };
+      return (
+        <Badge variant={getStatusVariant(actionTaken)}>{actionTaken}</Badge>
+      );
+    },
+    filterFn: "equalsString",
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
-      const getStatusVariant = (status: string) => {
+      const getActionVariant = (status: string) => {
         switch (status) {
-          case "Delivered":
-            return "success";
-          case "Failed To Deliver":
-            return "destructive";
-          case "Undelivered":
-            return "outline";
-          case "In Transit":
-            return "secondary";
-          default:
-            return "secondary";
-        }
-      };
-      return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
-    },
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "actionTaken",
-    header: "Action Taken",
-    cell: ({ row }) => {
-      const actionTaken = row.getValue("actionTaken") as string;
-      const getActionVariant = (action: string) => {
-        switch (action) {
           case "Resolved":
             return "success";
           case "In Progress":
@@ -75,38 +86,29 @@ export const columns: ColumnDef<Ticket>[] = [
             return "secondary";
         }
       };
-      return (
-        <Badge variant={getActionVariant(actionTaken)}>{actionTaken}</Badge>
-      );
+      return <Badge variant={getActionVariant(status)}>{status}</Badge>;
     },
     filterFn: "equalsString",
   },
   {
-    accessorKey: "issuesNo",
-    header: "Issues No.",
-    cell: ({ row }) => {
-      const issuesNo = row.getValue("issuesNo") as string;
-      return <div className="text-sm">{issuesNo}</div>;
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "phoneNumber",
+    accessorKey: "customer_data",
     header: "Phone number",
     cell: ({ row }) => {
-      const phoneNumber = row.getValue("phoneNumber") as string;
-      return <div className="font-mono text-sm">{phoneNumber}</div>;
+      const customer = row.getValue("customer_data") as string;
+      return (
+        <div className="font-mono text-sm">{String(customer.phone_number)}</div>
+      );
     },
     filterFn: "includesString",
   },
   {
-    accessorKey: "comments",
+    accessorKey: "comment",
     header: "Comments",
     cell: ({ row }) => {
-      const comments = row.getValue("comments") as string;
+      const comment = row.getValue("comment") as string;
       return (
-        <div className="max-w-32 truncate text-sm" title={comments}>
-          {comments}
+        <div className="max-w-32 truncate text-sm" title={comment}>
+          {comment}
         </div>
       );
     },
