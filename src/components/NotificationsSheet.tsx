@@ -188,7 +188,7 @@ const NotificationsSheet = ({
                 No notifications
               </p>
               <p className="text-xs text-muted-foreground/70 mt-1">
-                You're all caught up!
+                You are all caught up!
               </p>
             </div>
           ) : (
