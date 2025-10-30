@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { type Icon } from "@tabler/icons-react";
 
 import {
   SidebarGroup,
@@ -17,8 +16,9 @@ export function NavSecondary({
 }: {
   items: {
     title: string;
-    url: string;
+    url?: string;
     icon: React.FC;
+    onClick?: () => void;
   }[];
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
   return (
@@ -27,12 +27,22 @@ export function NavSecondary({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild>
-                <a href={item.url}>
+              {item.onClick ? (
+                <SidebarMenuButton
+                  className="cursor-pointer"
+                  onClick={item.onClick}
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                </a>
-              </SidebarMenuButton>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton className="cursor-pointer" asChild>
+                  <a href={item.url}>
+                    {item.icon && <item.icon />}
+                    <span>{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
