@@ -1,5 +1,4 @@
 import {
-  DistrictBase,
   CreateDistrictRes,
   GetDistrictsRes,
   DistrictFormData,

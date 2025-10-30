@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { BranchDetails } from "@/lib/schema/branch.schema";
-import { ParcelDetails } from "@/lib/schema/parcel.schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { Circle } from "lucide-react";
 
