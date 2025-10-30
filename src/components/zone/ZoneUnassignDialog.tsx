@@ -34,7 +34,7 @@ export function ZoneUnassignDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-[600px]">
+      <AlertDialogContent className="max-w-[800px]">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
