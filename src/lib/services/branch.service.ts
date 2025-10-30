@@ -1,6 +1,7 @@
 import {
   BranchFilterOptions,
   BranchFormData,
+  CreateBranchRequest,
   GetBranchesRes,
   GetBranchRes,
 } from "../schema/branch.schema";
@@ -8,7 +9,7 @@ import { getParcelsRes } from "../schema/parcel.schema";
 import { apiCall } from "./apiClient";
 
 // Create Partner
-export const createBranch = async (data: BranchFormData) => {
+export const createBranch = async (data: BranchFormData | CreateBranchRequest) => {
   return apiCall({
     method: "POST",
     url: "/pudos",

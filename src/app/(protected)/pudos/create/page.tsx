@@ -4,8 +4,12 @@ import { MultiStepForm } from "@/forms/MultiStepForm";
 import { OperatingHoursStep } from "@/forms/pudo/OperatingHours";
 import { StepConfig, useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { BranchInfoStep } from "@/forms/pudo/BranchInfoStep";
-import { BranchFormData } from "@/lib/schema/branch.schema";
+import {
+  BranchFormData,
+  CreateBranchRequest,
+} from "@/lib/schema/branch.schema";
 import { useCreateBranch } from "@/lib/hooks/useBranch";
+import { toast } from "sonner";
 
 export default function Page() {
   const branchMutation = useCreateBranch();
@@ -141,25 +145,31 @@ export default function Page() {
       },
     },
     onComplete: async (data) => {
-      console.log("PUDO Registration Completed", data);
-
       // Here you would typically send the data to your API
       try {
-        const branchData = {
+        const branchData: CreateBranchRequest = {
           // Branch info
           name: data.branchName,
           address: data.address,
-          status: "active",
+          // status: "active"
           gallery: [],
           oprating_hours: data.operatingHours,
           municipal_license: "13213123",
           password: "00000000",
+          coordinates: {},
+          partner_id: data.partner,
+          district_id: data.district,
+          zone_id: data.zone,
 
           // Responsible
           responsible_id: data.responsible,
         };
-
-        console.log("Branch Data", branchData);
+        console.log(branchData);
+        await branchMutation.mutateAsync(branchData, {
+          onSuccess: () => {
+            toast.success(`Branch ${data.branchName} Created Successfuly`);
+          },
+        });
       } catch (error) {
         console.error("Error submitting form:", error);
         alert("Error submitting registration. Please try again.");

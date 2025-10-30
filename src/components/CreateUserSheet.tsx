@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
 import {
   Sheet,
@@ -33,14 +32,20 @@ import { Input } from "./ui/input";
 import { toast } from "sonner";
 import { RegisterFormData, registerSchema } from "@/lib/schema/auth.schema";
 import { useRegister } from "@/lib/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface CreateUserSheetProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  userRole?: number;
 }
 
-const CreateUserSheet = ({ open, onOpenChange }: CreateUserSheetProps) => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+const CreateUserSheet = ({
+  open,
+  onOpenChange,
+  userRole,
+}: CreateUserSheetProps) => {
+  const queryClient = useQueryClient();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -48,7 +53,7 @@ const CreateUserSheet = ({ open, onOpenChange }: CreateUserSheetProps) => {
       username: "",
       email: "",
       password: "",
-      roleId: undefined,
+      roleId: userRole,
       phoneNumber: "",
     },
     mode: "onChange",
@@ -79,7 +84,12 @@ const CreateUserSheet = ({ open, onOpenChange }: CreateUserSheetProps) => {
           onSuccess: () => {
             toast.success(`User "${data.username}" created successfully`);
             form.reset();
-            setDialogOpen(false);
+            // Invalidate users query to refetch the list
+            queryClient.invalidateQueries({ queryKey: ["users"] });
+            // Close the sheet
+            if (onOpenChange) {
+              onOpenChange(false);
+            }
           },
           onError: (err) => {
             toast.error(`Failed to create user: ${err.message}`);
@@ -91,6 +101,15 @@ const CreateUserSheet = ({ open, onOpenChange }: CreateUserSheetProps) => {
       toast.error("An unexpected error occurred");
     }
   }
+
+  const userMap = [
+    "representative",
+    "responsible",
+    "supervisor",
+    "customer_service",
+    "courier",
+    "customer",
+  ];
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -223,6 +242,7 @@ const CreateUserSheet = ({ open, onOpenChange }: CreateUserSheetProps) => {
                     <Select
                       onValueChange={(value) => field.onChange(Number(value))}
                       value={field.value?.toString()}
+                      disabled={!!userRole}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -230,12 +250,28 @@ const CreateUserSheet = ({ open, onOpenChange }: CreateUserSheetProps) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="2">Representative</SelectItem>
-                        <SelectItem value="3">Responsible</SelectItem>
-                        <SelectItem value="4">Supervisor</SelectItem>
-                        <SelectItem value="5">Customer Service</SelectItem>
-                        <SelectItem value="6">Courier</SelectItem>
-                        <SelectItem value="7">Customer</SelectItem>
+                        {userRole ? (
+                          userMap.map((role, index) => {
+                            const roleId = index + 2;
+                            return (
+                              <SelectItem
+                                key={roleId}
+                                value={roleId.toString()}
+                              >
+                                {role.replace(/_/g, " ")}
+                              </SelectItem>
+                            );
+                          })
+                        ) : (
+                          <>
+                            <SelectItem value="2">Representative</SelectItem>
+                            <SelectItem value="3">Responsible</SelectItem>
+                            <SelectItem value="4">Supervisor</SelectItem>
+                            <SelectItem value="5">Customer Service</SelectItem>
+                            <SelectItem value="6">Courier</SelectItem>
+                            <SelectItem value="7">Customer</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />

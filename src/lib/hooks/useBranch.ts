@@ -31,9 +31,6 @@ export const branchKeys = {
 export function useCreateBranch() {
   return useMutation({
     mutationFn: createBranch,
-    onSuccess: () => {
-      toast.success("Branch created successfully");
-    },
     onError: (error) => {
       toast.error(error?.message || "Failed to create branch");
     },

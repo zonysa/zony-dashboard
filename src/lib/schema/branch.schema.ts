@@ -93,14 +93,14 @@ export const branchInfoSchema = z.object({
   address: z.string().min(1, "Address is required"),
   branchPhoto: z.instanceof(File).optional(),
   municipalLicense: z.instanceof(File).optional(),
-  partner_id: z.string(),
+  partner: z.number(),
   responsible: z.string(),
 });
 
 // Step 2: Operating Hours Schema
 export const operatingHoursSchema = z.object({
-  sameHoursEveryday: z.boolean().default(false),
-  twentyFourSeven: z.boolean().default(false),
+  sameHoursEveryday: z.boolean().default(false).optional(),
+  twentyFourSeven: z.boolean().default(false).optional(),
   operatingHours: z
     .record(
       z.string(),
@@ -134,9 +134,24 @@ export const branchesQuerySchema = z.object({
     .optional(),
 });
 
+// API Request type for creating a branch
+export interface CreateBranchRequest {
+  name: string;
+  address: string;
+  gallery: string[];
+  oprating_hours: OperatingHours | undefined;
+  municipal_license: string;
+  password: string;
+  coordinates: Record<string, unknown>;
+  partner_id: number;
+  district_id: number | string;
+  zone_id: number | string;
+  responsible_id: string;
+}
+
 // Exported Types
 export type BranchFormData = z.infer<typeof branchSchema>;
 export type BranchInfoData = z.infer<typeof branchInfoSchema>;
-export type ResponsiblData = z.infer<typeof responsibleSchema>;
+export type ResponsibleData = z.infer<typeof responsibleSchema>;
 export type OperatingHoursData = z.infer<typeof operatingHoursSchema>;
 export type BranchesQuery = z.infer<typeof branchesQuerySchema>;

@@ -277,7 +277,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={control}
-              name="partner_id"
+              name="partner"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Partner</FormLabel>
@@ -285,7 +285,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     onValueChange={(value) => {
                       field.onChange(Number(value));
                     }}
-                    defaultValue={field.value}
+                    defaultValue={field.value ? String(field.value) : undefined}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -294,10 +294,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     </FormControl>
                     <SelectContent>
                       {partners?.partners.map((partner: PartnerDetails) => (
-                        <SelectItem
-                          key={partner.id}
-                          value={partner.id.toLocaleString()}
-                        >
+                        <SelectItem key={partner.id} value={String(partner.id)}>
                           {partner.name}
                         </SelectItem>
                       ))}
@@ -354,7 +351,11 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
           />
         </form>
       </Form>
-      <CreateUserSheet open={showUserSheet} onOpenChange={setShowUserSheet} />
+      <CreateUserSheet
+        open={showUserSheet}
+        onOpenChange={setShowUserSheet}
+        userRole={3}
+      />
     </>
   );
 };
