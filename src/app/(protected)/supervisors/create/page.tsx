@@ -20,10 +20,13 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const customerServiceMutation = useRegister();
+
+  const router = useRouter();
 
   const form = useForm<CustomerServiceFormData>({
     defaultValues: {
@@ -57,6 +60,7 @@ const Page: React.FC = () => {
               `Customer Service ${data.firstName} ${data.lastName} created successfuly`
             );
             form.reset();
+            router.push("/supervisors");
           },
           onError: (error) => {
             toast.error(`Error ${error.message}`);
