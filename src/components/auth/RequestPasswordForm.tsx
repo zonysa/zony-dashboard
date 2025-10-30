@@ -82,7 +82,7 @@ export function RequestPasswordForm({
               />
 
               <Button
-                disabled={isDirty || forgetPasswordMutation.isPending}
+                disabled={forgetPasswordMutation.isPending}
                 type="submit"
                 className="w-full mt-6 py-3.5"
               >

@@ -32,7 +32,7 @@ export default function Page() {
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
         onRowClick={handleRowClick}
-        searchPlaceholder="Search partners..."
+        searchPlaceholder="Search Zones..."
       />
     </div>
   );

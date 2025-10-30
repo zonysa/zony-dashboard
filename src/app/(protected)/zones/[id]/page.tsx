@@ -102,16 +102,24 @@ function BranchDetails() {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label="Name"
-                  value={String(supervisors?.supervisors[0].first_name)}
+                  value={
+                    supervisors
+                      ? String(supervisors?.supervisors[0]?.first_name)
+                      : "NA"
+                  }
                 />
                 <DataItem
                   label="Phone Number"
-                  value={String(supervisors?.supervisors[0].phone_number)}
+                  value={
+                    supervisors
+                      ? String(supervisors?.supervisors[0]?.phone_number)
+                      : "NA"
+                  }
                 />
               </div>
             </CardContent>
             <div className="flex gap-2">
-              <Link href={`users/${supervisors?.supervisors[0].id}`}>
+              <Link href={`users/${supervisors?.supervisors[0]?.id}`}>
                 <ArrowUpRight />
               </Link>
             </div>

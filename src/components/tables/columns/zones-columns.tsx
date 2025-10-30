@@ -3,7 +3,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
-import { DistrictBase } from "@/lib/schema/district.schema";
 
 export const columns: ColumnDef<ZoneDetails>[] = [
   {
@@ -29,11 +28,7 @@ export const columns: ColumnDef<ZoneDetails>[] = [
     header: "PUDO Points",
     cell: ({ row }) => {
       const totPudos = row.getValue("totalPudos") as number;
-      return (
-        <div className="text-center font-medium">
-          {totPudos ? totPudos : "NA"}
-        </div>
-      );
+      return <div className="font-medium">{totPudos ? totPudos : "NA"}</div>;
     },
   },
   {
@@ -42,7 +37,7 @@ export const columns: ColumnDef<ZoneDetails>[] = [
     cell: ({ row }) => {
       const parcels = row.getValue("totalParcels") as number;
       return (
-        <div className="text-center font-medium">
+        <div className="font-medium">
           {parcels ? parcels.toLocaleString() : "NA"}
         </div>
       );

@@ -3,11 +3,10 @@
 import Image from "next/image";
 
 import { ResetPasswordForm } from "@/components/auth/ResetPasswordForm";
-import { Suspense } from "react";
 
 export default function Page() {
   return (
-    <div className="flex flex-col gap-3 min-w-full items-center justify-starjt">
+    <div className="flex flex-col gap-3 min-w-full items-center justify-starjt  md:p-10">
       <Image
         className="absolute right-0 bottom-0 z-0"
         src="/icons/login-illustration.svg"
@@ -15,9 +14,9 @@ export default function Page() {
         width={630}
         height={388}
       />
-      <Suspense fallback={<div className="w-full max-w-1/3 z-1"></div>}>
+      <div className="w-full max-w-1/3 z-1">
         <ResetPasswordForm />
-      </Suspense>
+      </div>
     </div>
   );
 }
