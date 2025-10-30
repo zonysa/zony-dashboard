@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,6 +17,7 @@ import { BellDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LocationDropDown } from "./ui/LocatoinDropdown";
 import CreateParcelSheet from "./CreateParcelDiaglog";
+import NotificationsSheet from "./NotificationsSheet";
 
 interface BreadcrumbSegment {
   label: string;
@@ -27,6 +28,7 @@ interface BreadcrumbSegment {
 function Header() {
   const router = useRouter();
   const pathname = usePathname();
+  const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
 
   // Generate breadcrumb segments from pathname
   const getBreadcrumbSegments = (): BreadcrumbSegment[] => {
@@ -131,7 +133,7 @@ function Header() {
       <div className="w-full flex justify-between items-center gap-2 px-4">
         <Breadcrumb className="flex justify-start gap-2 items-start">
           <BreadcrumbList>
-            {breadcrumbSegments.map((segment, index) => (
+            {breadcrumbSegments.map((segment) => (
               <React.Fragment key={segment.href}>
                 <BreadcrumbItem>
                   {segment.isLast ? (
@@ -152,7 +154,12 @@ function Header() {
         </Breadcrumb>
         <div className="w-auto flex justify-end items-center gap-3">
           {getHeaderButton()}
-          <BellDot width={22} height={22} />
+          <BellDot
+            className="cursor-pointer"
+            onClick={() => setNotificationsOpen(true)}
+            width={22}
+            height={22}
+          />
           <Avatar
             onClick={handleNavigateProfile}
             className="circle border border-gray-800 w-[34px] h-[34px] cursor-pointer"
@@ -162,6 +169,10 @@ function Header() {
           </Avatar>
         </div>
       </div>
+      <NotificationsSheet
+        open={notificationsOpen}
+        onOpenChange={setNotificationsOpen}
+      />
     </header>
   );
 }
