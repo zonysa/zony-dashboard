@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { BranchFormData } from "@/lib/schema/branch.schema";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { CityDetails } from "@/lib/schema/city.schema";
-import { DistrictBase } from "@/lib/schema/district.schema";
+import { DistrictDetails } from "@/lib/schema/district.schema";
 import { useGetZones } from "@/lib/hooks/useZone";
 import { useGetDistricts } from "@/lib/hooks/useDistrict";
 import { useGetPartners } from "@/lib/hooks/usePartner";
@@ -213,14 +213,16 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {district?.districts.map((district: DistrictBase) => (
-                          <SelectItem
-                            key={district.id}
-                            value={String(district.id)}
-                          >
-                            {district.name}
-                          </SelectItem>
-                        ))}
+                        {district?.districts.map(
+                          (district: DistrictDetails) => (
+                            <SelectItem
+                              key={district.id}
+                              value={String(district.id)}
+                            >
+                              {district.name}
+                            </SelectItem>
+                          )
+                        )}
                       </SelectContent>
                     </div>
                   </Select>

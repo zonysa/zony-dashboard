@@ -30,7 +30,7 @@ import { useCreateZone } from "@/lib/hooks/useZone";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { toast } from "sonner";
 import { useGetDistricts } from "@/lib/hooks/useDistrict";
-import { DistrictBase } from "@/lib/schema/district.schema";
+import { DistrictDetails } from "@/lib/schema/district.schema";
 import { Spinner } from "@/components/ui/spinner";
 import MultipleSelector from "@/components/ui/multiple-selector";
 import { CityDetails } from "@/lib/schema/city.schema";
@@ -67,7 +67,7 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
   const districtOptions: DistrictToOPtion[] = useMemo(() => {
     if (!districts?.districts) return [];
 
-    return districts.districts.map((district: DistrictBase) => ({
+    return districts.districts.map((district: DistrictDetails) => ({
       label: district.name,
       value: district.id?.toString() || "",
     }));

@@ -25,6 +25,7 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/lib/stores/auth-store";
 import { Permission } from "@/lib/rbac/permissions";
@@ -33,9 +34,11 @@ import { useState } from "react";
 
 // Navigation items with required permissions
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+// Inner component that uses useSidebar hook
+function AppSidebarContent() {
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+  const { state } = useSidebar();
 
   const navItems = [
     {
@@ -121,24 +124,35 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Filter navigation items based on user permissions
   const filteredNavItems = React.useMemo(() => {
     return navItems.filter((item) => hasPermission(item.permission));
-  }, [hasPermission]);
+  }, [hasPermission, navItems]);
 
   return (
     <>
-      <Sidebar collapsible="icon" {...props}>
-        <SidebarHeader className="ps-6 pt-8">
+      <SidebarHeader className="ps-4 pe-3 pt-6">
+        {state === "expanded" ? (
           <Image src="/icons/zony-logo.svg" alt="Logo" width={74} height={36} />
-        </SidebarHeader>
-        <SidebarContent>
-          <NavMain items={filteredNavItems} />
-          <NavSecondary items={navSecondary} className="mt-auto" />
-        </SidebarContent>
-        <SidebarRail />
-      </Sidebar>
+        ) : (
+          <Image src="/icons/mini-logo.svg" alt="Logo" width={46} height={46} />
+        )}
+      </SidebarHeader>
+      <SidebarContent>
+        <NavMain items={filteredNavItems} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
+      </SidebarContent>
+      <SidebarRail />
       <LogoutDialog
         open={logoutDialogOpen}
         onOpenChange={setLogoutDialogOpen}
       />
     </>
+  );
+}
+
+// Main component wrapper
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  return (
+    <Sidebar collapsible="icon" {...props}>
+      <AppSidebarContent />
+    </Sidebar>
   );
 }

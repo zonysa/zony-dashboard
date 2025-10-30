@@ -9,6 +9,14 @@ import {
   getZones,
   getZoneSupervisors,
   updateZone,
+  assignDistrictsToZone,
+  assignSupervisorsToZone,
+  assignCouriersToZone,
+  assignCustomerServicesToZone,
+  unassignDistrictFromZone,
+  unassignSupervisorFromZone,
+  unassignCourierFromZone,
+  unassignCustomerServiceFromZone,
 } from "@/lib/services/location/zone.service";
 import {
   ZoneFormData,
@@ -278,4 +286,154 @@ export function useInvalidateZones() {
     invalidateDetail: (id: string) =>
       queryClient.invalidateQueries({ queryKey: zoneKeys.detail(id) }),
   };
+}
+
+// Assign Districts to Zone
+export function useAssignDistrictsToZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, number[]>({
+    mutationFn: (districtIds) => assignDistrictsToZone(zoneId, districtIds),
+    onSuccess: () => {
+      toast.success("Districts assigned successfully");
+      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneDistricts(zoneId) });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Assign districts error:", error);
+      toast.error(error.message || "Failed to assign districts");
+    },
+  });
+}
+
+// Assign Supervisors to Zone
+export function useAssignSupervisorsToZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string[]>({
+    mutationFn: (supervisorIds) => assignSupervisorsToZone(zoneId, supervisorIds),
+    onSuccess: () => {
+      toast.success("Supervisors assigned successfully");
+      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneSupervisors(zoneId) });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Assign supervisors error:", error);
+      toast.error(error.message || "Failed to assign supervisors");
+    },
+  });
+}
+
+// Assign Couriers to Zone
+export function useAssignCouriersToZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string[]>({
+    mutationFn: (courierIds) => assignCouriersToZone(zoneId, courierIds),
+    onSuccess: () => {
+      toast.success("Couriers assigned successfully");
+      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneCouriers(zoneId) });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Assign couriers error:", error);
+      toast.error(error.message || "Failed to assign couriers");
+    },
+  });
+}
+
+// Assign Customer Services to Zone
+export function useAssignCustomerServicesToZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string[]>({
+    mutationFn: (customerServiceIds) =>
+      assignCustomerServicesToZone(zoneId, customerServiceIds),
+    onSuccess: () => {
+      toast.success("Customer services assigned successfully");
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneCustomerServices(zoneId),
+      });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Assign customer services error:", error);
+      toast.error(error.message || "Failed to assign customer services");
+    },
+  });
+}
+
+// Unassign District from Zone
+export function useUnassignDistrictFromZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, number>({
+    mutationFn: (districtId) => unassignDistrictFromZone(zoneId, districtId),
+    onSuccess: () => {
+      toast.success("District removed successfully");
+      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneDistricts(zoneId) });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Unassign district error:", error);
+      toast.error(error.message || "Failed to remove district");
+    },
+  });
+}
+
+// Unassign Supervisor from Zone
+export function useUnassignSupervisorFromZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string>({
+    mutationFn: (supervisorId) => unassignSupervisorFromZone(zoneId, supervisorId),
+    onSuccess: () => {
+      toast.success("Supervisor removed successfully");
+      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneSupervisors(zoneId) });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Unassign supervisor error:", error);
+      toast.error(error.message || "Failed to remove supervisor");
+    },
+  });
+}
+
+// Unassign Courier from Zone
+export function useUnassignCourierFromZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string>({
+    mutationFn: (courierId) => unassignCourierFromZone(zoneId, courierId),
+    onSuccess: () => {
+      toast.success("Courier removed successfully");
+      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneCouriers(zoneId) });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Unassign courier error:", error);
+      toast.error(error.message || "Failed to remove courier");
+    },
+  });
+}
+
+// Unassign Customer Service from Zone
+export function useUnassignCustomerServiceFromZone(zoneId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, Error, string>({
+    mutationFn: (customerServiceId) =>
+      unassignCustomerServiceFromZone(zoneId, customerServiceId),
+    onSuccess: () => {
+      toast.success("Customer service removed successfully");
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneCustomerServices(zoneId),
+      });
+      queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
+    },
+    onError: (error) => {
+      console.error("Unassign customer service error:", error);
+      toast.error(error.message || "Failed to remove customer service");
+    },
+  });
 }

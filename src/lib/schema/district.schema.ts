@@ -1,16 +1,16 @@
 import z from "zod";
 
-export interface DistrictBase {
+export interface DistrictDetails {
   id?: number; // might be returned later in GET
   city_id: number;
   name: string;
   zone_id: number | null;
 }
 
-export type CreateDistrict = Omit<DistrictBase, "id">;
+export type CreateDistrict = Omit<DistrictDetails, "id">;
 
 export interface CreateDistrictRes {
-  district: DistrictBase;
+  district: DistrictDetails;
   message: string;
   status: "success" | "error";
 }
@@ -23,7 +23,7 @@ export interface GetDistrictsRes {
   total_districts: number;
   next_page: number | null;
   prev_page: number | null;
-  districts: DistrictBase[];
+  districts: DistrictDetails[];
 }
 
 // Base Schema

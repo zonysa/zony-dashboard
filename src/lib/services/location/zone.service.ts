@@ -111,3 +111,95 @@ export const deleteZone = async (id: string) => {
     url: `/zones/${id}`,
   });
 };
+
+// Assign Districts to Zone
+export const assignDistrictsToZone = async (
+  zoneId: string,
+  districtIds: number[]
+) => {
+  return apiCall({
+    method: "POST",
+    url: `/zones/${zoneId}/districts`,
+    data: { district_ids: districtIds },
+  });
+};
+
+// Assign Supervisors to Zone
+export const assignSupervisorsToZone = async (
+  zoneId: string,
+  supervisorIds: string[]
+) => {
+  return apiCall({
+    method: "POST",
+    url: `/zones/${zoneId}/supervisors`,
+    data: { supervisor_ids: supervisorIds },
+  });
+};
+
+// Assign Couriers to Zone
+export const assignCouriersToZone = async (
+  zoneId: string,
+  courierIds: string[]
+) => {
+  return apiCall({
+    method: "POST",
+    url: `/zones/${zoneId}/couriers`,
+    data: { couriers_ids: courierIds },
+  });
+};
+
+// Assign Customer Services to Zone
+export const assignCustomerServicesToZone = async (
+  zoneId: string,
+  customerServiceIds: string[]
+) => {
+  return apiCall({
+    method: "POST",
+    url: `/zones/${zoneId}/customer-service`,
+    data: { customer_service_ids: customerServiceIds },
+  });
+};
+
+// Unassign District from Zone
+export const unassignDistrictFromZone = async (
+  zoneId: string,
+  districtId: number
+) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/zones/${zoneId}/districts/${districtId}`,
+  });
+};
+
+// Unassign Supervisor from Zone
+export const unassignSupervisorFromZone = async (
+  zoneId: string,
+  supervisorId: string
+) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/zones/${zoneId}/supervisors/${supervisorId}`,
+  });
+};
+
+// Unassign Courier from Zone
+export const unassignCourierFromZone = async (
+  zoneId: string,
+  courierId: string
+) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/zones/${zoneId}/couriers/${courierId}`,
+  });
+};
+
+// Unassign Customer Service from Zone
+export const unassignCustomerServiceFromZone = async (
+  zoneId: string,
+  customerServiceId: string
+) => {
+  return apiCall({
+    method: "DELETE",
+    url: `/zones/${zoneId}/customer-service/${customerServiceId}`,
+  });
+};
