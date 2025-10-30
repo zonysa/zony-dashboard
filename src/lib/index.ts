@@ -1,10 +1,13 @@
 // Auth Store
-export { useAuthStore, useUser, useIsAuthenticated, useUserRole } from "./stores/auth-store";
+export {
+  useAuthStore,
+  useUser,
+  useIsAuthenticated,
+  useUserRole,
+} from "./stores/auth-store";
 
 // RBAC
 export {
-  UserRole,
-  ROLE_NAMES,
   ROLE_DESCRIPTIONS,
   getRoleName,
   isValidRole,
@@ -20,4 +23,9 @@ export {
 export { usePermissions } from "./hooks/usePermissions";
 
 // Components (re-export from auth components)
-export { ProtectedRoute, RoleGuard, PermissionGuard, Can } from "@/components/auth";
+export {
+  ProtectedRoute,
+  RoleGuard,
+  PermissionGuard,
+  Can,
+} from "@/components/auth";

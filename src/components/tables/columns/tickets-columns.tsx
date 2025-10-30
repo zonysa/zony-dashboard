@@ -94,7 +94,7 @@ export const columns: ColumnDef<TicketDetails>[] = [
     accessorKey: "customer_data",
     header: "Phone number",
     cell: ({ row }) => {
-      const customer = row.getValue("customer_data") as string;
+      const customer = JSON.parse(row.getValue("customer_data") as string);
       return (
         <div className="font-mono text-sm">{String(customer.phone_number)}</div>
       );

@@ -2,7 +2,6 @@
 
 import { columns } from "@/components/tables/columns/tickets-columns";
 import { DataTable } from "@/components/tables/data-table";
-import { mockTickets as data } from "@/lib/data/mock/tickets.mock";
 import { useGetTickets } from "@/lib/hooks/useTicket";
 
 export default function Page() {
