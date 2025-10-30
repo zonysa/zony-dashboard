@@ -22,7 +22,7 @@ export function RoleGuard({
     return <>{fallback ?? <AccessDenied />}</>;
   }
 
-  const hasAccess = allowedRoles.includes(user.role_id as UserRole);
+  const hasAccess = allowedRoles.includes(user.role as UserRole);
 
   if (!hasAccess) {
     return <>{fallback ?? <AccessDenied />}</>;

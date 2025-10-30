@@ -1,77 +1,65 @@
-import { UserRole } from "./roles";
+import { UserRole, normalizeRole } from "./roles";
 
 /**
- * Role String to Role ID Mapping
+ * Role String to Role Mapping
  *
- * Maps the role strings returned by the API to role_id numbers used by the RBAC system.
+ * Maps the role strings returned by the API to standardized UserRole strings.
  */
 
-export const ROLE_STRING_TO_ID: Record<string, UserRole> = {
-  admin: UserRole.SUPERVISOR, // Admin = Supervisor (full access)
-  supervisor: UserRole.SUPERVISOR,
-  representative: UserRole.REPRESENTATIVE,
-  responsible: UserRole.RESPONSIBLE,
-  "customer service": UserRole.CUSTOMER_SERVICE,
-  "customer_service": UserRole.CUSTOMER_SERVICE,
-  customerservice: UserRole.CUSTOMER_SERVICE,
-  courier: UserRole.COURIER,
-  customer: UserRole.CUSTOMER,
+export const ROLE_STRING_TO_ROLE: Record<string, UserRole> = {
+  admin: "admin",
+  supervisor: "supervisor",
+  representative: "representative",
+  responsible: "responsible",
+  "customer service": "customer_service",
+  "customer_service": "customer_service",
+  customerservice: "customer_service",
+  courier: "courier",
+  customer: "customer",
 };
 
-export const ROLE_ID_TO_STRING: Record<UserRole, string> = {
-  [UserRole.REPRESENTATIVE]: "representative",
-  [UserRole.RESPONSIBLE]: "responsible",
-  [UserRole.SUPERVISOR]: "supervisor",
-  [UserRole.CUSTOMER_SERVICE]: "customer_service",
-  [UserRole.COURIER]: "courier",
-  [UserRole.CUSTOMER]: "customer",
+export const ROLE_TO_STRING: Record<UserRole, string> = {
+  admin: "admin",
+  supervisor: "supervisor",
+  representative: "representative",
+  responsible: "responsible",
+  customer_service: "customer_service",
+  courier: "courier",
+  customer: "customer",
 };
 
 /**
- * Convert role string from API to role_id number
+ * Convert role string from API to standardized UserRole
  */
-export function roleStringToId(roleString: string): UserRole {
-  const normalized = roleString.toLowerCase().trim();
-  const roleId = ROLE_STRING_TO_ID[normalized];
-
-  if (!roleId) {
-    console.warn(`Unknown role string: "${roleString}". Defaulting to Customer.`);
-    return UserRole.CUSTOMER; // Default to most restrictive role
-  }
-
-  return roleId;
+export function roleStringToRole(roleString: string): UserRole {
+  return normalizeRole(roleString);
 }
 
 /**
- * Convert role_id number to role string
+ * Convert UserRole to role string
  */
-export function roleIdToString(roleId: number): string {
-  return ROLE_ID_TO_STRING[roleId as UserRole] || "customer";
+export function roleToString(role: UserRole): string {
+  return ROLE_TO_STRING[role] || "customer";
 }
 
 /**
- * Normalize a user object to ensure it has role_id
+ * Normalize a user object to ensure it has role
  */
-export function normalizeUser<T extends { role?: string; role_id?: number }>(
+export function normalizeUser<T extends { role?: string }>(
   user: T
-): T & { role_id: number } {
-  // If role_id already exists, return as is
-  if (user.role_id !== undefined) {
-    return user as T & { role_id: number };
-  }
-
-  // If only role string exists, convert it
+): T & { role: UserRole } {
+  // If role exists, normalize it
   if (user.role) {
     return {
       ...user,
-      role_id: roleStringToId(user.role),
+      role: normalizeRole(user.role),
     };
   }
 
-  // Neither exists - default to customer (most restrictive)
-  console.warn("User has neither role nor role_id. Defaulting to Customer.");
+  // No role - default to customer (most restrictive)
+  console.warn("User has no role. Defaulting to Customer.");
   return {
     ...user,
-    role_id: UserRole.CUSTOMER,
+    role: "customer",
   };
 }

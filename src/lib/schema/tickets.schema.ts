@@ -67,7 +67,8 @@ export const ticketFormSchema = z.object({
     .max(5, "Rating must be at most 5"),
   customerId: z.string().refine((val) => {
     // UUID v4 validation regex
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
     return uuidRegex.test(val);
   }, "Invalid customer ID"),
   zoneId: z.coerce.number().min(1, "Zone ID is required"),

@@ -13,13 +13,17 @@ import { Input } from "@/components/ui/input";
 import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
-import { ResponsiblData } from "@/lib/schema/branch.schema";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 
-export const ResponsiblePersonStep: React.FC<
-  StepComponentProps<ResponsiblData>
-> = ({ form, onNext, onBack, onSubmit, isFirstStep, isLastStep }) => {
+export const ResponsiblePersonStep: React.FC<StepComponentProps> = ({
+  form,
+  onNext,
+  onBack,
+  onSubmit,
+  isFirstStep,
+  isLastStep,
+}) => {
   const { control } = form;
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
