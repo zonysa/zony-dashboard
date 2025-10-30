@@ -24,7 +24,7 @@ export function AccessDenied() {
           </div>
           <CardTitle className="text-2xl">Access Denied</CardTitle>
           <CardDescription>
-            You don't have permission to access this page
+            You do not have permission to access this page
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center text-sm text-muted-foreground">
