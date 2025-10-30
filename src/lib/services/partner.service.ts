@@ -1,5 +1,6 @@
 import { GetBranchesRes } from "../schema/branch.schema";
 import {
+  CreatePartnerRequest,
   GetPartnerRes,
   GetPartnersRes,
   partnerFilterOptions,
@@ -8,7 +9,7 @@ import {
 import { apiCall } from "./apiClient";
 
 // Create Partner
-export const createPartner = async (data: PartnerFormData) => {
+export const createPartner = async (data: CreatePartnerRequest) => {
   return apiCall({
     method: "POST",
     url: "/partners",

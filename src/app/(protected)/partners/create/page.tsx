@@ -5,7 +5,10 @@ import { BankAccountStep } from "@/forms/partners/BankAccountStep";
 import { PartnerStep } from "@/forms/partners/PartnerInfoStep";
 import { StepConfig, useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { useCreatePartner } from "@/lib/hooks/usePartner";
-import { PartnerFormData } from "@/lib/schema/partner.schema";
+import {
+  CreatePartnerRequest,
+  PartnerFormData,
+} from "@/lib/schema/partner.schema";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -62,7 +65,7 @@ export default function Page() {
       unifiedNumber: "123123123",
     },
     onComplete: async (data: PartnerFormData) => {
-      const partnerData = {
+      const partnerData: CreatePartnerRequest = {
         // partner info
         name: data.partnerName,
         type: data.type,
@@ -81,6 +84,14 @@ export default function Page() {
         // representative
         representative_id: String(data.representative),
       };
+
+      // console.log(partnerData);
+      await partnerMutation.mutateAsync(partnerData, {
+        onSuccess: () => {
+          toast.success(`New Partner ${data.partnerName} Created Successfuly`);
+          router.push("/partners");
+        },
+      });
     },
     persistState: false,
   });

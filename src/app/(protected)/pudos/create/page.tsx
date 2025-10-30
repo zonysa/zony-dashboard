@@ -10,9 +10,11 @@ import {
 } from "@/lib/schema/branch.schema";
 import { useCreateBranch } from "@/lib/hooks/useBranch";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const branchMutation = useCreateBranch();
+  const router = useRouter();
 
   const formSteps: StepConfig<BranchFormData>[] = [
     {
@@ -168,6 +170,7 @@ export default function Page() {
         await branchMutation.mutateAsync(branchData, {
           onSuccess: () => {
             toast.success(`Branch ${data.branchName} Created Successfuly`);
+            router.push("/pudos");
           },
         });
       } catch (error) {

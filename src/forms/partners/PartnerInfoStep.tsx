@@ -153,7 +153,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="representative"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Responsible</FormLabel>
+                  <FormLabel>Representative</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
