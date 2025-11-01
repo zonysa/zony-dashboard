@@ -3,7 +3,7 @@ import { z } from "zod";
 // Customer data in ticket
 export interface CustomerData {
   phone_number: string;
-  username: string;
+  first_name: string;
 }
 
 // Ticket Details (API Response)
@@ -56,6 +56,19 @@ export const actionTakenSchema = z.enum([
   "cancelled",
 ]);
 
+export const customerDataSchema = z.object({
+  first_name: z.string().min(1, "first_name is required"),
+  // allow common phone formats, 7–20 chars (numbers, spaces, +, -, parentheses)
+  phone_number: z
+    .string()
+    .min(7, "phone_number is too short")
+    .max(20, "phone_number is too long")
+    .regex(
+      /^[+\d][\d\s\-()]+$/,
+      "phone_number must contain only digits and formatting characters"
+    ),
+});
+
 // Ticket Form Schema (for creating/editing tickets)
 export const ticketFormSchema = z.object({
   status: ticketStatusSchema,
@@ -65,12 +78,7 @@ export const ticketFormSchema = z.object({
     .number()
     .min(0, "Rating must be at least 0")
     .max(5, "Rating must be at most 5"),
-  customerId: z.string().refine((val) => {
-    // UUID v4 validation regex
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(val);
-  }, "Invalid customer ID"),
+  customerId: customerDataSchema,
   zoneId: z.coerce.number().min(1, "Zone ID is required"),
   parcelId: z.coerce.number().min(1, "Parcel ID is required"),
 });

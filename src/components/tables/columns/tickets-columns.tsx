@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 
 import Link from "next/link";
 import TicketActionsCell from "@/components/TicketSheet";
-import { TicketDetails } from "@/lib/schema/tickets.schema";
+import { CustomerData, TicketDetails } from "@/lib/schema/tickets.schema";
 
 export const columns: ColumnDef<TicketDetails>[] = [
   {
@@ -94,10 +94,21 @@ export const columns: ColumnDef<TicketDetails>[] = [
     accessorKey: "customer_data",
     header: "Phone number",
     cell: ({ row }) => {
-      const customer = JSON.parse(row.getValue("customer_data") as string);
+      const customer = row.getValue("customer_data") as CustomerData;
       return (
-        <div className="font-mono text-sm">{String(customer.phone_number)}</div>
+        <div className="font-mono text-sm">
+          {customer?.phone_number ?? "NA"}
+        </div>
       );
+    },
+    filterFn: "includesString",
+  },
+  {
+    accessorKey: "customer_data",
+    header: "Customer Name",
+    cell: ({ row }) => {
+      const customer = row.getValue("customer_data") as CustomerData;
+      return <div className="font-mono text-sm">{customer?.first_name}</div>;
     },
     filterFn: "includesString",
   },
