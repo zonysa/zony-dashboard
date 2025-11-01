@@ -5,6 +5,11 @@ import { Client } from "@/lib/schema/client.schema";
 
 export const columns: ColumnDef<Client>[] = [
   {
+    accessorKey: "id",
+    header: "ID",
+    filterFn: "includesString",
+  },
+  {
     accessorKey: "name",
     header: "Client",
     filterFn: "includesString",

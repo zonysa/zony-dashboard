@@ -72,7 +72,7 @@ function BranchDetails() {
   const { data: customerServices } = useGetZoneCustomerServices(zoneId);
 
   // Available data for assignment (fetch all users by role)
-  const { data: allSupervisors } = useGetUsers({ role_id: 3 });
+  const { data: allSupervisors } = useGetUsers({ role_id: 4 });
   const { data: allCouriers } = useGetUsers({ role_id: 6 });
   const { data: allCustomerServices } = useGetUsers({ role_id: 5 });
   const { data: allDistricts } = useGetDistricts();

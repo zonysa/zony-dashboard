@@ -1,4 +1,5 @@
 import { ClientFormData, ClientsResponse } from "../schema/client.schema";
+import { getParcelsRes } from "../schema/parcel.schema";
 import { apiCall } from "./apiClient";
 
 // Get all clients
@@ -21,7 +22,7 @@ export const getClient = async (id: string) => {
 };
 
 // Get Client Parcels
-export const getClientParcels = async (id: string) => {
+export const getClientParcels = async (id: string): Promise<getParcelsRes> => {
   return apiCall({
     method: "GET",
     url: `/clients/${id}/parcels`,

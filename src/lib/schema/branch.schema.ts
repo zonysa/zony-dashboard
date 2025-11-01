@@ -89,6 +89,7 @@ export const branchInfoSchema = z.object({
   city: z.string().min(1, "City is required"),
   district: z.string().min(1, "District is required"),
   zone: z.string().min(1, "Zone is required"),
+  coordinates: z.string(),
   location: z.string().optional(),
   address: z.string().min(1, "Address is required"),
   branchPhoto: z.instanceof(File).optional(),

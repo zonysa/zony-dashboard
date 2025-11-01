@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { useWatch } from "react-hook-form";
 import { MapPin, Plus } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const CoordinatePickerDialog = dynamic(
+  () =>
+    import("@/components/CoordinatePickerDialog").then(
+      (mod) => mod.CoordinatePickerDialog
+    ),
+  { ssr: false }
+);
 
 import {
   Form,
@@ -46,6 +55,11 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
 }) => {
   const { data: users } = useGetUsers({ role_id: 3 });
   const [showUserSheet, setShowUserSheet] = useState(false);
+  const [showCoordinatePicker, setShowCoordinatePicker] = useState(false);
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>({ lat: 24.7136, lng: 46.6753 });
 
   const { control } = form;
   const selectedCity = useWatch({
@@ -61,6 +75,17 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
   const { data: cities } = useGetCities();
   const { data: zones } = useGetZones({ cityId: Number(selectedCity) });
   const { data: district } = useGetDistricts(Number(selectedZone));
+
+  const handleCoordinatesSelect = (lat: number, lng: number) => {
+    const coordinateString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    setCoordinates({ lat, lng });
+    form.setValue("coordinates", coordinateString, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setShowCoordinatePicker(false); // Close the dialog after selection
+  };
 
   return (
     <>
@@ -138,7 +163,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     onValueChange={(value) => {
                       field.onChange(Number(value));
                     }}
-                    defaultValue={field.value}
+                    value={field.value ? String(field.value) : undefined}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
@@ -167,7 +192,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     onValueChange={(value) => {
                       field.onChange(Number(value));
                     }}
-                    defaultValue={field.value}
+                    value={field.value ? String(field.value) : undefined}
                     disabled={!selectedCity}
                   >
                     <FormControl>
@@ -234,7 +259,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
 
             <FormField
               control={control}
-              name="location"
+              name="coordinates"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Branch Coordinates</FormLabel>
@@ -243,10 +268,16 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                       <Input
                         {...field}
                         placeholder="Select From GPS"
+                        disabled={coordinates !== null}
                         readOnly
                       />
                     </FormControl>
-                    <Button type="button" variant="outline" size="icon">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setShowCoordinatePicker(true)}
+                    >
                       <MapPin className="h-4 w-4" />
                     </Button>
                   </div>
@@ -345,6 +376,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               )}
             />
           </div>
+
           <StepNavigation
             onBack={onBack}
             onNext={onNext}
@@ -357,6 +389,12 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
         open={showUserSheet}
         onOpenChange={setShowUserSheet}
         userRole={3}
+      />
+      <CoordinatePickerDialog
+        open={showCoordinatePicker}
+        onOpenChange={setShowCoordinatePicker}
+        onCoordinatesSelect={handleCoordinatesSelect}
+        initialCoordinates={coordinates || undefined}
       />
     </>
   );

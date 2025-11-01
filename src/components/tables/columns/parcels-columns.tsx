@@ -13,6 +13,7 @@ export const columns: ColumnDef<ParcelDetails>[] = [
       return <div className="font-mono text-sm">{parcelId}</div>;
     },
     filterFn: "includesString",
+    enableSorting: false,
   },
   {
     accessorKey: "tracking_number",
