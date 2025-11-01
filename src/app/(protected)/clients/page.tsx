@@ -17,8 +17,8 @@ export default function Page() {
 
   const router = useRouter();
   const handleRowClick = (row: Row<Client>) => {
-    const partnerId = row.getValue("name");
-    router.replace(`/partners/${partnerId}`);
+    const id = row.getValue("id");
+    router.replace(`/clients/${id}`);
   };
 
   return (

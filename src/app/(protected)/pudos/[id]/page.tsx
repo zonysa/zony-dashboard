@@ -10,9 +10,11 @@ import DataItem from "@/components/ui/DataItem";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useGetBranch, useGetBranchParcels } from "@/lib/hooks/useBranch";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { SectionCards } from "@/components/ui/section-cards";
 import { columns } from "@/components/tables/columns/parcels-columns";
+import { Row } from "@tanstack/react-table";
+import { ParcelDetails } from "@/lib/schema/parcel.schema";
 
 interface BranchDetailsProps {
   branchData?: {
@@ -150,6 +152,12 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
         <span className="ml-2 text-sm text-gray-600">{rating}</span>
       </div>
     );
+  };
+
+  const router = useRouter();
+  const handleRowClick = (row: Row<ParcelDetails>) => {
+    const id = row.getValue("id");
+    router.replace(`/parcels/${id}`);
   };
 
   return (
@@ -337,6 +345,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
             filterConfigs={filterConfigs}
             enableGlobalSearch={true}
             searchPlaceholder="Search PUDO name..."
+            onRowClick={handleRowClick}
           />
         </TabsContent>
 

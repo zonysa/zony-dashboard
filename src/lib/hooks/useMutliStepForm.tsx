@@ -142,7 +142,6 @@ export const useMultiStepForm = <T extends Record<string, unknown>>({
           }
         } catch (err) {
           console.log("Error in onComplete:", err);
-          throw err;
         } finally {
           setIsSubmitting(false);
         }

@@ -148,6 +148,9 @@ export default function Page() {
     },
     onComplete: async (data) => {
       // Here you would typically send the data to your API
+      const [lat, lng] = data.coordinates
+        .split(",")
+        .map((coord) => coord.trim());
       try {
         const branchData: CreateBranchRequest = {
           // Branch info
@@ -158,7 +161,10 @@ export default function Page() {
           oprating_hours: data.operatingHours,
           municipal_license: "13213123",
           password: "00000000",
-          coordinates: {},
+          coordinates: {
+            latitude: lat,
+            longitude: lng,
+          },
           partner_id: data.partner,
           district_id: data.district,
           zone_id: data.zone,

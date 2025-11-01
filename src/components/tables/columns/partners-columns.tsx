@@ -6,6 +6,11 @@ import { PartnerDetails } from "@/lib/schema/partner.schema";
 
 export const columns: ColumnDef<PartnerDetails>[] = [
   {
+    accessorKey: "id",
+    header: "ID",
+    filterFn: "includesString",
+  },
+  {
     accessorKey: "name",
     header: "Partner",
     filterFn: "includesString",
