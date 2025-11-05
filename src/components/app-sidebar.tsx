@@ -31,78 +31,81 @@ import { useAuthStore } from "@/lib/stores/auth-store";
 import { Permission } from "@/lib/rbac/permissions";
 import { LogoutDialog } from "./LogoutDialog";
 import { useState } from "react";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 // Navigation items with required permissions
 
 // Inner component that uses useSidebar hook
 function AppSidebarContent() {
+  const { t } = useTranslation();
+
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { state } = useSidebar();
 
   const navItems = [
     {
-      title: "Overview",
+      title: t("overview.title"),
       url: "/",
       icon: LayoutDashboard,
       permission: Permission.VIEW_DASHBOARD,
     },
     {
-      title: "Supervisors",
+      title: t("supervisors.title"),
       url: "/supervisors",
       icon: Users,
       permission: Permission.VIEW_SUPERVISORS,
     },
     {
-      title: "Partners",
+      title: t("partners.title"),
       url: "/partners",
       icon: UserRound,
       permission: Permission.VIEW_PARTNERS,
     },
     {
-      title: "PUDO Points",
+      title: t("pudos.title"),
       url: "/pudos",
       icon: Store,
       permission: Permission.VIEW_PUDOS,
     },
     {
-      title: "Zones",
+      title: t("zones.title"),
       url: "/zones",
       icon: Map,
       permission: Permission.VIEW_ZONES,
     },
     {
-      title: "Reports & Analytics",
+      title: t("reportsAnalytics.title"),
       url: "/reports-analytics",
       icon: BarChart3,
       permission: Permission.VIEW_REPORTS,
     },
     {
-      title: "Parcels",
+      title: t("parcels.title"),
       url: "/parcels",
       icon: Package,
       permission: Permission.VIEW_PARCELS,
     },
     {
-      title: "Clients",
+      title: t("clients.title"),
       url: "/clients",
       icon: Handshake,
       permission: Permission.VIEW_CLIENTS,
     },
     {
-      title: "Tickets",
+      title: t("tickets.title"),
       url: "/tickets",
       icon: Ticket,
       permission: Permission.VIEW_TICKETS,
     },
     {
-      title: "Customer Service",
+      title: t("customerService.title"),
       url: "/customer-service",
       icon: Headset,
       permission: Permission.VIEW_CUSTOMER_SERVICE,
     },
     {
-      title: "Courier",
+      title: t("couriers.title"),
       url: "/courier",
       icon: Truck,
       permission: Permission.VIEW_COURIER,
@@ -111,12 +114,12 @@ function AppSidebarContent() {
 
   const navSecondary = [
     {
-      title: "Settings",
+      title: t("settings.title"),
       url: "/settings",
       icon: Settings,
     },
     {
-      title: "Logout",
+      title: t("logout.title"),
       icon: LogOut,
       onClick: () => setLogoutDialogOpen(true),
     },

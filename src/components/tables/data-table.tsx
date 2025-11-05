@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface FilterOption {
   value: string;
@@ -82,6 +83,8 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const { t } = useTranslation();
+
   // Extract unique values for filter options if not provided
   const getUniqueValues = (key: string): FilterOption[] => {
     if (!data || data.length === 0) return [];
@@ -111,7 +114,7 @@ export function DataTable<TData, TValue>({
     setColumnFilters(filters);
 
     // Console log the selected options
-    console.log("Applied Filters:", {
+    console.log(t("table.appliedFilters"), {
       search: localSearch,
       filters: localFilters,
       appliedAt: new Date().toISOString(),
@@ -123,8 +126,6 @@ export function DataTable<TData, TValue>({
     setLocalSearch("");
     setColumnFilters([]);
     setGlobalFilter("");
-
-    console.log("Filters Cleared");
   };
 
   const updateLocalFilter = (key: string, value: string) => {
@@ -148,7 +149,7 @@ export function DataTable<TData, TValue>({
               {enableGlobalSearch && (
                 <div className="flex flex-1 flex-col gap-2 items-start space-x-2">
                   <span className="text-sm font-medium whitespace-nowrap">
-                    Search
+                    {t("table.search")}
                   </span>
                   <div className="w-full relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -208,7 +209,7 @@ export function DataTable<TData, TValue>({
                 variant="outline"
                 size="sm"
               >
-                Apply Filter
+                {t("table.applyFilter")}
                 <Filter className="w-6 h-6" />
               </Button>
             </div>
@@ -285,7 +286,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results found.
+                  {t("table.noResultsFound")}
                 </TableCell>
               </TableRow>
             )}
@@ -296,7 +297,8 @@ export function DataTable<TData, TValue>({
       {/* Pagination & Results Info */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-600">
-          Showing {table.getRowModel().rows.length} of {data.length} results
+          {t("table.showing")} {table.getRowModel().rows.length} {t("table.of")}{" "}
+          {data.length} {t("table.results")}
           {hasActiveFilters && " (filtered)"}
         </div>
 

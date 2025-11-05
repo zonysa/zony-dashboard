@@ -24,7 +24,7 @@ export default function Page() {
   return (
     <div className="px-6 py-10">
       <DataTable
-        columns={columns}
+        columns={columns()}
         data={clients ? clients?.clients : []}
         enableFiltering={true}
         filterConfigs={filterConfigs}

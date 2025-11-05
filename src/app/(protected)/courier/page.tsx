@@ -26,7 +26,7 @@ function Page() {
   return (
     <div className="w-full py-10 px-6">
       <DataTable
-        columns={columns}
+        columns={columns()}
         data={couriers?.users ?? []}
         enableFiltering={true}
         filterConfigs={filterConfigs}

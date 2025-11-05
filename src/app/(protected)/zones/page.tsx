@@ -26,7 +26,7 @@ export default function Page() {
   return (
     <div className="py-10 px-6">
       <DataTable
-        columns={columns}
+        columns={columns()}
         data={zones ? zones.zones : []}
         enableFiltering={true}
         filterConfigs={filterConfigs}

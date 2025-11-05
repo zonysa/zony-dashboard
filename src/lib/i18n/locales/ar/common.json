@@ -1,0 +1,64 @@
+{
+  "welcome": "مرحباً",
+  "hello": "أهلاً",
+  "language": "اللغة",
+  "selectLanguage": "اختر اللغة",
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "add": "إضافة",
+    "create": "إنشاء",
+    "update": "تحديث",
+    "search": "بحث",
+    "filter": "تصفية",
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "success": "نجح",
+    "confirm": "تأكيد",
+    "yes": "نعم",
+    "no": "لا",
+    "back": "رجوع",
+    "next": "التالي",
+    "submit": "إرسال",
+    "close": "إغلاق",
+    "actions": "الإجراءات",
+    "view": "عرض",
+    "details": "التفاصيل"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "dashboard": "لوحة التحكم",
+    "parcels": "الطرود",
+    "partners": "الشركاء",
+    "settings": "الإعدادات"
+  },
+  "form": {
+    "required": "هذا الحقل مطلوب",
+    "invalidEmail": "البريد الإلكتروني غير صالح",
+    "invalidPhone": "رقم الهاتف غير صالح",
+    "passwordTooShort": "كلمة المرور قصيرة جداً",
+    "passwordsDoNotMatch": "كلمات المرور غير متطابقة"
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "formTitle": "أدخل معلوماتك الشخصية",
+      "emailLable": "البريد الإلكتروني",
+      "emailPlaceholder": "أدخل بريدك الإلكتروني أو رقم الهاتف",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "rememberMe": "تذكرني",
+      "forgotPassword": "نسيت كلمة المرور",
+      "CTA": "تسجيل الدخول"
+    },
+    "logout": "تسجيل الخروج",
+    "register": "إنشاء حساب",
+    "forgotPassword": "نسيت كلمة المرور",
+    "resetPassword": "إعادة تعيين كلمة المرور",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "confirmPassword": "تأكيد كلمة المرور"
+  }
+}

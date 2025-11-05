@@ -130,7 +130,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
         <TabsContent className="w-full px-6" value="parcels">
           <div className="w-full">
             <DataTable
-              columns={columns}
+              columns={columns()}
               data={parcels?.parcels || []}
               enableFiltering={true}
               filterConfigs={filterConfigs}

@@ -27,6 +27,7 @@ interface PartnerDataProps {
 function PartnerDetails({ partnerData }: PartnerDataProps) {
   const params = useParams();
   const partnerId = params.id as string;
+  const columns = branchColumns();
 
   const { data: partner } = useGetPartner(partnerId);
   const { data: branches } = useGetPartnerBranches(partnerId);
@@ -334,7 +335,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
         <TabsContent className="w-full px-6" value="pudos">
           <div className="w-full">
             <DataTable
-              columns={branchColumns}
+              columns={columns}
               data={branches?.pudos || []}
               enableFiltering={true}
               filterConfigs={filterConfigs}

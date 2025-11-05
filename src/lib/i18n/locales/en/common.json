@@ -1,0 +1,140 @@
+{
+  "welcome": "Welcome",
+  "hello": "Hello",
+  "language": "Language",
+  "selectLanguage": "Select Language",
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "actions": "Actions",
+    "view": "View"
+  },
+  "table": {
+    "page": "Page",
+    "zone": "Zone",
+    "name": "Name",
+    "city": "City",
+    "parcel": "Parcel",
+    "district": "District",
+    "status": "Status",
+    "id": "ID",
+    "showing": "Showing",
+    "of": "of",
+    "results": "results",
+    "applyFilter": "Apply Filter",
+    "search": "Search",
+    "pudo": "PUDO",
+    "zoneName": "Zone Name",
+    "actionTaken": "Action Taken",
+    "ticketStatus": "Ticket Status",
+    "rating": "Rating",
+    "searchTick": "Search Tick",
+    "allPUDOs": "All PUDOs",
+    "allZones": "All Zones",
+    "allCities": "All Cities",
+    "allDistricts": "All Districts",
+    "partner": "Partner",
+    "allActions": "All Actions",
+    "allStatus": "All Status",
+    "allRatings": "All Ratings",
+    "phoneNumber": "Phone number",
+    "type": "Type",
+    "allTypes": "All Types",
+    "customerName": "Customer Name",
+    "comments": "Comments",
+    "actions": "Actions",
+    "trackingNumber": "Tracking Number",
+    "appliedFilters": "Applied Filters",
+    "filtersCleared": "Filters Cleared",
+    "noResultsFound": "No results found"
+  },
+  "parcels": {
+    "title": "Parcels"
+  },
+  "clients": {
+    "title": "Client"
+  },
+  "tickets": {
+    "title": "Tickets"
+  },
+  "customerService": {
+    "title": "Customer Service"
+  },
+  "couriers": {
+    "title": "Courier"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "logout": {
+    "title": "Logout"
+  },
+  "overview": {
+    "title": "overview"
+  },
+  "supervisors": {
+    "title": "supervisor"
+  },
+  "partners": {
+    "title": "Partners"
+  },
+  "pudos": {
+    "title": "PUDOs"
+  },
+  "zones": {
+    "title": "PUDOs"
+  },
+  "reportsAnalytics": {
+    "title": "Reports Analytics"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "parcels": "Parcels",
+    "partners": "Partners",
+    "settings": "Settings"
+  },
+  "form": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "invalidPhone": "Invalid phone number",
+    "passwordTooShort": "Password is too short",
+    "passwordsDoNotMatch": "Passwords do not match"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "formTitle": "Enter your personal information",
+      "emailLable": "Email",
+      "emailPlaceholder": "Enter Your Email Phone Number",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot your password",
+      "CTA": "Sign In",
+      "logout": "Logout",
+      "register": "Register",
+      "resetPassword": "Reset Password",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password"
+    }
+  }
+}

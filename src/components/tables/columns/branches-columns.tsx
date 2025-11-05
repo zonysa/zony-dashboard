@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { BranchDetails } from "@/lib/schema/branch.schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { Circle } from "lucide-react";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 const getStatusVariant = (status: string) => {
   switch (status) {
@@ -30,103 +31,116 @@ const getUsageClasses = (usage: number) => {
   }
 };
 
-export const branchColumns: ColumnDef<BranchDetails>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    filterFn: "includesString",
-    cell: ({ row }) => {
-      const pudoId = row.getValue("id") as string;
-      return <div className="font-mono text-sm">{pudoId}</div>;
-    },
-  },
-  {
-    accessorKey: "name",
-    header: "Branch Name",
-    filterFn: "includesString",
-    cell: ({ row }) => {
-      const branchName = row.getValue("name") as string;
-      return (
-        <div className="font-medium">{branchName ? branchName : "NA"}</div>
-      );
-    },
-  },
-  {
-    accessorKey: "city",
-    header: "City",
-    cell: ({ row }) => {
-      const city = row.getValue("city") as string;
-      return <div className="font-medium">{city ? city : "NA"}</div>;
-    },
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "zone",
-    header: "Zone",
-    cell: ({ row }) => {
-      const zone = row.getValue("zone") as string;
-      return <div className="font-medium">{zone ? zone : "NA"}</div>;
-    },
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "district",
-    header: "Districts",
-    cell: ({ row }) => {
-      const district = row.getValue("district") as string;
-      return (
-        <div className="capitalize font-medium">
-          {district ? district : "NA"}
-        </div>
-      );
-    },
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "totalParcels",
-    header: "Total Parcels",
-    cell: ({ row }) => {
-      const totalParcels = row.getValue("totalParcels") as number;
-      return (
-        <div className="font-medium text-orange-600">
-          {totalParcels ? totalParcels.toLocaleString() : "NA"}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "supervisor",
-    header: "Supervisor",
-    cell: ({ row }) => {
-      const supervisor = row.getValue("supervisor") as string;
-      return (
-        <div className="font-medium">{supervisor ? supervisor : "NA"}</div>
-      );
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
-    },
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "pointUsage",
-    header: "Point Usage",
-    cell: ({ row }) => {
-      const pointUsage = row.getValue("pointUsage") as number;
-      const classes = getUsageClasses(pointUsage);
+export const branchColumns = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { t } = useTranslation();
 
-      return (
-        <Badge variant="outline" className={classes.text}>
-          <Circle className={`w-2 h-2 text-transparent fill ${classes.fill}`} />
-          {pointUsage ? pointUsage : 20}%
-        </Badge>
-      );
+  const columns: ColumnDef<BranchDetails>[] = [
+    {
+      accessorKey: "id",
+      header: t("table.id") || "ID",
+      filterFn: "includesString",
+      cell: ({ row }) => {
+        const pudoId = row.getValue("id") as string;
+        return <div className="font-mono text-sm">{pudoId}</div>;
+      },
     },
-  },
-];
+    {
+      accessorKey: "name",
+      header: "Branch Name",
+      filterFn: "includesString",
+      cell: ({ row }) => {
+        const branchName = row.getValue("name") as string;
+        return (
+          <div className="font-medium">{branchName ? branchName : "NA"}</div>
+        );
+      },
+    },
+    {
+      accessorKey: "city",
+      header: t("table.city") || "City",
+      cell: ({ row }) => {
+        const city = row.getValue("city") as string;
+        return <div className="font-medium">{city ? city : "NA"}</div>;
+      },
+      filterFn: "equalsString",
+    },
+    {
+      accessorKey: "zone",
+      header: t("table.zone") || "Zone",
+      cell: ({ row }) => {
+        const zone = row.getValue("zone") as string;
+        return <div className="font-medium">{zone ? zone : "NA"}</div>;
+      },
+      filterFn: "equalsString",
+    },
+    {
+      accessorKey: "district",
+      header: t("table.district") || "Districts",
+      cell: ({ row }) => {
+        const district = row.getValue("district") as string;
+        return (
+          <div className="capitalize font-medium">
+            {district ? district : "NA"}
+          </div>
+        );
+      },
+      filterFn: "equalsString",
+    },
+    {
+      accessorKey: "totalParcels",
+      header: "Total Parcels",
+      cell: ({ row }) => {
+        const totalParcels = row.getValue("totalParcels") as number;
+        return (
+          <div className="font-medium text-orange-600">
+            {totalParcels ? totalParcels.toLocaleString() : "NA"}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "supervisor",
+      header: "Supervisor",
+      cell: ({ row }) => {
+        const supervisor = row.getValue("supervisor") as string;
+        return (
+          <div className="font-medium">{supervisor ? supervisor : "NA"}</div>
+        );
+      },
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "status",
+      header: t("table.status") || "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        return (
+          <Badge variant={getStatusVariant(status)}>
+            {t(`status.${status.toLowerCase()}`, { defaultValue: status })}
+          </Badge>
+        );
+      },
+      filterFn: "equalsString",
+    },
+    {
+      accessorKey: "pointUsage",
+      header: "Point Usage",
+      cell: ({ row }) => {
+        const pointUsage = row.getValue("pointUsage") as number;
+        const classes = getUsageClasses(pointUsage);
+
+        return (
+          <Badge variant="outline" className={classes.text}>
+            <Circle
+              className={`w-2 h-2 text-transparent fill ${classes.fill}`}
+            />
+            {pointUsage ? pointUsage : 20}%
+          </Badge>
+        );
+      },
+    },
+  ];
+
+  return columns;
+};

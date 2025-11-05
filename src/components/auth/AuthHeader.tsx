@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Globe } from "lucide-react";
+import { LanguageSwitcher } from "../LanguageSwitcher";
 
 function AuthHeader() {
   const pathname = usePathname();
@@ -33,21 +34,7 @@ function AuthHeader() {
     <div className="flex w-full justify-between items-center">
       <Image src="/icons/zony-logo.svg" alt="Logo" width={80} height={40} />
       <h1 className="text-xl font-semibold">{getTitle()}</h1>
-      <Select>
-        <SelectTrigger className="w-[100px]">
-          <div className="flex items-center gap-2">
-            <Globe size={16} className="text-gray-500" />
-            <SelectValue placeholder="En" />
-          </div>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Languages</SelectLabel>
-            <SelectItem value="en">En</SelectItem>
-            <SelectItem value="ar">AR</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
+      <LanguageSwitcher />
     </div>
   );
 }

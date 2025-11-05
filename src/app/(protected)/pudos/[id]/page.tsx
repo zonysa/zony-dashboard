@@ -35,6 +35,7 @@ interface BranchDetailsProps {
 function BranchDetails({ branchData }: BranchDetailsProps) {
   const params = useParams();
   const branchId = params.id as string;
+  const parcelColumns = columns();
 
   const { data: branch } = useGetBranch(branchId);
   const {
@@ -339,7 +340,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
 
         <TabsContent className="w-full px-6" value="branch-parcels">
           <DataTable
-            columns={columns}
+            columns={parcelColumns}
             data={parcels?.parcels || []}
             enableFiltering={true}
             filterConfigs={filterConfigs}

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { data: branches } = useGetBranches();
+  const columns = branchColumns();
 
   const filterConfigs = [
     { key: "city", label: "City", placeholder: "All Cities" },
@@ -26,7 +27,7 @@ export default function Page() {
   return (
     <div className="py-10 px-6">
       <DataTable
-        columns={branchColumns}
+        columns={columns}
         data={branches?.pudos || []}
         enableFiltering={true}
         filterConfigs={filterConfigs}

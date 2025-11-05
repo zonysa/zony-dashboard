@@ -31,7 +31,7 @@ export default function Page() {
   return (
     <div className="py-10 px-6">
       <DataTable
-        columns={columns}
+        columns={columns()}
         data={parcelsData.parcels || []}
         enableFiltering={true}
         filterConfigs={filterConfigs}

@@ -219,6 +219,8 @@ function BranchDetails() {
     onDelete: (id, name) => handleOpenDeleteDialog("district", id, name),
   });
 
+  const pudoColumns = branchColumns();
+
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
       <Tabs defaultValue="zone-details" className="w-full gap-6">
@@ -378,7 +380,7 @@ function BranchDetails() {
 
         <TabsContent className="w-full px-8" value="branchs">
           <DataTable
-            columns={branchColumns}
+            columns={pudoColumns}
             data={branches?.pudos ?? []}
             enableFiltering={true}
             filterConfigs={filterConfigs}

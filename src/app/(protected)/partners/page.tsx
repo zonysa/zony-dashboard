@@ -3,16 +3,22 @@
 import { columns } from "@/components/tables/columns/partners-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetPartners } from "@/lib/hooks/usePartner";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 import { PartnerDetails } from "@/lib/schema/partner.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { data: partners } = useGetPartners();
+  const { t } = useTranslation();
 
   const filterConfigs = [
-    { key: "type", label: "Type", placeholder: "All Types" },
-    { key: "status", label: "Status", placeholder: "All Status" },
+    { key: "type", label: t("table.type"), placeholder: t("table.allTypes") },
+    {
+      key: "status",
+      label: t("table.status"),
+      placeholder: t("table.allStatus"),
+    },
   ];
 
   const router = useRouter();
@@ -24,12 +30,12 @@ export default function Page() {
   return (
     <div className="px-6 py-10">
       <DataTable
-        columns={columns}
+        columns={columns()}
         data={partners ? partners.partners : []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
-        searchPlaceholder="Search partners..."
+        searchPlaceholder={t("table.search", "table.partners")}
         onRowClick={handleRowClick}
       />
     </div>

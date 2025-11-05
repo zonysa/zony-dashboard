@@ -2,79 +2,87 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Client } from "@/lib/schema/client.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
-export const columns: ColumnDef<Client>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "name",
-    header: "Client",
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => {
-      const type = row.getValue("type") as string;
-      return <div className="capitalize">{type}</div>;
+export const columns = () => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { t } = useTranslation();
+
+  const columns: ColumnDef<Client>[] = [
+    {
+      accessorKey: "id",
+      header: t("table.id") || "ID",
+      filterFn: "includesString",
     },
-    filterFn: "equalsString",
-  },
-  {
-    accessorKey: "total_parcels",
-    header: "Total Parcels",
-    cell: ({ row }) => {
-      // You'll need to add this field to your API response or calculate it
-      const totalParcels = row.original.total_parcels || 0;
-      return <div className="font-medium">{totalParcels}</div>;
+    {
+      accessorKey: "name",
+      header: "Client",
+      filterFn: "includesString",
     },
-  },
-  {
-    accessorKey: "delivery_rate",
-    header: "Delivery Rate",
-    cell: ({ row }) => {
-      // You'll need to add this field to your API response or calculate it
-      const deliveryRate = row.original.delivery_rate || 0;
-      return <div className="font-medium">{deliveryRate}%</div>;
+    {
+      accessorKey: "type",
+      header: t("table.type") || "Type",
+      cell: ({ row }) => {
+        const type = row.getValue("type") as string;
+        return <div className="capitalize">{type}</div>;
+      },
+      filterFn: "equalsString",
     },
-  },
-  {
-    accessorKey: "pudo_points_used",
-    header: "PUDO Point Used",
-    cell: ({ row }) => {
-      // You'll need to add this field to your API response or calculate it
-      const pudoPoints = row.original.pudo_points_used || 0;
-      return <div className="font-medium">{pudoPoints}</div>;
+    {
+      accessorKey: "total_parcels",
+      header: "Total Parcels",
+      cell: ({ row }) => {
+        // You'll need to add this field to your API response or calculate it
+        const totalParcels = row.original.total_parcels || 0;
+        return <div className="font-medium">{totalParcels}</div>;
+      },
     },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      const getStatusVariant = (status: string) => {
-        switch (status.toLowerCase()) {
-          case "active":
-            return "success";
-          case "inactive":
-            return "secondary";
-          case "pending":
-            return "outline";
-          case "suspended":
-            return "destructive";
-          default:
-            return "secondary";
-        }
-      };
-      return (
-        <Badge variant={getStatusVariant(status)} className="capitalize">
-          {status}
-        </Badge>
-      );
+    {
+      accessorKey: "delivery_rate",
+      header: "Delivery Rate",
+      cell: ({ row }) => {
+        // You'll need to add this field to your API response or calculate it
+        const deliveryRate = row.original.delivery_rate || 0;
+        return <div className="font-medium">{deliveryRate}%</div>;
+      },
     },
-    filterFn: "equalsString",
-  },
-];
+    {
+      accessorKey: "pudo_points_used",
+      header: t("table.pudo") || "PUDO Point Used",
+      cell: ({ row }) => {
+        // You'll need to add this field to your API response or calculate it
+        const pudoPoints = row.original.pudo_points_used || 0;
+        return <div className="font-medium">{pudoPoints}</div>;
+      },
+    },
+    {
+      accessorKey: "status",
+      header: t("table.status") || "Status",
+      cell: ({ row }) => {
+        const status = row.getValue("status") as string;
+        const getStatusVariant = (status: string) => {
+          switch (status.toLowerCase()) {
+            case "active":
+              return "success";
+            case "inactive":
+              return "secondary";
+            case "pending":
+              return "outline";
+            case "suspended":
+              return "destructive";
+            default:
+              return "secondary";
+          }
+        };
+        return (
+          <Badge variant={getStatusVariant(status)} className="capitalize">
+            {t(`status.${status.toLowerCase()}`, { defaultValue: status })}
+          </Badge>
+        );
+      },
+      filterFn: "equalsString",
+    },
+  ];
+
+  return columns;
+};

@@ -2,6 +2,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,8 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
+  const { t, isRtl } = useTranslation();
+
   const [showPassword, setShowPassword] = useState(false);
 
   // Use our mock-enabled hook
@@ -54,7 +56,7 @@ export function LoginForm({
     <div className={cn("flex w-full flex-col gap-6 z-2", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Enter your personal information</CardTitle>
+          <CardTitle>{t("auth.login.formTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -66,14 +68,14 @@ export function LoginForm({
                 render={({ field }) => (
                   <FormItem className="grid gap-3">
                     <FormLabel htmlFor="email" className="font-normal">
-                      Email or phone number
+                      {t("auth.login.emailLable")}
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         id="email"
                         type="email"
-                        placeholder="Enter Your Email Or Phone Number"
+                        placeholder={t("auth.login.emailPlaceholder")}
                         disabled={loginMutation.isPending}
                         required
                       />
@@ -88,14 +90,14 @@ export function LoginForm({
                 render={({ field }) => (
                   <FormItem className="grid">
                     <FormLabel htmlFor="password" className="font-normal">
-                      Password
+                      {t("auth.login.passwordLabel")}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
-                          placeholder="Enter Password"
+                          placeholder={t("auth.login.passwordPlaceholder")}
                           disabled={loginMutation.isPending}
                         />
                         <Button
@@ -133,7 +135,7 @@ export function LoginForm({
                         />
                       </FormControl>
                       <Label className="text-gray-400 font-normal cursor-pointer">
-                        Remember me
+                        {t("auth.login.rememberMe")}
                       </Label>
                     </FormItem>
                   )}
@@ -143,7 +145,7 @@ export function LoginForm({
                   href="/auth/request-password"
                   className="text-sm underline-offset-4 hover:underline text-primary"
                 >
-                  Forgot your password?
+                  {t("auth.login.forgotPassword")}
                 </Link>
               </div>
 
@@ -158,7 +160,7 @@ export function LoginForm({
                     Signing in...
                   </>
                 ) : (
-                  "Sign In"
+                  t("auth.login.CTA")
                 )}
               </Button>
 

@@ -34,14 +34,6 @@ export const getZones = async (
   if (filters?.districtId)
     params.append("district_id", filters.districtId.toString());
   if (filters?.zoneId) params.append("zone_id", filters.zoneId.toString());
-  // if (filters?.status)
-  //   params.append("status", filters.status);
-  // if (filters?.search)
-  //   params.append("search", filters.search);
-  // if (filters?.page)
-  //   params.append("page", filters.page.toString());
-  // if (filters?.limit)
-  //   params.append("limit", filters.limit.toString());
 
   return apiCall({
     method: "GET",
