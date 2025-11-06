@@ -69,7 +69,7 @@ export default function RootLayout({
 }>) {
   return (
     <HtmlWrapper>
-      <body className={`${poppins.variable} ${cairo.variable} antialiased`}>
+      <body className={`${poppins.variable} ${poppins.className} ${cairo.variable} antialiased`}>
         <I18nProvider>
           <ReactQueryProvider>
             <Toaster position="top-center" richColors />

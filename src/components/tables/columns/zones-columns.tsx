@@ -20,27 +20,27 @@ export const columns = () => {
       filterFn: "includesString",
     },
     {
-      accessorKey: "city",
+      accessorKey: "city_name",
       header: t("table.city") || "City",
       cell: ({ row }) => {
-        const city = row.getValue("city") as string;
+        const city = row.getValue("city_name") as string;
         return <div className="font-medium">{city ? city : "NA"}</div>;
       },
       filterFn: "equalsString",
     },
     {
-      accessorKey: "totalPudos",
+      accessorKey: "total_pudos",
       header: t("table.totalPudos"),
       cell: ({ row }) => {
-        const totPudos = row.getValue("totalPudos") as number;
+        const totPudos = row.getValue("total_pudos") as number;
         return <div className="font-medium">{totPudos ? totPudos : "NA"}</div>;
       },
     },
     {
-      accessorKey: "totalParcels",
+      accessorKey: "total_parcels",
       header: t("table.parcel") || "Parcels",
       cell: ({ row }) => {
-        const parcels = row.getValue("totalParcels") as number;
+        const parcels = row.getValue("total_parcels") as number;
         return (
           <div className="font-medium">
             {parcels ? parcels.toLocaleString() : "NA"}
@@ -49,12 +49,12 @@ export const columns = () => {
       },
     },
     {
-      accessorKey: "supervisor",
+      accessorKey: "supervisor_names",
       header: t("supervisors.title"),
       cell: ({ row }) => {
-        const supervisor = row.getValue("supervisor") as string;
+        const supervisor = row.getValue("supervisor_names") as string;
         return (
-          <div className="font-medium">{supervisor ? supervisor : "NA"}</div>
+          <div className="font-medium">{supervisor ? supervisor[0] : "NA"}</div>
         );
       },
       filterFn: "includesString",
