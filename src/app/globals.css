@@ -301,14 +301,14 @@ html[dir="ltr"] * {
 }
 
 /* Positioning */
-[dir="rtl"] .left-0 {
-  right: 0;
-  left: auto;
+/* [dir="rtl"] .left-0 {
+  right: 0 !important;
+  left: auto !important;
 }
 [dir="rtl"] .right-0 {
-  right: 0;
-  left: auto;
-}
+  right: 0 !important;
+  left: auto !important;
+} */
 
 /* Border radius */
 [dir="rtl"] .rounded-l {

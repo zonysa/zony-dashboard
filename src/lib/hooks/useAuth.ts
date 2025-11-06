@@ -149,23 +149,6 @@ export function useRegister() {
 export function useRequestPassword() {
   return useMutation({
     mutationFn: requestPassword,
-    onSuccess: (response: RequestPasswordResponse) => {
-      toast(response.message || "Password reset email sent!", {
-        action: {
-          label: "Undo",
-          onClick: () => console.log("Undo"),
-        },
-      });
-    },
-    onError: (error: Error) => {
-      console.error("Forgot password failed:", error);
-      toast(error.message || "Password reset email sent!", {
-        action: {
-          label: "Undo",
-          onClick: () => console.log("Undo"),
-        },
-      });
-    },
   });
 }
 

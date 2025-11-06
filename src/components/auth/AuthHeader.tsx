@@ -1,32 +1,22 @@
-// Better approach - pass title as prop or use pathname
 "use client";
+
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Globe } from "lucide-react";
 import { LanguageSwitcher } from "../LanguageSwitcher";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 function AuthHeader() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   const getTitle = () => {
     switch (pathname) {
       case "/auth/login":
-        return "Login";
-      case "/auth/verify-otp":
-        return "Verify OTP";
-      case "/auth/forgot-password":
-        return "Reset Password";
+        return t("auth.login.title");
+      case "/auth/request-password":
+        return t("auth.requestPassword.title");
       default:
-        return "Authentication";
+        return t("auth.resetPassword.title");
     }
   };
 

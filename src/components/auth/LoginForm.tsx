@@ -21,14 +21,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useLogin } from "@/lib/hooks/useAuth";
 import { LoginFormData, loginSchema } from "@/lib/schema/auth.schema";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-// import { useRouter } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { t, isRtl } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -38,8 +36,8 @@ export function LoginForm({
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@email.com",
-      password: "00000000",
+      email: "",
+      password: "",
       remember_me: true,
     },
   });
@@ -104,7 +102,9 @@ export function LoginForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute ${
+                            isRTL ? "left" : "right"
+                          }-0 top-0 h-full px-3 py-2 hover:bg-transparent`}
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={loginMutation.isPending}
                         >

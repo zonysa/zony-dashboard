@@ -441,7 +441,9 @@
     "resetPassword": {
       "title": "Create New Password",
       "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter your new password",
       "confirmPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
       "backToSignIn": "Back to Sign In",
       "requirements": "Password Requirements:",
       "minChars": "At least 8 characters",
@@ -455,12 +457,24 @@
         "fair": "Fair",
         "good": "Good",
         "strong": "Strong"
-      }
+      },
+      "buttonText": "Reset Password",
+      "resetting": "Resetting Password...",
+      "invalidTokenError": "Invalid reset link. Please request a new password reset."
     },
     "requestPassword": {
-      "title": "Forget Password Link will be sent to your Email",
+      "title": "Request New Password",
+      "formTitle": "Forget Password Link will be sent to your Email",
       "email": "Email",
       "placeholder": "Enter Your Email Or Phone Number"
+    },
+    "message": {
+      "passwordResetSend": "Password reset email sent!",
+      "passwordResetFailed": "Password reset failed:"
+    },
+    "action": {
+      "undo": "Undo",
+      "backToLogin": "Back to Login"
     }
   },
   "status": {
