@@ -66,13 +66,7 @@ export const columns = () => {
               return "secondary";
           }
         };
-        return (
-          <Badge variant={getStatusVariant(status)}>
-            {t(`status.${status.toLowerCase().replace(" ", "_")}`, {
-              defaultValue: status,
-            })}
-          </Badge>
-        );
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
       },
       filterFn: "equalsString",
     },

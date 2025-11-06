@@ -29,7 +29,7 @@ export const columns = () => {
     },
     {
       accessorKey: "email",
-      header: "Email",
+      header: t("table.email"),
       cell: ({ row }) => {
         const email = row.getValue("email") as string;
         return (

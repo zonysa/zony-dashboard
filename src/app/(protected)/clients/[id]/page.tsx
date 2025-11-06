@@ -13,6 +13,7 @@ import { useGetPartner, useGetPartnerBranches } from "@/lib/hooks/usePartner";
 import { useGetClient, useGetClientParcels } from "@/lib/hooks/useClient";
 import { Row } from "@tanstack/react-table";
 import { ParcelDetails } from "@/lib/schema/parcel.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface PartnerDataProps {
   partnerData?: {
@@ -28,6 +29,7 @@ interface PartnerDataProps {
 }
 
 function PartnerDetails({ partnerData }: PartnerDataProps) {
+  const { t } = useTranslation();
   const params = useParams();
   const clientId = params.id as string;
 
@@ -123,19 +125,19 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
       <Tabs defaultValue="parcels" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
-            <TabsTrigger value="parcels">Parcels</TabsTrigger>
-            <TabsTrigger value="info">Client Info</TabsTrigger>
+            <TabsTrigger value="parcels">{t("detailPages.tabs.parcels")}</TabsTrigger>
+            <TabsTrigger value="info">{t("detailPages.tabs.clientInfo")}</TabsTrigger>
           </div>
         </TabsList>
         <TabsContent className="w-full px-6" value="parcels">
           <div className="w-full">
             <DataTable
-              columns={columns()}
+              columns={columns(t)}
               data={parcels?.parcels || []}
               enableFiltering={true}
               filterConfigs={filterConfigs}
               enableGlobalSearch={true}
-              searchPlaceholder="Search PUDO name..."
+              searchPlaceholder={t("tables.parcels.searchPlaceholder")}
               onRowClick={handleRowClick}
             />
           </div>

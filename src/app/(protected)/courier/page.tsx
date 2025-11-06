@@ -7,15 +7,29 @@ import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useGetUsers } from "@/lib/hooks/useUsers";
 import { UserDetails } from "@/lib/schema/user.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 function Page() {
   const router = useRouter();
   const { data: couriers } = useGetUsers({ role_id: 6 });
+  const { t } = useTranslation();
 
   const filterConfigs = [
-    { key: "city", label: "City", placeholder: "All Cities" },
-    { key: "district", label: "District", placeholder: "All Districties" },
-    { key: "status", label: "Status", placeholder: "All Districties" },
+    {
+      key: "city",
+      label: t("table.city") || "City",
+      placeholder: t("table.allCities") || "All Cities",
+    },
+    {
+      key: "district",
+      label: t("table.district") || "District",
+      placeholder: t("table.allDistricts") || "All Districts",
+    },
+    {
+      key: "status",
+      label: t("table.status") || "Status",
+      placeholder: t("table.allStatus") || "All Status",
+    },
   ];
 
   const handleRowClick = (row: Row<UserDetails>) => {

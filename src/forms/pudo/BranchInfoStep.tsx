@@ -44,6 +44,7 @@ import { UserDetails } from "@/lib/schema/user.schema";
 import { useGetUsers } from "@/lib/hooks/useUsers";
 import { PartnerDetails } from "@/lib/schema/partner.schema";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
   form,
@@ -71,6 +72,8 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
     name: "zone",
   });
 
+  const { t } = useTranslation();
+
   const { data: partners } = useGetPartners();
   const { data: cities } = useGetCities();
   const { data: zones } = useGetZones({ cityId: Number(selectedCity) });
@@ -96,7 +99,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
             name="branchPhoto"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Branch Photos</FormLabel>
+                <FormLabel>{t("forms.fields.branchPhotos")}</FormLabel>
                 <FormControl>
                   <FileInput
                     value={field.value}
@@ -107,7 +110,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                   />
                 </FormControl>
                 <FormDescription>
-                  Upload photos of your branch location (max 5MB per image)
+                  {t("forms.descriptions.uploadPhoto")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -119,7 +122,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
             name="municipalLicense"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Municipal License</FormLabel>
+                <FormLabel>{t("forms.fields.municipalLicense")}</FormLabel>
                 <FormControl>
                   <FileInput
                     value={field.value}
@@ -128,7 +131,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                   />
                 </FormControl>
                 <FormDescription>
-                  Upload your municipal license (PDF or image format)
+                  {t("forms.descriptions.municipalLicenseDescription")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -139,11 +142,11 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
             name="branchName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Branch Name</FormLabel>
+                <FormLabel>{t("forms.fields.branchName")}</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder="Enter Business Name"
+                    placeholder={t("forms.placeholders.enterBranchName")}
                     autoComplete="organization"
                   />
                 </FormControl>
@@ -158,7 +161,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               name="city"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel>{t("forms.fields.city")}</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(Number(value));
@@ -167,7 +170,9 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select city" />
+                        <SelectValue
+                          placeholder={t("forms.placeholders.selectCity")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -187,7 +192,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               name="zone"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Zone</FormLabel>
+                  <FormLabel>{t("forms.fields.zone")}</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(Number(value));
@@ -197,7 +202,9 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Zone" />
+                        <SelectValue
+                          placeholder={t("forms.placeholders.selectZone")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -223,7 +230,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               name="district"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>District</FormLabel>
+                  <FormLabel>{t("forms.fields.district")}</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(Number(value));
@@ -234,7 +241,9 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     <div className="flex gap-2">
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select District" />
+                          <SelectValue
+                            placeholder={t("forms.placeholders.selectDistrict")}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -262,12 +271,12 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               name="coordinates"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Branch Coordinates</FormLabel>
+                  <FormLabel>{t("forms.fields.branchCoordinates")}</FormLabel>
                   <div className="flex gap-2">
                     <FormControl className="flex-1">
                       <Input
                         {...field}
-                        placeholder="Select From GPS"
+                        placeholder={t("forms.placeholders.selectFromGPS")}
                         disabled={coordinates !== null}
                         readOnly
                       />
@@ -282,7 +291,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     </Button>
                   </div>
                   <FormDescription>
-                    Click the location icon to select coordinates
+                    {t("forms.descriptions.coordinatesDescription")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -294,11 +303,11 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
             name="address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address</FormLabel>
+                <FormLabel>{t("forms.fields.address")}</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder="Enter Short Address"
+                    placeholder={t("forms.placeholders.enterAddress")}
                     autoComplete="organization"
                   />
                 </FormControl>
@@ -313,7 +322,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               name="partner"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Partner</FormLabel>
+                  <FormLabel>{t("forms.fields.partner")}</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(Number(value));
@@ -322,7 +331,9 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Partner" />
+                        <SelectValue
+                          placeholder={t("forms.placeholders.selectPartner")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -342,7 +353,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
               name="responsible"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Responsible</FormLabel>
+                  <FormLabel>{t("forms.fields.responsible")}</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -352,7 +363,11 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     <div className="flex gap-2">
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Responsible" />
+                          <SelectValue
+                            placeholder={t(
+                              "forms.placeholders.selectResponsible"
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

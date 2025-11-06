@@ -47,7 +47,7 @@ export const branchColumns = () => {
     },
     {
       accessorKey: "name",
-      header: "Branch Name",
+      header: t("table.pudo"),
       filterFn: "includesString",
       cell: ({ row }) => {
         const branchName = row.getValue("name") as string;
@@ -89,7 +89,7 @@ export const branchColumns = () => {
     },
     {
       accessorKey: "totalParcels",
-      header: "Total Parcels",
+      header: t("table.totalParcels"),
       cell: ({ row }) => {
         const totalParcels = row.getValue("totalParcels") as number;
         return (
@@ -101,7 +101,7 @@ export const branchColumns = () => {
     },
     {
       accessorKey: "supervisor",
-      header: "Supervisor",
+      header: t("supervisors.title"),
       cell: ({ row }) => {
         const supervisor = row.getValue("supervisor") as string;
         return (
@@ -115,17 +115,13 @@ export const branchColumns = () => {
       header: t("table.status") || "Status",
       cell: ({ row }) => {
         const status = row.getValue("status") as string;
-        return (
-          <Badge variant={getStatusVariant(status)}>
-            {t(`status.${status.toLowerCase()}`, { defaultValue: status })}
-          </Badge>
-        );
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
       },
       filterFn: "equalsString",
     },
     {
       accessorKey: "pointUsage",
-      header: "Point Usage",
+      header: t("table.pointUsage"),
       cell: ({ row }) => {
         const pointUsage = row.getValue("pointUsage") as number;
         const classes = getUsageClasses(pointUsage);

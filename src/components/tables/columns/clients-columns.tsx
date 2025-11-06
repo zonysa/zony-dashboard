@@ -16,7 +16,7 @@ export const columns = () => {
     },
     {
       accessorKey: "name",
-      header: "Client",
+      header: t("table.client"),
       filterFn: "includesString",
     },
     {
@@ -30,7 +30,7 @@ export const columns = () => {
     },
     {
       accessorKey: "total_parcels",
-      header: "Total Parcels",
+      header: t("table.totalParcels"),
       cell: ({ row }) => {
         // You'll need to add this field to your API response or calculate it
         const totalParcels = row.original.total_parcels || 0;
@@ -39,7 +39,7 @@ export const columns = () => {
     },
     {
       accessorKey: "delivery_rate",
-      header: "Delivery Rate",
+      header: t("table.deliveryRate"),
       cell: ({ row }) => {
         // You'll need to add this field to your API response or calculate it
         const deliveryRate = row.original.delivery_rate || 0;

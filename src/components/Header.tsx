@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { LocationDropDown } from "./ui/LocatoinDropdown";
 import CreateParcelSheet from "./CreateParcelDiaglog";
 import NotificationsSheet from "./NotificationsSheet";
+import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
 
 interface BreadcrumbSegment {
   label: string;
@@ -29,6 +31,7 @@ function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   // Generate breadcrumb segments from pathname
   const getBreadcrumbSegments = (): BreadcrumbSegment[] => {
@@ -77,27 +80,27 @@ function Header() {
       case "/partners":
         return (
           <Button size="sm" onClick={() => router.push("/partners/create")}>
-            Add New Partner
+            {t("buttons.addNewPartner")}
           </Button>
         );
       case "/pudos":
         return (
           <Button onClick={() => router.push("/pudos/create")}>
-            Add New Branch
+            {t("buttons.addNewBranch")}
           </Button>
         );
       case "/settings":
         return (
-          <Button onClick={() => console.log("Save settings")}>Save</Button>
+          <Button onClick={() => console.log("Save settings")}>
+            {t("common.save")}
+          </Button>
         );
-
       case "/parcels":
         return <CreateParcelSheet />;
-
       case "/supervisors":
         return (
           <Button size="sm" onClick={() => router.push("/supervisors/create")}>
-            Create Supervisor
+            {t("buttons.createSupervisor")}
           </Button>
         );
       case "/customer-service":
@@ -106,13 +109,13 @@ function Header() {
             size="sm"
             onClick={() => router.push("/customer-service/create")}
           >
-            Create Customer Service
+            {t("buttons.createCustomerService")}
           </Button>
         );
       case "/courier":
         return (
           <Button onClick={() => router.push("/courier/create")}>
-            Create Courier
+            {t("buttons.createCourier")}
           </Button>
         );
       case "/zones":

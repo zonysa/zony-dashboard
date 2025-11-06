@@ -3,16 +3,22 @@
 import { columns } from "@/components/tables/columns/clients-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetClients } from "@/lib/hooks/useClient";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Client } from "@/lib/schema/client.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { data: clients } = useGetClients();
+  const { t } = useTranslation();
 
   const filterConfigs = [
-    { key: "type", label: "Type", placeholder: "All Types" },
-    { key: "status", label: "Status", placeholder: "All Status" },
+    { key: "type", label: t("table.type"), placeholder: t("table.allTypes") },
+    {
+      key: "status",
+      label: t("table.status"),
+      placeholder: t("table.allStatus"),
+    },
   ];
 
   const router = useRouter();

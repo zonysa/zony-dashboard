@@ -10,6 +10,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { useGetPartner, useGetPartnerBranches } from "@/lib/hooks/usePartner";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface PartnerDataProps {
   partnerData?: {
@@ -25,9 +26,10 @@ interface PartnerDataProps {
 }
 
 function PartnerDetails({ partnerData }: PartnerDataProps) {
+  const { t } = useTranslation();
   const params = useParams();
   const partnerId = params.id as string;
-  const columns = branchColumns();
+  const columns = branchColumns(t);
 
   const { data: partner } = useGetPartner(partnerId);
   const { data: branches } = useGetPartnerBranches(partnerId);
@@ -115,8 +117,8 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
       <Tabs defaultValue="info" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
-            <TabsTrigger value="info">Partner Info</TabsTrigger>
-            <TabsTrigger value="pudos">PUDOs</TabsTrigger>
+            <TabsTrigger value="info">{t("detailPages.tabs.partnerInfo")}</TabsTrigger>
+            <TabsTrigger value="pudos">{t("detailPages.tabs.pudos")}</TabsTrigger>
           </div>
         </TabsList>
 
@@ -125,21 +127,21 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
-              label="Partner Info"
-              value="Primary contact person for this branch"
+              label={t("detailPages.sections.partnerInfo")}
+              value={t("detailPages.sections.partnerInfoDescription")}
               icon={User}
               iconClassName="text-black"
             />
             <CardContent className="w-2/4 flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
-                  label="Name"
+                  label={t("detailPages.labels.name")}
                   value={String(partner?.partner?.name)}
                   isEditable={editStates.representative}
                   onChange={(value) => updateFormData("name", value)}
                 />
                 <DataItem
-                  label="Phone Number"
+                  label={t("detailPages.labels.phoneNumber")}
                   value={data.phoneNumber}
                   type="tel"
                   isEditable={editStates.representative}
@@ -154,13 +156,13 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                     onClick={() => handleSave("representative")}
                     variant="default"
                   >
-                    Save Changes
+                    {t("detailPages.buttons.saveChanges")}
                   </Button>
                   <Button
                     onClick={() => handleCancel("representative")}
                     variant="outline"
                   >
-                    Cancel
+                    {t("detailPages.buttons.cancel")}
                   </Button>
                 </>
               ) : (
@@ -168,7 +170,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                   onClick={() => toggleEdit("representative")}
                   variant="outline"
                 >
-                  Edit
+                  {t("detailPages.buttons.edit")}
                 </Button>
               )}
             </div>
@@ -178,21 +180,21 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
-              label="Representative Person"
-              value="Primary contact person for this branch"
+              label={t("detailPages.sections.representativePerson")}
+              value={t("detailPages.sections.representativePersonDescription")}
               icon={User}
               iconClassName="text-black"
             />
             <CardContent className="w-2/4 flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
-                  label="Name"
+                  label={t("detailPages.labels.name")}
                   value={data.name}
                   isEditable={editStates.representative}
                   onChange={(value) => updateFormData("name", value)}
                 />
                 <DataItem
-                  label="Phone Number"
+                  label={t("detailPages.labels.phoneNumber")}
                   value={data.phoneNumber}
                   type="tel"
                   isEditable={editStates.representative}
@@ -207,13 +209,13 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                     onClick={() => handleSave("representative")}
                     variant="default"
                   >
-                    Save Changes
+                    {t("detailPages.buttons.saveChanges")}
                   </Button>
                   <Button
                     onClick={() => handleCancel("representative")}
                     variant="outline"
                   >
-                    Cancel
+                    {t("detailPages.buttons.cancel")}
                   </Button>
                 </>
               ) : (
@@ -221,7 +223,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                   onClick={() => toggleEdit("representative")}
                   variant="outline"
                 >
-                  Edit
+                  {t("detailPages.buttons.edit")}
                 </Button>
               )}
             </div>
@@ -231,15 +233,15 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
-              label="Payment Information"
-              value="Banking and payout details for this branch"
+              label={t("detailPages.sections.paymentInformation")}
+              value={t("detailPages.sections.paymentInformationDescription")}
               icon={DollarSign}
               iconClassName="text-black"
             />
             <CardContent className="flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
-                  label="Bank Name"
+                  label={t("detailPages.labels.bankName")}
                   value={formData.bankName}
                   type="select"
                   selectOptions={[
@@ -255,7 +257,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                   onChange={(value) => updateFormData("bankName", value)}
                 />
                 <DataItem
-                  label="Account Number"
+                  label={t("detailPages.labels.accountNumber")}
                   value={formData.accountNumber}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("accountNumber", value)}
@@ -264,13 +266,13 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
 
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
-                  label="IBAN"
+                  label={t("detailPages.labels.iban")}
                   value={formData.iban}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("iban", value)}
                 />
                 <DataItem
-                  label="Payout per Parcel"
+                  label={t("detailPages.labels.payoutPerParcel")}
                   value={formData.payoutPerParcel}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("payoutPerParcel", value)}
@@ -284,13 +286,13 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                     onClick={() => handleSave("paymentInfo")}
                     variant="default"
                   >
-                    Save Changes
+                    {t("detailPages.buttons.saveChanges")}
                   </Button>
                   <Button
                     onClick={() => handleCancel("paymentInfo")}
                     variant="outline"
                   >
-                    Cancel
+                    {t("detailPages.buttons.cancel")}
                   </Button>
                 </>
               ) : (
@@ -298,7 +300,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                   onClick={() => toggleEdit("paymentInfo")}
                   variant="outline"
                 >
-                  Edit
+                  {t("detailPages.buttons.edit")}
                 </Button>
               )}
             </div>
@@ -308,21 +310,21 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
-              label="Financial Overview"
-              value="Banking and payout details for this branch"
+              label={t("detailPages.sections.financialOverview")}
+              value={t("detailPages.sections.financialOverviewDescription")}
               icon={DollarSign}
               iconClassName="text-black"
             />
             <CardContent className="flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
-                  label="Payout Per Parcel"
+                  label={t("detailPages.labels.payoutPerParcel")}
                   value={formData.bankName}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("bankName", value)}
                 />
                 <DataItem
-                  label="Total Payout"
+                  label={t("detailPages.labels.totalPayout")}
                   value={formData.accountNumber}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("accountNumber", value)}
@@ -340,7 +342,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
               enableFiltering={true}
               filterConfigs={filterConfigs}
               enableGlobalSearch={true}
-              searchPlaceholder="Search PUDO name..."
+              searchPlaceholder={t("tables.pudos.searchPlaceholder")}
             />
           </div>
         </TabsContent>

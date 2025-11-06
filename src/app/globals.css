@@ -3,12 +3,16 @@
 @import "leaflet/dist/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant rtl (:is([dir="rtl"] &));
+@custom-variant ltr (:is([dir="ltr"] &));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-poppins: var(--font-poppins);
+  --font-cairo: var(--font-cairo);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -120,4 +124,218 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* RTL Support */
+
+html[dir="rtl"],
+html[dir="rtl"] body,
+html[dir="rtl"] * {
+  direction: rtl !important;
+}
+
+html[dir="ltr"],
+html[dir="ltr"] body,
+html[dir="ltr"] * {
+  direction: ltr;
+}
+
+/* Flex direction */
+[dir="rtl"] .flex-row {
+  flex-direction: row !important;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse !important;
+}
+
+/* Text alignment */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: right !important;
+}
+
+/* Float */
+[dir="rtl"] .float-left {
+  float: right;
+}
+
+[dir="rtl"] .float-right {
+  float: left;
+}
+
+/* Padding and Margin - Left/Right */
+[dir="rtl"] .pl-0 {
+  padding-right: 0;
+  padding-left: initial;
+}
+[dir="rtl"] .pl-1 {
+  padding-right: 0.25rem;
+  padding-left: initial;
+}
+[dir="rtl"] .pl-2 {
+  padding-right: 0.5rem;
+  padding-left: initial;
+}
+[dir="rtl"] .pl-3 {
+  padding-right: 0.75rem;
+  padding-left: initial;
+}
+[dir="rtl"] .pl-4 {
+  padding-right: 1rem;
+  padding-left: initial;
+}
+[dir="rtl"] .pl-5 {
+  padding-right: 1.25rem;
+  padding-left: initial;
+}
+[dir="rtl"] .pl-6 {
+  padding-right: 1.5rem;
+  padding-left: initial;
+}
+[dir="rtl"] .pl-8 {
+  padding-right: 2rem;
+  padding-left: initial;
+}
+
+[dir="rtl"] .pr-0 {
+  padding-left: 0;
+  padding-right: initial;
+}
+[dir="rtl"] .pr-1 {
+  padding-left: 0.25rem;
+  padding-right: initial;
+}
+[dir="rtl"] .pr-2 {
+  padding-left: 0.5rem;
+  padding-right: initial;
+}
+[dir="rtl"] .pr-3 {
+  padding-left: 0.75rem;
+  padding-right: initial;
+}
+[dir="rtl"] .pr-4 {
+  padding-left: 1rem;
+  padding-right: initial;
+}
+[dir="rtl"] .pr-5 {
+  padding-left: 1.25rem;
+  padding-right: initial;
+}
+[dir="rtl"] .pr-6 {
+  padding-left: 1.5rem;
+  padding-right: initial;
+}
+[dir="rtl"] .pr-8 {
+  padding-left: 2rem;
+  padding-right: initial;
+}
+
+[dir="rtl"] .ml-0 {
+  margin-right: 0;
+  margin-left: initial;
+}
+[dir="rtl"] .ml-1 {
+  margin-right: 0.25rem;
+  margin-left: initial;
+}
+[dir="rtl"] .ml-2 {
+  margin-right: 0.5rem;
+  margin-left: initial;
+}
+[dir="rtl"] .ml-3 {
+  margin-right: 0.75rem;
+  margin-left: initial;
+}
+[dir="rtl"] .ml-4 {
+  margin-right: 1rem;
+  margin-left: initial;
+}
+[dir="rtl"] .ml-5 {
+  margin-right: 1.25rem;
+  margin-left: initial;
+}
+[dir="rtl"] .ml-6 {
+  margin-right: 1.5rem;
+  margin-left: initial;
+}
+[dir="rtl"] .ml-auto {
+  margin-right: auto;
+  margin-left: initial;
+}
+
+[dir="rtl"] .mr-0 {
+  margin-left: 0;
+  margin-right: initial;
+}
+[dir="rtl"] .mr-1 {
+  margin-left: 0.25rem;
+  margin-right: initial;
+}
+[dir="rtl"] .mr-2 {
+  margin-left: 0.5rem;
+  margin-right: initial;
+}
+[dir="rtl"] .mr-3 {
+  margin-left: 0.75rem;
+  margin-right: initial;
+}
+[dir="rtl"] .mr-4 {
+  margin-left: 1rem;
+  margin-right: initial;
+}
+[dir="rtl"] .mr-5 {
+  margin-left: 1.25rem;
+  margin-right: initial;
+}
+[dir="rtl"] .mr-6 {
+  margin-left: 1.5rem;
+  margin-right: initial;
+}
+[dir="rtl"] .mr-auto {
+  margin-left: auto;
+  margin-right: initial;
+}
+
+/* Positioning */
+[dir="rtl"] .left-0 {
+  right: 0;
+  left: auto;
+}
+[dir="rtl"] .right-0 {
+  right: 0;
+  left: auto;
+}
+
+/* Border radius */
+[dir="rtl"] .rounded-l {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+[dir="rtl"] .rounded-r {
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+[dir="rtl"] .rounded-tl {
+  border-top-right-radius: 0.25rem;
+  border-top-left-radius: 0;
+}
+[dir="rtl"] .rounded-tr {
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0;
+}
+[dir="rtl"] .rounded-bl {
+  border-bottom-right-radius: 0.25rem;
+  border-bottom-left-radius: 0;
+}
+[dir="rtl"] .rounded-br {
+  border-bottom-left-radius: 0.25rem;
+  border-bottom-right-radius: 0;
 }

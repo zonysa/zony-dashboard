@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 import {
   Sheet,
@@ -32,22 +33,20 @@ import { ParcelFormData } from "@/lib/schema/parcel.schema";
 import { Input } from "./ui/input";
 import { useGetClients } from "@/lib/hooks/useClient";
 import { Client } from "@/lib/schema/client.schema";
-import { useGetBranches } from "@/lib/hooks/useBranch";
 import { useCreateParcel } from "@/lib/hooks/useParcel";
 import { toast } from "sonner";
-import { BranchDetails } from "@/lib/schema/branch.schema";
 
 const CreateParcelSheet = () => {
+  const { t } = useTranslation();
   const { data: clients } = useGetClients();
-  const { data: branches } = useGetBranches();
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const form = useForm<ParcelFormData>({
     defaultValues: {
-      customer_id: "3fa89b70-e87c-44de-b1e9-f027f9e67679",
-      barcode: "ABC-abc-1234",
-      tracking_number: "2131231312",
+      customer_id: "",
+      barcode: "",
+      tracking_number: "",
     },
     mode: "onChange",
   });
@@ -73,19 +72,24 @@ const CreateParcelSheet = () => {
         {
           onSuccess: () => {
             toast.success(
-              `Parcel created successfully with tracking number ${data.tracking_number}`
+              t("dialogs.createParcel.success").replace(
+                "{trackingNumber}",
+                data.tracking_number
+              )
             );
             form.reset();
             setDialogOpen(false);
           },
           onError: (err) => {
-            toast.error(`Failed to create parcel: ${err.message}`);
+            toast.error(
+              t("dialogs.createParcel.error").replace("{error}", err.message)
+            );
           },
         }
       );
     } catch (err) {
       console.error("Submission error:", err);
-      toast.error("An unexpected error occurred");
+      toast.error(t("dialogs.createUser.unexpectedError"));
     }
   }
 
@@ -96,17 +100,17 @@ const CreateParcelSheet = () => {
         type="button"
         variant="default"
       >
-        Create New Parcel
+        {t("dialogs.createParcel.title")}
       </Button>
 
       <Sheet open={dialogOpen} onOpenChange={setDialogOpen}>
         <SheetContent className="sm:max-w-[625px] overflow-y-auto px-6">
           <SheetHeader className="px-0">
             <SheetTitle className="text-xl font-semibold">
-              Create New Parcel
+              {t("dialogs.createParcel.title")}
             </SheetTitle>
             <SheetDescription className="text-sm text-muted-foreground">
-              Fill in the parcel details below to create a new delivery order.
+              {t("dialogs.createParcel.description")}
             </SheetDescription>
           </SheetHeader>
 
@@ -115,7 +119,7 @@ const CreateParcelSheet = () => {
               {/* Parcel Details Section */}
               <div className="space-y-4">
                 <h3 className="text-base font-semibold text-foreground">
-                  Parcel Details
+                  {t("forms.sections.parcelDetails")}
                 </h3>
 
                 <FormField
@@ -123,9 +127,14 @@ const CreateParcelSheet = () => {
                   name="tracking_number"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tracking Number</FormLabel>
+                      <FormLabel>{t("forms.fields.trackingNumber")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter tracking number" {...field} />
+                        <Input
+                          placeholder={t(
+                            "forms.placeholders.enterTrackingNumber"
+                          )}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -137,9 +146,12 @@ const CreateParcelSheet = () => {
                   name="barcode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Barcode</FormLabel>
+                      <FormLabel>{t("forms.fields.barcode")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter parcel barcode" {...field} />
+                        <Input
+                          placeholder={t("forms.placeholders.enterBarcode")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -151,9 +163,12 @@ const CreateParcelSheet = () => {
                   name="customer_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer ID</FormLabel>
+                      <FormLabel>{t("forms.fields.customerId")}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter customer ID" {...field} />
+                        <Input
+                          placeholder={t("forms.placeholders.enterCustomerId")}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -164,7 +179,7 @@ const CreateParcelSheet = () => {
               {/* Assignment Section */}
               <div className="space-y-4 pt-4 border-t">
                 <h3 className="text-base font-semibold text-foreground">
-                  Assignment
+                  {t("dialogs.createParcel.assignment")}
                 </h3>
 
                 <FormField
@@ -172,14 +187,16 @@ const CreateParcelSheet = () => {
                   name="client_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Client</FormLabel>
+                      <FormLabel>{t("table.client")}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={String(field.value)}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select a client" />
+                            <SelectValue
+                              placeholder={t("forms.placeholders.selectClient")}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -202,7 +219,9 @@ const CreateParcelSheet = () => {
               {/* Footer Actions */}
               <SheetFooter className="w-full gap-2 pt-6 border-t px-0">
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Creating..." : "Create Parcel"}
+                  {isSubmitting
+                    ? t("forms.actions.save") + "..."
+                    : t("forms.actions.save")}
                 </Button>
                 <SheetClose asChild>
                   <Button
@@ -210,7 +229,7 @@ const CreateParcelSheet = () => {
                     variant="outline"
                     disabled={isSubmitting}
                   >
-                    Cancel
+                    {t("forms.actions.cancel")}
                   </Button>
                 </SheetClose>
               </SheetFooter>

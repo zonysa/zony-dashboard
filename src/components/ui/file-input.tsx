@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { FileIcon, Trash2, Upload } from "lucide-react";
 import * as React from "react";
 import { Button } from "./button";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface FileInputProps {
   className?: string;
@@ -22,6 +23,8 @@ const FileInput = ({
 }: FileInputProps) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const { t } = useTranslation();
 
   const handleFileSelection = (file: File | null) => {
     if (!disabled) onChange?.(file);
@@ -82,8 +85,10 @@ const FileInput = ({
         <div className="flex flex-col items-center gap-1">
           <Upload className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-primary">Click to upload</span>{" "}
-            or drag and drop
+            <span className="font-semibold text-primary">
+              {t("form.clickToUpload")}
+            </span>{" "}
+            {t("form.orDragAndDrop")}
           </p>
         </div>
       </div>

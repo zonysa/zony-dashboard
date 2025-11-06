@@ -1,8 +1,16 @@
 {
   "welcome": "مرحباً",
-  "hello": "أهلاً",
+  "hello": "مرحباً",
   "language": "اللغة",
   "selectLanguage": "اختر اللغة",
+  "buttons": {
+    "addNewPartner": "إضافة شريك جديد",
+    "addNewBranch": "إضافة فرع جديد",
+    "createSupervisor": "إنشاء مشرف",
+    "createCustomerService": "إنشاء خدمة عملاء",
+    "createCourier": "إنشاء موصل",
+    "save": "حفظ"
+  },
   "common": {
     "save": "حفظ",
     "cancel": "إلغاء",
@@ -25,7 +33,172 @@
     "close": "إغلاق",
     "actions": "الإجراءات",
     "view": "عرض",
-    "details": "التفاصيل"
+    "assign": "تعيين",
+    "assigned": "المعينيين"
+  },
+  "table": {
+    "page": "الصفحة",
+    "zone": "المنطقة",
+    "name": "الاسم",
+    "city": "المدينة",
+    "parcel": "الطرد",
+    "district": "الحي",
+    "status": "الحالة",
+    "id": "الرقم التعريفي",
+    "showing": "عرض",
+    "of": "من",
+    "results": "نتيجة",
+    "applyFilter": "تطبيق التصفية",
+    "search": "بحث",
+    "pudo": "نقطة الاستلام",
+    "zoneName": "اسم المنطقة",
+    "actionTaken": "الإجراء المتخذ",
+    "ticketStatus": "حالة التذكرة",
+    "rating": "التقييم",
+    "searchTick": "بحث في التذاكر",
+    "allPUDOs": "كل نقاط الاستلام",
+    "allZones": "كل المناطق",
+    "allCities": "كل المدن",
+    "allDistricts": "كل الأحياء",
+    "partner": "الشريك",
+    "allActions": "كل الإجراءات",
+    "allStatus": "كل الحالات",
+    "allRatings": "كل التقييمات",
+    "totalPudos": "عدد نقاط الاستلام",
+    "totalParcels": "عدد الطرود",
+    "phoneNumber": "رقم الهاتف",
+    "type": "النوع",
+    "allTypes": "كل الأنواع",
+    "customerName": "اسم العميل",
+    "comments": "التعليقات",
+    "actions": "الإجراءات",
+    "trackingNumber": "رقم التتبع",
+    "appliedFilters": "التصفيات المطبقة",
+    "filtersCleared": "تم مسح التصفيات",
+    "noResultsFound": "لا توجد نتائج",
+    "pointUsage": "استخدام النقطة",
+    "date": "التاريخ",
+    "client": "العميل",
+    "allClients": "كل العملاء",
+    "email": "البريد الإلكتروني",
+    "deliveryRate": "معدل التسليم",
+    "receivingDate": "تاريخ الوصول",
+    "courier": "الموصل"
+  },
+  "parcels": {
+    "title": "الطرود",
+    "errorLoading": "خطأ في تحميل الطرود",
+    "searchPlaceholder": "بحث عن طرد..."
+  },
+  "clients": {
+    "title": "العملاء"
+  },
+  "tickets": {
+    "title": "التذاكر"
+  },
+  "customerService": {
+    "title": "خدمة العملاء"
+  },
+  "couriers": {
+    "title": "الموصلون"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "languagePreferences": "تفضيلات اللغة",
+    "languageDescription": "اختر لغتك المفضلة للواجهة",
+    "language": "لغة الواجهة",
+    "languageUpdated": "تم تحديث اللغة بنجاح",
+    "rtlNote": "اللغة العربية تستخدم اتجاه النص من اليمين إلى اليسار",
+    "ltrNote": "اللغة الإنجليزية تستخدم اتجاه النص من اليسار إلى اليمين"
+  },
+  "logout": {
+    "title": "تسجيل الخروج",
+    "confirmTitle": "تأكيد تسجيل الخروج",
+    "confirmDescription": "هل أنت متأكد أنك تريد تسجيل الخروج؟ ستحتاج إلى تسجيل الدخول مرة أخرى للوصول إلى حسابك."
+  },
+  "overview": {
+    "title": "نظرة عامة"
+  },
+  "supervisors": {
+    "title": "المشرفون"
+  },
+  "partners": {
+    "title": "الشركاء",
+    "currencies": {
+      "USD": "الدولار الأمريكي (USD)",
+      "EUR": "اليورو (EUR)",
+      "EGP": "الجنية المصري (EGP)",
+      "SAR": "الريال السعودي (SAR)"
+    },
+    "businessTypes": {
+      "llc": "شركة ذات مسؤولية محدودة (LLC)",
+      "corporation": "شركة مساهمة",
+      "partnership": "شركة تضامن",
+      "sole-proprietorship": "منشأة فردية",
+      "nonprofit": "منظمة غير ربحية"
+    },
+    "banks": {
+      "nbe": "البنك الأهلي المصري (NBE)",
+      "cib": "البنك التجاري الدولي (CIB)",
+      "qnb": "QNB الأهلي",
+      "hsbc": "HSBC مصر",
+      "aib": "البنك العربي الدولي",
+      "saib": "البنك العربي الدولي",
+      "other": "أخرى"
+    }
+  },
+  "pudos": {
+    "title": "نقاط الاستلام"
+  },
+  "zones": {
+    "title": "المناطق",
+    "zoneInfo": "معلومات المنطقة",
+    "districts": "الأحياء",
+    "supervisors": "المشرفون",
+    "assignedBranches": "الفروع المعينة",
+    "couriers": "الموصلون",
+    "customerServices": "خدمة العملاء",
+    "zoneDetails": "تفاصيل المنطقة",
+    "zoneDetailsDescription": "معلومات المنطقة وتفاصيل الموقع",
+    "zoneSupervisor": "مشرف المنطقة",
+    "location": "الموقع",
+    "branchLocation": "موقع الفرع",
+    "assignedDistricts": "الأحياء المعينة",
+    "assignedSupervisors": "المشرفون المعينون",
+    "assignedCouriers": "الموصلون المعينون",
+    "assignedCustomerServices": "خدمات العملاء المعينة",
+    "assignDistricts": "تعيين أحياء",
+    "assignSupervisors": "تعيين مشرفين",
+    "assignCouriers": "تعيين موصلين",
+    "assignCustomerServices": "تعيين خدمة عملاء",
+    "assignDistrictsToZone": "تعيين أحياء إلى المنطقة",
+    "assignDistrictsDescription": "اختر الأحياء لتعيينها إلى هذه المنطقة",
+    "assignSupervisorsToZone": "تعيين مشرفين إلى المنطقة",
+    "assignSupervisorsDescription": "اختر المشرفين لتعيينهم إلى هذه المنطقة",
+    "assignCouriersToZone": "تعيين موصلين إلى المنطقة",
+    "assignCouriersDescription": "اختر الموصلين لتعيينهم إلى هذه المنطقة",
+    "assignCustomerServicesToZone": "تعيين خدمة عملاء إلى المنطقة",
+    "assignCustomerServicesDescription": "اختر موظفي خدمة العملاء لتعيينهم إلى هذه المنطقة",
+    "removeFromZone": "إزالة من المنطقة",
+    "removeFromZoneDescription": "هل أنت متأكد أنك تريد إزالة هذا العنصر من المنطقة؟ لا يمكن التراجع عن هذا الإجراء.",
+    "searchDistricts": "بحث عن أحياء...",
+    "searchSupervisors": "بحث عن مشرفين...",
+    "searchCouriers": "بحث عن موصلين...",
+    "searchCustomerServices": "بحث عن خدمة عملاء...",
+    "searchDistrictName": "بحث عن اسم الحي...",
+    "searchSupervisorName": "بحث عن اسم المشرف...",
+    "searchCourierName": "بحث عن اسم الموصل...",
+    "searchCustomerServiceName": "بحث عن اسم خدمة العملاء...",
+    "searchBranchName": "بحث عن اسم الفرع...",
+    "zoneId": "رقم المنطقة",
+    "zoneName": "اسم المنطقة",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف"
+  },
+  "reportsAnalytics": {
+    "title": "التقارير والتحليلات"
   },
   "nav": {
     "home": "الرئيسية",
@@ -36,10 +209,217 @@
   },
   "form": {
     "required": "هذا الحقل مطلوب",
-    "invalidEmail": "البريد الإلكتروني غير صالح",
-    "invalidPhone": "رقم الهاتف غير صالح",
+    "invalidEmail": "بريد إلكتروني غير صالح",
+    "invalidPhone": "رقم هاتف غير صالح",
     "passwordTooShort": "كلمة المرور قصيرة جداً",
-    "passwordsDoNotMatch": "كلمات المرور غير متطابقة"
+    "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+    "clickToUpload": "انقر للتحميل",
+    "orDragAndDrop": "أو السحب والإفلات",
+    "removeFile": "إزالة الملف"
+  },
+  "forms": {
+    "actions": {
+      "submit": "إرسال",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "back": "رجوع",
+      "next": "التالي",
+      "delete": "حذف",
+      "reset": "إعادة تعيين",
+      "creating": "جاري الإنشاء...",
+      "confirming": "جاري التأكيد...",
+      "resetting": "جاري إعادة التعيين...",
+      "signingIn": "جاري تسجيل الدخول..."
+    },
+    "doubleCheck": {
+      "label": "أؤكد أن جميع بيانات الحساب البنكي صحيحة",
+      "desc": "يرجى مراجعة جميع المعلومات قبل المتابعة"
+    },
+    "acceptTerms": {
+      "label": "أوافق على الشروط والأحكام لمعالجة المدفوعات",
+      "desc": "بتحديد هذا المربع، فإنك توافق على شروط وأحكام الدفع الخاصة بنا"
+    },
+
+    "fields": {
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "email": "البريد الإلكتروني",
+      "emailAddress": "عنوان البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmNewPassword": "تأكيد كلمة المرور الجديدة",
+      "username": "اسم المستخدم",
+      "phoneNumber": "رقم الهاتف",
+      "role": "الدور",
+      "city": "المدينة",
+      "district": "الحي",
+      "zone": "المنطقة",
+      "address": "العنوان",
+      "trackingNumber": "رقم التتبع",
+      "barcode": "الباركود",
+      "customerId": "رقم العميل",
+      "client": "العميل",
+      "cityName": "اسم المدينة",
+      "districtName": "اسم الحي",
+      "zoneName": "اسم المنطقة",
+      "districts": "الأحياء",
+      "photo": "الصورة",
+      "position": "المنصب/اللقب",
+      "idNumber": "رقم الهوية",
+      "commercialRegistration": "السجل التجاري",
+      "partnerName": "اسم الشريك",
+      "unifiedNumber": "الرقم الموحد",
+      "businessType": "نوع النشاط",
+      "representative": "المندوب",
+      "payoutPerParcel": "الدفع لكل طرد",
+      "currency": "العملة",
+      "bankStatement": "كشف حساب بنكي",
+      "bankName": "اسم البنك",
+      "accountHolderName": "اسم صاحب الحساب",
+      "accountNumber": "رقم الحساب",
+      "iban": "رقم الآيبان",
+      "branchPhotos": "صور الفرع",
+      "municipalLicense": "الترخيص البلدي",
+      "branchName": "اسم الفرع",
+      "branchCoordinates": "إحداثيات الفرع",
+      "partner": "الشريك",
+      "responsible": "المسؤول",
+      "action": "الإجراء",
+      "comment": "التعليق",
+      "identity": "الهوية (اختياري)"
+    },
+    "placeholders": {
+      "enterFirstName": "أدخل الاسم الأول",
+      "enterLastName": "أدخل اسم العائلة",
+      "enterBranchName": "أدخل اسم الفرع",
+      "enterEmail": "أدخل عنوان البريد الإلكتروني",
+      "enterPassword": "أدخل كلمة المرور",
+      "enterNewPassword": "أدخل كلمة المرور الجديدة",
+      "confirmNewPassword": "أكد كلمة المرور الجديدة",
+      "enterUsername": "أدخل اسم المستخدم",
+      "enterPhoneNumber": "أدخل رقم الهاتف",
+      "selectRole": "اختر دور",
+      "selectCity": "اختر مدينة",
+      "selectZone": "اختر منطقة",
+      "selectDistrict": "اختر حي",
+      "selectClient": "اختر عميل",
+      "enterTrackingNumber": "أدخل رقم التتبع",
+      "enterBarcode": "أدخل الباركود",
+      "enterCustomerId": "أدخل رقم العميل",
+      "enterCityName": "أدخل اسم المدينة",
+      "enterDistrictName": "أدخل اسم الحي",
+      "enterZoneName": "أدخل اسم المنطقة",
+      "selectDistricts": "اختر الأحياء...",
+      "selectCityFirst": "الرجاء اختيار مدينة أولاً...",
+      "noCitySelected": "اختر مدينة لعرض الأحياء المتاحة",
+      "noDistrictsFound": "لم يتم العثور على أحياء لهذه المدينة",
+      "selectPosition": "اختر المنصب",
+      "enterIdNumber": "أدخل رقم الهوية الوطنية",
+      "enterPartnerName": "أدخل اسم الشريك",
+      "enterUnifiedNumber": "أدخل الرقم الموحد للنشاط",
+      "selectBusinessType": "اختر نوع النشاط",
+      "selectRepresentative": "اختر المندوب",
+      "selectCurrency": "اختر العملة",
+      "selectBank": "اختر البنك",
+      "enterAccountHolder": "أدخل اسم صاحب الحساب",
+      "enterAccountNumber": "أدخل رقم الحساب",
+      "enterIban": "EG00 0000 0000 0000 0000 0000 000",
+      "enterBusinessName": "أدخل اسم النشاط التجاري",
+      "selectFromGPS": "اختر من GPS",
+      "enterAddress": "أدخل عنوان مختصر",
+      "selectPartner": "اختر الشريك",
+      "selectResponsible": "اختر المسؤول",
+      "selectAction": "اختر الإجراء",
+      "addComment": "أضف تعليق للتذكرة هنا..."
+    },
+    "descriptions": {
+      "emailDescription": "البريد الإلكتروني الأساسي للاتصال بالمسؤول",
+      "phoneDescription": "قم بتضمين رمز الدولة (مثال: +20 123 456 7890)",
+      "branchPhotosDescription": "قم بتحميل صور موقع الفرع (حجم أقصى 5 ميجابايت لكل صورة)",
+      "municipalLicenseDescription": "قم بتحميل الترخيص البلدي (صيغة PDF أو صورة)",
+      "commercialRegistrationDescription": "تحميل وثيقة السجل التجاري (بدف أو صورة)",
+      "uploadPhoto": "قم بتحميل الصورة الشخصية لخدمة العملاء",
+      "coordinatesDescription": "انقر فوق رمز الموقع لتحديد الإحداثيات",
+      "businessName": "اسم تسجيل نشاطك التجاري",
+      "unifiedNumber": "الرقم الموحد للسجل التجاري",
+      "businessType": "نوع الكيان التجاري",
+      "representative": "الممثل القانوني للشركة",
+      "payoutPerParcel": "قيمة الدفع لكل شحنة",
+      "currency": "عملة التحصيل",
+      "iban": "الرقم الدولي للحساب البنكي",
+      "bankName": "اسم البنك - الاسم الرسمي لمؤسستك المالية",
+      "accountNumber": "رقم الحساب - الرقم التعريفي الفريد لحسابك البنكي",
+      "accountHolder": "اسم صاحب الحساب - الاسم القانوني الكامل للشخص أو الكيان المالك للحساب البنكي",
+      "bankStatement": "كشف حساب بنكي - يُرجى رفع كشف حساب بنكي حديث (PDF أو صورة، الحد الأقصى 5 ميجابايت)"
+    },
+    "sections": {
+      "accountDetails": "تفاصيل الحساب",
+      "personalInformation": "المعلومات الشخصية",
+      "parcelDetails": "تفاصيل الطرد",
+      "assignment": "التعيين",
+      "bankAccount": "الحساب البنكي",
+      "branchInfo": "معلومات الفرع",
+      "branchInfoDescription": "موقع بودو وتفاصيل الفرع",
+      "operatingHours": "ساعات العمل",
+      "operatingHoursDescription": "حدد ساعات عمل موقع PUDO الخاص بك",
+      "supervisorInformation": "معلومات المشرف",
+      "courierInformation": "معلومات الموصل",
+      "customerServiceInformation": "معلومات خدمة العملاء"
+    },
+    "roles": {
+      "representative": "مندوب",
+      "responsible": "مسؤول",
+      "supervisor": "مشرف",
+      "customerService": "خدمة عملاء",
+      "courier": "موصل",
+      "customer": "عميل"
+    }
+  },
+  "dialogs": {
+    "createUser": {
+      "title": "إنشاء مستخدم جديد",
+      "description": "املأ تفاصيل المستخدم أدناه لإنشاء حساب جديد.",
+      "success": "تم إنشاء المستخدم \"{username}\" بنجاح",
+      "error": "فشل إنشاء المستخدم: {error}",
+      "unexpectedError": "حدث خطأ غير متوقع"
+    },
+    "createParcel": {
+      "title": "إنشاء طرد جديد",
+      "description": "املأ تفاصيل الطرد أدناه لإنشاء طلب توصيل جديد.",
+      "success": "تم إنشاء الطرد \"{id}\" بنجاح",
+      "error": "فشل إنشاء المستخدم: {error}",
+      "assignment": "المهمة"
+    },
+    "createCity": {
+      "title": "إنشاء مدينة جديدة",
+      "description": "قم بإجراء التغييرات هنا.",
+      "success": "تم إنشاء مدينة جديدة"
+    },
+    "createDistrict": {
+      "title": "إنشاء حي جديد",
+      "description": "قم بإجراء التغييرات هنا.",
+      "success": "تم إنشاء الحي {name} بنجاح"
+    },
+    "createZone": {
+      "title": "إنشاء منطقة جديدة",
+      "description": "قم بإجراء التغييرات هنا. انقر على حفظ عند الانتهاء.",
+      "success": "تم إنشاء المنطقة {name} بنجاح"
+    },
+    "coordinatePicker": {
+      "title": "تحديد إحداثيات الموقع",
+      "description": "انقر على الخريطة لتحديد الإحداثيات أو أدخلها يدوياً أدناه.",
+      "latitude": "خط العرض",
+      "longitude": "خط الطول",
+      "latitudePlaceholder": "مثال: 33.315200",
+      "longitudePlaceholder": "مثال: 44.366100",
+      "selected": "المحدد",
+      "confirmLocation": "تأكيد الموقع"
+    },
+    "createBranch": {
+      "success": "تم إنشاء الفرع {name} بنجاح",
+      "error": "خطأ في إرسال التسجيل. يرجى المحاولة مرة أخرى."
+    }
   },
   "auth": {
     "login": {
@@ -51,14 +431,145 @@
       "passwordPlaceholder": "أدخل كلمة المرور",
       "rememberMe": "تذكرني",
       "forgotPassword": "نسيت كلمة المرور",
-      "CTA": "تسجيل الدخول"
+      "CTA": "تسجيل الدخول",
+      "logout": "تسجيل الخروج",
+      "register": "إنشاء حساب",
+      "resetPassword": "إعادة تعيين كلمة المرور",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "confirmPassword": "تأكيد كلمة المرور"
     },
-    "logout": "تسجيل الخروج",
-    "register": "إنشاء حساب",
-    "forgotPassword": "نسيت كلمة المرور",
-    "resetPassword": "إعادة تعيين كلمة المرور",
-    "email": "البريد الإلكتروني",
-    "password": "كلمة المرور",
-    "confirmPassword": "تأكيد كلمة المرور"
+    "resetPassword": {
+      "title": "إنشاء كلمة مرور جديدة",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة",
+      "backToSignIn": "العودة إلى تسجيل الدخول",
+      "requirements": "متطلبات كلمة المرور:",
+      "minChars": "8 أحرف على الأقل",
+      "lowercase": "حرف صغير واحد",
+      "uppercase": "حرف كبير واحد",
+      "number": "رقم واحد",
+      "strength": "قوة كلمة المرور:",
+      "strengthLabels": {
+        "veryWeak": "ضعيفة جداً",
+        "weak": "ضعيفة",
+        "fair": "متوسطة",
+        "good": "جيدة",
+        "strong": "قوية"
+      }
+    },
+    "requestPassword": {
+      "title": "سيتم إرسال رابط نسيان كلمة المرور إلى بريدك الإلكتروني",
+      "email": "البريد الإلكتروني",
+      "placeholder": "أدخل بريدك الإلكتروني أو رقم الهاتف"
+    }
+  },
+  "status": {
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "pending": "قيد الانتظار",
+    "suspended": "معلق",
+    "delivered": "تم التوصيل",
+    "in_transit": "قيد النقل",
+    "failed": "فشل",
+    "returned": "تم الإرجاع",
+    "on_duty": "في الخدمة",
+    "off_duty": "خارج الخدمة",
+    "on_break": "في استراحة",
+    "training": "تحت التدريب"
+  },
+  "days": {
+    "saturday": "السبت",
+    "sunday": "الأحد",
+    "monday": "الإثنين",
+    "tuesday": "الثلاثاء",
+    "wednesday": "الأربعاء",
+    "thursday": "الخميس",
+    "friday": "الجمعة"
+  },
+  "time": {
+    "am": "ص",
+    "pm": "م",
+    "from": "من",
+    "to": "إلى",
+    "breakHour": "ساعة الاستراحة",
+    "sameHoursEveryday": "نفس الساعات كل يوم",
+    "twentyFourSeven": "24/7"
+  },
+  "detailPages": {
+    "tabs": {
+      "info": "المعلومات",
+      "parcels": "الطرود",
+      "operatingHours": "ساعات العمل",
+      "kpis": "مؤشرات الأداء",
+      "parcelInfo": "معلومات الطرد",
+      "parcelTracking": "تتبع الطرد",
+      "partnerInfo": "معلومات الشريك",
+      "pudos": "PUDOs",
+      "clientInfo": "معلومات العميل"
+    },
+    "sections": {
+      "branchInfo": "معلومات الفرع",
+      "branchInfoDescription": "معلومات الفرع وتفاصيل الموقع",
+      "responsiblePerson": "الشخص المسؤول",
+      "responsiblePersonDescription": "جهة الاتصال الأساسية لهذا الفرع",
+      "documents": "المستندات",
+      "documentsDescription": "المستندات والشهادات المطلوبة",
+      "partnerInfo": "معلومات الشريك",
+      "representativePerson": "الشخص الممثل",
+      "paymentInformation": "معلومات الدفع",
+      "paymentInformationDescription": "تفاصيل البنك والدفع لهذا الفرع",
+      "financialOverview": "نظرة مالية عامة",
+      "trackingInformation": "معلومات التتبع",
+      "trackingInformationDescription": "تفاصيل التتبع الكاملة ومعلومات الشحنة للطرد الخاص بك",
+      "deliveryTimeline": "الجدول الزمني للتسليم",
+      "deliveryTimelineDescription": "تواريخ التسليم المهمة ومعلومات انتهاء صلاحية الإيصال",
+      "customer": "العميل",
+      "customerDescription": "معلومات العميل وتفاصيل الاتصال",
+      "courier": "الموصل",
+      "courierDescription": "معلومات الموصل المعين وتفاصيل الاتصال",
+      "pickupPoint": "نقطة الاستلام",
+      "pickupPointDescription": "هل تحتاج إلى مزيد من الوقت لاستلام الطرد الخاص بك؟ اطلب تمديداً هنا",
+      "extensionRequest": "طلب التمديد",
+      "extensionRequestDescription": "هل تحتاج إلى مزيد من الوقت لاستلام الطرد الخاص بك؟ اطلب تمديداً هنا"
+    },
+    "labels": {
+      "name": "الاسم",
+      "location": "الموقع",
+      "phoneNumber": "رقم الهاتف",
+      "bankName": "اسم البنك",
+      "accountNumber": "رقم الحساب",
+      "iban": "رقم الآيبان",
+      "payoutPerParcel": "الدفع لكل طرد",
+      "totalPayout": "إجمالي الدفع",
+      "idDocument": "وثيقة الهوية",
+      "idDocumentVerification": "التحقق من وثيقة الهوية",
+      "bankStatement": "كشف حساب بنكي",
+      "uploaded": "تم التحميل",
+      "trackingNumber": "رقم التتبع",
+      "pickupEndsAt": "ينتهي الاستلام في",
+      "from": "من",
+      "to": "إلى",
+      "shipmentDate": "تاريخ الشحن",
+      "expirationTime": "وقت الانتهاء",
+      "currentStatus": "الحالة الحالية",
+      "extensionAvailable": "التمديد متاح",
+      "customerName": "اسم العميل",
+      "customerPhoneNumber": "رقم هاتف العميل",
+      "courierName": "اسم الموصل",
+      "courierPhoneNumber": "رقم هاتف الموصل"
+    },
+    "buttons": {
+      "saveChanges": "حفظ التغييرات",
+      "cancel": "إلغاء",
+      "edit": "تعديل",
+      "viewPickupPoint": "عرض نقطة الاستلام",
+      "extensionRequest": "طلب تمديد"
+    },
+    "messages": {
+      "operatingHoursPlaceholder": "سيتم عرض معلومات ساعات العمل هنا",
+      "needMoreTime": "هل تحتاج إلى مزيد من الوقت لاستلام الطرد الخاص بك؟",
+      "extendReceiptTime": "لتمديد وقت الاستلام، انقر أدناه:"
+    }
   }
 }

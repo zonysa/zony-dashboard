@@ -25,6 +25,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useGetUsers } from "@/lib/hooks/useAuth";
 import { UserDetails } from "@/lib/schema/user.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   form,
@@ -36,6 +37,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   const { data: users } = useGetUsers({ role_id: 2 });
   const [showUserSheet, setShowUserSheet] = useState(false);
   const { control } = form;
+  const { t } = useTranslation();
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     onSubmit(e);
@@ -44,13 +46,14 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
     <>
       <Form {...form}>
         <form onSubmit={handleFormSubmit} className="space-y-6">
-          {/* Commercial Registration File Upload */}
           <FormField
             control={control}
             name="commercialRegistration"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Commercial Registration</FormLabel>
+                <FormLabel>
+                  {t("forms.fields.commercialRegistration")}
+                </FormLabel>
                 <FormControl>
                   <FileInput
                     value={field.value}
@@ -59,7 +62,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                   />
                 </FormControl>
                 <FormDescription>
-                  Upload your commercial registration document (PDF or image)
+                  {t("forms.descriptions.commercialRegistrationDescription")}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -72,16 +75,16 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="partnerName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Partner Name</FormLabel>
+                  <FormLabel>{t("forms.fields.partnerName")}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Enter name for this partner"
+                      placeholder={t("forms.placeholders.enterPartnerName")}
                       autoComplete="off"
                     />
                   </FormControl>
                   <FormDescription>
-                    Your business registration name
+                    {t("forms.descriptions.businessName")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -92,7 +95,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="unifiedNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Unified Number</FormLabel>
+                  <FormLabel>{t("forms.fields.unifiedNumber")}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -101,7 +104,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    Your business registration number
+                    {t("forms.descriptions.unifiedNumber")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -116,32 +119,40 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Business Type</FormLabel>
+                  <FormLabel>{t("forms.fields.businessType")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl className="w-full">
                       <SelectTrigger>
-                        <SelectValue placeholder="Select business type" />
+                        <SelectValue
+                          placeholder={t(
+                            "forms.placeholders.selectBusinessType"
+                          )}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="w-full">
                       <SelectItem value="llc">
-                        Limited Liability Company (LLC)
+                        {t("partners.businessTypes.llc")}
                       </SelectItem>
-                      <SelectItem value="corporation">Corporation</SelectItem>
-                      <SelectItem value="partnership">Partnership</SelectItem>
+                      <SelectItem value="corporation">
+                        {t("partners.businessTypes.corporation")}
+                      </SelectItem>
+                      <SelectItem value="partnership">
+                        {t("partners.businessTypes.partnership")}
+                      </SelectItem>
                       <SelectItem value="sole-proprietorship">
-                        Sole Proprietorship
+                        {t("partners.businessTypes.sole-proprietorship")}
                       </SelectItem>
                       <SelectItem value="nonprofit">
-                        Non-Profit Organization
+                        {t("partners.businessTypes.nonprofit")}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Select your business entity type
+                    {t("forms.descriptions.businessType")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -153,7 +164,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="representative"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Representative</FormLabel>
+                  <FormLabel>{t("forms.fields.representative")}</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -163,7 +174,11 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                     <div className="flex gap-2">
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select Representative" />
+                          <SelectValue
+                            placeholder={t(
+                              "forms.placeholders.selectRepresentative"
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -182,7 +197,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                       </Button>
                     </div>
                     <FormDescription>
-                      Your business registration number
+                      {t("forms.descriptions.representative")}
                     </FormDescription>
                   </Select>
                   <FormMessage />
@@ -198,7 +213,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="payoutPerParcel"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Payout Per Parcel</FormLabel>
+                  <FormLabel>{t("forms.fields.payoutPerParcel")}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
@@ -209,7 +224,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                     />
                   </FormControl>
                   <FormDescription>
-                    Amount paid per parcel delivered
+                    {t("forms.descriptions.payoutPerParcel")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -222,7 +237,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
               name="currency"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Currency</FormLabel>
+                  <FormLabel>{t("forms.fields.currency")}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value || "SAR"}
@@ -233,14 +248,22 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="USD">US Dollar (USD)</SelectItem>
-                      <SelectItem value="EUR">Euro (EUR)</SelectItem>
-                      <SelectItem value="EGP">Egyptian Pound (EGP)</SelectItem>
-                      <SelectItem value="SAR">Saudi Riyal (SAR)</SelectItem>
+                      <SelectItem value="USD">
+                        {t("partners.currencies.USD")}
+                      </SelectItem>
+                      <SelectItem value="EUR">
+                        {t("partners.currencies.EUR")}
+                      </SelectItem>
+                      <SelectItem value="EGP">
+                        {t("partners.currencies.EGP")}
+                      </SelectItem>
+                      <SelectItem value="SAR">
+                        {t("partners.currencies.SAR")}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    Select your preferred payout currency
+                    {t("forms.descriptions.currency")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

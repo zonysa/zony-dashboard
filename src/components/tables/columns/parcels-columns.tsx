@@ -31,7 +31,7 @@ export const columns = () => {
     },
     {
       accessorKey: "courier_id",
-      header: "Courier ID",
+      header: t("table.courier"),
       cell: ({ row }) => {
         const courierId = row.getValue("courier_id") as string;
         return <div className="font-mono text-sm">{courierId}</div>;
@@ -58,7 +58,7 @@ export const columns = () => {
     },
     {
       accessorKey: "receiving_date",
-      header: "Receiving Date",
+      header: t("table.receivingDate"),
       cell: ({ row }) => {
         const receivingDate = row.getValue("receiving_date") as Date;
         return (
@@ -89,19 +89,13 @@ export const columns = () => {
               return "secondary";
           }
         };
-        return (
-          <Badge variant={getStatusVariant(status)}>
-            {t(`status.${status.toLowerCase().replace(" ", "_")}`, {
-              defaultValue: status,
-            })}
-          </Badge>
-        );
+        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
       },
       filterFn: "equalsString",
     },
     {
       accessorKey: "client_name",
-      header: "Client",
+      header: t("table.client"),
       cell: ({ row }) => {
         const client = row.getValue("client_name") as string;
         return <div className="font-medium">{client}</div>;

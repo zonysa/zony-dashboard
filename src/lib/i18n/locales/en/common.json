@@ -3,6 +3,13 @@
   "hello": "Hello",
   "language": "Language",
   "selectLanguage": "Select Language",
+  "buttons": {
+    "addNewPartner": "Add New Partner",
+    "addNewBranch": "Add New Branch",
+    "createSupervisor": "Create Supervisor",
+    "createCustomerService": "Create Customer Service",
+    "createCourier": "Create Courier"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -24,7 +31,9 @@
     "submit": "Submit",
     "close": "Close",
     "actions": "Actions",
-    "view": "View"
+    "view": "View",
+    "assign": "Assign",
+    "assigned": "Assigned"
   },
   "table": {
     "page": "Page",
@@ -48,9 +57,12 @@
     "searchTick": "Search Tick",
     "allPUDOs": "All PUDOs",
     "allZones": "All Zones",
+    "allSupervisors": "All Supervisor",
     "allCities": "All Cities",
     "allDistricts": "All Districts",
     "partner": "Partner",
+    "totalPudos": "Total PUDOs",
+    "totalParcels": "Total Parcels",
     "allActions": "All Actions",
     "allStatus": "All Status",
     "allRatings": "All Ratings",
@@ -63,10 +75,20 @@
     "trackingNumber": "Tracking Number",
     "appliedFilters": "Applied Filters",
     "filtersCleared": "Filters Cleared",
-    "noResultsFound": "No results found"
+    "noResultsFound": "No results found",
+    "pointUsage": "Point Usage",
+    "date": "Date",
+    "client": "Client",
+    "allClients": "All Clients",
+    "email": "Email",
+    "deliveryRate": "Delivery Rate",
+    "receivingDate": "Receiving Date",
+    "courier": "Courier"
   },
   "parcels": {
-    "title": "Parcels"
+    "title": "Parcels",
+    "errorLoading": "Error loading parcels",
+    "searchPlaceholder": "Search parcels..."
   },
   "clients": {
     "title": "Client"
@@ -81,10 +103,18 @@
     "title": "Courier"
   },
   "settings": {
-    "title": "Settings"
+    "title": "Settings",
+    "languagePreferences": "Language Preferences",
+    "languageDescription": "Choose your preferred language for the interface",
+    "language": "Interface Language",
+    "languageUpdated": "Language updated successfully",
+    "rtlNote": "Arabic language uses right-to-left (RTL) text direction",
+    "ltrNote": "English language uses left-to-right (LTR) text direction"
   },
   "logout": {
-    "title": "Logout"
+    "title": "Logout",
+    "confirmTitle": "Confirm Logout",
+    "confirmDescription": "Are you sure you want to log out? You will need to sign in again to access your account."
   },
   "overview": {
     "title": "overview"
@@ -93,13 +123,79 @@
     "title": "supervisor"
   },
   "partners": {
-    "title": "Partners"
+    "title": "Partners",
+    "currencies": {
+      "USD": "US Dollar (USD)",
+      "EUR": "Euro (EUR)",
+      "EGP": "Egyptian Pound (EGP)",
+      "SAR": "Saudi Riyal (SAR)"
+    },
+    "businessTypes": {
+      "llc": "Limited Liability Company (LLC)",
+      "corporation": "Corporation",
+      "partnership": "Partnership",
+      "sole-proprietorship": "Sole Proprietorship",
+      "nonprofit": "Non-Profit Organization"
+    },
+    "banks": {
+      "nbe": "National Bank of Egypt (NBE)",
+      "cib": "Commercial International Bank (CIB)",
+      "qnb": "QNB ALAHLI",
+      "hsbc": "HSBC Egypt",
+      "aib": "Arab International Bank",
+      "saib": "Société Arabe Internationale de Banque",
+      "other": "Other"
+    }
   },
   "pudos": {
     "title": "PUDOs"
   },
   "zones": {
-    "title": "PUDOs"
+    "title": "Zones",
+    "zoneInfo": "Zone Info",
+    "districts": "Districts",
+    "supervisors": "Supervisors",
+    "assignedBranches": "Assigned Branches",
+    "couriers": "Couriers",
+    "customerServices": "Customer Services",
+    "zoneDetails": "Zone Details",
+    "zoneDetailsDescription": "Zone information and location details",
+    "zoneSupervisor": "Zone Supervisor",
+    "location": "Location",
+    "branchLocation": "Branch Location",
+    "assignedDistricts": "Assigned Districts",
+    "assignedSupervisors": "Assigned Supervisors",
+    "assignedCouriers": "Assigned Couriers",
+    "assignedCustomerServices": "Assigned Customer Services",
+    "assignDistricts": "Assign Districts",
+    "assignSupervisors": "Assign Supervisors",
+    "assignCouriers": "Assign Couriers",
+    "assignCustomerServices": "Assign Customer Services",
+    "assignDistrictsToZone": "Assign Districts to Zone",
+    "assignDistrictsDescription": "Select districts to assign to this zone",
+    "assignSupervisorsToZone": "Assign Supervisors to Zone",
+    "assignSupervisorsDescription": "Select supervisors to assign to this zone",
+    "assignCouriersToZone": "Assign Couriers to Zone",
+    "assignCouriersDescription": "Select couriers to assign to this zone",
+    "assignCustomerServicesToZone": "Assign Customer Services to Zone",
+    "assignCustomerServicesDescription": "Select customer service staff to assign to this zone",
+    "removeFromZone": "Remove from Zone",
+    "removeFromZoneDescription": "Are you sure you want to remove this item from the zone? This action cannot be undone.",
+    "searchDistricts": "Search districts...",
+    "searchSupervisors": "Search supervisors...",
+    "searchCouriers": "Search couriers...",
+    "searchCustomerServices": "Search customer services...",
+    "searchDistrictName": "Search District Name...",
+    "searchSupervisorName": "Search Supervisor Name...",
+    "searchCourierName": "Search Courier Name...",
+    "searchCustomerServiceName": "Search Customer Service Name...",
+    "searchBranchName": "Search Branch Name...",
+    "zoneId": "Zone ID",
+    "zoneName": "Zone Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone"
   },
   "reportsAnalytics": {
     "title": "Reports Analytics"
@@ -116,7 +212,213 @@
     "invalidEmail": "Invalid email address",
     "invalidPhone": "Invalid phone number",
     "passwordTooShort": "Password is too short",
-    "passwordsDoNotMatch": "Passwords do not match"
+    "passwordsDoNotMatch": "Passwords do not match",
+    "clickToUpload": "Click to upload",
+    "orDragAndDrop": "or drag and drop",
+    "removeFile": "Remove file"
+  },
+  "forms": {
+    "actions": {
+      "submit": "Submit",
+      "cancel": "Cancel",
+      "save": "Save",
+      "back": "Back",
+      "next": "Next",
+      "delete": "Delete",
+      "reset": "Reset",
+      "creating": "Creating...",
+      "confirming": "Confirming...",
+      "resetting": "Resetting...",
+      "signingIn": "Signing in..."
+    },
+    "doubleCheck": {
+      "label": "I confirm that all bank account details are correct",
+      "desc": "Please double-check all information before proceeding"
+    },
+    "acceptTerms": {
+      "label": "I accept the terms and conditions for payment processing",
+      "desc": "By checking this box, you agree to our payment terms and conditions"
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "emailAddress": "Email Address",
+      "password": "Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "confirmNewPassword": "Confirm New Password",
+      "username": "Username",
+      "phoneNumber": "Phone Number",
+      "role": "Role",
+      "city": "City",
+      "district": "District",
+      "zone": "Zone",
+      "address": "Address",
+      "trackingNumber": "Tracking Number",
+      "barcode": "Barcode",
+      "customerId": "Customer ID",
+      "client": "Client",
+      "cityName": "City Name",
+      "districtName": "District Name",
+      "zoneName": "Zone Name",
+      "districts": "Districts",
+      "photo": "Photo",
+      "position": "Position/Title",
+      "idNumber": "ID Number",
+      "commercialRegistration": "Commercial Registration",
+      "partnerName": "Partner Name",
+      "unifiedNumber": "Unified Number",
+      "businessType": "Business Type",
+      "representative": "Representative",
+      "payoutPerParcel": "Payout Per Parcel",
+      "currency": "Currency",
+      "bankStatement": "Bank Statement",
+      "bankName": "Bank Name",
+      "accountHolderName": "Account Holder Name",
+      "accountNumber": "Account Number",
+      "iban": "IBAN",
+      "branchPhotos": "Branch Photos",
+      "municipalLicense": "Municipal License",
+      "branchName": "Branch Name",
+      "branchCoordinates": "Branch Coordinates",
+      "partner": "Partner",
+      "responsible": "Responsible",
+      "action": "Action",
+      "comment": "Comment",
+      "identity": "Identity (Optional)"
+    },
+    "placeholders": {
+      "enterFirstName": "Enter first name",
+      "enterBranchName": "Enter BranchName",
+      "enterLastName": "Enter last name",
+      "enterEmail": "Enter email address",
+      "enterPassword": "Enter password",
+      "enterNewPassword": "Enter your new password",
+      "confirmNewPassword": "Confirm your new password",
+      "enterUsername": "Enter username",
+      "enterPhoneNumber": "Enter phone number",
+      "selectRole": "Select a role",
+      "selectCity": "Select city",
+      "selectZone": "Select Zone",
+      "selectDistrict": "Select District",
+      "selectClient": "Select a client",
+      "enterTrackingNumber": "Enter tracking number",
+      "enterBarcode": "Enter parcel barcode",
+      "enterCustomerId": "Enter customer ID",
+      "enterCityName": "Enter City Name",
+      "enterDistrictName": "Enter District Name",
+      "enterZoneName": "Enter Zone Name",
+      "selectDistricts": "Select districts...",
+      "selectCityFirst": "Please select a city first...",
+      "noCitySelected": "Select a city to see available districts",
+      "noDistrictsFound": "No districts found for this city",
+      "selectPosition": "Select position",
+      "enterIdNumber": "Enter national ID number",
+      "enterPartnerName": "Enter name for this partner",
+      "enterUnifiedNumber": "Enter unified business number",
+      "selectBusinessType": "Select business type",
+      "selectRepresentative": "Select Representative",
+      "selectCurrency": "Select currency",
+      "selectBank": "Select your bank",
+      "enterAccountHolder": "Enter account holder name",
+      "enterAccountNumber": "Enter account number",
+      "enterIban": "EG00 0000 0000 0000 0000 0000 000",
+      "enterBusinessName": "Enter Business Name",
+      "selectFromGPS": "Select From GPS",
+      "enterAddress": "Enter Short Address",
+      "selectPartner": "Select Partner",
+      "selectResponsible": "Select Responsible",
+      "selectAction": "Select Action",
+      "addComment": "Add comment for the ticket here..."
+    },
+    "descriptions": {
+      "emailDescription": "Primary contact email for the responsible person",
+      "phoneDescription": "Include country code (e.g., +20 123 456 7890)",
+      "branchPhotosDescription": "Upload photos of your branch location (max 5MB per image)",
+      "municipalLicenseDescription": "Upload your municipal license (PDF or image format)",
+      "commercialRegistrationDescription": "Upload your commercial registration document (PDF or image)",
+      "uploadPhoto": "Upload Customer Service Personal Photo",
+      "coordinatesDescription": "Click the location icon to select coordinates",
+      "businessName": "Your business registration name",
+      "unifiedNumber": "Your business registration number",
+      "businessType": "Select your business entity type",
+      "representative": "Your business registration number",
+      "payoutPerParcel": "Amount paid per parcel delivered",
+      "currency": "Select your preferred payout currency",
+      "iban": "International Bank Account Number (IBAN)",
+      "bankName": "Bank Name - The official name of your financial institution",
+      "accountNumber": "Account Number - Your unique bank account identification number",
+      "accountHolder": "Account Holder Name - The full legal name of the person or entity that owns the bank account",
+      "bankStatement": "Bank Statement - Upload a recent bank statement (PDF or image, max 5MB)"
+    },
+    "sections": {
+      "accountDetails": "Account Details",
+      "personalInformation": "Personal Information",
+      "parcelDetails": "Parcel Details",
+      "assignment": "Assignment",
+      "bankAccount": "Bank Account",
+      "branchInfo": "Branch Info",
+      "branchInfoDescription": "Branch location and details",
+      "operatingHours": "Operating Hours",
+      "operatingHoursDescription": "Set your PUDO location operating hours",
+      "supervisorInformation": "Supervisor Information",
+      "courierInformation": "Courier Information",
+      "customerServiceInformation": "Customer Service Information"
+    },
+    "roles": {
+      "representative": "Representative",
+      "responsible": "Responsible",
+      "supervisor": "Supervisor",
+      "customerService": "Customer Service",
+      "courier": "Courier",
+      "customer": "Customer"
+    }
+  },
+  "dialogs": {
+    "createUser": {
+      "title": "Create New User",
+      "description": "Fill in the user details below to create a new account.",
+      "success": "User \"{username}\" created successfully",
+      "error": "Failed to create user: {error}",
+      "unexpectedError": "An unexpected error occurred"
+    },
+    "createParcel": {
+      "title": "Create New Parcel",
+      "description": "Fill in the parcel details below to create a new delivery order.",
+      "success": "Parcel \"{id}\" created successfully",
+      "error": "Failed to create user: {error}",
+      "assignment": "Assignment"
+    },
+    "createCity": {
+      "title": "Create New City",
+      "description": "Make changes to your profile here.",
+      "success": "Created New City"
+    },
+    "createDistrict": {
+      "title": "Create New District",
+      "description": "Make changes to your profile here.",
+      "success": "District {name} created successfully"
+    },
+    "createZone": {
+      "title": "Create New Zone",
+      "description": "Make changes to your profile here. Click save when done.",
+      "success": "Zone {name} created successfully"
+    },
+    "coordinatePicker": {
+      "title": "Select Location Coordinates",
+      "description": "Click on the map to select coordinates or enter them manually below.",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "latitudePlaceholder": "e.g., 33.315200",
+      "longitudePlaceholder": "e.g., 44.366100",
+      "selected": "Selected",
+      "confirmLocation": "Confirm Location"
+    },
+    "createBranch": {
+      "success": "Branch {name} created successfully",
+      "error": "Error submitting registration. Please try again."
+    }
   },
   "auth": {
     "login": {
@@ -135,6 +437,138 @@
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm Password"
+    },
+    "resetPassword": {
+      "title": "Create New Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "backToSignIn": "Back to Sign In",
+      "requirements": "Password Requirements:",
+      "minChars": "At least 8 characters",
+      "lowercase": "One lowercase letter",
+      "uppercase": "One uppercase letter",
+      "number": "One number",
+      "strength": "Password strength:",
+      "strengthLabels": {
+        "veryWeak": "Very Weak",
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      }
+    },
+    "requestPassword": {
+      "title": "Forget Password Link will be sent to your Email",
+      "email": "Email",
+      "placeholder": "Enter Your Email Or Phone Number"
+    }
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "suspended": "Suspended",
+    "delivered": "Delivered",
+    "in_transit": "In Transit",
+    "failed": "Failed",
+    "returned": "Returned",
+    "on_duty": "On Duty",
+    "off_duty": "Off Duty",
+    "on_break": "On Break",
+    "training": "Training"
+  },
+  "days": {
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday"
+  },
+  "time": {
+    "am": "AM",
+    "pm": "PM",
+    "from": "From",
+    "to": "To",
+    "breakHour": "Break Hour",
+    "sameHoursEveryday": "Same Hours Everyday",
+    "twentyFourSeven": "24/7"
+  },
+  "detailPages": {
+    "tabs": {
+      "info": "Info",
+      "parcels": "Parcels",
+      "operatingHours": "Operating Hours",
+      "kpis": "KPIs",
+      "parcelInfo": "Parcel Info",
+      "parcelTracking": "Parcel Tracking",
+      "partnerInfo": "Partner Info",
+      "pudos": "PUDOs",
+      "clientInfo": "Client Info"
+    },
+    "sections": {
+      "branchInfo": "Branch Info",
+      "branchInfoDescription": "Branch information and location details",
+      "responsiblePerson": "Responsible Person",
+      "responsiblePersonDescription": "Primary contact person for this branch",
+      "documents": "Documents",
+      "documentsDescription": "Required documents and certifications",
+      "partnerInfo": "Partner Info",
+      "representativePerson": "Representative Person",
+      "paymentInformation": "Payment Information",
+      "paymentInformationDescription": "Banking and payout details for this branch",
+      "financialOverview": "Financial Overview",
+      "trackingInformation": "Tracking Information",
+      "trackingInformationDescription": "Complete tracking details and shipment information for your package",
+      "deliveryTimeline": "Delivery Timeline",
+      "deliveryTimelineDescription": "Important delivery dates and receipt expiration information",
+      "customer": "Customer",
+      "customerDescription": "Customer information and contact details",
+      "courier": "Courier",
+      "courierDescription": "Assigned courier information and contact details",
+      "pickupPoint": "Pickup Point",
+      "pickupPointDescription": "Need more time to receive your package? Request an extension here",
+      "extensionRequest": "Extension Request",
+      "extensionRequestDescription": "Need more time to receive your package? Request an extension here"
+    },
+    "labels": {
+      "name": "Name",
+      "location": "Location",
+      "phoneNumber": "Phone Number",
+      "bankName": "Bank Name",
+      "accountNumber": "Account Number",
+      "iban": "IBAN",
+      "payoutPerParcel": "Payout per Parcel",
+      "totalPayout": "Total Payout",
+      "idDocument": "ID Document",
+      "idDocumentVerification": "ID Document Verification",
+      "bankStatement": "Bank Statement",
+      "uploaded": "Uploaded",
+      "trackingNumber": "Tracking Number",
+      "pickupEndsAt": "Pickup Ends At",
+      "from": "From",
+      "to": "To",
+      "shipmentDate": "Shipment Date",
+      "expirationTime": "Expiration Time",
+      "currentStatus": "Current Status",
+      "extensionAvailable": "Extension Available",
+      "customerName": "Customer Name",
+      "customerPhoneNumber": "Customer Phone Number",
+      "courierName": "Courier Name",
+      "courierPhoneNumber": "Courier Phone Number"
+    },
+    "buttons": {
+      "saveChanges": "Save Changes",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "viewPickupPoint": "View Pickup Point",
+      "extensionRequest": "Extension Request"
+    },
+    "messages": {
+      "operatingHoursPlaceholder": "Operating hours information will be displayed here",
+      "needMoreTime": "Do you need more time to receive your package?",
+      "extendReceiptTime": "To extend the receipt time, click below:"
     }
   }
 }

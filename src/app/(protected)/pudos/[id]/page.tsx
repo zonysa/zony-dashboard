@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { DataTable } from "@/components/tables/data-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { branchColumns } from "@/components/tables/columns/branches-columns";
 import { Star, User, Store, FileStack } from "lucide-react";
 import DataItem from "@/components/ui/DataItem";
 import Image from "next/image";
@@ -15,6 +14,7 @@ import { SectionCards } from "@/components/ui/section-cards";
 import { columns } from "@/components/tables/columns/parcels-columns";
 import { Row } from "@tanstack/react-table";
 import { ParcelDetails } from "@/lib/schema/parcel.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface BranchDetailsProps {
   branchData?: {
@@ -33,9 +33,9 @@ interface BranchDetailsProps {
 }
 
 function BranchDetails({ branchData }: BranchDetailsProps) {
+  const { t } = useTranslation();
   const params = useParams();
   const branchId = params.id as string;
-  const parcelColumns = columns();
 
   const { data: branch } = useGetBranch(branchId);
   const {
@@ -128,10 +128,18 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
   };
 
   const filterConfigs = [
-    { key: "city", label: "City", placeholder: "All Cities" },
-    { key: "zone", label: "Zone", placeholder: "All Zones" },
-    { key: "district", label: "District", placeholder: "All Districts" },
-    { key: "status", label: "Status", placeholder: "All Statuses" },
+    { key: "city", label: t("table.city"), placeholder: t("table.allCities") },
+    { key: "zone", label: t("table.zone"), placeholder: "All Zones" },
+    {
+      key: "district",
+      label: t("table.district"),
+      placeholder: t("table.allDistricts"),
+    },
+    {
+      key: "status",
+      label: t("table.status"),
+      placeholder: t("table.allStatus"),
+    },
   ];
 
   // Render rating stars
@@ -163,30 +171,34 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
 
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
-      <Tabs defaultValue="branch-info" className="w-full gap-6">
+      <Tabs defaultValue="info" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
-            <TabsTrigger value="branch-info">Branch Info</TabsTrigger>
-            <TabsTrigger value="branch-parcels">Branch Parcels</TabsTrigger>
-            <TabsTrigger value="operating-hours">Operating Hours</TabsTrigger>
-            <TabsTrigger value="kpis">KPIs</TabsTrigger>
+            <TabsTrigger value="info">{t("detailPages.tabs.info")}</TabsTrigger>
+            <TabsTrigger value="parcels">
+              {t("detailPages.tabs.parcels")}
+            </TabsTrigger>
+            <TabsTrigger value="operating-hours">
+              {t("detailPages.tabs.operatingHours")}
+            </TabsTrigger>
+            <TabsTrigger value="kpis">{t("detailPages.tabs.kpis")}</TabsTrigger>
           </div>
         </TabsList>
 
-        <TabsContent className="flex flex-col gap-6" value="branch-info">
+        <TabsContent className="flex flex-col gap-6" value="info">
           {/* Branch Info Card */}
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
-              label="Branch Info"
-              value="Branch information and location details"
+              label={t("detailPages.sections.branchInfo")}
+              value={t("detailPages.sections.branchInfoDescription")}
               icon={Store}
               iconClassName="text-black"
             />
             <CardContent className="w-2/4 flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
-                  label="Name"
+                  label={t("detailPages.labels.name")}
                   value={String(branch?.pudo?.branch_name)}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("name", value)}
@@ -197,7 +209,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
 
               <div className="grid grid-cols-1 gap-3">
                 <DataItem
-                  label="Location"
+                  label={t("detailPages.labels.location")}
                   value={String(branch?.pudo?.short_address)}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("location", value)}
@@ -237,13 +249,13 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
                     onClick={() => handleSave("branchInfo")}
                     variant="default"
                   >
-                    Save Changes
+                    {t("detailPages.buttons.saveChanges")}
                   </Button>
                   <Button
                     onClick={() => handleCancel("branchInfo")}
                     variant="outline"
                   >
-                    Cancel
+                    {t("detailPages.buttons.cancel")}
                   </Button>
                 </>
               ) : (
@@ -251,7 +263,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
                   onClick={() => toggleEdit("branchInfo")}
                   variant="outline"
                 >
-                  Edit
+                  {t("detailPages.buttons.edit")}
                 </Button>
               )}
             </div>
@@ -261,21 +273,21 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
-              label="Responsible Person"
-              value="Primary contact person for this branch"
+              label={t("detailPages.sections.responsiblePerson")}
+              value={t("detailPages.sections.responsiblePersonDescription")}
               icon={User}
               iconClassName="text-black"
             />
             <CardContent className="w-2/4 flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
-                  label="Name"
+                  label={t("detailPages.labels.name")}
                   value={formData.responsibleName}
                   isEditable={editStates.responsiblePerson}
                   onChange={(value) => updateFormData("responsibleName", value)}
                 />
                 <DataItem
-                  label="Phone Number"
+                  label={t("detailPages.labels.phoneNumber")}
                   value={formData.responsiblePhone}
                   type="tel"
                   isEditable={editStates.responsiblePerson}
@@ -292,13 +304,13 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
                     onClick={() => handleSave("responsiblePerson")}
                     variant="default"
                   >
-                    Save Changes
+                    {t("detailPages.buttons.saveChanges")}
                   </Button>
                   <Button
                     onClick={() => handleCancel("responsiblePerson")}
                     variant="outline"
                   >
-                    Cancel
+                    {t("detailPages.buttons.cancel")}
                   </Button>
                 </>
               ) : (
@@ -306,7 +318,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
                   onClick={() => toggleEdit("responsiblePerson")}
                   variant="outline"
                 >
-                  Edit
+                  {t("detailPages.buttons.edit")}
                 </Button>
               )}
             </div>
@@ -316,8 +328,8 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
-              label="Documents"
-              value="Required documents and certifications"
+              label={t("detailPages.sections.documents")}
+              value={t("detailPages.sections.documentsDescription")}
               icon={FileStack}
               iconClassName="text-black"
             />
@@ -338,14 +350,14 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent className="w-full px-6" value="branch-parcels">
+        <TabsContent className="w-full px-6" value="parcels">
           <DataTable
-            columns={parcelColumns}
+            columns={columns()}
             data={parcels?.parcels || []}
             enableFiltering={true}
             filterConfigs={filterConfigs}
             enableGlobalSearch={true}
-            searchPlaceholder="Search PUDO name..."
+            searchPlaceholder={t("table.search")}
             onRowClick={handleRowClick}
           />
         </TabsContent>
@@ -353,11 +365,11 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
         <TabsContent className="w-full px-6" value="operating-hours">
           <Card className="w-full flex flex-col pt-0 overflow-hidden">
             <h1 className="px-4 border-b py-3 bg-gray-50 font-semibold">
-              Operating Hours
+              {t("detailPages.tabs.operatingHours")}
             </h1>
             <div className="px-4 py-4">
               <div className="text-gray-500 text-sm">
-                Operating hours information will be displayed here
+                {t("detailPages.messages.operatingHoursPlaceholder")}
               </div>
             </div>
           </Card>

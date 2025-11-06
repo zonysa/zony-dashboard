@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import {
   ColumnDef,
@@ -29,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
 
 interface FilterOption {
   value: string;
@@ -64,6 +66,9 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
+  const { t } = useTranslation();
+  const { language } = useUserPreferencesStore();
+
   // Local filter states for the UI
   const [localFilters, setLocalFilters] = useState<Record<string, string>>({});
   const [localSearch, setLocalSearch] = useState("");
@@ -82,8 +87,6 @@ export function DataTable<TData, TValue>({
       globalFilter,
     },
   });
-
-  const { t } = useTranslation();
 
   // Extract unique values for filter options if not provided
   const getUniqueValues = (key: string): FilterOption[] => {
@@ -169,7 +172,7 @@ export function DataTable<TData, TValue>({
                 filterConfigs.map((config) => (
                   <div
                     key={config.key}
-                    className="flex flex-col gap-2 items-start space-x-2"
+                    className="flex flex-col gap-2  space-x-2"
                   >
                     <span className="text-sm font-medium whitespace-nowrap">
                       {config.label}
@@ -196,6 +199,7 @@ export function DataTable<TData, TValue>({
                   </div>
                 ))}
             </div>
+
             {/* Action Buttons */}
             <div className="flex items-end space-x-2 ml-auto">
               {hasActiveFilters && (
@@ -248,7 +252,10 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      className={language === "ar" ? "text-right" : "text-left"}
+                      key={header.id}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -309,12 +316,16 @@ export function DataTable<TData, TValue>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeft className="h-4 w-4" />
+            {language == "en" ? (
+              <ChevronLeft className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </Button>
 
           <span className="text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+            {t("table.page")} {table.getState().pagination.pageIndex + 1}{" "}
+            {t("table.of")} {table.getPageCount()}
           </span>
 
           <Button
@@ -323,7 +334,11 @@ export function DataTable<TData, TValue>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight className="h-4 w-4" />
+            {language == "en" ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>

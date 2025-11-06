@@ -12,7 +12,7 @@ export const columns = () => {
   const columns: ColumnDef<ZoneDetails>[] = [
     {
       accessorKey: "id",
-      header: "Zone ID",
+      header: "ID",
       cell: ({ row }) => {
         const id = row.getValue("id") as string;
         return <div className="font-mono text-sm">{id}</div>;
@@ -30,7 +30,7 @@ export const columns = () => {
     },
     {
       accessorKey: "totalPudos",
-      header: "PUDO Points",
+      header: t("table.totalPudos"),
       cell: ({ row }) => {
         const totPudos = row.getValue("totalPudos") as number;
         return <div className="font-medium">{totPudos ? totPudos : "NA"}</div>;
@@ -50,7 +50,7 @@ export const columns = () => {
     },
     {
       accessorKey: "supervisor",
-      header: "Supervisor",
+      header: t("supervisors.title"),
       cell: ({ row }) => {
         const supervisor = row.getValue("supervisor") as string;
         return (

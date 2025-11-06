@@ -5,6 +5,7 @@ import "./globals.css";
 import { ReactQueryProvider } from "@/provider/reactQueryProvidor";
 import { I18nProvider } from "@/provider/I18nProvider";
 import { Toaster } from "sonner";
+import { HtmlWrapper } from "@/components/ui/HTMLWrapper";
 
 const poppins = localFont({
   src: [
@@ -29,7 +30,28 @@ const poppins = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-my-font",
+  variable: "--font-poppins",
+});
+
+const cairo = localFont({
+  src: [
+    {
+      path: "../../public/fonts/Cairo-Bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Cairo-Regular.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/Cairo-Light.ttf",
+      weight: "300",
+      style: "normal",
+    },
+  ],
+  variable: "--font-cairo",
 });
 
 export const metadata: Metadata = {
@@ -46,8 +68,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${poppins.variable} antialiased`}>
+    <HtmlWrapper>
+      <body className={`${poppins.variable} ${cairo.variable} antialiased`}>
         <I18nProvider>
           <ReactQueryProvider>
             <Toaster position="top-center" richColors />
@@ -55,6 +77,6 @@ export default function RootLayout({
           </ReactQueryProvider>
         </I18nProvider>
       </body>
-    </html>
+    </HtmlWrapper>
   );
 }
