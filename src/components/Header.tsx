@@ -19,7 +19,7 @@ import { LocationDropDown } from "./ui/LocatoinDropdown";
 import CreateParcelSheet from "./CreateParcelDiaglog";
 import NotificationsSheet from "./NotificationsSheet";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import CreateUserSheet from "./CreateUserSheet";
 
 interface BreadcrumbSegment {
   label: string;
@@ -31,6 +31,8 @@ function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
+  const [showUserSheet, setShowUserSheet] = useState(false);
+  const [userRoleId, setUserRoleId] = useState<number>(0);
   const { t } = useTranslation();
 
   // Generate breadcrumb segments from pathname
@@ -38,7 +40,7 @@ function Header() {
     const segments = pathname.split("/").filter(Boolean);
 
     const breadcrumbs: BreadcrumbSegment[] = [
-      { label: "Home", href: "/", isLast: segments.length === 0 },
+      { label: t("breadcrumb.home"), href: "/", isLast: segments.length === 0 },
     ];
 
     segments.forEach((segment, index) => {
@@ -53,15 +55,13 @@ function Header() {
   };
 
   const formatSegment = (segment: string): string => {
-    // Handle special cases
-    const specialCases: Record<string, string> = {
-      pudos: "Branches",
-      "customer-service": "Customer Service",
-      create: "Create New",
-    };
+    // Try to get translation first
+    const translationKey = `breadcrumb.${segment}` as never;
+    const translated = t(translationKey);
 
-    if (specialCases[segment]) {
-      return specialCases[segment];
+    // If translation exists (not returning the key itself), use it
+    if (translated !== translationKey) {
+      return translated;
     }
 
     // Default formatting: capitalize first letter and replace hyphens
@@ -73,6 +73,13 @@ function Header() {
 
   const handleNavigateProfile = () => {
     router.push("/profile");
+  };
+
+  const handleAddUser = (roleId: number) => {
+    if (roleId) {
+      setUserRoleId(roleId);
+    }
+    setShowUserSheet(true);
   };
 
   const getHeaderButton = () => {
@@ -99,22 +106,19 @@ function Header() {
         return <CreateParcelSheet />;
       case "/supervisors":
         return (
-          <Button size="sm" onClick={() => router.push("/supervisors/create")}>
+          <Button size="sm" onClick={() => handleAddUser(4)}>
             {t("buttons.createSupervisor")}
           </Button>
         );
       case "/customer-service":
         return (
-          <Button
-            size="sm"
-            onClick={() => router.push("/customer-service/create")}
-          >
+          <Button size="sm" onClick={() => handleAddUser(5)}>
             {t("buttons.createCustomerService")}
           </Button>
         );
       case "/courier":
         return (
-          <Button onClick={() => router.push("/courier/create")}>
+          <Button onClick={() => handleAddUser(6)}>
             {t("buttons.createCourier")}
           </Button>
         );
@@ -175,6 +179,11 @@ function Header() {
       <NotificationsSheet
         open={notificationsOpen}
         onOpenChange={setNotificationsOpen}
+      />
+      <CreateUserSheet
+        open={showUserSheet}
+        onOpenChange={setShowUserSheet}
+        userRole={userRoleId || 0}
       />
     </header>
   );

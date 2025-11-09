@@ -113,7 +113,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden">
+      <DialogContent className="sm:max-w-[700px] w-[800px] max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>{t("dialogs.coordinatePicker.title")}</DialogTitle>
           <DialogDescription>
@@ -141,7 +141,9 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
           {/* Manual Coordinate Input */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="latitude">{t("dialogs.coordinatePicker.latitude")}</Label>
+              <Label htmlFor="latitude">
+                {t("dialogs.coordinatePicker.latitude")}
+              </Label>
               <Input
                 id="latitude"
                 type="number"
@@ -153,7 +155,9 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="longitude">{t("dialogs.coordinatePicker.longitude")}</Label>
+              <Label htmlFor="longitude">
+                {t("dialogs.coordinatePicker.longitude")}
+              </Label>
               <Input
                 id="longitude"
                 type="number"
@@ -168,7 +172,8 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
 
           {position && (
             <div className="text-sm text-muted-foreground">
-              {t("dialogs.coordinatePicker.selected")}: {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
+              {t("dialogs.coordinatePicker.selected")}:{" "}
+              {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
             </div>
           )}
         </div>

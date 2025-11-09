@@ -15,6 +15,7 @@ import { columns } from "@/components/tables/columns/parcels-columns";
 import { Row } from "@tanstack/react-table";
 import { ParcelDetails } from "@/lib/schema/parcel.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { StaticMap } from "@/components/ui/StaticMap";
 
 interface BranchDetailsProps {
   branchData?: {
@@ -36,6 +37,13 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
   const { t } = useTranslation();
   const params = useParams();
   const branchId = params.id as string;
+  const [locationExist, setLocationExist] = useState<boolean>(true);
+
+  const [location, setLocation] = useState<{
+    lat: number;
+    lng: number;
+    popup?: string;
+  }>({ lng: 0, lat: 0, popup: "" });
 
   const { data: branch } = useGetBranch(branchId);
   const {
@@ -46,11 +54,17 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
   } = useGetBranchParcels(branchId);
 
   useEffect(() => {
-    if (isError) {
-      console.log(error);
+    const coor = branch?.pudo?.coordinates;
+    if (!branch || !coor) {
+      setLocationExist(false);
+    } else {
+      setLocation({
+        lat: coor?.latitude,
+        lng: coor?.longitude,
+        popup: "test",
+      });
     }
-    console.log(parcels);
-  }, [parcels, isLoading, isError, error]);
+  }, [branch]);
 
   const defaultData = {
     title: "Wafa Pharmacy",
@@ -199,7 +213,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.name")}
-                  value={String(branch?.pudo?.branch_name)}
+                  value={String(branch?.pudo?.name)}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("name", value)}
                 />
@@ -210,7 +224,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
               <div className="grid grid-cols-1 gap-3">
                 <DataItem
                   label={t("detailPages.labels.location")}
-                  value={String(branch?.pudo?.short_address)}
+                  value={String(branch?.pudo?.address)}
                   isEditable={editStates.branchInfo}
                   onChange={(value) => updateFormData("location", value)}
                 />
@@ -227,19 +241,17 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
                 />
               )}
 
-              <div className="grid grid-cols-3 gap-2">
-                {data.photos.map((photo, index) => (
-                  <div
-                    key={index}
-                    className="aspect-[4/3] rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
-                  >
-                    <img
-                      src={photo}
-                      alt={`Branch photo ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+              <div className="w-full">
+                {locationExist ? (
+                  <StaticMap width="100" coordinates={[location]} />
+                ) : (
+                  <div className="w-full h-[400px] bg-gray-100 flex justify-center items-center rounded">
+                    {" "}
+                    <span className="text-gray-500">
+                      There is no location for this branch
+                    </span>
                   </div>
-                ))}
+                )}
               </div>
             </CardContent>
             <div className="flex gap-2">

@@ -12,7 +12,7 @@ export const columns = () => {
   const columns: ColumnDef<ZoneDetails>[] = [
     {
       accessorKey: "id",
-      header: "ID",
+      header: t("table.id"),
       cell: ({ row }) => {
         const id = row.getValue("id") as string;
         return <div className="font-mono text-sm">{id}</div>;

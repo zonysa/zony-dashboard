@@ -12,33 +12,36 @@ import { useParams } from "next/navigation";
 import { useGetPartner, useGetPartnerBranches } from "@/lib/hooks/usePartner";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
-interface PartnerDataProps {
-  partnerData?: {
-    title: string;
-    rating: number;
-    name: string;
-    phoneNumber: string;
-    bankName: string;
-    accountNumber: string;
-    iban: string;
-    payoutPerParcel: string;
-  };
-}
-
-function PartnerDetails({ partnerData }: PartnerDataProps) {
+function PartnerDetails() {
   const { t } = useTranslation();
+
   const params = useParams();
   const partnerId = params.id as string;
-  const columns = branchColumns(t);
 
   const { data: partner } = useGetPartner(partnerId);
   const { data: branches } = useGetPartnerBranches(partnerId);
 
   const filterConfigs = [
-    { key: "city", label: "City", placeholder: "All Cities" },
-    { key: "zone", label: "Zone", placeholder: "All Zones" },
-    { key: "district", label: "District", placeholder: "All Districts" },
-    { key: "status", label: "Status", placeholder: "All Statuses" },
+    {
+      key: "city",
+      label: t("table.city"),
+      placeholder: t("table.allCities"),
+    },
+    {
+      key: "zone",
+      label: t("table.zone"),
+      placeholder: t("table.allZones"),
+    },
+    {
+      key: "district",
+      label: t("table.district"),
+      placeholder: t("table.allDistricts"),
+    },
+    {
+      key: "status",
+      label: t("table.status"),
+      placeholder: t("table.allStatus"),
+    },
   ];
 
   // Edit states
@@ -48,28 +51,16 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
     paymentInfo: false,
   });
 
-  const defaultData = {
-    title: "Wafa Pharmacy",
-    rating: 4.6,
-    name: "Ahmed Salem",
-    phoneNumber: "252525252",
-    bankName: "National Bank of Egypt",
-    accountNumber: "****1234",
-    iban: "EG00 0000 0000 ****",
-    payoutPerParcel: "5.00 EGP",
-  };
-
-  const data = partnerData || defaultData;
-
   // Form data states
   const [formData, setFormData] = useState({
-    title: data.title,
-    name: data.name,
-    phoneNumber: data.phoneNumber,
-    bankName: data.bankName || "National Bank of Egypt",
-    accountNumber: data.accountNumber || "****1234",
-    iban: data.iban || "EG00 0000 0000 ****",
-    payoutPerParcel: data.payoutPerParcel || "5.00 EGP",
+    name: partner?.partner.name,
+    repPhoneNumber: partner?.partner.representative_phone_number,
+    repName: partner?.partner.representative_name,
+    bankName: partner?.partner?.bank_name,
+    bankHolderName: partner?.partner?.bank_holder_name,
+    accountNumber: partner?.partner?.bank_account_number,
+    iban: partner?.partner?.IBAN,
+    payoutPerParcel: partner?.partner?.payout_per_parcel,
   });
 
   const toggleEdit = (section: keyof typeof editStates) => {
@@ -91,13 +82,14 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
   const handleCancel = (section: keyof typeof editStates) => {
     // Reset form data to original values
     setFormData({
-      title: data.title,
-      name: data.name,
-      phoneNumber: data.phoneNumber,
-      bankName: data.bankName || "National Bank of Egypt",
-      accountNumber: data.accountNumber || "****1234",
-      iban: data.iban || "EG00 0000 0000 ****",
-      payoutPerParcel: data.payoutPerParcel || "5.00 EGP",
+      name: partner?.partner.name,
+      repPhoneNumber: partner?.partner.representative_phone_number,
+      repName: partner?.partner.representative_name,
+      bankName: partner?.partner.bank_name,
+      bankHolderName: partner?.partner?.bank_holder_name,
+      accountNumber: partner?.partner.bank_account_number,
+      iban: partner?.partner.IBAN,
+      payoutPerParcel: partner?.partner.payout_per_parcel,
     });
     setEditStates((prev) => ({
       ...prev,
@@ -117,8 +109,12 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
       <Tabs defaultValue="info" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
-            <TabsTrigger value="info">{t("detailPages.tabs.partnerInfo")}</TabsTrigger>
-            <TabsTrigger value="pudos">{t("detailPages.tabs.pudos")}</TabsTrigger>
+            <TabsTrigger value="info">
+              {t("detailPages.tabs.partnerInfo")}
+            </TabsTrigger>
+            <TabsTrigger value="pudos">
+              {t("detailPages.tabs.pudos")}
+            </TabsTrigger>
           </div>
         </TabsList>
 
@@ -139,13 +135,6 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                   value={String(partner?.partner?.name)}
                   isEditable={editStates.representative}
                   onChange={(value) => updateFormData("name", value)}
-                />
-                <DataItem
-                  label={t("detailPages.labels.phoneNumber")}
-                  value={data.phoneNumber}
-                  type="tel"
-                  isEditable={editStates.representative}
-                  onChange={(value) => updateFormData("phoneNumber", value)}
                 />
               </div>
             </CardContent>
@@ -176,12 +165,12 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
             </div>
           </Card>
 
-          {/* Responsible Person */}
+          {/* Representative Person */}
           <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.representativePerson")}
-              value={t("detailPages.sections.representativePersonDescription")}
+              value={t("detailPages.sections.represenativePersonDescription")}
               icon={User}
               iconClassName="text-black"
             />
@@ -189,16 +178,16 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.name")}
-                  value={data.name}
+                  value={formData.repName || ""}
                   isEditable={editStates.representative}
-                  onChange={(value) => updateFormData("name", value)}
+                  onChange={(value) => updateFormData("repName", value)}
                 />
                 <DataItem
                   label={t("detailPages.labels.phoneNumber")}
-                  value={data.phoneNumber}
+                  value={formData.repPhoneNumber || ""}
                   type="tel"
                   isEditable={editStates.representative}
-                  onChange={(value) => updateFormData("phoneNumber", value)}
+                  onChange={(value) => updateFormData("repPhoneNumber", value)}
                 />
               </div>
             </CardContent>
@@ -242,7 +231,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.bankName")}
-                  value={formData.bankName}
+                  value={formData.bankName || ""}
                   type="select"
                   selectOptions={[
                     {
@@ -258,7 +247,7 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
                 />
                 <DataItem
                   label={t("detailPages.labels.accountNumber")}
-                  value={formData.accountNumber}
+                  value={formData.accountNumber || ""}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("accountNumber", value)}
                 />
@@ -267,15 +256,15 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.iban")}
-                  value={formData.iban}
+                  value={formData.iban || ""}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("iban", value)}
                 />
                 <DataItem
-                  label={t("detailPages.labels.payoutPerParcel")}
-                  value={formData.payoutPerParcel}
+                  label={t("detailPages.labels.name")}
+                  value={formData.bankHolderName || ""}
                   isEditable={editStates.paymentInfo}
-                  onChange={(value) => updateFormData("payoutPerParcel", value)}
+                  onChange={(value) => updateFormData("bankHolderName", value)}
                 />
               </div>
             </CardContent>
@@ -319,13 +308,13 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
               <div className="grid grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.payoutPerParcel")}
-                  value={formData.bankName}
+                  value={String(formData.payoutPerParcel || 0)}
                   isEditable={editStates.paymentInfo}
-                  onChange={(value) => updateFormData("bankName", value)}
+                  onChange={(value) => updateFormData("payoutPerParcel", value)}
                 />
                 <DataItem
                   label={t("detailPages.labels.totalPayout")}
-                  value={formData.accountNumber}
+                  value={formData.accountNumber || ""}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("accountNumber", value)}
                 />
@@ -337,12 +326,12 @@ function PartnerDetails({ partnerData }: PartnerDataProps) {
         <TabsContent className="w-full px-6" value="pudos">
           <div className="w-full">
             <DataTable
-              columns={columns}
+              columns={branchColumns()}
               data={branches?.pudos || []}
               enableFiltering={true}
               filterConfigs={filterConfigs}
               enableGlobalSearch={true}
-              searchPlaceholder={t("tables.pudos.searchPlaceholder")}
+              searchPlaceholder={t("table.search")}
             />
           </div>
         </TabsContent>

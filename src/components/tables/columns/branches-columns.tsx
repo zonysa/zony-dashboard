@@ -57,28 +57,28 @@ export const branchColumns = () => {
       },
     },
     {
-      accessorKey: "city",
+      accessorKey: "city_name",
       header: t("table.city") || "City",
       cell: ({ row }) => {
-        const city = row.getValue("city") as string;
+        const city = row.getValue("city_name") as string;
         return <div className="font-medium">{city ? city : "NA"}</div>;
       },
       filterFn: "equalsString",
     },
     {
-      accessorKey: "zone",
+      accessorKey: "zone_name",
       header: t("table.zone") || "Zone",
       cell: ({ row }) => {
-        const zone = row.getValue("zone") as string;
+        const zone = row.getValue("zone_name") as string;
         return <div className="font-medium">{zone ? zone : "NA"}</div>;
       },
       filterFn: "equalsString",
     },
     {
-      accessorKey: "district",
+      accessorKey: "district_name",
       header: t("table.district") || "Districts",
       cell: ({ row }) => {
-        const district = row.getValue("district") as string;
+        const district = row.getValue("district_name") as string;
         return (
           <div className="capitalize font-medium">
             {district ? district : "NA"}
@@ -88,25 +88,34 @@ export const branchColumns = () => {
       filterFn: "equalsString",
     },
     {
-      accessorKey: "totalParcels",
+      accessorKey: "total_parcels",
       header: t("table.totalParcels"),
       cell: ({ row }) => {
-        const totalParcels = row.getValue("totalParcels") as number;
+        const totalParcels = row.getValue("total_parcels") as number;
         return (
           <div className="font-medium text-orange-600">
-            {totalParcels ? totalParcels.toLocaleString() : "NA"}
+            {totalParcels ? totalParcels.toLocaleString() : 0}
           </div>
         );
       },
     },
     {
-      accessorKey: "supervisor",
+      accessorKey: "supervisor_names",
       header: t("supervisors.title"),
       cell: ({ row }) => {
-        const supervisor = row.getValue("supervisor") as string;
+        const supervisor = row.getValue("supervisor_names") as string;
         return (
-          <div className="font-medium">{supervisor ? supervisor : "NA"}</div>
+          <div className="font-medium">{supervisor ? supervisor[0] : "NA"}</div>
         );
+      },
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "partner_name",
+      header: t("table.partner"),
+      cell: ({ row }) => {
+        const partner = row.getValue("partner_name") as string;
+        return <div className="font-medium">{partner ? partner : "NA"}</div>;
       },
       filterFn: "includesString",
     },
@@ -120,10 +129,10 @@ export const branchColumns = () => {
       filterFn: "equalsString",
     },
     {
-      accessorKey: "pointUsage",
+      accessorKey: "point_usage_percels",
       header: t("table.pointUsage"),
       cell: ({ row }) => {
-        const pointUsage = row.getValue("pointUsage") as number;
+        const pointUsage = row.getValue("point_usage_percels") as number;
         const classes = getUsageClasses(pointUsage);
 
         return (
@@ -131,7 +140,7 @@ export const branchColumns = () => {
             <Circle
               className={`w-2 h-2 text-transparent fill ${classes.fill}`}
             />
-            {pointUsage ? pointUsage : 20}%
+            {pointUsage}%
           </Badge>
         );
       },

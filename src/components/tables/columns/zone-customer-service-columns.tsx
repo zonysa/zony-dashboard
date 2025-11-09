@@ -19,7 +19,7 @@ export const createZoneCustomerServiceColumns = ({
   const columns: ColumnDef<UserDetails>[] = [
     {
       accessorKey: "first_name",
-      header: "First Name",
+      header: t("table.firstName"),
       cell: ({ row }) => {
         const firstName = row.getValue("first_name") as string;
         return <div className="font-medium">{firstName}</div>;
@@ -28,7 +28,7 @@ export const createZoneCustomerServiceColumns = ({
     },
     {
       accessorKey: "last_name",
-      header: "Last Name",
+      header: t("table.lastName"),
       cell: ({ row }) => {
         const lastName = row.getValue("last_name") as string;
         return <div className="font-medium">{lastName}</div>;
@@ -37,7 +37,7 @@ export const createZoneCustomerServiceColumns = ({
     },
     {
       accessorKey: "email",
-      header: "Email",
+      header: t("table.email"),
       cell: ({ row }) => {
         const email = row.getValue("email") as string;
         return <div className="text-sm">{email}</div>;
@@ -46,7 +46,7 @@ export const createZoneCustomerServiceColumns = ({
     },
     {
       accessorKey: "phone_number",
-      header: t("table.phoneNumber") || "Phone",
+      header: t("table.phoneNumber"),
       cell: ({ row }) => {
         const phone = row.getValue("phone_number") as string;
         return <div className="text-sm">{phone}</div>;
@@ -55,21 +55,19 @@ export const createZoneCustomerServiceColumns = ({
     },
     {
       accessorKey: "is_active",
-      header: t("table.status") || "Status",
+      header: t("table.status"),
       cell: ({ row }) => {
         const isActive = row.getValue("is_active") as boolean;
         return (
           <Badge variant={isActive ? "success" : "secondary"}>
-            {isActive
-              ? t("status.active", { defaultValue: "Active" })
-              : t("status.inactive", { defaultValue: "Inactive" })}
+            {isActive ? "Active" : "Inactive"}
           </Badge>
         );
       },
     },
     {
       id: "actions",
-      header: t("table.actions") || "Actions",
+      header: t("table.actions"),
       cell: ({ row }) => {
         const customerService = row.original;
         const fullName = `${customerService.first_name} ${customerService.last_name}`;
@@ -87,6 +85,5 @@ export const createZoneCustomerServiceColumns = ({
       },
     },
   ];
-
   return columns;
 };

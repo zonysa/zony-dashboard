@@ -161,8 +161,8 @@ export default function Page() {
           // status: "active"
           gallery: [],
           oprating_hours: data.operatingHours,
-          municipal_license: "13213123",
-          password: "00000000",
+          municipal_license: "",
+          password: data.password,
           coordinates: {
             latitude: lat,
             longitude: lng,
@@ -177,7 +177,12 @@ export default function Page() {
         console.log(branchData);
         await branchMutation.mutateAsync(branchData, {
           onSuccess: () => {
-            toast.success(t("dialogs.createBranch.success").replace("{name}", data.branchName));
+            toast.success(
+              t("dialogs.createBranch.success").replace(
+                "{name}",
+                data.branchName
+              )
+            );
             router.push("/pudos");
           },
         });

@@ -17,8 +17,17 @@ export const createZoneDistrictsColumns = ({
 
   const columns: ColumnDef<DistrictDetails>[] = [
     {
+      accessorKey: "id",
+      header: t("table.id"),
+      cell: ({ row }) => {
+        const id = row.getValue("id") as string;
+        return <div className="font-medium">{id}</div>;
+      },
+      filterFn: "includesString",
+    },
+    {
       accessorKey: "name",
-      header: "District Name",
+      header: t("table.district"),
       cell: ({ row }) => {
         const name = row.getValue("name") as string;
         return <div className="font-medium">{name}</div>;

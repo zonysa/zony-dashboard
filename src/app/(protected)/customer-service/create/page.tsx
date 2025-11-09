@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -20,21 +19,23 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/useAuth";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const customerServiceMutation = useRegister();
   const router = useRouter();
+  const customerServiceMutation = useRegister();
+  const { t, isRTL } = useTranslation();
 
   const form = useForm<CustomerServiceFormData>({
     defaultValues: {
-      firstName: "Ahmed",
-      lastName: "Gamal",
-      phoneNumber: "0123123123123",
-      email: "cs1@email.com",
-      username: "cs1",
-      password: "00000000",
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      email: "",
+      username: "",
+      password: "",
     },
   });
 
@@ -80,7 +81,7 @@ const Page: React.FC = () => {
       {/* Basic Information Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Customer Service Information</CardTitle>
+          <CardTitle>{t("forms.sections.customerServiceTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -91,7 +92,7 @@ const Page: React.FC = () => {
                 name="photo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Photo</FormLabel>
+                    <FormLabel>{t("forms.fields.photo")}</FormLabel>
                     <FormControl>
                       <FileInput
                         value={field.value}
@@ -99,9 +100,7 @@ const Page: React.FC = () => {
                         accept="image/*, application/pdf"
                       />
                     </FormControl>
-                    <FormDescription>
-                      Upload Customer Service Presonal Photo{" "}
-                    </FormDescription>
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -113,11 +112,11 @@ const Page: React.FC = () => {
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel>{t("forms.fields.firstName")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter first name"
+                            placeholder={t("forms.placeholders.enterFirstName")}
                             autoComplete="firstName"
                           />
                         </FormControl>
@@ -131,11 +130,11 @@ const Page: React.FC = () => {
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
+                        <FormLabel>{t("forms.fields.lastName")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter last name"
+                            placeholder={t("forms.placeholders.enterLastName")}
                             autoComplete="lastName"
                           />
                         </FormControl>
@@ -151,18 +150,16 @@ const Page: React.FC = () => {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <FormLabel>{t("forms.fields.email")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             type="email"
-                            placeholder="Enter email address"
+                            placeholder={t("forms.placeholders.enterEmail")}
                             autoComplete="email"
                           />
                         </FormControl>
-                        <FormDescription>
-                          Primary contact email for the responsible person
-                        </FormDescription>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -173,18 +170,18 @@ const Page: React.FC = () => {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
                             type="tel"
-                            placeholder="Enter phone number"
+                            placeholder={t(
+                              "forms.placeholders.enterPhoneNumber"
+                            )}
                             autoComplete="tel"
                           />
                         </FormControl>
-                        <FormDescription>
-                          Include country code (e.g., +20 123 456 7890)
-                        </FormDescription>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -197,11 +194,11 @@ const Page: React.FC = () => {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>{t("forms.fields.username")}</FormLabel>
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="Enter first name"
+                            placeholder={t("forms.placeholders.enterUsername")}
                             autoComplete="given-name"
                           />
                         </FormControl>
@@ -216,21 +213,25 @@ const Page: React.FC = () => {
                     render={({ field }) => (
                       <FormItem className="grid">
                         <FormLabel htmlFor="password" className="font-normal">
-                          Password
+                          {t("forms.fields.password")}
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Input
                               {...field}
                               type={showPassword ? "text" : "password"}
-                              placeholder="Enter Password"
+                              placeholder={t(
+                                "forms.placeholders.enterPassword"
+                              )}
                               // disabled={loginMutation.isPending}
                             />
                             <Button
                               type="button"
                               variant="ghost"
                               size="sm"
-                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                              className={`absolute ${
+                                isRTL ? "left-0" : "right-0"
+                              } top-0 h-full px-3 py-2 hover:bg-transparent`}
                               onClick={() => setShowPassword(!showPassword)}
                             >
                               {showPassword ? (
@@ -249,7 +250,7 @@ const Page: React.FC = () => {
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
-                <Button type="submit">Submit</Button>
+                <Button type="submit">{t("forms.actions.submit")}</Button>
               </div>
             </form>
           </Form>

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useWatch } from "react-hook-form";
-import { MapPin, Plus } from "lucide-react";
+import { Eye, EyeOff, MapPin, Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const CoordinatePickerDialog = dynamic(
@@ -57,6 +57,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
   const { data: users } = useGetUsers({ role_id: 3 });
   const [showUserSheet, setShowUserSheet] = useState(false);
   const [showCoordinatePicker, setShowCoordinatePicker] = useState(false);
+  const [showPassword, setShowPassword] = useState(true);
   const [coordinates, setCoordinates] = useState<{
     lat: number;
     lng: number;
@@ -72,7 +73,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
     name: "zone",
   });
 
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const { data: partners } = useGetPartners();
   const { data: cities } = useGetCities();
@@ -96,7 +97,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
         <form onSubmit={onSubmit} className="space-y-8">
           <FormField
             control={control}
-            name="branchPhoto"
+            name="branchPhotos"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("forms.fields.branchPhotos")}</FormLabel>
@@ -105,8 +106,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                     value={field.value}
                     onChange={field.onChange}
                     accept="image/*"
-                    // multiple
-                    // placeholder="Upload branch photos"
+                    multiple
                   />
                 </FormControl>
                 <FormDescription>
@@ -386,6 +386,44 @@ export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
                       </Button>
                     </div>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("forms.fields.password")}</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        placeholder={t("forms.placeholders.enterPassword")}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className={`absolute ${
+                          isRTL ? "left" : "right"
+                        }-0 top-0 h-full px-3 py-2 hover:bg-transparent`}
+                        onClick={() => setShowPassword(!showPassword)}
+                        // disabled={loginMutation.isPending}
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

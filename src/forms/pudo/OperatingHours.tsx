@@ -220,7 +220,7 @@ export const OperatingHoursStep: React.FC<
                 }`}
               >
                 {/* Day Name */}
-                <div className="capitalize font-medium">{t(`days.${day}`)}</div>
+                <div className="capitalize font-medium">{t(`days.${day}` as never)}</div>
 
                 {/* From Time */}
                 <FormItem>

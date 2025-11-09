@@ -39,32 +39,6 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-8">
-        {/* Document Upload */}
-        <CardContent className="px-0">
-          <FormField
-            control={control}
-            name="bankStatement"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("forms.fields.bankStatement")}</FormLabel>
-                <FormControl>
-                  <FileInput
-                    value={field.value}
-                    onChange={field.onChange}
-                    accept="application/pdf,image/*"
-                  />
-                </FormControl>
-                <FormDescription>
-                  {t("forms.descriptions.bankStatement")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </CardContent>
-
-        <Separator className="my-12" />
-
         {/* Bank Information */}
         <CardContent className="space-y-8 px-0">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

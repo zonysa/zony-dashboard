@@ -83,7 +83,10 @@
     "email": "Email",
     "deliveryRate": "Delivery Rate",
     "receivingDate": "Receiving Date",
-    "courier": "Courier"
+    "courier": "Courier",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "activeFilter": "Active filters:"
   },
   "parcels": {
     "title": "Parcels",
@@ -195,7 +198,9 @@
     "firstName": "First Name",
     "lastName": "Last Name",
     "email": "Email",
-    "phone": "Phone"
+    "phone": "Phone",
+    "assignSelected": "Assign Selected",
+    "assigning": "يتم التعيين"
   },
   "reportsAnalytics": {
     "title": "Reports Analytics"
@@ -227,9 +232,13 @@
       "delete": "Delete",
       "reset": "Reset",
       "creating": "Creating...",
+      "create": "Create",
       "confirming": "Confirming...",
       "resetting": "Resetting...",
-      "signingIn": "Signing in..."
+      "signingIn": "Signing in...",
+      "newZone": "New Zone",
+      "newCity": "New City",
+      "newDistrict": "New District"
     },
     "doubleCheck": {
       "label": "I confirm that all bank account details are correct",
@@ -286,7 +295,8 @@
       "responsible": "Responsible",
       "action": "Action",
       "comment": "Comment",
-      "identity": "Identity (Optional)"
+      "identity": "Identity (Optional)",
+      "optional": "(Optional)"
     },
     "placeholders": {
       "enterFirstName": "Enter first name",
@@ -353,6 +363,7 @@
       "bankStatement": "Bank Statement - Upload a recent bank statement (PDF or image, max 5MB)"
     },
     "sections": {
+      "customerServiceTitle": "Customer Service Information",
       "accountDetails": "Account Details",
       "personalInformation": "Personal Information",
       "parcelDetails": "Parcel Details",
@@ -393,7 +404,9 @@
     "createCity": {
       "title": "Create New City",
       "description": "Make changes to your profile here.",
-      "success": "Created New City"
+      "success": "Created New City",
+      "cityLabel": "City Name",
+      "cityPlaceholder": "City Name"
     },
     "createDistrict": {
       "title": "Create New District",
@@ -414,6 +427,25 @@
       "longitudePlaceholder": "e.g., 44.366100",
       "selected": "Selected",
       "confirmLocation": "Confirm Location"
+    },
+    "ticket": {
+      "title": "Ticket Information",
+      "description": "Review ticket details and take action. Click save when done.",
+      "trackingNumber": "Tracking Number",
+      "id": "ID",
+      "status": "Status",
+      "actionTaken": "Action Taken",
+      "createdDate": "Created Date",
+      "zoneName": "Zone Name",
+      "actions": {
+        "title": "Take Action",
+        "actionLabel": "Action",
+        "actionPlaceholder": "Select Action",
+        "commentLabel": "Comment",
+        "commentPlaceholder": "Add comment for the ticket here...",
+        "saveChanges": "Save Changes",
+        "cancel": "Cancel"
+      }
     },
     "createBranch": {
       "success": "Branch {name} created successfully",
@@ -529,10 +561,13 @@
       "documents": "Documents",
       "documentsDescription": "Required documents and certifications",
       "partnerInfo": "Partner Info",
+      "partnerInfoDescription": "Primary contact person for this branch",
+      "represenativePersonDescription": "Primary contact person for this branch",
       "representativePerson": "Representative Person",
       "paymentInformation": "Payment Information",
       "paymentInformationDescription": "Banking and payout details for this branch",
       "financialOverview": "Financial Overview",
+      "financialOverviewDescription": "Financial Overview",
       "trackingInformation": "Tracking Information",
       "trackingInformationDescription": "Complete tracking details and shipment information for your package",
       "deliveryTimeline": "Delivery Timeline",
@@ -583,6 +618,102 @@
       "operatingHoursPlaceholder": "Operating hours information will be displayed here",
       "needMoreTime": "Do you need more time to receive your package?",
       "extendReceiptTime": "To extend the receipt time, click below:"
+    }
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "description": "Sorry, we couldn't find the page you're looking for. It might have been moved, deleted, or you entered the wrong URL.",
+    "helpText": "Check the URL for typos or try searching for what you need",
+    "contactSupport": "If you believe this is an error,",
+    "actions": {
+      "home": "Go Home",
+      "back": "Go Back",
+      "support": "contact support"
+    }
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "parcels": "Parcels",
+    "partners": "Partners",
+    "pudos": "Branches",
+    "zones": "Zones",
+    "clients": "Clients",
+    "tickets": "Tickets",
+    "courier": "Couriers",
+    "supervisors": "Supervisors",
+    "customer-service": "Customer Service",
+    "settings": "Settings",
+    "profile": "Profile",
+    "create": "Create New",
+    "edit": "Edit",
+    "overview": "Overview",
+    "reports-analytics": "Reports Analytics"
+  },
+  "profile": {
+    "title": "Profile",
+    "sections": {
+      "personalInfo": {
+        "title": "Personal Information",
+        "description": "Your basic personal details"
+      },
+      "contactInfo": {
+        "title": "Contact Information",
+        "description": "Email and phone contact details"
+      },
+      "locationInfo": {
+        "title": "Location Information",
+        "description": "Your address and location details"
+      },
+      "accountInfo": {
+        "title": "Account Information",
+        "description": "Account details and identifiers"
+      }
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "username": "Username",
+      "birthDate": "Birth Date",
+      "gender": "Gender",
+      "identity": "Identity/ID",
+      "accountStatus": "Account Status",
+      "lastLogin": "Last Login",
+      "emailAddress": "Email Address",
+      "phoneNumber": "Phone Number",
+      "city": "City",
+      "country": "Country",
+      "userId": "User ID",
+      "avatar": "Avatar"
+    },
+    "gender": {
+      "male": "Male",
+      "female": "Female",
+      "other": "Other"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "values": {
+      "notSet": "Not set",
+      "noAvatar": "No avatar set"
+    },
+    "placeholders": {
+      "birthDate": "YYYY-MM-DD"
+    },
+    "buttons": {
+      "edit": "Edit",
+      "saveChanges": "Save Changes",
+      "saving": "Saving...",
+      "cancel": "Cancel"
+    },
+    "messages": {
+      "updateSuccess": "Profile updated successfully",
+      "updateError": "Error updating profile: {error}",
+      "updateFailed": "Failed to update profile",
+      "loadingError": "Error loading profile",
+      "noData": "No profile data available"
     }
   }
 }

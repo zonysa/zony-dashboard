@@ -11,26 +11,26 @@ export const columns = () => {
 
   const columns: ColumnDef<UserDetails>[] = [
     {
-      accessorKey: "name",
-      header: t("table.name") || "Name",
+      accessorKey: "first_name",
+      header: t("table.firstName") || "Name",
       cell: ({ row }) => {
-        const name = row.getValue("name") as string;
+        const name = row.getValue("first_name") as string;
         return <div className="font-medium">{name}</div>;
       },
       filterFn: "includesString",
     },
     {
-      accessorKey: "id",
-      header: t("table.id") || "ID",
+      accessorKey: "email",
+      header: t("table.email"),
       cell: ({ row }) => {
-        const id = row.getValue("id") as string;
-        return <div className="font-mono text-sm">{id}</div>;
+        const email = row.getValue("email") as string;
+        return <div className="font-mono text-sm">{email}</div>;
       },
       filterFn: "includesString",
     },
     {
       accessorKey: "city",
-      header: t("table.city") || "City",
+      header: t("table.city"),
       cell: ({ row }) => {
         const city = row.getValue("city") as string;
         return <div className="font-medium capitalize">{city}</div>;
@@ -47,40 +47,13 @@ export const columns = () => {
       filterFn: "includesString",
     },
     {
-      accessorKey: "districts",
-      header: t("table.district") || "Districts",
+      accessorKey: "phone_number",
+      header: t("table.phoneNumber"),
       cell: ({ row }) => {
-        const districts = row.getValue("districts") as string;
-        return (
-          <Badge variant="secondary" className="text-xs">
-            {districts}
-          </Badge>
-        );
+        const phoneNumber = row.getValue("phone_number") as string;
+        return <div className="text-sm">{phoneNumber}</div>;
       },
       filterFn: "includesString",
-    },
-    {
-      accessorKey: "status",
-      header: t("table.status") || "Status",
-      cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const getStatusVariant = (status: string) => {
-          switch (status) {
-            case "Active":
-              return "success";
-            case "Inactive":
-              return "muted";
-            case "Pending":
-              return "outline";
-            case "Suspended":
-              return "secondary";
-            default:
-              return "secondary";
-          }
-        };
-        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
-      },
-      filterFn: "equalsString",
     },
   ];
 

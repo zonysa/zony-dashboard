@@ -296,7 +296,9 @@ export function useAssignDistrictsToZone(zoneId: string) {
     mutationFn: (districtIds) => assignDistrictsToZone(zoneId, districtIds),
     onSuccess: () => {
       toast.success("Districts assigned successfully");
-      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneDistricts(zoneId) });
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneDistricts(zoneId),
+      });
       queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
     },
     onError: (error) => {
@@ -311,10 +313,13 @@ export function useAssignSupervisorsToZone(zoneId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<unknown, Error, string[]>({
-    mutationFn: (supervisorIds) => assignSupervisorsToZone(zoneId, supervisorIds),
+    mutationFn: (supervisorIds) =>
+      assignSupervisorsToZone(zoneId, supervisorIds),
     onSuccess: () => {
       toast.success("Supervisors assigned successfully");
-      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneSupervisors(zoneId) });
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneSupervisors(zoneId),
+      });
       queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
     },
     onError: (error) => {
@@ -332,7 +337,9 @@ export function useAssignCouriersToZone(zoneId: string) {
     mutationFn: (courierIds) => assignCouriersToZone(zoneId, courierIds),
     onSuccess: () => {
       toast.success("Couriers assigned successfully");
-      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneCouriers(zoneId) });
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneCouriers(zoneId),
+      });
       queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
     },
     onError: (error) => {
@@ -367,11 +374,13 @@ export function useAssignCustomerServicesToZone(zoneId: string) {
 export function useUnassignDistrictFromZone(zoneId: string) {
   const queryClient = useQueryClient();
 
-  return useMutation<unknown, Error, number>({
+  return useMutation<unknown, Error, string>({
     mutationFn: (districtId) => unassignDistrictFromZone(zoneId, districtId),
     onSuccess: () => {
       toast.success("District removed successfully");
-      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneDistricts(zoneId) });
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneDistricts(zoneId),
+      });
       queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
     },
     onError: (error) => {
@@ -386,10 +395,13 @@ export function useUnassignSupervisorFromZone(zoneId: string) {
   const queryClient = useQueryClient();
 
   return useMutation<unknown, Error, string>({
-    mutationFn: (supervisorId) => unassignSupervisorFromZone(zoneId, supervisorId),
+    mutationFn: (supervisorId) =>
+      unassignSupervisorFromZone(zoneId, supervisorId),
     onSuccess: () => {
       toast.success("Supervisor removed successfully");
-      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneSupervisors(zoneId) });
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneSupervisors(zoneId),
+      });
       queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
     },
     onError: (error) => {
@@ -407,7 +419,9 @@ export function useUnassignCourierFromZone(zoneId: string) {
     mutationFn: (courierId) => unassignCourierFromZone(zoneId, courierId),
     onSuccess: () => {
       toast.success("Courier removed successfully");
-      queryClient.invalidateQueries({ queryKey: zoneKeys.zoneCouriers(zoneId) });
+      queryClient.invalidateQueries({
+        queryKey: zoneKeys.zoneCouriers(zoneId),
+      });
       queryClient.invalidateQueries({ queryKey: zoneKeys.detail(zoneId) });
     },
     onError: (error) => {

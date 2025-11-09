@@ -10,6 +10,15 @@ export const columns = () => {
 
   const columns: ColumnDef<UserDetails>[] = [
     {
+      accessorKey: "id",
+      header: t("table.id") || "ID",
+      cell: ({ row }) => {
+        const id = row.getValue("id") as string;
+        return <div className="font-mono text-sm">{id}</div>;
+      },
+      filterFn: "includesString",
+    },
+    {
       accessorKey: "first_name",
       header: t("table.name") || "Name",
       cell: ({ row }) => {
@@ -19,11 +28,11 @@ export const columns = () => {
       filterFn: "includesString",
     },
     {
-      accessorKey: "id",
-      header: t("table.id") || "ID",
+      accessorKey: "email",
+      header: t("table.email") || "Email",
       cell: ({ row }) => {
-        const id = row.getValue("id") as string;
-        return <div className="font-mono text-sm">{id}</div>;
+        const email = row.getValue("email") as string;
+        return <div className="font-medium">{email}</div>;
       },
       filterFn: "includesString",
     },

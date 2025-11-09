@@ -34,6 +34,7 @@ import { DistrictDetails } from "@/lib/schema/district.schema";
 import { Spinner } from "@/components/ui/spinner";
 import MultipleSelector from "@/components/ui/multiple-selector";
 import { CityDetails } from "@/lib/schema/city.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 type CreateZoneProps = {
   open: boolean;
@@ -46,6 +47,8 @@ type DistrictToOPtion = {
 };
 
 export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
+  const { t } = useTranslation();
+
   const form = useForm<ZoneFormData>({
     defaultValues: {
       name: "",
@@ -107,11 +110,11 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[625px]">
+      <DialogContent className="sm:max-w-[625px] w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create New Zone</DialogTitle>
+          <DialogTitle>{t("dialogs.createZone.title")}</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when done.
+            {t("dialogs.createZone.description")}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -123,14 +126,14 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
               render={({ field }) => (
                 <FormItem className="grid gap-3">
                   <FormLabel htmlFor="name" className="font-normal">
-                    City Name
+                    {t("forms.fields.zoneName")}
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       id="name"
                       type="text"
-                      placeholder="Enter City Name"
+                      placeholder={t("forms.placeholders.enterZoneName")}
                       disabled={zoneMutation.isPending}
                       required
                     />
@@ -143,7 +146,7 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
               name="city_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>City</FormLabel>
+                  <FormLabel>{t("forms.fields.city")}</FormLabel>
                   <Select
                     onValueChange={(value) => {
                       field.onChange(Number(value));
@@ -153,7 +156,9 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Seletct City" />
+                        <SelectValue
+                          placeholder={t("forms.placeholders.selectCity")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent defaultValue="Cairo">
@@ -173,7 +178,7 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
               name="districts"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Districts</FormLabel>
+                  <FormLabel>{t("forms.fields.districts")}</FormLabel>
                   <FormControl>
                     <MultipleSelector
                       value={field.value}
@@ -181,16 +186,16 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
                       defaultOptions={districtOptions}
                       placeholder={
                         !cityId
-                          ? "Please select a city first..."
-                          : "Select districts..."
+                          ? t("forms.placeholders.selectCityFirst")
+                          : t("forms.placeholders.selectDistricts")
                       }
                       disabled={!cityId || zoneMutation.isPending}
                       hidePlaceholderWhenSelected
                       emptyIndicator={
                         <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
                           {!cityId
-                            ? "Select a city to see available districts"
-                            : "No districts found for this city"}
+                            ? t("forms.placeholders.noCitySelected")
+                            : t("forms.placeholders.noDistrictsFound")}
                         </p>
                       }
                     />
@@ -206,7 +211,7 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
                 type="submit"
               >
                 {zoneMutation.isPending && <Spinner />}
-                Save
+                {t("forms.actions.save")}
               </Button>
             </DialogFooter>
           </form>

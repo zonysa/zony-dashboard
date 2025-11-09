@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/data-table";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface ZoneAssignmentDialogProps<TData> {
   open: boolean;
@@ -25,6 +26,7 @@ interface ZoneAssignmentDialogProps<TData> {
   getItemId: (item: TData) => string | number;
   isLoading?: boolean;
   searchPlaceholder?: string;
+  className?: string;
 }
 
 export function ZoneAssignmentDialog<TData>({
@@ -36,6 +38,7 @@ export function ZoneAssignmentDialog<TData>({
   columns,
   onAssign,
   getItemId,
+  className,
   isLoading = false,
   searchPlaceholder = "Search...",
 }: ZoneAssignmentDialogProps<TData>) {
@@ -43,6 +46,8 @@ export function ZoneAssignmentDialog<TData>({
     new Set()
   );
   const [isAssigning, setIsAssigning] = useState(false);
+
+  const { t } = useTranslation();
 
   const handleSelectItem = useMemo(
     () => (itemId: string | number, checked: boolean) => {
@@ -125,7 +130,11 @@ export function ZoneAssignmentDialog<TData>({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[800px] max-h-[80vh] overflow-hidden flex flex-col">
+      <DialogContent
+        className={`max-h-[80vh] overflow-hidden flex flex-col ${
+          className ?? "max-w-3xl"
+        }`}
+      >
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -158,13 +167,13 @@ export function ZoneAssignmentDialog<TData>({
                 onClick={handleCancel}
                 disabled={isAssigning}
               >
-                Cancel
+                {t("forms.actions.cancel")}
               </Button>
               <Button
                 onClick={handleAssign}
                 disabled={selectedItems.size === 0 || isAssigning}
               >
-                {isAssigning ? "Assigning..." : "Assign Selected"}
+                {isAssigning ? t("zones.assigning") : t("zones.assignSelected")}
               </Button>
             </div>
           </div>

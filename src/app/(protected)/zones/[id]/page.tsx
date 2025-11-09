@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DataTable } from "@/components/tables/data-table";
 import {
   Card,
@@ -12,7 +12,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { branchColumns } from "@/components/tables/columns/branches-columns";
-import { ArrowUpRight, Map, MapPin, User, UserPlus } from "lucide-react";
+import { Map, MapPinHouseIcon, UserPlus } from "lucide-react";
 import { useParams } from "next/navigation";
 import {
   useGetZone,
@@ -30,7 +30,6 @@ import {
   useUnassignCustomerServiceFromZone,
 } from "@/lib/hooks/useZone";
 import { useGetBranches } from "@/lib/hooks/useBranch";
-import Link from "next/link";
 import DataItem from "@/components/ui/DataItem";
 import { ZoneAssignmentDialog } from "@/components/zone/ZoneAssignmentDialog";
 import { ZoneUnassignDialog } from "@/components/zone/ZoneUnassignDialog";
@@ -44,6 +43,8 @@ import { createZoneCouriersColumns } from "@/components/tables/columns/zone-cour
 import { createZoneCustomerServiceColumns } from "@/components/tables/columns/zone-customer-service-columns";
 import { createZoneDistrictsColumns } from "@/components/tables/columns/zone-districts-columns";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { AutoFitMap } from "@/components/ui/StaticMap";
+import { BranchDetails as Branch } from "@/lib/schema/branch.schema";
 
 function BranchDetails() {
   const param = useParams();
@@ -73,6 +74,9 @@ function BranchDetails() {
   const { data: couriers } = useGetZoneCouriers(zoneId);
   const { data: branches } = useGetBranches({ zone: zoneId });
   const { data: customerServices } = useGetZoneCustomerServices(zoneId);
+  const [pudoLocations, setPudoLocations] = useState<
+    Array<{ lng: number; lat: number; popup: string }>
+  >([]);
 
   // Available data for assignment (fetch all users by role)
   const { data: allSupervisors } = useGetUsers({ role_id: 4 });
@@ -94,6 +98,24 @@ function BranchDetails() {
   const unassignCustomerServiceMutation =
     useUnassignCustomerServiceFromZone(zoneId);
 
+  // Set Pudo Locations - filter out branches without valid coordinates
+  useEffect(() => {
+    if (branches?.pudos) {
+      const locations = branches.pudos
+        .filter(
+          (branch: Branch) =>
+            branch?.coordinates?.latitude != null &&
+            branch?.coordinates?.longitude != null
+        )
+        .map((branch: Branch) => ({
+          lat: branch.coordinates!.latitude,
+          lng: branch.coordinates!.longitude,
+          popup: branch?.name || "Branch",
+        }));
+      setPudoLocations(locations);
+    }
+  }, [branches]);
+
   const filterConfigs = [
     { key: "city", label: t("table.city"), placeholder: t("table.allCities") },
     {
@@ -107,14 +129,6 @@ function BranchDetails() {
       placeholder: t("table.allStatus"),
     },
   ];
-
-  const data = {
-    mapUrl: "https://placehold.co/600x400",
-    coordinates: {
-      lat: 38.2527,
-      lng: -85.7585,
-    },
-  };
 
   // Simplified columns for assignment dialogs
   const userAssignmentColumns: ColumnDef<UserDetails>[] = [
@@ -187,7 +201,7 @@ function BranchDetails() {
       switch (deleteDialogConfig.type) {
         case "district":
           await unassignDistrictMutation.mutateAsync(
-            deleteDialogConfig.id as number
+            deleteDialogConfig.id as string
           );
           break;
         case "supervisor":
@@ -237,10 +251,16 @@ function BranchDetails() {
       <Tabs defaultValue="zone-details" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
-            <TabsTrigger value="zone-details">{t("zones.zoneInfo")}</TabsTrigger>
+            <TabsTrigger value="zone-details">
+              {t("zones.zoneInfo")}
+            </TabsTrigger>
             <TabsTrigger value="districts">{t("zones.districts")}</TabsTrigger>
-            <TabsTrigger value="supervisors">{t("zones.supervisors")}</TabsTrigger>
-            <TabsTrigger value="branchs">{t("zones.assignedBranches")}</TabsTrigger>
+            <TabsTrigger value="supervisors">
+              {t("zones.supervisors")}
+            </TabsTrigger>
+            <TabsTrigger value="branchs">
+              {t("zones.assignedBranches")}
+            </TabsTrigger>
             <TabsTrigger value="couriers">{t("zones.couriers")}</TabsTrigger>
             <TabsTrigger value="customerServices">
               {t("zones.customerServices")}
@@ -261,11 +281,20 @@ function BranchDetails() {
             />
             <CardContent className="w-2/4 flex-1 space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <DataItem label={t("zones.zoneId")} value={String(zone?.zone?.id)} />
-                <DataItem label={t("zones.zoneName")} value={String(zone?.zone?.name)} />
+                <DataItem
+                  label={t("zones.zoneId")}
+                  value={String(zone?.zone?.id)}
+                />
+                <DataItem
+                  label={t("zones.zoneName")}
+                  value={String(zone?.zone?.name)}
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <DataItem label={t("table.city")} value={String(zone?.zone?.city_name)} />
+                <DataItem
+                  label={t("table.city")}
+                  value={String(zone?.zone?.city_name)}
+                />
                 <DataItem
                   label={t("table.district")}
                   value={String(zone?.zone?.district_names)}
@@ -274,48 +303,16 @@ function BranchDetails() {
             </CardContent>
           </Card>
 
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
-            <DataItem
-              isHeading={true}
-              label={t("zones.zoneSupervisor")}
-              value={t("zones.zoneDetailsDescription")}
-              icon={User}
-              iconClassName="text-black"
-            />
-            <CardContent className="w-2/4 flex-1 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <DataItem
-                  label={t("table.name")}
-                  value={
-                    supervisors
-                      ? String(supervisors?.supervisors[0]?.first_name)
-                      : "NA"
-                  }
-                />
-                <DataItem
-                  label={t("table.phoneNumber")}
-                  value={
-                    supervisors
-                      ? String(supervisors?.supervisors[0]?.phone_number)
-                      : "NA"
-                  }
-                />
-              </div>
-            </CardContent>
-            <div className="flex gap-2">
-              <Link href={`users/${supervisors?.supervisors[0]?.id}`}>
-                <ArrowUpRight />
-              </Link>
-            </div>
-          </Card>
-
           {/* Location Card */}
           <Card className="flex flex-row border-0 border-b rounded-0 shadow-transparent">
-            <CardHeader className="w-1/4 flex flex-col items-start justify-start">
-              <CardTitle>{t("zones.location")}</CardTitle>
-              <CardDescription>
-                {t("zones.zoneDetailsDescription")}
-              </CardDescription>
+            <CardHeader className="w-1/4 flex items-start justify-start">
+              <MapPinHouseIcon className="w-4 h-4" />
+              <div className="flex flex-col">
+                <CardTitle>{t("zones.location")}</CardTitle>
+                <CardDescription>
+                  {t("zones.zoneDetailsDescription")}
+                </CardDescription>
+              </div>
             </CardHeader>
             <CardContent className="flex-1">
               <div className="px-4 py-4">
@@ -328,18 +325,13 @@ function BranchDetails() {
                   </div>
 
                   {/* Map */}
-                  <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-                    {data.mapUrl ? (
-                      <img
-                        src="/"
-                        alt={t("zones.branchLocation")}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400">
-                        <MapPin className="w-12 h-12" />
-                      </div>
-                    )}
+                  <div className="w-full bg-gray-100 rounded-lg overflow-hidden">
+                    <AutoFitMap
+                      coordinates={pudoLocations}
+                      height="600px"
+                      className="my-4"
+                      showPopups={true}
+                    />
                   </div>
                 </div>
               </div>
@@ -372,7 +364,9 @@ function BranchDetails() {
 
         <TabsContent className="w-full px-8 space-y-4" value="supervisors">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">{t("zones.assignedSupervisors")}</h3>
+            <h3 className="text-lg font-semibold">
+              {t("zones.assignedSupervisors")}
+            </h3>
             <Button
               onClick={() => setSupervisorDialogOpen(true)}
               className="flex items-center gap-2"
@@ -404,7 +398,9 @@ function BranchDetails() {
 
         <TabsContent className="w-full px-8 space-y-4" value="couriers">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">{t("zones.assignedCouriers")}</h3>
+            <h3 className="text-lg font-semibold">
+              {t("zones.assignedCouriers")}
+            </h3>
             <Button
               onClick={() => setCourierDialogOpen(true)}
               className="flex items-center gap-2"
@@ -458,6 +454,7 @@ function BranchDetails() {
         onAssign={handleAssignDistricts}
         getItemId={(item) => item.id ?? 0}
         searchPlaceholder={t("zones.searchDistricts")}
+        className="max-w-5xl"
       />
 
       <ZoneAssignmentDialog
@@ -470,6 +467,7 @@ function BranchDetails() {
         onAssign={handleAssignSupervisors}
         getItemId={(item) => item.id}
         searchPlaceholder={t("zones.searchSupervisors")}
+        className="max-w-6xl"
       />
 
       <ZoneAssignmentDialog
@@ -482,6 +480,7 @@ function BranchDetails() {
         onAssign={handleAssignCouriers}
         getItemId={(item) => item.id}
         searchPlaceholder={t("zones.searchCouriers")}
+        className="max-w-5xl"
       />
 
       <ZoneAssignmentDialog

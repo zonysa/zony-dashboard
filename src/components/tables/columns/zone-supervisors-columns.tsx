@@ -19,7 +19,7 @@ export const createZoneSupervisorsColumns = ({
   const columns: ColumnDef<UserDetails>[] = [
     {
       accessorKey: "first_name",
-      header: "First Name",
+      header: t("table.firstName"),
       cell: ({ row }) => {
         const firstName = row.getValue("first_name") as string;
         return <div className="font-medium">{firstName}</div>;
@@ -28,7 +28,7 @@ export const createZoneSupervisorsColumns = ({
     },
     {
       accessorKey: "last_name",
-      header: "Last Name",
+      header: t("table.lastName"),
       cell: ({ row }) => {
         const lastName = row.getValue("last_name") as string;
         return <div className="font-medium">{lastName}</div>;
@@ -37,7 +37,7 @@ export const createZoneSupervisorsColumns = ({
     },
     {
       accessorKey: "email",
-      header: "Email",
+      header: t("table.email"),
       cell: ({ row }) => {
         const email = row.getValue("email") as string;
         return <div className="text-sm">{email}</div>;

@@ -84,7 +84,10 @@
     "email": "البريد الإلكتروني",
     "deliveryRate": "معدل التسليم",
     "receivingDate": "تاريخ الوصول",
-    "courier": "الموصل"
+    "courier": "الموصل",
+    "firstName": "الاسم الأول",
+    "lastName": "اسم العائلة",
+    "activeFilter": "التصفية الفعالة"
   },
   "parcels": {
     "title": "الطرود",
@@ -196,7 +199,9 @@
     "firstName": "الاسم الأول",
     "lastName": "اسم العائلة",
     "email": "البريد الإلكتروني",
-    "phone": "الهاتف"
+    "phone": "الهاتف",
+    "assignSelected": "تعيين المحدد",
+    "assigning": "Assigning"
   },
   "reportsAnalytics": {
     "title": "التقارير والتحليلات"
@@ -228,9 +233,13 @@
       "delete": "حذف",
       "reset": "إعادة تعيين",
       "creating": "جاري الإنشاء...",
+      "create": "إنشاء",
       "confirming": "جاري التأكيد...",
       "resetting": "جاري إعادة التعيين...",
-      "signingIn": "جاري تسجيل الدخول..."
+      "signingIn": "جاري تسجيل الدخول...",
+      "newZone": "المنطقة الجديدة",
+      "newCity": "المدينة الجديدة",
+      "newDistrict": "الحي الجديد"
     },
     "doubleCheck": {
       "label": "أؤكد أن جميع بيانات الحساب البنكي صحيحة",
@@ -288,7 +297,8 @@
       "responsible": "المسؤول",
       "action": "الإجراء",
       "comment": "التعليق",
-      "identity": "الهوية (اختياري)"
+      "identity": "الهوية (اختياري)",
+      "optional": "(اختياري)"
     },
     "placeholders": {
       "enterFirstName": "أدخل الاسم الأول",
@@ -355,6 +365,7 @@
       "bankStatement": "كشف حساب بنكي - يُرجى رفع كشف حساب بنكي حديث (PDF أو صورة، الحد الأقصى 5 ميجابايت)"
     },
     "sections": {
+      "customerServiceTitle": "معلومات خدمة العملاء",
       "accountDetails": "تفاصيل الحساب",
       "personalInformation": "المعلومات الشخصية",
       "parcelDetails": "تفاصيل الطرد",
@@ -420,6 +431,25 @@
     "createBranch": {
       "success": "تم إنشاء الفرع {name} بنجاح",
       "error": "خطأ في إرسال التسجيل. يرجى المحاولة مرة أخرى."
+    },
+    "ticket": {
+      "title": "معلومات التذكرة",
+      "description": "راجع تفاصيل التذكرة واتخذ الإجراء المناسب. انقر فوق حفظ عند الانتهاء.",
+      "trackingNumber": "رقم التتبع",
+      "id": "الرقم المعرفي",
+      "status": "الحالة",
+      "actionTaken": "الإجراء المتخذ",
+      "createdDate": "تاريخ الإنشاء",
+      "zoneName": "اسم المنطقة",
+      "actions": {
+        "title": "اتخاذ إجراء",
+        "actionLabel": "الإجراء",
+        "actionPlaceholder": "اختر إجراء",
+        "commentLabel": "تعليق",
+        "commentPlaceholder": "أضف تعليقًا على التذكرة هنا...",
+        "saveChanges": "حفظ التغييرات",
+        "cancel": "إلغاء"
+      }
     }
   },
   "auth": {
@@ -585,6 +615,102 @@
       "operatingHoursPlaceholder": "سيتم عرض معلومات ساعات العمل هنا",
       "needMoreTime": "هل تحتاج إلى مزيد من الوقت لاستلام الطرد الخاص بك؟",
       "extendReceiptTime": "لتمديد وقت الاستلام، انقر أدناه:"
+    }
+  },
+  "notFound": {
+    "title": "الصفحة غير موجودة",
+    "description": "عذرًا، لم نتمكن من العثور على الصفحة التي تبحث عنها. قد تكون تم نقلها أو حذفها، أو ربما أدخلت عنوان URL غير صحيح.",
+    "helpText": "تحقق من وجود أخطاء في العنوان أو حاول البحث عما تحتاجه",
+    "contactSupport": "إذا كنت تعتقد أن هذا خطأ،",
+    "actions": {
+      "home": "العودة للرئيسية",
+      "back": "العودة للخلف",
+      "support": "اتصل بالدعم"
+    }
+  },
+  "breadcrumb": {
+    "home": "الرئيسية",
+    "dashboard": "لوحة التحكم",
+    "parcels": "الطرود",
+    "partners": "الشركاء",
+    "pudos": "الفروع",
+    "zones": "المناطق",
+    "clients": "العملاء",
+    "tickets": "التذاكر",
+    "courier": "الموصلون",
+    "supervisors": "المشرفون",
+    "customer-service": "خدمة العملاء",
+    "settings": "الإعدادات",
+    "profile": "الملف الشخصي",
+    "create": "إنشاء جديد",
+    "edit": "تعديل",
+    "overview": "نظرة عامة",
+    "reports-analytics": "التقارير والتحليلات"
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "sections": {
+      "personalInfo": {
+        "title": "المعلومات الشخصية",
+        "description": "معلوماتك الشخصية الأساسية"
+      },
+      "contactInfo": {
+        "title": "معلومات الاتصال",
+        "description": "تفاصيل البريد الإلكتروني والهاتف"
+      },
+      "locationInfo": {
+        "title": "معلومات الموقع",
+        "description": "عنوانك وتفاصيل الموقع"
+      },
+      "accountInfo": {
+        "title": "معلومات الحساب",
+        "description": "تفاصيل الحساب والمعرّفات"
+      }
+    },
+    "fields": {
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "username": "اسم المستخدم",
+      "birthDate": "تاريخ الميلاد",
+      "gender": "الجنس",
+      "identity": "الهوية/رقم الهوية",
+      "accountStatus": "حالة الحساب",
+      "lastLogin": "آخر تسجيل دخول",
+      "emailAddress": "عنوان البريد الإلكتروني",
+      "phoneNumber": "رقم الهاتف",
+      "city": "المدينة",
+      "country": "الدولة",
+      "userId": "رقم المستخدم",
+      "avatar": "الصورة الشخصية"
+    },
+    "gender": {
+      "male": "ذكر",
+      "female": "أنثى",
+      "other": "آخر"
+    },
+    "status": {
+      "active": "نشط",
+      "inactive": "غير نشط"
+    },
+    "values": {
+      "notSet": "غير محدد",
+      "noAvatar": "لا توجد صورة شخصية"
+    },
+    "placeholders": {
+      "birthDate": "YYYY-MM-DD"
+    },
+    "buttons": {
+      "edit": "تعديل",
+      "saveChanges": "حفظ التغييرات",
+      "saving": "جاري الحفظ...",
+      "cancel": "إلغاء"
+    },
+    "messages": {
+      "updateSuccess": "تم تحديث الملف الشخصي بنجاح",
+      "updateError": "خطأ في تحديث الملف الشخصي: {error}",
+      "updateFailed": "فشل تحديث الملف الشخصي",
+      "loadingError": "خطأ في تحميل الملف الشخصي",
+      "noData": "لا توجد بيانات للملف الشخصي"
     }
   }
 }

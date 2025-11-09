@@ -172,7 +172,7 @@ export function DataTable<TData, TValue>({
                 filterConfigs.map((config) => (
                   <div
                     key={config.key}
-                    className="flex flex-col gap-2  space-x-2"
+                    className="flex flex-col gap-2 justify-between space-x-2"
                   >
                     <span className="text-sm font-medium whitespace-nowrap">
                       {config.label}
@@ -201,7 +201,7 @@ export function DataTable<TData, TValue>({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-end space-x-2 ml-auto">
+            <div className="flex w-1/6 items-center justify-end space-x-2 ml-auto">
               {hasActiveFilters && (
                 <Button variant="outline" onClick={clearFilters}>
                   <X />
@@ -222,7 +222,9 @@ export function DataTable<TData, TValue>({
           {/* Active Filters Display */}
           {hasActiveFilters && (
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className="text-sm text-gray-600">Active filters:</span>
+              <span className="text-sm text-gray-600">
+                {t("table.activeFilter")}
+              </span>
               {localSearch && (
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs">
                   Search: {localSearch}

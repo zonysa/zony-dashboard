@@ -5,6 +5,7 @@ import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 function AlertDialog({
   ...props
@@ -136,9 +137,15 @@ function AlertDialogCancel({
   className,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
+  const { isRTL } = useTranslation();
+
   return (
     <AlertDialogPrimitive.Cancel
-      className={cn(buttonVariants({ variant: "outline" }), className)}
+      className={cn(
+        isRTL ? "left-0" : "right-0",
+        buttonVariants({ variant: "outline" }),
+        className
+      )}
       {...props}
     />
   );
