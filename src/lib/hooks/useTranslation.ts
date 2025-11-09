@@ -7,7 +7,7 @@ import { useTranslation as useI18nTranslation } from "react-i18next";
  * @param namespace - The translation namespace to use (default: 'common')
  * @returns Translation function and i18n instance
  */
-export function useTranslation(namespace: string = "common") {
+export function useTranslation(namespace: "common" = "common") {
   const { t, i18n } = useI18nTranslation(namespace);
 
   return {

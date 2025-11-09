@@ -84,7 +84,12 @@ const CreateUserSheet = ({
         },
         {
           onSuccess: () => {
-            toast.success(t("dialogs.createUser.success").replace("{username}", data.username));
+            toast.success(
+              t("dialogs.createUser.success").replace(
+                "{username}",
+                data.username
+              )
+            );
             form.reset();
             // Invalidate users query to refetch the list
             queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -94,7 +99,9 @@ const CreateUserSheet = ({
             }
           },
           onError: (err) => {
-            toast.error(t("dialogs.createUser.error").replace("{error}", err.message));
+            toast.error(
+              t("dialogs.createUser.error").replace("{error}", err.message)
+            );
           },
         }
       );
@@ -103,15 +110,6 @@ const CreateUserSheet = ({
       toast.error(t("dialogs.createUser.unexpectedError"));
     }
   }
-
-  const userMap = [
-    "representative",
-    "responsible",
-    "supervisor",
-    "customer_service",
-    "courier",
-    "customer",
-  ];
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -139,7 +137,10 @@ const CreateUserSheet = ({
                   <FormItem>
                     <FormLabel>{t("forms.fields.firstName")}</FormLabel>
                     <FormControl>
-                      <Input placeholder={t("forms.placeholders.enterFirstName")} {...field} />
+                      <Input
+                        placeholder={t("forms.placeholders.enterFirstName")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -153,7 +154,10 @@ const CreateUserSheet = ({
                   <FormItem>
                     <FormLabel>{t("forms.fields.lastName")}</FormLabel>
                     <FormControl>
-                      <Input placeholder={t("forms.placeholders.enterLastName")} {...field} />
+                      <Input
+                        placeholder={t("forms.placeholders.enterLastName")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -167,7 +171,10 @@ const CreateUserSheet = ({
                   <FormItem>
                     <FormLabel>{t("forms.fields.username")}</FormLabel>
                     <FormControl>
-                      <Input placeholder={t("forms.placeholders.enterUsername")} {...field} />
+                      <Input
+                        placeholder={t("forms.placeholders.enterUsername")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -248,32 +255,30 @@ const CreateUserSheet = ({
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={t("forms.placeholders.selectRole")} />
+                          <SelectValue
+                            placeholder={t("forms.placeholders.selectRole")}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {userRole ? (
-                          userMap.map((role, index) => {
-                            const roleId = index + 2;
-                            return (
-                              <SelectItem
-                                key={roleId}
-                                value={roleId.toString()}
-                              >
-                                {t(`forms.roles.${role.replace(/_/g, "")}`)}
-                              </SelectItem>
-                            );
-                          })
-                        ) : (
-                          <>
-                            <SelectItem value="2">{t("forms.roles.representative")}</SelectItem>
-                            <SelectItem value="3">{t("forms.roles.responsible")}</SelectItem>
-                            <SelectItem value="4">{t("forms.roles.supervisor")}</SelectItem>
-                            <SelectItem value="5">{t("forms.roles.customerService")}</SelectItem>
-                            <SelectItem value="6">{t("forms.roles.courier")}</SelectItem>
-                            <SelectItem value="7">{t("forms.roles.customer")}</SelectItem>
-                          </>
-                        )}
+                        <SelectItem value="2">
+                          {t("forms.roles.representative")}
+                        </SelectItem>
+                        <SelectItem value="3">
+                          {t("forms.roles.responsible")}
+                        </SelectItem>
+                        <SelectItem value="4">
+                          {t("forms.roles.supervisor")}
+                        </SelectItem>
+                        <SelectItem value="5">
+                          {t("forms.roles.customerService")}
+                        </SelectItem>
+                        <SelectItem value="6">
+                          {t("forms.roles.courier")}
+                        </SelectItem>
+                        <SelectItem value="7">
+                          {t("forms.roles.customer")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -290,7 +295,9 @@ const CreateUserSheet = ({
                 </Button>
               </SheetClose>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t("forms.actions.creating") : t("forms.actions.submit")}
+                {isSubmitting
+                  ? t("forms.actions.creating")
+                  : t("forms.actions.submit")}
               </Button>
             </SheetFooter>
           </form>
