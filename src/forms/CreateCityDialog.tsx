@@ -24,6 +24,7 @@ import { useCreateCity } from "@/lib/hooks/useCity";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 type Props = {
   open: boolean;
@@ -31,6 +32,8 @@ type Props = {
 };
 
 export function CreateCity({ open, onOpenChange }: Props) {
+  const { t } = useTranslation();
+
   const form = useForm<CityFormData>({
     resolver: zodResolver(CitySchema),
     defaultValues: {
@@ -54,30 +57,29 @@ export function CreateCity({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New City</DialogTitle>
+          <DialogTitle>{t("dialogs.createCity.title")}</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here.
+            {t("dialogs.createCity.description")}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
-              // className="flex flex-col gap-6"
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem className="grid gap-3">
                   <FormLabel htmlFor="name" className="font-normal">
-                    City Name
+                    {t("forms.fields.cityName")}
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       id="name"
                       type="text"
-                      placeholder="Enter City Name"
+                      placeholder={t("forms.placeholders.enterCityName")}
                       disabled={cityMutation.isPending}
                       required
                     />
@@ -87,11 +89,11 @@ export function CreateCity({ open, onOpenChange }: Props) {
             />
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline">{t("forms.actions.cancel")}</Button>
               </DialogClose>
               <Button type="submit">
                 {cityMutation.isPending && <Spinner />}
-                Save
+                {t("forms.actions.save")}
               </Button>
             </DialogFooter>
           </form>

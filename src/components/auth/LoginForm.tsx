@@ -2,6 +2,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,14 +21,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useLogin } from "@/lib/hooks/useAuth";
 import { LoginFormData, loginSchema } from "@/lib/schema/auth.schema";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-// import { useRouter } from "next/navigation";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
+  const { t, isRTL } = useTranslation();
+
   const [showPassword, setShowPassword] = useState(false);
 
   // Use our mock-enabled hook
@@ -36,8 +36,8 @@ export function LoginForm({
   const form = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "admin@email.com",
-      password: "00000000",
+      email: "",
+      password: "",
       remember_me: true,
     },
   });
@@ -54,7 +54,7 @@ export function LoginForm({
     <div className={cn("flex w-full flex-col gap-6 z-2", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Enter your personal information</CardTitle>
+          <CardTitle>{t("auth.login.formTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -66,14 +66,14 @@ export function LoginForm({
                 render={({ field }) => (
                   <FormItem className="grid gap-3">
                     <FormLabel htmlFor="email" className="font-normal">
-                      Email or phone number
+                      {t("auth.login.emailLable")}
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         id="email"
                         type="email"
-                        placeholder="Enter Your Email Or Phone Number"
+                        placeholder={t("auth.login.emailPlaceholder")}
                         disabled={loginMutation.isPending}
                         required
                       />
@@ -88,21 +88,23 @@ export function LoginForm({
                 render={({ field }) => (
                   <FormItem className="grid">
                     <FormLabel htmlFor="password" className="font-normal">
-                      Password
+                      {t("auth.login.passwordLabel")}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
                           {...field}
                           type={showPassword ? "text" : "password"}
-                          placeholder="Enter Password"
+                          placeholder={t("auth.login.passwordPlaceholder")}
                           disabled={loginMutation.isPending}
                         />
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute ${
+                            isRTL ? "left" : "right"
+                          }-0 top-0 h-full px-3 py-2 hover:bg-transparent`}
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={loginMutation.isPending}
                         >
@@ -133,7 +135,7 @@ export function LoginForm({
                         />
                       </FormControl>
                       <Label className="text-gray-400 font-normal cursor-pointer">
-                        Remember me
+                        {t("auth.login.rememberMe")}
                       </Label>
                     </FormItem>
                   )}
@@ -143,7 +145,7 @@ export function LoginForm({
                   href="/auth/request-password"
                   className="text-sm underline-offset-4 hover:underline text-primary"
                 >
-                  Forgot your password?
+                  {t("auth.login.forgotPassword")}
                 </Link>
               </div>
 
@@ -158,7 +160,7 @@ export function LoginForm({
                     Signing in...
                   </>
                 ) : (
-                  "Sign In"
+                  t("auth.login.CTA")
                 )}
               </Button>
 

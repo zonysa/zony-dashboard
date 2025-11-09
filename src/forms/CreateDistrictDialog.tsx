@@ -36,6 +36,7 @@ import { useGetZones } from "@/lib/hooks/useZone";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { CityDetails } from "@/lib/schema/city.schema";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 type Props = {
   open: boolean;
@@ -43,12 +44,13 @@ type Props = {
 };
 
 export function CreateDistrict({ open, onOpenChange }: Props) {
+  const { t } = useTranslation();
   const form = useForm<DistrictFormData>({
     resolver: zodResolver(DistrictSchema),
     defaultValues: {
       name: "",
-      // zone: "",
       city_id: 0,
+      zone_id: null,
     },
   });
 
@@ -63,17 +65,17 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
       await districtMutation.mutateAsync(
         {
           name: data.name,
-          city_id: Number(data.city_id),
-          zone_id: data.zone_id ? Number(data.zone_id) : null,
+          city_id: data.city_id,
+          zone_id: data.zone_id,
         },
         {
           onSuccess: (data) => {
-            toast.success(`District ${data.district.name} created successfuly`);
+            toast.success(t("dialogs.createDistrict.success", { name: data.district.name }));
             onOpenChange(false);
             form.reset();
           },
           onError: (error) => {
-            toast.error(`Error ${error.message}`);
+            toast.error(`Error: ${error.message}`);
           },
         }
       );
@@ -89,11 +91,11 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create New District</DialogTitle>
+          <DialogTitle>{t("dialogs.createDistrict.title")}</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here.
+            {t("dialogs.createDistrict.description")}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -104,14 +106,14 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
               render={({ field }) => (
                 <FormItem className="grid gap-3">
                   <FormLabel htmlFor="name" className="font-normal">
-                    District Name
+                    {t("forms.fields.district")}
                   </FormLabel>
                   <FormControl>
                     <Input
                       {...field}
                       id="name"
                       type="text"
-                      placeholder="Enter District Name"
+                      placeholder={t("forms.placeholders.enterDistrictName")}
                       disabled={districtMutation.isPending}
                       required
                     />
@@ -125,14 +127,18 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
               name="city_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-normal">City</FormLabel>
+                  <FormLabel className="font-normal">
+                    {t("forms.fields.city")}
+                  </FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    value={field.value.toLocaleString()}
+                    onValueChange={(value) => field.onChange(Number(value))}
+                    value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Seletct City" />
+                        <SelectValue
+                          placeholder={t("forms.placeholders.selectCity")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -153,14 +159,18 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
               name="zone_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-normal">Zone (optional)</FormLabel>
+                  <FormLabel className="font-normal">
+                    {t("forms.fields.zone")} {t("forms.fields.optional")}
+                  </FormLabel>
                   <Select
-                    onValueChange={field.onChange}
-                    value={field.value?.toLocaleString()}
+                    onValueChange={(value) => field.onChange(value ? Number(value) : null)}
+                    value={field.value?.toString()}
                   >
                     <FormControl>
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Seletct Zone" />
+                        <SelectValue
+                          placeholder={t("forms.placeholders.selectZone")}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -178,11 +188,11 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
 
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline">{t("forms.actions.cancel")}</Button>
               </DialogClose>
               <Button type="submit">
                 {districtMutation.isPending && <Spinner />}
-                Save
+                {t("forms.actions.save")}
               </Button>
             </DialogFooter>
           </form>

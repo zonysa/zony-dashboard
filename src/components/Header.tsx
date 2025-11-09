@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { LocationDropDown } from "./ui/LocatoinDropdown";
 import CreateParcelSheet from "./CreateParcelDiaglog";
 import NotificationsSheet from "./NotificationsSheet";
+import { useTranslation } from "@/lib/hooks/useTranslation";
+import CreateUserSheet from "./CreateUserSheet";
 
 interface BreadcrumbSegment {
   label: string;
@@ -29,13 +31,16 @@ function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
+  const [showUserSheet, setShowUserSheet] = useState(false);
+  const [userRoleId, setUserRoleId] = useState<number>(0);
+  const { t } = useTranslation();
 
   // Generate breadcrumb segments from pathname
   const getBreadcrumbSegments = (): BreadcrumbSegment[] => {
     const segments = pathname.split("/").filter(Boolean);
 
     const breadcrumbs: BreadcrumbSegment[] = [
-      { label: "Home", href: "/", isLast: segments.length === 0 },
+      { label: t("breadcrumb.home"), href: "/", isLast: segments.length === 0 },
     ];
 
     segments.forEach((segment, index) => {
@@ -50,15 +55,13 @@ function Header() {
   };
 
   const formatSegment = (segment: string): string => {
-    // Handle special cases
-    const specialCases: Record<string, string> = {
-      pudos: "Branches",
-      "customer-service": "Customer Service",
-      create: "Create New",
-    };
+    // Try to get translation first
+    const translationKey = `breadcrumb.${segment}` as never;
+    const translated = t(translationKey);
 
-    if (specialCases[segment]) {
-      return specialCases[segment];
+    // If translation exists (not returning the key itself), use it
+    if (translated !== translationKey) {
+      return translated;
     }
 
     // Default formatting: capitalize first letter and replace hyphens
@@ -72,47 +75,51 @@ function Header() {
     router.push("/profile");
   };
 
+  const handleAddUser = (roleId: number) => {
+    if (roleId) {
+      setUserRoleId(roleId);
+    }
+    setShowUserSheet(true);
+  };
+
   const getHeaderButton = () => {
     switch (pathname) {
       case "/partners":
         return (
           <Button size="sm" onClick={() => router.push("/partners/create")}>
-            Add New Partner
+            {t("buttons.addNewPartner")}
           </Button>
         );
       case "/pudos":
         return (
           <Button onClick={() => router.push("/pudos/create")}>
-            Add New Branch
+            {t("buttons.addNewBranch")}
           </Button>
         );
       case "/settings":
         return (
-          <Button onClick={() => console.log("Save settings")}>Save</Button>
+          <Button onClick={() => console.log("Save settings")}>
+            {t("common.save")}
+          </Button>
         );
-
       case "/parcels":
         return <CreateParcelSheet />;
-
       case "/supervisors":
         return (
-          <Button size="sm" onClick={() => router.push("/supervisors/create")}>
-            Create Supervisor
+          <Button size="sm" onClick={() => handleAddUser(4)}>
+            {t("buttons.createSupervisor")}
           </Button>
         );
       case "/customer-service":
         return (
-          <Button
-            size="sm"
-            onClick={() => router.push("/customer-service/create")}
-          >
-            Create Customer Service
+          <Button size="sm" onClick={() => handleAddUser(5)}>
+            {t("buttons.createCustomerService")}
           </Button>
         );
       case "/courier":
         return (
-          <Button onClick={() => router.push("/courier/create")}>
-            Create Courier
+          <Button onClick={() => handleAddUser(6)}>
+            {t("buttons.createCourier")}
           </Button>
         );
       case "/zones":
@@ -172,6 +179,11 @@ function Header() {
       <NotificationsSheet
         open={notificationsOpen}
         onOpenChange={setNotificationsOpen}
+      />
+      <CreateUserSheet
+        open={showUserSheet}
+        onOpenChange={setShowUserSheet}
+        userRole={userRoleId || 0}
       />
     </header>
   );

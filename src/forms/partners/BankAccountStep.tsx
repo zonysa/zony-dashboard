@@ -20,14 +20,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { PartnerFormData } from "@/lib/schema/partner.schema";
+import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   form,
@@ -38,213 +34,175 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   isLastStep,
 }) => {
   const { control } = form;
+  const { t } = useTranslation();
 
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-8">
-        {/* Document Upload */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Supporting Documents</CardTitle>
-            <CardDescription>
-              Upload bank statement for verification
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* Bank Information */}
+        <CardContent className="space-y-8 px-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={control}
-              name="bankStatement"
+              name="bankName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bank Statement</FormLabel>
-                  <FormControl>
-                    <FileInput
-                      value={field.value}
-                      onChange={field.onChange}
-                      accept="application/pdf,image/*"
-                    />
-                  </FormControl>
+                  <FormLabel>{t("forms.fields.bankName")}</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl className="w-full">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your bank" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="nbe">
+                        {t("partners.banks.nbe")}
+                      </SelectItem>
+                      <SelectItem value="cib">
+                        {t("partners.banks.cib")}
+                      </SelectItem>
+                      <SelectItem value="qnb">
+                        {t("partners.banks.qnb")}
+                      </SelectItem>
+                      <SelectItem value="hsbc">
+                        {t("partners.banks.hsbc")}
+                      </SelectItem>
+                      <SelectItem value="aib">
+                        {t("partners.banks.aib")}
+                      </SelectItem>
+                      <SelectItem value="saib">
+                        {t("partners.banks.saib")}
+                      </SelectItem>
+                      <SelectItem value="other">
+                        {t("partners.banks.other")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                   <FormDescription>
-                    Upload a recent bank statement (PDF or image, max 5MB)
+                    {t("forms.descriptions.bankName")}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </CardContent>
-        </Card>
 
-        {/* Bank Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Bank Information</CardTitle>
-            <CardDescription>
-              Enter your bank account details for payment processing
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={control}
-                name="bankName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bank Name</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl className="w-full">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select your bank" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="nbe">
-                          National Bank of Egypt (NBE)
-                        </SelectItem>
-                        <SelectItem value="cib">
-                          Commercial International Bank (CIB)
-                        </SelectItem>
-                        <SelectItem value="qnb">QNB ALAHLI</SelectItem>
-                        <SelectItem value="hsbc">HSBC Egypt</SelectItem>
-                        <SelectItem value="aib">
-                          Arab International Bank
-                        </SelectItem>
-                        <SelectItem value="saib">
-                          Société Arabe Internationale de Banque
-                        </SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={control}
+              name="accountHolderName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("forms.fields.accountHolderName")}</FormLabel>
+                  <FormControl className="w-full">
+                    <Input
+                      {...field}
+                      placeholder="Enter account holder name"
+                      autoComplete="name"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t("forms.descriptions.accountHolder")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-              <FormField
-                control={control}
-                name="accountHolderName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Holder Name</FormLabel>
-                    <FormControl className="w-full">
-                      <Input
-                        {...field}
-                        placeholder="Enter account holder name"
-                        autoComplete="name"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Name as it appears on bank statements
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="accountNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("forms.fields.accountNumber")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Enter account number"
+                      autoComplete="off"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t("forms.descriptions.accountNumber")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name="iban"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("forms.fields.iban")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="EG00 0000 0000 0000 0000 0000 000"
+                      autoComplete="off"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {t("forms.descriptions.iban")}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </CardContent>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={control}
-                name="accountNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Account Number</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="Enter account number"
-                        autoComplete="off"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={control}
-                name="iban"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>IBAN</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="EG00 0000 0000 0000 0000 0000 000"
-                        autoComplete="off"
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      International Bank Account Number
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <Separator className="my-12" />
 
         {/* Confirmation */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Confirmation</CardTitle>
-            <CardDescription>
-              Please confirm the details before submitting
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={control}
-              name="confirmDetails"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      I confirm that all bank account details are correct
-                    </FormLabel>
-                    <FormDescription>
-                      Please double-check all information before proceeding
-                    </FormDescription>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        <CardContent className="space-y-4 px-0">
+          <FormField
+            control={control}
+            name="confirmDetails"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>{t("forms.doubleCheck.label")}</FormLabel>
+                  <FormDescription>
+                    {t("forms.doubleCheck.desc")}
+                  </FormDescription>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={control}
-              name="termsAccepted"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      I accept the terms and conditions for payment processing
-                    </FormLabel>
-                    <FormDescription>
-                      By checking this box, you agree to our payment terms and
-                      conditions
-                    </FormDescription>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+          <FormField
+            control={control}
+            name="termsAccepted"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>{t("forms.acceptTerms.label")}</FormLabel>
+                  <FormDescription>
+                    {t("forms.acceptTerms.desc")}
+                  </FormDescription>
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </CardContent>
 
         {/* Navigation */}
         <StepNavigation

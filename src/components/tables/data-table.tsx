@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import {
   ColumnDef,
@@ -28,6 +29,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
+import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
 
 interface FilterOption {
   value: string;
@@ -62,6 +65,9 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+
+  const { t } = useTranslation();
+  const { language } = useUserPreferencesStore();
 
   // Local filter states for the UI
   const [localFilters, setLocalFilters] = useState<Record<string, string>>({});
@@ -111,7 +117,7 @@ export function DataTable<TData, TValue>({
     setColumnFilters(filters);
 
     // Console log the selected options
-    console.log("Applied Filters:", {
+    console.log(t("table.appliedFilters"), {
       search: localSearch,
       filters: localFilters,
       appliedAt: new Date().toISOString(),
@@ -123,8 +129,6 @@ export function DataTable<TData, TValue>({
     setLocalSearch("");
     setColumnFilters([]);
     setGlobalFilter("");
-
-    console.log("Filters Cleared");
   };
 
   const updateLocalFilter = (key: string, value: string) => {
@@ -148,7 +152,7 @@ export function DataTable<TData, TValue>({
               {enableGlobalSearch && (
                 <div className="flex flex-1 flex-col gap-2 items-start space-x-2">
                   <span className="text-sm font-medium whitespace-nowrap">
-                    Search
+                    {t("table.search")}
                   </span>
                   <div className="w-full relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -168,7 +172,7 @@ export function DataTable<TData, TValue>({
                 filterConfigs.map((config) => (
                   <div
                     key={config.key}
-                    className="flex flex-col gap-2 items-start space-x-2"
+                    className="flex flex-col gap-2 justify-between space-x-2"
                   >
                     <span className="text-sm font-medium whitespace-nowrap">
                       {config.label}
@@ -195,8 +199,9 @@ export function DataTable<TData, TValue>({
                   </div>
                 ))}
             </div>
+
             {/* Action Buttons */}
-            <div className="flex items-end space-x-2 ml-auto">
+            <div className="flex w-1/6 items-center justify-end space-x-2 ml-auto">
               {hasActiveFilters && (
                 <Button variant="outline" onClick={clearFilters}>
                   <X />
@@ -208,7 +213,7 @@ export function DataTable<TData, TValue>({
                 variant="outline"
                 size="sm"
               >
-                Apply Filter
+                {t("table.applyFilter")}
                 <Filter className="w-6 h-6" />
               </Button>
             </div>
@@ -217,7 +222,9 @@ export function DataTable<TData, TValue>({
           {/* Active Filters Display */}
           {hasActiveFilters && (
             <div className="mt-3 flex flex-wrap gap-2">
-              <span className="text-sm text-gray-600">Active filters:</span>
+              <span className="text-sm text-gray-600">
+                {t("table.activeFilter")}
+              </span>
               {localSearch && (
                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs">
                   Search: {localSearch}
@@ -247,7 +254,10 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead
+                      className={language === "ar" ? "text-right" : "text-left"}
+                      key={header.id}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -285,7 +295,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results found.
+                  {t("table.noResultsFound")}
                 </TableCell>
               </TableRow>
             )}
@@ -296,7 +306,8 @@ export function DataTable<TData, TValue>({
       {/* Pagination & Results Info */}
       <div className="flex items-center justify-between">
         <div className="text-sm text-gray-600">
-          Showing {table.getRowModel().rows.length} of {data.length} results
+          {t("table.showing")} {table.getRowModel().rows.length} {t("table.of")}{" "}
+          {data.length} {t("table.results")}
           {hasActiveFilters && " (filtered)"}
         </div>
 
@@ -307,12 +318,16 @@ export function DataTable<TData, TValue>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            <ChevronLeft className="h-4 w-4" />
+            {language == "en" ? (
+              <ChevronLeft className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
           </Button>
 
           <span className="text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+            {t("table.page")} {table.getState().pagination.pageIndex + 1}{" "}
+            {t("table.of")} {table.getPageCount()}
           </span>
 
           <Button
@@ -321,7 +336,11 @@ export function DataTable<TData, TValue>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            <ChevronRight className="h-4 w-4" />
+            {language == "en" ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>

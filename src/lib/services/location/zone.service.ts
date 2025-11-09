@@ -34,14 +34,6 @@ export const getZones = async (
   if (filters?.districtId)
     params.append("district_id", filters.districtId.toString());
   if (filters?.zoneId) params.append("zone_id", filters.zoneId.toString());
-  // if (filters?.status)
-  //   params.append("status", filters.status);
-  // if (filters?.search)
-  //   params.append("search", filters.search);
-  // if (filters?.page)
-  //   params.append("page", filters.page.toString());
-  // if (filters?.limit)
-  //   params.append("limit", filters.limit.toString());
 
   return apiCall({
     method: "GET",
@@ -163,11 +155,12 @@ export const assignCustomerServicesToZone = async (
 // Unassign District from Zone
 export const unassignDistrictFromZone = async (
   zoneId: string,
-  districtId: number
+  districtId: string
 ) => {
   return apiCall({
     method: "DELETE",
-    url: `/zones/${zoneId}/districts/${districtId}`,
+    url: `/zones/${zoneId}/districts`,
+    data: { district_ids: [districtId] },
   });
 };
 
@@ -178,7 +171,8 @@ export const unassignSupervisorFromZone = async (
 ) => {
   return apiCall({
     method: "DELETE",
-    url: `/zones/${zoneId}/supervisors/${supervisorId}`,
+    url: `/zones/${zoneId}/supervisors`,
+    data: { supervisor_ids: [supervisorId] },
   });
 };
 
@@ -189,7 +183,8 @@ export const unassignCourierFromZone = async (
 ) => {
   return apiCall({
     method: "DELETE",
-    url: `/zones/${zoneId}/couriers/${courierId}`,
+    url: `/zones/${zoneId}/couriers`,
+    data: { couriers_ids: [courierId] },
   });
 };
 
@@ -200,6 +195,7 @@ export const unassignCustomerServiceFromZone = async (
 ) => {
   return apiCall({
     method: "DELETE",
-    url: `/zones/${zoneId}/customer-service/${customerServiceId}`,
+    url: `/zones/${zoneId}/customer-service`,
+    data: { customer_service_ids: [customerServiceId] },
   });
 };

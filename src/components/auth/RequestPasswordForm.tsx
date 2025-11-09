@@ -18,14 +18,18 @@ import { useRouter } from "next/navigation";
 import { useRequestPassword } from "@/lib/hooks/useAuth";
 import {
   RequestPasswordFormData,
+  RequestPasswordResponse,
   requestPasswordSchema,
 } from "@/lib/schema/auth.schema";
+import { useTranslation } from "@/lib/hooks/useTranslation";
+import { toast } from "sonner";
 
 export function RequestPasswordForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
+  const { t } = useTranslation();
 
   // Use our mock-enabled hook
   const forgetPasswordMutation = useRequestPassword();
@@ -33,18 +37,26 @@ export function RequestPasswordForm({
   const form = useForm<RequestPasswordFormData>({
     resolver: zodResolver(requestPasswordSchema),
     defaultValues: {
-      email: "malokokha2@gmail.com",
+      email: "",
     },
   });
 
-  const {
-    formState: { isDirty },
-  } = form;
+  // Watch the email field from the actual form instance
+  const emailValue = form.watch("email");
 
   const onSubmit = (data: RequestPasswordFormData) => {
     forgetPasswordMutation.mutate(data, {
       onSuccess: () => {
+        toast(t("auth.message.passwordResetSend"), {
+          action: t("auth.action.undo"),
+        });
         router.replace("/auth/reset-password");
+      },
+      onError: (error: Error) => {
+        console.error(t("auth.message.passwordResetFailed"), error);
+        toast(error.message || t("auth.message.passwordResetSend"), {
+          action: t("auth.action.undo"),
+        });
       },
     });
   };
@@ -53,7 +65,7 @@ export function RequestPasswordForm({
     <div className={cn("flex w-full flex-col gap-6 z-2", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Forget Password Link will be sent to your Email</CardTitle>
+          <CardTitle>{t("auth.requestPassword.formTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -65,14 +77,14 @@ export function RequestPasswordForm({
                 render={({ field }) => (
                   <FormItem className="grid gap-3">
                     <FormLabel htmlFor="email" className="font-normal">
-                      Email
+                      {t("auth.requestPassword.email")}
                     </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
                         id="email"
                         type="email"
-                        placeholder="Enter Your Email Or Phone Number"
+                        placeholder={t("auth.requestPassword.placeholder")}
                         disabled={forgetPasswordMutation.isPending}
                         required
                       />
@@ -81,20 +93,30 @@ export function RequestPasswordForm({
                 )}
               />
 
-              <Button
-                disabled={forgetPasswordMutation.isPending}
-                type="submit"
-                className="w-full mt-6 py-3.5"
-              >
-                {forgetPasswordMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Confirming ...
-                  </>
-                ) : (
-                  "Confirm"
-                )}
-              </Button>
+              <div className="space-y-3">
+                <Button
+                  disabled={!emailValue || forgetPasswordMutation.isPending}
+                  type="submit"
+                  className="w-full mt-6 py-3.5"
+                >
+                  {forgetPasswordMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("forms.actions.confirming")}
+                    </>
+                  ) : (
+                    t("forms.actions.submit")
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => router.push("/auth/login")}
+                  className="text-sm text-gray-600 bg-gray-100 hover:text-gray-800 w-full"
+                >
+                  {t("auth.action.backToLogin")}
+                </Button>
+              </div>
 
               {/* Display error if any */}
               {forgetPasswordMutation.error && (

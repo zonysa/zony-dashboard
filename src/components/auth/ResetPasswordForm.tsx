@@ -23,6 +23,7 @@ import {
   resetPasswordSchema,
 } from "@/lib/schema/auth.schema";
 import { useResetPassword } from "@/lib/hooks/useAuth";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export function ResetPasswordForm({
   className,
@@ -32,9 +33,9 @@ export function ResetPasswordForm({
   const searchParams = useSearchParams();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { t, isRTL } = useTranslation();
 
   const token = searchParams.get("token") || "";
-  console.log("Token from URL:", token); // Add this
 
   // Reset password mutation
   const resetPasswordMutation = useResetPassword();
@@ -48,12 +49,9 @@ export function ResetPasswordForm({
   });
 
   const onSubmit = (data: ResetPasswordFormData) => {
-    console.log("Form submitted!", data); // Add this
-    console.log("Token:", token); // Add this
-
     if (!token) {
       form.setError("new_password", {
-        message: "Invalid reset link. Please request a new password reset.",
+        message: t("auth.resetPassword.invalidTokenError"),
       });
       return;
     }
@@ -78,7 +76,13 @@ export function ResetPasswordForm({
   const passwordStrength = getPasswordStrength(
     form.watch("new_password") || ""
   );
-  const strengthLabels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
+  const strengthLabels = [
+    t("auth.resetPassword.strengthLabels.veryWeak"),
+    t("auth.resetPassword.strengthLabels.weak"),
+    t("auth.resetPassword.strengthLabels.fair"),
+    t("auth.resetPassword.strengthLabels.good"),
+    t("auth.resetPassword.strengthLabels.strong"),
+  ];
   const strengthColors = [
     "bg-red-500",
     "bg-orange-500",
@@ -91,7 +95,7 @@ export function ResetPasswordForm({
     <div className={cn("flex w-full flex-col gap-6 z-2", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Create New Password</CardTitle>
+          <CardTitle>{t("auth.resetPassword.title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -103,7 +107,7 @@ export function ResetPasswordForm({
                 render={({ field }) => (
                   <FormItem className="grid">
                     <FormLabel htmlFor="newPassword" className="font-normal">
-                      New Password
+                      {t("auth.resetPassword.newPassword")}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
@@ -111,14 +115,18 @@ export function ResetPasswordForm({
                           {...field}
                           id="newPassword"
                           type={showNewPassword ? "text" : "password"}
-                          placeholder="Enter your new password"
+                          placeholder={t(
+                            "auth.resetPassword.newPasswordPlaceholder"
+                          )}
                           disabled={resetPasswordMutation.isPending}
                         />
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute ${
+                            isRTL ? "left-0" : "right-0"
+                          } top-0 h-full px-3 py-2 hover:bg-transparent`}
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           disabled={resetPasswordMutation.isPending}
                         >
@@ -149,7 +157,7 @@ export function ResetPasswordForm({
                         </div>
                         {passwordStrength > 0 && (
                           <p className="text-xs text-gray-600">
-                            Password strength:{" "}
+                            {t("auth.resetPassword.strength")}{" "}
                             {strengthLabels[passwordStrength - 1]}
                           </p>
                         )}
@@ -170,7 +178,7 @@ export function ResetPasswordForm({
                       htmlFor="confirmPassword"
                       className="font-normal"
                     >
-                      Confirm New Password
+                      {t("auth.resetPassword.confirmPassword")}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
@@ -178,14 +186,18 @@ export function ResetPasswordForm({
                           {...field}
                           id="confirmPassword"
                           type={showConfirmPassword ? "text" : "password"}
-                          placeholder="Confirm your new password"
+                          placeholder={t(
+                            "auth.resetPassword.confirmPasswordPlaceholder"
+                          )}
                           disabled={resetPasswordMutation.isPending}
                         />
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute ${
+                            isRTL ? "left-0" : "right-0"
+                          } top-0 h-full px-3 py-2 hover:bg-transparent`}
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
@@ -206,7 +218,7 @@ export function ResetPasswordForm({
               {/* Password Requirements */}
               <div className="bg-gray-50 p-4 rounded-md">
                 <p className="text-sm font-medium text-gray-700 mb-2">
-                  Password Requirements:
+                  {t("auth.resetPassword.requirements")}
                 </p>
                 <ul className="text-xs text-gray-600 space-y-1">
                   <li className="flex items-center">
@@ -218,7 +230,7 @@ export function ResetPasswordForm({
                           : "bg-gray-300"
                       )}
                     />
-                    At least 8 characters
+                    {t("auth.resetPassword.minChars")}
                   </li>
                   <li className="flex items-center">
                     <span
@@ -229,7 +241,7 @@ export function ResetPasswordForm({
                           : "bg-gray-300"
                       )}
                     />
-                    One lowercase letter
+                    {t("auth.resetPassword.lowercase")}
                   </li>
                   <li className="flex items-center">
                     <span
@@ -240,7 +252,7 @@ export function ResetPasswordForm({
                           : "bg-gray-300"
                       )}
                     />
-                    One uppercase letter
+                    {t("auth.resetPassword.uppercase")}
                   </li>
                   <li className="flex items-center">
                     <span
@@ -251,42 +263,40 @@ export function ResetPasswordForm({
                           : "bg-gray-300"
                       )}
                     />
-                    One number
+                    {t("auth.resetPassword.number")}
                   </li>
                 </ul>
               </div>
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full mt-6 py-3.5"
-                disabled={resetPasswordMutation.isPending}
-              >
-                {resetPasswordMutation.isPending ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Resetting Password...
-                  </>
-                ) : (
-                  "Reset Password"
-                )}
-              </Button>
-              {/* Display error if any */}
+              <div className="space-y-3">
+                <Button
+                  type="submit"
+                  className="w-full mt-6 py-3.5"
+                  disabled={resetPasswordMutation.isPending}
+                >
+                  {resetPasswordMutation.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {t("auth.resetPassword.resetting")}
+                    </>
+                  ) : (
+                    t("auth.resetPassword.buttonText")
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => router.push("/auth/login")}
+                  className="text-sm text-gray-600 bg-gray-100 hover:text-gray-800 w-full"
+                >
+                  {t("auth.action.backToLogin")}
+                </Button>
+              </div>
+
               {resetPasswordMutation.error && (
                 <div className="text-sm text-red-500 text-center p-3 bg-red-50 rounded-md">
                   {resetPasswordMutation.error.message}
                 </div>
               )}
-              {/* Back to Login Link */}
-              <div className="text-center">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => router.push("/auth/login")}
-                  className="text-sm text-gray-600 hover:text-gray-800"
-                >
-                  Back to Sign In
-                </Button>
-              </div>
             </form>
           </Form>
         </CardContent>

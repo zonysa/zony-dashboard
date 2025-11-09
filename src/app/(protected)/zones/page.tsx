@@ -7,14 +7,24 @@ import { useRouter } from "next/navigation";
 import { Row } from "@tanstack/react-table";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
 import { useGetZones } from "@/lib/hooks/useZone";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export default function Page() {
   const { data: zones } = useGetZones();
+  const { t } = useTranslation();
 
   const filterConfigs = [
-    { key: "city", label: "City", placeholder: "All Cities" },
-    { key: "district", label: "district", placeholder: "All Districts" },
-    { key: "supervisor", label: "Supervisor", placeholder: "All Supervisor" },
+    { key: "city", label: t("table.city"), placeholder: t("table.allCities") },
+    {
+      key: "district",
+      label: t("table.district"),
+      placeholder: t("table.allDistricts"),
+    },
+    {
+      key: "supervisor",
+      label: t("supervisors.title"),
+      placeholder: t("table.allSupervisors"),
+    },
   ];
 
   const router = useRouter();
@@ -26,13 +36,13 @@ export default function Page() {
   return (
     <div className="py-10 px-6">
       <DataTable
-        columns={columns}
+        columns={columns()}
         data={zones ? zones.zones : []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
         onRowClick={handleRowClick}
-        searchPlaceholder="Search Zones..."
+        searchPlaceholder={t("table.search", "zone.title") + "..."}
       />
     </div>
   );

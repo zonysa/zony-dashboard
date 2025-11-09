@@ -20,10 +20,12 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { BranchFormData } from "@/lib/schema/branch.schema";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export const OperatingHoursStep: React.FC<
   StepComponentProps<BranchFormData>
 > = ({ form, onNext, onBack, onSubmit, isFirstStep, isLastStep }) => {
+  const { t } = useTranslation();
   const { control, watch, setValue } = form;
 
   const sameHoursEveryday = watch("sameHoursEveryday");
@@ -45,7 +47,7 @@ export const OperatingHoursStep: React.FC<
     const options = [];
     for (let hour = 0; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
-        const period = hour < 12 ? "AM" : "PM";
+        const period = hour < 12 ? t("time.am") : t("time.pm");
         const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
         const displayMinute = minute === 0 ? "00" : minute;
         const value = `${hour.toString().padStart(2, "0")}:${displayMinute}`;
@@ -166,7 +168,7 @@ export const OperatingHoursStep: React.FC<
                   />
                 </FormControl>
                 <FormLabel className="font-normal cursor-pointer">
-                  Same Hours Everyday
+                  {t("time.sameHoursEveryday")}
                 </FormLabel>
               </FormItem>
             )}
@@ -187,7 +189,7 @@ export const OperatingHoursStep: React.FC<
                   />
                 </FormControl>
                 <FormLabel className="font-normal cursor-pointer">
-                  24/7
+                  {t("time.twentyFourSeven")}
                 </FormLabel>
               </FormItem>
             )}
@@ -199,9 +201,9 @@ export const OperatingHoursStep: React.FC<
           {/* Header */}
           <div className="grid grid-cols-[120px_1fr_1fr_1fr_48px] gap-4 pb-2">
             <div></div>
-            <div className="text-sm font-medium text-center">From</div>
-            <div className="text-sm font-medium text-center">To</div>
-            <div className="text-sm font-medium text-center">Break Hour</div>
+            <div className="text-sm font-medium text-center">{t("time.from")}</div>
+            <div className="text-sm font-medium text-center">{t("time.to")}</div>
+            <div className="text-sm font-medium text-center">{t("time.breakHour")}</div>
             <div></div>
           </div>
 
@@ -218,7 +220,7 @@ export const OperatingHoursStep: React.FC<
                 }`}
               >
                 {/* Day Name */}
-                <div className="capitalize font-medium">{day}</div>
+                <div className="capitalize font-medium">{t(`days.${day}` as never)}</div>
 
                 {/* From Time */}
                 <FormItem>

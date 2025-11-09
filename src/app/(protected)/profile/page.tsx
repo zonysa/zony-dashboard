@@ -9,6 +9,7 @@ import { useGetProfile, useUpdateProfile } from "@/lib/hooks/useProfile";
 import { ProfileFormData } from "@/lib/schema/profile.schema";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "react-i18next";
 
 type EditSection = "personalInfo" | "contactInfo" | "locationInfo";
 
@@ -17,6 +18,7 @@ type EditStates = {
 };
 
 const ProfilePage = () => {
+  const { t } = useTranslation();
   const { data: profileData, isLoading, error } = useGetProfile();
   const updateProfileMutation = useUpdateProfile();
 
@@ -104,17 +106,17 @@ const ProfilePage = () => {
 
       await updateProfileMutation.mutateAsync(dataToUpdate, {
         onSuccess: () => {
-          toast.success("Profile updated successfully");
+          toast.success(t("profile.messages.updateSuccess"));
           setOriginalData(formData);
           toggleEdit(section);
         },
         onError: (error: Error) => {
-          toast.error(`Error updating profile: ${error.message}`);
+          toast.error(t("profile.messages.updateError", { error: error.message }));
         },
       });
     } catch (error) {
       console.error("Error saving profile:", error);
-      toast.error("Failed to update profile");
+      toast.error(t("profile.messages.updateFailed"));
     }
   };
 
@@ -137,7 +139,7 @@ const ProfilePage = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <p className="text-red-500 text-lg">Error loading profile</p>
+          <p className="text-red-500 text-lg">{t("profile.messages.loadingError")}</p>
           <p className="text-gray-500">{error.message}</p>
         </div>
       </div>
@@ -149,7 +151,7 @@ const ProfilePage = () => {
   if (!profile) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-500">No profile data available</p>
+        <p className="text-gray-500">{t("profile.messages.noData")}</p>
       </div>
     );
   }
@@ -160,21 +162,21 @@ const ProfilePage = () => {
       <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
-          label="Personal Information"
-          value="Your basic personal details"
+          label={t("profile.sections.personalInfo.title")}
+          value={t("profile.sections.personalInfo.description")}
           icon={User}
           iconClassName="text-black"
         />
         <CardContent className="w-2/4 flex-1 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <DataItem
-              label="First Name"
+              label={t("profile.fields.firstName")}
               value={formData.first_name || ""}
               isEditable={editStates.personalInfo}
               onChange={(value) => updateFormData("first_name", value)}
             />
             <DataItem
-              label="Last Name"
+              label={t("profile.fields.lastName")}
               value={formData.last_name || ""}
               isEditable={editStates.personalInfo}
               onChange={(value) => updateFormData("last_name", value)}
@@ -183,36 +185,36 @@ const ProfilePage = () => {
 
           <div className="grid grid-cols-2 gap-3">
             <DataItem
-              label="Username"
+              label={t("profile.fields.username")}
               value={formData.username || ""}
               isEditable={editStates.personalInfo}
               onChange={(value) => updateFormData("username", value)}
             />
             <DataItem
-              label="Birth Date"
-              value={formData.birth_date || "Not set"}
+              label={t("profile.fields.birthDate")}
+              value={formData.birth_date || t("profile.values.notSet")}
               isEditable={editStates.personalInfo}
               onChange={(value) => updateFormData("birth_date", value)}
-              placeholder="YYYY-MM-DD"
+              placeholder={t("profile.placeholders.birthDate")}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <DataItem
-              label="Gender"
-              value={formData.gender || "Not set"}
+              label={t("profile.fields.gender")}
+              value={formData.gender || t("profile.values.notSet")}
               type="select"
               isEditable={editStates.personalInfo}
               selectOptions={[
-                { value: "male", label: "Male" },
-                { value: "female", label: "Female" },
-                { value: "other", label: "Other" },
+                { value: "male", label: t("profile.gender.male") },
+                { value: "female", label: t("profile.gender.female") },
+                { value: "other", label: t("profile.gender.other") },
               ]}
               onChange={(value) => updateFormData("gender", value)}
             />
             <DataItem
-              label="Identity/ID"
-              value={formData.identity || "Not set"}
+              label={t("profile.fields.identity")}
+              value={formData.identity || t("profile.values.notSet")}
               isEditable={editStates.personalInfo}
               onChange={(value) => updateFormData("identity", value)}
             />
@@ -220,12 +222,12 @@ const ProfilePage = () => {
 
           <div className="grid grid-cols-1 gap-3">
             <DataItem
-              label="Account Status"
-              value={profile.is_active ? "Active" : "Inactive"}
+              label={t("profile.fields.accountStatus")}
+              value={profile.is_active ? t("profile.status.active") : t("profile.status.inactive")}
               valueClassName={profile.is_active ? "text-green-600" : "text-red-600"}
             />
             <DataItem
-              label="Last Login"
+              label={t("profile.fields.lastLogin")}
               value={new Date(profile.last_login).toLocaleString()}
               icon={Calendar}
             />
@@ -239,14 +241,14 @@ const ProfilePage = () => {
                 variant="default"
                 disabled={updateProfileMutation.isPending}
               >
-                {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateProfileMutation.isPending ? t("profile.buttons.saving") : t("profile.buttons.saveChanges")}
               </Button>
               <Button
                 onClick={() => handleCancel("personalInfo")}
                 variant="outline"
                 disabled={updateProfileMutation.isPending}
               >
-                Cancel
+                {t("profile.buttons.cancel")}
               </Button>
             </>
           ) : (
@@ -254,7 +256,7 @@ const ProfilePage = () => {
               onClick={() => toggleEdit("personalInfo")}
               variant="outline"
             >
-              Edit
+              {t("profile.buttons.edit")}
             </Button>
           )}
         </div>
@@ -264,22 +266,22 @@ const ProfilePage = () => {
       <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
-          label="Contact Information"
-          value="Email and phone contact details"
+          label={t("profile.sections.contactInfo.title")}
+          value={t("profile.sections.contactInfo.description")}
           icon={Mail}
           iconClassName="text-black"
         />
         <CardContent className="w-2/4 flex-1 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <DataItem
-              label="Email Address"
+              label={t("profile.fields.emailAddress")}
               value={formData.email || ""}
               type="email"
               isEditable={editStates.contactInfo}
               onChange={(value) => updateFormData("email", value)}
             />
             <DataItem
-              label="Phone Number"
+              label={t("profile.fields.phoneNumber")}
               value={formData.phone_number || ""}
               type="tel"
               isEditable={editStates.contactInfo}
@@ -295,14 +297,14 @@ const ProfilePage = () => {
                 variant="default"
                 disabled={updateProfileMutation.isPending}
               >
-                {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateProfileMutation.isPending ? t("profile.buttons.saving") : t("profile.buttons.saveChanges")}
               </Button>
               <Button
                 onClick={() => handleCancel("contactInfo")}
                 variant="outline"
                 disabled={updateProfileMutation.isPending}
               >
-                Cancel
+                {t("profile.buttons.cancel")}
               </Button>
             </>
           ) : (
@@ -310,7 +312,7 @@ const ProfilePage = () => {
               onClick={() => toggleEdit("contactInfo")}
               variant="outline"
             >
-              Edit
+              {t("profile.buttons.edit")}
             </Button>
           )}
         </div>
@@ -320,22 +322,22 @@ const ProfilePage = () => {
       <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
-          label="Location Information"
-          value="Your address and location details"
+          label={t("profile.sections.locationInfo.title")}
+          value={t("profile.sections.locationInfo.description")}
           icon={MapPin}
           iconClassName="text-black"
         />
         <CardContent className="w-2/4 flex-1 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <DataItem
-              label="City"
-              value={formData.city || "Not set"}
+              label={t("profile.fields.city")}
+              value={formData.city || t("profile.values.notSet")}
               isEditable={editStates.locationInfo}
               onChange={(value) => updateFormData("city", value)}
             />
             <DataItem
-              label="Country"
-              value={formData.country || "Not set"}
+              label={t("profile.fields.country")}
+              value={formData.country || t("profile.values.notSet")}
               isEditable={editStates.locationInfo}
               onChange={(value) => updateFormData("country", value)}
             />
@@ -349,14 +351,14 @@ const ProfilePage = () => {
                 variant="default"
                 disabled={updateProfileMutation.isPending}
               >
-                {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateProfileMutation.isPending ? t("profile.buttons.saving") : t("profile.buttons.saveChanges")}
               </Button>
               <Button
                 onClick={() => handleCancel("locationInfo")}
                 variant="outline"
                 disabled={updateProfileMutation.isPending}
               >
-                Cancel
+                {t("profile.buttons.cancel")}
               </Button>
             </>
           ) : (
@@ -364,7 +366,7 @@ const ProfilePage = () => {
               onClick={() => toggleEdit("locationInfo")}
               variant="outline"
             >
-              Edit
+              {t("profile.buttons.edit")}
             </Button>
           )}
         </div>
@@ -374,20 +376,20 @@ const ProfilePage = () => {
       <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
-          label="Account Information"
-          value="Account details and identifiers"
+          label={t("profile.sections.accountInfo.title")}
+          value={t("profile.sections.accountInfo.description")}
           icon={Shield}
           iconClassName="text-black"
         />
         <CardContent className="w-2/4 flex-1 space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <DataItem
-              label="User ID"
+              label={t("profile.fields.userId")}
               value={profile.id}
             />
             <DataItem
-              label="Avatar"
-              value={profile.avatar || "No avatar set"}
+              label={t("profile.fields.avatar")}
+              value={profile.avatar || t("profile.values.noAvatar")}
             />
           </div>
         </CardContent>

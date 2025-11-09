@@ -1,10 +1,10 @@
 import { z } from "zod";
-import { registerSchema } from "./auth.schema";
+import { passwordSchema, registerSchema } from "./auth.schema";
 
 // API Response Interfaces
 export interface BranchDetails {
   id: number;
-  branch_name: string;
+  name: string;
   establishment_name: string;
   establishment_type: string;
   registration_number: string;
@@ -12,7 +12,11 @@ export interface BranchDetails {
   city: string;
   district: string;
   zone: string;
-  short_address: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  address: string;
   branch_coordinates?: string;
   responsible_name: string;
   responsible_phone: string;
@@ -92,7 +96,8 @@ export const branchInfoSchema = z.object({
   coordinates: z.string(),
   location: z.string().optional(),
   address: z.string().min(1, "Address is required"),
-  branchPhoto: z.instanceof(File).optional(),
+  password: passwordSchema,
+  branchPhotos: z.array(z.file()).optional(),
   municipalLicense: z.instanceof(File).optional(),
   partner: z.number(),
   responsible: z.string(),

@@ -4,13 +4,16 @@ import { cn } from "@/lib/utils";
 import { FileIcon, Trash2, Upload } from "lucide-react";
 import * as React from "react";
 import { Button } from "./button";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface FileInputProps {
   className?: string;
-  value?: File | null;
-  onChange?: (file: File | null) => void;
+  value?: File | File[] | null;
+  onChange?: (file: File | File[] | null) => void;
   disabled?: boolean;
   accept?: string;
+  multiple?: boolean;
+  placeholder?: string;
 }
 
 const FileInput = ({
@@ -19,11 +22,15 @@ const FileInput = ({
   onChange,
   disabled,
   accept,
+  multiple = false,
+  placeholder,
 }: FileInputProps) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleFileSelection = (file: File | null) => {
+  const { t } = useTranslation();
+
+  const handleFileSelection = (file: File | File[] | null) => {
     if (!disabled) onChange?.(file);
   };
 
@@ -40,19 +47,76 @@ const FileInput = ({
     setIsDragging(false);
 
     if (!disabled) {
-      const file = e.dataTransfer.files?.[0] ?? null;
-      handleFileSelection(file);
+      if (multiple) {
+        const files = Array.from(e.dataTransfer.files);
+        handleFileSelection(files.length > 0 ? files : null);
+      } else {
+        const file = e.dataTransfer.files?.[0] ?? null;
+        handleFileSelection(file);
+      }
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFileSelection(e.target.files?.[0] ?? null);
+    if (multiple) {
+      const files = e.target.files ? Array.from(e.target.files) : null;
+      handleFileSelection(files);
+    } else {
+      handleFileSelection(e.target.files?.[0] ?? null);
+    }
   };
 
-  const handleRemove = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleRemove = (e: React.MouseEvent<HTMLButtonElement>, index?: number) => {
     e.preventDefault();
-    handleFileSelection(null);
+    e.stopPropagation();
+
+    if (multiple && Array.isArray(value) && index !== undefined) {
+      const newFiles = value.filter((_, i) => i !== index);
+      handleFileSelection(newFiles.length > 0 ? newFiles : null);
+    } else {
+      handleFileSelection(null);
+    }
+
     if (inputRef.current) inputRef.current.value = "";
+  };
+
+  // Render files display
+  const renderFiles = () => {
+    if (!value) return null;
+
+    const files = Array.isArray(value) ? value : [value];
+
+    return (
+      <div className="space-y-2">
+        {files.map((file, index) => (
+          <div
+            key={`${file.name}-${index}`}
+            className="flex items-center gap-2 rounded-md bg-muted/50 p-2"
+          >
+            <div className="rounded-md bg-background p-2">
+              <FileIcon className="size-4 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="truncate text-sm font-medium">{file.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {(file.size / 1024 / 1024).toFixed(2)} MB
+              </p>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              disabled={disabled}
+              onClick={(e) => handleRemove(e, multiple ? index : undefined)}
+              className="flex-none size-8"
+            >
+              <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
+              <span className="sr-only">{t("form.removeFile")}</span>
+            </Button>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -76,41 +140,29 @@ const FileInput = ({
           type="file"
           accept={accept}
           disabled={disabled}
+          multiple={multiple}
           onChange={handleChange}
           className="hidden"
         />
         <div className="flex flex-col items-center gap-1">
           <Upload className="h-8 w-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-primary">Click to upload</span>{" "}
-            or drag and drop
+            <span className="font-semibold text-primary">
+              {t("form.clickToUpload")}
+            </span>{" "}
+            {t("form.orDragAndDrop")}
           </p>
+          {placeholder && (
+            <p className="text-xs text-muted-foreground mt-1">{placeholder}</p>
+          )}
+          {multiple && (
+            <p className="text-xs text-muted-foreground mt-1">
+              (Multiple files allowed)
+            </p>
+          )}
         </div>
       </div>
-      {value && (
-        <div className="flex items-center gap-2 rounded-md bg-muted/50 p-2">
-          <div className="rounded-md bg-background p-2">
-            <FileIcon className="size-4 text-muted-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium">{value.name}</p>
-            <p className="text-xs text-muted-foreground">
-              {(value.size / 1024 / 1024).toFixed(2)} MB
-            </p>
-          </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            disabled={disabled}
-            onClick={handleRemove}
-            className="flex-none size-8"
-          >
-            <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
-            <span className="sr-only">Remove file</span>
-          </Button>
-        </div>
-      )}
+      {renderFiles()}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useAuthStore } from "@/lib/stores/auth-store";
 
 interface LogoutDialogProps {
@@ -18,6 +19,8 @@ interface LogoutDialogProps {
 export function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
   const logout = useAuthStore((state) => state.logout);
 
+  const { t, isRTL } = useTranslation();
+
   const handleLogout = () => {
     logout();
     onOpenChange(false);
@@ -25,17 +28,18 @@ export function LogoutDialog({ open, onOpenChange }: LogoutDialogProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent dir={isRTL ? "rtl" : "ltr"}>
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+          <AlertDialogTitle>{t("logout.confirmTitle")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to log out? You will need to sign in again to
-            access your account.
+            {t("logout.confirmDescription")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleLogout}>Logout</AlertDialogAction>
+          <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
+          <AlertDialogAction color="destructive" onClick={handleLogout}>
+            {t("logout.title")}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

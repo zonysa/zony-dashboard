@@ -20,23 +20,21 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/useAuth";
-import { routerServerGlobal } from "next/dist/server/lib/router-utils/router-server-context";
 import { useRouter } from "next/navigation";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const registerMutation = useRegister();
-
   const router = useRouter();
+  const registerMutation = useRegister();
 
   const form = useForm<CustomerServiceFormData>({
     defaultValues: {
-      firstName: "Ahmed",
-      lastName: "Gamal",
-      phoneNumber: "0123123123123",
-      email: "courier1@email.com",
-      username: "courier1",
-      password: "00000000",
+      firstName: "",
+      lastName: "",
+      phoneNumber: "",
+      email: "",
+      username: "",
+      password: "",
     },
   });
 

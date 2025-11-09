@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { RegisterFormData, registerSchema } from "@/lib/schema/auth.schema";
 import { useRegister } from "@/lib/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface CreateUserSheetProps {
   open?: boolean;
@@ -46,6 +47,7 @@ const CreateUserSheet = ({
   userRole,
 }: CreateUserSheetProps) => {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -82,7 +84,12 @@ const CreateUserSheet = ({
         },
         {
           onSuccess: () => {
-            toast.success(`User "${data.username}" created successfully`);
+            toast.success(
+              t("dialogs.createUser.success").replace(
+                "{username}",
+                data.username
+              )
+            );
             form.reset();
             // Invalidate users query to refetch the list
             queryClient.invalidateQueries({ queryKey: ["users"] });
@@ -92,34 +99,27 @@ const CreateUserSheet = ({
             }
           },
           onError: (err) => {
-            toast.error(`Failed to create user: ${err.message}`);
+            toast.error(
+              t("dialogs.createUser.error").replace("{error}", err.message)
+            );
           },
         }
       );
     } catch (err) {
       console.error("Submission error:", err);
-      toast.error("An unexpected error occurred");
+      toast.error(t("dialogs.createUser.unexpectedError"));
     }
   }
-
-  const userMap = [
-    "representative",
-    "responsible",
-    "supervisor",
-    "customer_service",
-    "courier",
-    "customer",
-  ];
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-[625px] overflow-y-auto px-6">
         <SheetHeader className="px-0">
           <SheetTitle className="text-xl font-semibold">
-            Create New User
+            {t("dialogs.createUser.title")}
           </SheetTitle>
           <SheetDescription className="text-sm text-muted-foreground">
-            Fill in the user details below to create a new account.
+            {t("dialogs.createUser.description")}
           </SheetDescription>
         </SheetHeader>
 
@@ -128,16 +128,19 @@ const CreateUserSheet = ({
             {/* Account Details Section */}
             <div className="space-y-4">
               <h3 className="text-base font-semibold text-foreground">
-                Account Details
+                {t("forms.sections.accountDetails")}
               </h3>
               <FormField
                 control={control}
                 name="firstName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel>{t("forms.fields.firstName")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter First Name" {...field} />
+                      <Input
+                        placeholder={t("forms.placeholders.enterFirstName")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -149,9 +152,12 @@ const CreateUserSheet = ({
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel>{t("forms.fields.lastName")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter Last Name" {...field} />
+                      <Input
+                        placeholder={t("forms.placeholders.enterLastName")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -163,9 +169,12 @@ const CreateUserSheet = ({
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>{t("forms.fields.username")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter username" {...field} />
+                      <Input
+                        placeholder={t("forms.placeholders.enterUsername")}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -177,11 +186,11 @@ const CreateUserSheet = ({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>{t("forms.fields.email")}</FormLabel>
                     <FormControl>
                       <Input
                         type="email"
-                        placeholder="Enter email address"
+                        placeholder={t("forms.placeholders.enterEmail")}
                         {...field}
                       />
                     </FormControl>
@@ -195,11 +204,11 @@ const CreateUserSheet = ({
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t("forms.fields.password")}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Enter password"
+                        placeholder={t("forms.placeholders.enterPassword")}
                         {...field}
                       />
                     </FormControl>
@@ -212,7 +221,7 @@ const CreateUserSheet = ({
             {/* Personal Information Section */}
             <div className="space-y-4 pt-4 border-t">
               <h3 className="text-base font-semibold text-foreground">
-                Personal Information
+                {t("forms.sections.personalInformation")}
               </h3>
 
               <FormField
@@ -220,11 +229,11 @@ const CreateUserSheet = ({
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Phone Number</FormLabel>
+                    <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
                     <FormControl>
                       <Input
                         type="tel"
-                        placeholder="Enter phone number"
+                        placeholder={t("forms.placeholders.enterPhoneNumber")}
                         {...field}
                       />
                     </FormControl>
@@ -238,7 +247,7 @@ const CreateUserSheet = ({
                 name="roleId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role</FormLabel>
+                    <FormLabel>{t("forms.fields.role")}</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(Number(value))}
                       value={field.value?.toString()}
@@ -246,32 +255,30 @@ const CreateUserSheet = ({
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select a role" />
+                          <SelectValue
+                            placeholder={t("forms.placeholders.selectRole")}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {userRole ? (
-                          userMap.map((role, index) => {
-                            const roleId = index + 2;
-                            return (
-                              <SelectItem
-                                key={roleId}
-                                value={roleId.toString()}
-                              >
-                                {role.replace(/_/g, " ")}
-                              </SelectItem>
-                            );
-                          })
-                        ) : (
-                          <>
-                            <SelectItem value="2">Representative</SelectItem>
-                            <SelectItem value="3">Responsible</SelectItem>
-                            <SelectItem value="4">Supervisor</SelectItem>
-                            <SelectItem value="5">Customer Service</SelectItem>
-                            <SelectItem value="6">Courier</SelectItem>
-                            <SelectItem value="7">Customer</SelectItem>
-                          </>
-                        )}
+                        <SelectItem value="2">
+                          {t("forms.roles.representative")}
+                        </SelectItem>
+                        <SelectItem value="3">
+                          {t("forms.roles.responsible")}
+                        </SelectItem>
+                        <SelectItem value="4">
+                          {t("forms.roles.supervisor")}
+                        </SelectItem>
+                        <SelectItem value="5">
+                          {t("forms.roles.customerService")}
+                        </SelectItem>
+                        <SelectItem value="6">
+                          {t("forms.roles.courier")}
+                        </SelectItem>
+                        <SelectItem value="7">
+                          {t("forms.roles.customer")}
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -284,11 +291,13 @@ const CreateUserSheet = ({
             <SheetFooter className="w-full gap-2 pt-6 border-t px-0">
               <SheetClose asChild>
                 <Button type="button" variant="outline" disabled={isSubmitting}>
-                  Cancel
+                  {t("forms.actions.cancel")}
                 </Button>
               </SheetClose>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create User"}
+                {isSubmitting
+                  ? t("forms.actions.creating")
+                  : t("forms.actions.submit")}
               </Button>
             </SheetFooter>
           </form>

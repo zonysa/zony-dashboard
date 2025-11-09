@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 // Fix for default marker icon in react-leaflet
 interface IconDefaultPrototype extends L.Icon.Default {
@@ -62,6 +63,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
   onCoordinatesSelect,
   initialCoordinates,
 }) => {
+  const { t } = useTranslation();
   // Default to Baghdad, Iraq coordinates
   const defaultCenter = { lat: 33.3152, lng: 44.3661 };
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
@@ -111,11 +113,11 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-hidden">
+      <DialogContent className="sm:max-w-[700px] w-[800px] max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>Select Location Coordinates</DialogTitle>
+          <DialogTitle>{t("dialogs.coordinatePicker.title")}</DialogTitle>
           <DialogDescription>
-            Click on the map to select coordinates or enter them manually below.
+            {t("dialogs.coordinatePicker.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -139,24 +141,28 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
           {/* Manual Coordinate Input */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="latitude">Latitude</Label>
+              <Label htmlFor="latitude">
+                {t("dialogs.coordinatePicker.latitude")}
+              </Label>
               <Input
                 id="latitude"
                 type="number"
                 step="0.000001"
-                placeholder="e.g., 33.315200"
+                placeholder={t("dialogs.coordinatePicker.latitudePlaceholder")}
                 value={manualLat}
                 onChange={(e) => setManualLat(e.target.value)}
                 onBlur={handleManualUpdate}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="longitude">Longitude</Label>
+              <Label htmlFor="longitude">
+                {t("dialogs.coordinatePicker.longitude")}
+              </Label>
               <Input
                 id="longitude"
                 type="number"
                 step="0.000001"
-                placeholder="e.g., 44.366100"
+                placeholder={t("dialogs.coordinatePicker.longitudePlaceholder")}
                 value={manualLng}
                 onChange={(e) => setManualLng(e.target.value)}
                 onBlur={handleManualUpdate}
@@ -166,17 +172,18 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
 
           {position && (
             <div className="text-sm text-muted-foreground">
-              Selected: {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
+              {t("dialogs.coordinatePicker.selected")}:{" "}
+              {position.lat.toFixed(6)}, {position.lng.toFixed(6)}
             </div>
           )}
         </div>
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={handleCancel}>
-            Cancel
+            {t("forms.actions.cancel")}
           </Button>
           <Button type="button" onClick={handleSubmit} disabled={!position}>
-            Confirm Location
+            {t("dialogs.coordinatePicker.confirmLocation")}
           </Button>
         </DialogFooter>
       </DialogContent>

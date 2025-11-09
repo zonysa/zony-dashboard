@@ -2,13 +2,48 @@
 @import "tw-animate-css";
 @import "leaflet/dist/leaflet.css";
 
+/* Cairo Font Loading */
+@font-face {
+  font-family: 'Cairo';
+  src: url('/fonts/Cairo-Regular.woff2') format('woff2'),
+       url('/fonts/Cairo-Regular.woff') format('woff'),
+       url('/fonts/Cairo-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cairo';
+  src: url('/fonts/Cairo-Bold.woff2') format('woff2'),
+       url('/fonts/Cairo-Bold.woff') format('woff'),
+       url('/fonts/Cairo-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Cairo';
+  src: url('/fonts/Cairo-Light.woff2') format('woff2'),
+       url('/fonts/Cairo-Light.woff') format('woff'),
+       url('/fonts/Cairo-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
+@custom-variant rtl (:is([dir="rtl"] &));
+@custom-variant ltr (:is([dir="ltr"] &));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-poppins: var(--font-poppins);
+  --font-cairo: var(--font-cairo);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -120,4 +155,45 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* RTL Support */
+
+html[dir="rtl"] {
+  direction: rtl !important;
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-cairo), 'Cairo', system-ui, -apple-system, sans-serif !important;
+}
+
+html[dir="rtl"] * {
+  direction: rtl;
+  text-align: inherit;
+}
+
+html[dir="ltr"] {
+  direction: ltr;
+}
+
+html[dir="ltr"] body {
+  font-family: var(--font-poppins), 'Poppins', system-ui, -apple-system, sans-serif;
+}
+
+/* Flex direction */
+[dir="rtl"] .flex-row {
+  flex-direction: row !important;
+}
+
+[dir="rtl"] .flex-row-reverse {
+  flex-direction: row-reverse !important;
+}
+
+/* Text alignment */
+[dir="rtl"] .text-left {
+  text-align: right;
+}
+
+[dir="rtl"] .text-right {
+  text-align: right !important;
 }

@@ -40,6 +40,10 @@ module.exports = {
           900: "#18181b",
         },
       },
+      fontFamily: {
+        poppins: ["var(--font-poppins)"],
+        cairo: ["var(--font-cairo)"],
+      },
     },
     fontSize: {
       xs: ["0.75"],

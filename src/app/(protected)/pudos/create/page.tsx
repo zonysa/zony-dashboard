@@ -11,16 +11,18 @@ import {
 import { useCreateBranch } from "@/lib/hooks/useBranch";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export default function Page() {
   const branchMutation = useCreateBranch();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const formSteps: StepConfig<BranchFormData>[] = [
     {
       id: "pudoInfo",
-      title: "PUDO Info",
-      description: "PUDO location and branch details",
+      title: t("forms.sections.branchInfo"),
+      description: t("forms.sections.branchInfoDescription"),
       component: BranchInfoStep,
       validation: async (data: BranchFormData) => {
         // Validate PUDO info fields
@@ -49,8 +51,8 @@ export default function Page() {
     },
     {
       id: "operatingHours",
-      title: "Operating Hours",
-      description: "Set your PUDO location operating hours",
+      title: t("forms.sections.operatingHours"),
+      description: t("forms.sections.operatingHoursDescription"),
       component: OperatingHoursStep,
       validation: async (data: BranchFormData) => {
         // Operating hours validation
@@ -159,8 +161,8 @@ export default function Page() {
           // status: "active"
           gallery: [],
           oprating_hours: data.operatingHours,
-          municipal_license: "13213123",
-          password: "00000000",
+          municipal_license: "",
+          password: data.password,
           coordinates: {
             latitude: lat,
             longitude: lng,
@@ -175,13 +177,18 @@ export default function Page() {
         console.log(branchData);
         await branchMutation.mutateAsync(branchData, {
           onSuccess: () => {
-            toast.success(`Branch ${data.branchName} Created Successfuly`);
+            toast.success(
+              t("dialogs.createBranch.success").replace(
+                "{name}",
+                data.branchName
+              )
+            );
             router.push("/pudos");
           },
         });
       } catch (error) {
         console.error("Error submitting form:", error);
-        alert("Error submitting registration. Please try again.");
+        toast.error(t("dialogs.createBranch.error"));
       }
     },
     persistState: true, // Enable state persistence for better UX

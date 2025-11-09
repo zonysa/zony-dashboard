@@ -9,6 +9,8 @@ export interface PartnerDetails {
   status: string;
   commercial_registration: string;
   payout_per_parcel: number;
+  representative_phone_number: string;
+  representative_name: string;
   currency: string;
   unified_number: string;
   bank_name: string;

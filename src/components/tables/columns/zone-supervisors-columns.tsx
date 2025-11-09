@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { UserDetails } from "@/lib/schema/user.schema";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 interface ZoneSupervisorsColumnsProps {
   onDelete: (id: string, name: string) => void;
@@ -11,72 +12,81 @@ interface ZoneSupervisorsColumnsProps {
 
 export const createZoneSupervisorsColumns = ({
   onDelete,
-}: ZoneSupervisorsColumnsProps): ColumnDef<UserDetails>[] => [
-  {
-    accessorKey: "first_name",
-    header: "First Name",
-    cell: ({ row }) => {
-      const firstName = row.getValue("first_name") as string;
-      return <div className="font-medium">{firstName}</div>;
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "last_name",
-    header: "Last Name",
-    cell: ({ row }) => {
-      const lastName = row.getValue("last_name") as string;
-      return <div className="font-medium">{lastName}</div>;
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => {
-      const email = row.getValue("email") as string;
-      return <div className="text-sm">{email}</div>;
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "phone_number",
-    header: "Phone",
-    cell: ({ row }) => {
-      const phone = row.getValue("phone_number") as string;
-      return <div className="text-sm">{phone}</div>;
-    },
-    filterFn: "includesString",
-  },
-  {
-    accessorKey: "is_active",
-    header: "Status",
-    cell: ({ row }) => {
-      const isActive = row.getValue("is_active") as boolean;
-      return (
-        <Badge variant={isActive ? "success" : "secondary"}>
-          {isActive ? "Active" : "Inactive"}
-        </Badge>
-      );
-    },
-  },
-  {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => {
-      const supervisor = row.original;
-      const fullName = `${supervisor.first_name} ${supervisor.last_name}`;
+}: ZoneSupervisorsColumnsProps) => {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const { t } = useTranslation();
 
-      return (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onDelete(supervisor.id, fullName)}
-          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      );
+  const columns: ColumnDef<UserDetails>[] = [
+    {
+      accessorKey: "first_name",
+      header: t("table.firstName"),
+      cell: ({ row }) => {
+        const firstName = row.getValue("first_name") as string;
+        return <div className="font-medium">{firstName}</div>;
+      },
+      filterFn: "includesString",
     },
-  },
-];
+    {
+      accessorKey: "last_name",
+      header: t("table.lastName"),
+      cell: ({ row }) => {
+        const lastName = row.getValue("last_name") as string;
+        return <div className="font-medium">{lastName}</div>;
+      },
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "email",
+      header: t("table.email"),
+      cell: ({ row }) => {
+        const email = row.getValue("email") as string;
+        return <div className="text-sm">{email}</div>;
+      },
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "phone_number",
+      header: t("table.phoneNumber") || "Phone",
+      cell: ({ row }) => {
+        const phone = row.getValue("phone_number") as string;
+        return <div className="text-sm">{phone}</div>;
+      },
+      filterFn: "includesString",
+    },
+    {
+      accessorKey: "is_active",
+      header: t("table.status") || "Status",
+      cell: ({ row }) => {
+        const isActive = row.getValue("is_active") as boolean;
+        return (
+          <Badge variant={isActive ? "success" : "secondary"}>
+            {isActive
+              ? t("status.active", { defaultValue: "Active" })
+              : t("status.inactive", { defaultValue: "Inactive" })}
+          </Badge>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: t("table.actions") || "Actions",
+      cell: ({ row }) => {
+        const supervisor = row.original;
+        const fullName = `${supervisor.first_name} ${supervisor.last_name}`;
+
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(supervisor.id, fullName)}
+            className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        );
+      },
+    },
+  ];
+
+  return columns;
+};
