@@ -34,6 +34,7 @@ import { RegisterFormData, registerSchema } from "@/lib/schema/auth.schema";
 import { useRegister } from "@/lib/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useEffect } from "react";
 
 interface CreateUserSheetProps {
   open?: boolean;
@@ -60,6 +61,12 @@ const CreateUserSheet = ({
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (userRole) {
+      form.setValue("roleId", userRole);
+    }
+  }, [userRole, form]);
 
   const {
     control,

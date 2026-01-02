@@ -24,7 +24,6 @@ import {
   GetZonesRes,
   GetZoneRes,
   CreateZoneRes,
-  ZoneDetails,
 } from "@/lib/schema/zones.schema";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

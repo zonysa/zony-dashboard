@@ -1,138 +1,112 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star } from "lucide-react";
 import { SectionCards } from "@/components/ui/section-cards";
+import { useGetKPIEvaluations } from "@/lib/hooks/useKpi";
+import { KPIEvaluationItem } from "@/lib/schema/kpi.schema";
+import { AlertCircle, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
-interface BranchDetailsProps {
-  branchData?: {
-    title: string;
-    location: string;
-    rating: number;
-    mapUrl?: string;
-    photos: string[];
-    coordinates?: {
-      lat: number;
-      lng: number;
-    };
-    name: string;
-    phoneNum: string;
-  };
+// KPI category mapping based on kpi_id
+// Core Financial: 1-4
+// Operational Performance: 5-8
+// Customer & Market: 9-12
+// Quality & Satisfaction: 13+ (if any)
+const KPI_CATEGORIES: Record<string, readonly number[]> = {
+  "core-financial": [1, 2, 3, 4],
+  "operational-performance": [5, 6, 7, 8],
+  "customer-market": [9, 10, 11, 12],
+  "quality-satisfaction": [13, 14, 15, 16],
+};
+
+type CategoryKey = keyof typeof KPI_CATEGORIES;
+
+function filterKPIsByCategory(
+  evaluations: KPIEvaluationItem[] | undefined,
+  category: CategoryKey
+): KPIEvaluationItem[] {
+  if (!evaluations) return [];
+  const categoryIds = KPI_CATEGORIES[category];
+  return evaluations.filter((kpi) => categoryIds.includes(kpi.kpi_id));
 }
 
-function BranchDetails({ branchData }: BranchDetailsProps) {
-  const defaultData = {
-    title: "Wafa Pharmacy",
-    rating: 4.6,
-    location: "4517 Washington Ave. Manchester, Kentucky 39495",
-    mapUrl: "https://placehold.co/600x400",
-    coordinates: {
-      lat: 38.2527,
-      lng: -85.7585,
-    },
-    photos: [
-      "/api/placeholder/240/180",
-      "/api/placeholder/240/180",
-      "/api/placeholder/240/180",
-    ],
-    name: "Adel Shakal",
-    phoneNum: "0321321981120",
-  };
+function ReportsAnalyticsPage() {
+  const { t } = useTranslation();
+  const { data, isLoading, error, refetch, isRefetching } =
+    useGetKPIEvaluations();
 
-  const data = branchData || defaultData;
+  // Memoize filtered KPIs for each category
+  const coreFinancialKPIs = useMemo(
+    () => filterKPIsByCategory(data?.evaluations, "core-financial"),
+    [data?.evaluations]
+  );
 
-  // Edit states
-  const [editStates, setEditStates] = useState({
-    branchInfo: false,
-    responsiblePerson: false,
-  });
+  const operationalKPIs = useMemo(
+    () => filterKPIsByCategory(data?.evaluations, "operational-performance"),
+    [data?.evaluations]
+  );
 
-  // Form data states
-  const [formData, setFormData] = useState({
-    title: data.title,
-    location: data.location,
-    name: data.name,
-    phoneNum: data.phoneNum,
-  });
+  const customerMarketKPIs = useMemo(
+    () => filterKPIsByCategory(data?.evaluations, "customer-market"),
+    [data?.evaluations]
+  );
 
-  const toggleEdit = (section: keyof typeof editStates) => {
-    setEditStates((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
+  const qualitySatisfactionKPIs = useMemo(
+    () => filterKPIsByCategory(data?.evaluations, "quality-satisfaction"),
+    [data?.evaluations]
+  );
 
-  const handleSave = (section: keyof typeof editStates) => {
-    // Here you would typically make an API call to save the data
-    console.log(`Saving ${section}:`, formData);
-    setEditStates((prev) => ({
-      ...prev,
-      [section]: false,
-    }));
-  };
-
-  const handleCancel = (section: keyof typeof editStates) => {
-    // Reset form data to original values
-    setFormData({
-      title: data.title,
-      location: data.location,
-      name: data.name,
-      phoneNum: data.phoneNum,
-    });
-    setEditStates((prev) => ({
-      ...prev,
-      [section]: false,
-    }));
-  };
-
-  const updateFormData = (field: keyof typeof formData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  const filterConfigs = [
-    { key: "city", label: "City", placeholder: "All Cities" },
-    { key: "zone", label: "Zone", placeholder: "All Zones" },
-    { key: "district", label: "District", placeholder: "All Districts" },
-    { key: "status", label: "Status", placeholder: "All Statuses" },
-  ];
-
-  // Render rating stars
-  const renderStars = (rating: number) => {
-    const fullStars = Math.floor(rating);
-
+  // Error state
+  if (error) {
     return (
-      <div className="flex items-center gap-1">
-        {[...Array(5)].map((_, index) => (
-          <Star
-            key={index}
-            className={`w-4 h-4 ${
-              index < fullStars
-                ? "fill-yellow-400 text-yellow-400"
-                : "fill-gray-200 text-gray-200"
-            }`}
-          />
-        ))}
-        <span className="ml-2 text-sm text-gray-600">{rating}</span>
+      <div className="flex w-full justify-center items-center flex-col gap-4 py-20">
+        <AlertCircle className="w-12 h-12 text-red-500" />
+        <h2 className="text-xl font-semibold text-gray-700">
+          {t("reports.loadFailed")}
+        </h2>
+        <p className="text-gray-500">{error.message}</p>
+        <Button onClick={() => refetch()} variant="outline">
+          <RefreshCw className="w-4 h-4 me-2" />
+          {t("reports.retry")}
+        </Button>
       </div>
     );
-  };
+  }
 
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
-        <Tabs defaultValue="core-financial" className="w-full gap-6">
+      {/* Header with refresh button */}
+      <div className="flex justify-between items-center px-6">
+        <h1 className="text-2xl font-semibold">{t("reports.title")}</h1>
+        <Button
+          onClick={() => refetch()}
+          variant="outline"
+          size="sm"
+          disabled={isRefetching}
+        >
+          <RefreshCw
+            className={`w-4 h-4 me-2 ${isRefetching ? "animate-spin" : ""}`}
+          />
+          {t("reports.refresh")}
+        </Button>
+      </div>
+
+      <Tabs defaultValue="core-financial" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
-            <TabsTrigger value="core-financial">Core Financial</TabsTrigger>
-            <TabsTrigger value="operational-performance">
-              Operational Performance
+            <TabsTrigger value="core-financial">
+              {t("reports.categories.coreFinancial")}
             </TabsTrigger>
-            <TabsTrigger value="customer-market">Customer & Market</TabsTrigger>
+            <TabsTrigger value="operational-performance">
+              {t("reports.categories.operationalPerformance")}
+            </TabsTrigger>
+            <TabsTrigger value="customer-market">
+              {t("reports.categories.customerMarket")}
+            </TabsTrigger>
             <TabsTrigger value="quality-satisfaction">
-              Quality & Satisfaction
+              {t("reports.categories.qualitySatisfaction")}
             </TabsTrigger>
           </div>
         </TabsList>
@@ -140,7 +114,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
         <TabsContent className="w-full" value="core-financial">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
+              <SectionCards kpis={coreFinancialKPIs} isLoading={isLoading} />
             </div>
           </div>
         </TabsContent>
@@ -148,7 +122,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
         <TabsContent className="w-full" value="operational-performance">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
+              <SectionCards kpis={operationalKPIs} isLoading={isLoading} />
             </div>
           </div>
         </TabsContent>
@@ -156,7 +130,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
         <TabsContent className="w-full" value="customer-market">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
+              <SectionCards kpis={customerMarketKPIs} isLoading={isLoading} />
             </div>
           </div>
         </TabsContent>
@@ -164,7 +138,10 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
         <TabsContent className="w-full" value="quality-satisfaction">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
+              <SectionCards
+                kpis={qualitySatisfactionKPIs}
+                isLoading={isLoading}
+              />
             </div>
           </div>
         </TabsContent>
@@ -173,4 +150,4 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
   );
 }
 
-export default BranchDetails;
+export default ReportsAnalyticsPage;

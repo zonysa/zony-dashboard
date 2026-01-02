@@ -37,45 +37,15 @@ export const columns = () => {
       filterFn: "includesString",
     },
     {
-      accessorKey: "city",
-      header: t("table.city") || "City",
-      cell: ({ row }) => {
-        const city = row.getValue("city") as string;
-        return <div className="font-medium capitalize">{city}</div>;
-      },
-      filterFn: "equalsString",
-    },
-    {
-      accessorKey: "zone",
-      header: t("table.zone") || "Zone",
-      cell: ({ row }) => {
-        const zone = row.getValue("zone") as string;
-        return <div className="text-sm">{zone}</div>;
-      },
-      filterFn: "includesString",
-    },
-    {
-      accessorKey: "status",
+      accessorKey: "is_active",
       header: t("table.status") || "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const getStatusVariant = (status: string) => {
-          switch (status) {
-            case "Active":
-              return "success";
-            case "Inactive":
-              return "destructive";
-            case "On Duty":
-              return "outline";
-            case "Off Duty":
-              return "secondary";
-            case "Suspended":
-              return "destructive";
-            default:
-              return "secondary";
-          }
-        };
-        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+        const isActive = row.getValue("status") as string;
+        return (
+          <Badge variant={isActive ? "success" : "destructive"}>
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        );
       },
       filterFn: "equalsString",
     },
