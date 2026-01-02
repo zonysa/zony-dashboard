@@ -33,7 +33,11 @@
     "actions": "Actions",
     "view": "View",
     "assign": "Assign",
-    "assigned": "Assigned"
+    "assigned": "Assigned",
+    "reset": "Reset",
+    "saving": "Saving...",
+    "unsaved": "Unsaved",
+    "retry": "Retry"
   },
   "table": {
     "page": "Page",
@@ -112,7 +116,27 @@
     "language": "Interface Language",
     "languageUpdated": "Language updated successfully",
     "rtlNote": "Arabic language uses right-to-left (RTL) text direction",
-    "ltrNote": "English language uses left-to-right (LTR) text direction"
+    "ltrNote": "English language uses left-to-right (LTR) text direction",
+    "kpi": {
+      "title": "KPI Settings",
+      "description": "Configure threshold zones for each KPI metric",
+      "settingsDescription": "Define red, yellow, and green zones for your KPI metrics to track performance thresholds.",
+      "configure": "Configure",
+      "updateSuccess": "KPI updated successfully",
+      "updateError": "Failed to update KPI settings",
+      "noKpis": "No KPIs found",
+      "redZone": "Red Zone (Critical)",
+      "yellowZone": "Yellow Zone (Warning)",
+      "greenZone": "Green Zone (Good)",
+      "comparison": "Comparison",
+      "gte": "Greater than or equal (≥) - Higher is better",
+      "lte": "Less than or equal (≤) - Lower is better",
+      "thresholds": "Zone Thresholds",
+      "maxValue": "Max Value:",
+      "order": "Order:",
+      "aboveThreshold": "Above previous threshold",
+      "belowThreshold": "Below previous threshold"
+    }
   },
   "logout": {
     "title": "Logout",
@@ -714,6 +738,18 @@
       "updateFailed": "Failed to update profile",
       "loadingError": "Error loading profile",
       "noData": "No profile data available"
+    }
+  },
+  "reports": {
+    "title": "Reports & Analytics",
+    "loadFailed": "Failed to load data",
+    "retry": "Retry",
+    "refresh": "Refresh",
+    "categories": {
+      "coreFinancial": "Core Financial",
+      "operationalPerformance": "Operational Performance",
+      "customerMarket": "Customer & Market",
+      "qualitySatisfaction": "Quality & Satisfaction"
     }
   }
 }

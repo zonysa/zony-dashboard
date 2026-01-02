@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useGetBranch, useGetBranchParcels } from "@/lib/hooks/useBranch";
 import { useParams, useRouter } from "next/navigation";
 import { SectionCards } from "@/components/ui/section-cards";
+import { useGetKPIEvaluations } from "@/lib/hooks/useKpi";
 import { columns } from "@/components/tables/columns/parcels-columns";
 import { Row } from "@tanstack/react-table";
 import { ParcelDetails } from "@/lib/schema/parcel.schema";
@@ -52,6 +53,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
     isError,
     error,
   } = useGetBranchParcels(branchId);
+  const { data: kpiData, isLoading: kpiLoading } = useGetKPIEvaluations();
 
   useEffect(() => {
     const coor = branch?.pudo?.coordinates;
@@ -390,7 +392,7 @@ function BranchDetails({ branchData }: BranchDetailsProps) {
         <TabsContent className="w-full px-6" value="kpis">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
+              <SectionCards kpis={kpiData?.evaluations || []} isLoading={kpiLoading} />
             </div>
           </div>
         </TabsContent>

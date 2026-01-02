@@ -183,7 +183,7 @@ function Header() {
       <CreateUserSheet
         open={showUserSheet}
         onOpenChange={setShowUserSheet}
-        userRole={userRoleId || 0}
+        userRole={userRoleId}
       />
     </header>
   );

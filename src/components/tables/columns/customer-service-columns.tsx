@@ -50,27 +50,15 @@ export const columns = () => {
       filterFn: "includesString",
     },
     {
-      accessorKey: "status",
+      accessorKey: "is_active",
       header: t("table.status") || "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status") as string;
-        const getStatusVariant = (status: string) => {
-          switch (status) {
-            case "Active":
-              return "success";
-            case "Inactive":
-              return "destructive";
-            case "On Break":
-              return "outline";
-            case "Training":
-              return "secondary";
-            case "Suspended":
-              return "destructive";
-            default:
-              return "secondary";
-          }
-        };
-        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+        const isActive = row.getValue("status") as string;
+        return (
+          <Badge variant={isActive ? "success" : "destructive"}>
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        );
       },
       filterFn: "equalsString",
     },
