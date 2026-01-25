@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import {
   BranchFilterOptions,
-  BranchFormData,
+  CreateBranch,
   GetBranchesRes,
   GetBranchRes,
 } from "@/lib/schema/branch.schema";
@@ -13,9 +13,11 @@ import {
   getBranchById,
   getBranches,
   getBranchParcels,
+  getBranchKPIs,
   updaetBranch,
 } from "../services/branch.service";
 import { getParcelsRes } from "../schema/parcel.schema";
+import { GetKPIEvaluationsRes } from "../schema/kpi.schema";
 
 // Query keys for consistency
 export const branchKeys = {
@@ -25,6 +27,7 @@ export const branchKeys = {
   details: () => [...branchKeys.all, "detail"] as const,
   detail: (id: string) => [...branchKeys.details(), id] as const,
   parcels: (id: string) => [...branchKeys.all, "parcels", id] as const,
+  kpis: (id: string) => [...branchKeys.all, "kpis", id] as const,
 };
 
 // Create Branch mutation
@@ -75,12 +78,28 @@ export function useGetBranchParcels(id: string, enabled = true) {
   });
 }
 
+// Get Branch KPIs
+export function useGetBranchKPIs(id: string, enabled = true) {
+  return useQuery<GetKPIEvaluationsRes>({
+    queryKey: branchKeys.kpis(id),
+    queryFn: async () => {
+      const result = await getBranchKPIs(id);
+      return result as GetKPIEvaluationsRes;
+    },
+    enabled: !!id && enabled, // Only run if ID exists and enabled
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
 // Update branch mutation
 export function useUpdateBranch() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<BranchFormData> }) =>
+    mutationFn: ({ id, data }: { id: string; data: Partial<CreateBranch> }) =>
       updaetBranch(id, data),
     onSuccess: (_, variables) => {
       toast.success("Branch updated successfully");

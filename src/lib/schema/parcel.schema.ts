@@ -11,21 +11,41 @@ export interface ParcelTable {
   client: string;
 }
 
+// Delivery address type
+export interface DeliveryAddress {
+  address_type: string;
+  date: string;
+  from_time: string;
+  to_time: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  short_address: string;
+}
+
 // Type for parcel details
 export type ParcelDetails = {
   barcode: string;
-  city_name: string;
+  city_name: string | null;
   client_name: string;
-  courier_id: string;
+  courier_id: string | null;
+  courier_name: string | null;
+  courier_phone_number: string | null;
   created_at: string;
+  customer_id: string;
+  customer_name: string;
   customer_phone_number: string;
-  delivering_date: string;
+  delivering_date: string | null;
+  delivery_address: DeliveryAddress | null;
+  delivery_method: string;
   id: number;
-  images: string | null;
+  images: Record<string, unknown> | null;
+  is_ticketed: boolean;
   pickup_period: number;
-  pudo_id: number;
+  pudo_id: number | null;
   receiving_code: string | null;
-  receiving_date: string;
+  receiving_date: string | null;
   status:
     | "waiting_confirmation"
     | "pending"
@@ -35,7 +55,7 @@ export type ParcelDetails = {
     | "failed";
   tracking_number: string;
   updated_at: string;
-  zone_name: string;
+  zone_name: string | null;
 };
 
 // Type for the getParcel API response
@@ -68,7 +88,7 @@ export interface parcelFilterOptions {
 
 export const parcelSchema = z.object({
   barcode: z.string().min(1, "Barcode is required"),
-  tracking_number: z.string(),
+  tracking_number: z.string().min(1, "Tracking number is required"),
   pickup_period: z
     .number()
     .int()
@@ -93,5 +113,18 @@ export const parcelSchema = z.object({
   customer_id: z.string().uuid("Invalid customer ID format"),
 });
 
+// Schema for creating parcels (minimal required fields)
+export const createParcelSchema = z.object({
+  tracking_number: z.string().min(1, "Tracking number is required"),
+  barcode: z.string().min(1, "Barcode is required"),
+  pickup_period: z.coerce
+    .number()
+    .int()
+    .positive("Pickup period must be a positive integer"),
+  client_id: z.coerce.number().int().positive("Client is required"),
+  customer_id: z.string().uuid("Invalid customer ID format"),
+});
+
 // Type inference
 export type ParcelFormData = z.infer<typeof parcelSchema>;
+export type CreateParcelFormData = z.infer<typeof createParcelSchema>;

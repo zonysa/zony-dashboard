@@ -3,12 +3,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { ParcelDetails } from "@/lib/schema/parcel.schema";
-import { useTranslation } from "@/lib/hooks/useTranslation";
+import { TFunction } from "i18next";
 
-export const columns = () => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { t } = useTranslation();
+interface ColumnsProps {
+  t: TFunction<"common">;
+}
 
+export const Columns = ({ t }: ColumnsProps) => {
   const columns: ColumnDef<ParcelDetails>[] = [
     {
       accessorKey: "id",

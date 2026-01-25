@@ -1,6 +1,6 @@
 import {
   BranchFilterOptions,
-  BranchFormData,
+  CreateBranch,
   CreateBranchRequest,
   GetBranchesRes,
   GetBranchRes,
@@ -9,7 +9,9 @@ import { getParcelsRes } from "../schema/parcel.schema";
 import { apiCall } from "./apiClient";
 
 // Create Partner
-export const createBranch = async (data: BranchFormData | CreateBranchRequest) => {
+export const createBranch = async (
+  data: CreateBranch | CreateBranchRequest,
+) => {
   return apiCall({
     method: "POST",
     url: "/pudos",
@@ -19,7 +21,7 @@ export const createBranch = async (data: BranchFormData | CreateBranchRequest) =
 
 // Get Partners
 export const getBranches = async (
-  filters: BranchFilterOptions
+  filters: BranchFilterOptions,
 ): Promise<GetBranchesRes> => {
   const params = new URLSearchParams();
 
@@ -50,11 +52,16 @@ export const getBranchParcels = async (id: string): Promise<getParcelsRes> => {
   });
 };
 
+// Get Branch KPIs
+export const getBranchKPIs = async (id: string) => {
+  return apiCall({
+    method: "GET",
+    url: `/pudos/${id}/kpis`,
+  });
+};
+
 // Update Parcel by ID
-export const updaetBranch = async (
-  id: string,
-  data: Partial<BranchFormData>
-) => {
+export const updaetBranch = async (id: string, data: Partial<CreateBranch>) => {
   return apiCall({
     method: "PATCH",
     url: `/branch/${id}`,

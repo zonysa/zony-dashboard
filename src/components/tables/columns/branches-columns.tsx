@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { BranchDetails } from "@/lib/schema/branch.schema";
+import { Branch } from "@/lib/schema/branch.schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { Circle } from "lucide-react";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -35,7 +35,7 @@ export const branchColumns = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { t } = useTranslation();
 
-  const columns: ColumnDef<BranchDetails>[] = [
+  const columns: ColumnDef<Branch>[] = [
     {
       accessorKey: "id",
       header: t("table.id") || "ID",

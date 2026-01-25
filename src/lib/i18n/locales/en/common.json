@@ -579,6 +579,8 @@
     },
     "sections": {
       "branchInfo": "Branch Info",
+      "locationDescription": "Location description",
+      "location": "Location",
       "branchInfoDescription": "Branch information and location details",
       "responsiblePerson": "Responsible Person",
       "responsiblePersonDescription": "Primary contact person for this branch",
@@ -619,6 +621,17 @@
       "bankStatement": "Bank Statement",
       "uploaded": "Uploaded",
       "trackingNumber": "Tracking Number",
+      "barcode": "Barcode",
+      "client": "Client",
+      "deliveryMethod": "Delivery Method",
+      "receivingCode": "Receiving Code",
+      "pickupPeriod": "Pickup Period",
+      "receivingDate": "Receiving Date",
+      "deliveringDate": "Delivering Date",
+      "deliveryAddress": "Delivery Address",
+      "deliveryDate": "Delivery Date",
+      "deliveryTime": "Delivery Time",
+      "customerId": "Customer ID",
       "pickupEndsAt": "Pickup Ends At",
       "from": "From",
       "to": "To",
@@ -629,7 +642,12 @@
       "customerName": "Customer Name",
       "customerPhoneNumber": "Customer Phone Number",
       "courierName": "Courier Name",
-      "courierPhoneNumber": "Courier Phone Number"
+      "courierPhoneNumber": "Courier Phone Number",
+      "status": "Status",
+      "municipalLicense": "Municipal License",
+      "clickToView": "Click to view",
+      "document": "Document",
+      "closed": "Closed"
     },
     "buttons": {
       "saveChanges": "Save Changes",
@@ -641,7 +659,9 @@
     "messages": {
       "operatingHoursPlaceholder": "Operating hours information will be displayed here",
       "needMoreTime": "Do you need more time to receive your package?",
-      "extendReceiptTime": "To extend the receipt time, click below:"
+      "extendReceiptTime": "To extend the receipt time, click below:",
+      "noCourierAssigned": "No courier assigned yet",
+      "noDocuments": "No documents available"
     }
   },
   "notFound": {

@@ -6,7 +6,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 
 export default function Page() {
   return (
-    <div className="flex flex-col gap-3 min-w-full items-center justify-starjt">
+    <div className="flex flex-col gap-3 min-w-full items-center justify-start">
       <Image
         className="absolute right-0 bottom-0 z-0"
         src="/icons/login-illustration.svg"

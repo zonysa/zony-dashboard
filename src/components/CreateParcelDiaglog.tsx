@@ -44,7 +44,7 @@ const CreateParcelSheet = () => {
 
   const form = useForm<ParcelFormData>({
     defaultValues: {
-      customer_id: "",
+      customer_id: "35f4a7fd-d683-4d79-a897-4444ab2205d1",
       barcode: "",
       tracking_number: "",
     },
@@ -74,18 +74,18 @@ const CreateParcelSheet = () => {
             toast.success(
               t("dialogs.createParcel.success").replace(
                 "{trackingNumber}",
-                data.tracking_number
-              )
+                data.tracking_number,
+              ),
             );
             form.reset();
             setDialogOpen(false);
           },
           onError: (err) => {
             toast.error(
-              t("dialogs.createParcel.error").replace("{error}", err.message)
+              t("dialogs.createParcel.error").replace("{error}", err.message),
             );
           },
-        }
+        },
       );
     } catch (err) {
       console.error("Submission error:", err);
@@ -131,7 +131,7 @@ const CreateParcelSheet = () => {
                       <FormControl>
                         <Input
                           placeholder={t(
-                            "forms.placeholders.enterTrackingNumber"
+                            "forms.placeholders.enterTrackingNumber",
                           )}
                           {...field}
                         />

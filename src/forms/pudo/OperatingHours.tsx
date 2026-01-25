@@ -18,13 +18,18 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { BranchFormData } from "@/lib/schema/branch.schema";
+import { CreateBranch } from "@/lib/schema/branch.schema";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
-export const OperatingHoursStep: React.FC<
-  StepComponentProps<BranchFormData>
-> = ({ form, onNext, onBack, onSubmit, isFirstStep, isLastStep }) => {
+export const OperatingHoursStep: React.FC<StepComponentProps<CreateBranch>> = ({
+  form,
+  onNext,
+  onBack,
+  onSubmit,
+  isFirstStep,
+  isLastStep,
+}) => {
   const { t } = useTranslation();
   const { control, watch, setValue } = form;
 
@@ -134,7 +139,7 @@ export const OperatingHoursStep: React.FC<
   const updateDayField = (
     day: string,
     field: "from" | "to" | "breakHour",
-    value: string
+    value: string,
   ) => {
     const currentHours = operatingHours || {};
     const dayHours = getDayHours(day);
@@ -201,9 +206,15 @@ export const OperatingHoursStep: React.FC<
           {/* Header */}
           <div className="grid grid-cols-[120px_1fr_1fr_1fr_48px] gap-4 pb-2">
             <div></div>
-            <div className="text-sm font-medium text-center">{t("time.from")}</div>
-            <div className="text-sm font-medium text-center">{t("time.to")}</div>
-            <div className="text-sm font-medium text-center">{t("time.breakHour")}</div>
+            <div className="text-sm font-medium text-center">
+              {t("time.from")}
+            </div>
+            <div className="text-sm font-medium text-center">
+              {t("time.to")}
+            </div>
+            <div className="text-sm font-medium text-center">
+              {t("time.breakHour")}
+            </div>
             <div></div>
           </div>
 
@@ -220,7 +231,9 @@ export const OperatingHoursStep: React.FC<
                 }`}
               >
                 {/* Day Name */}
-                <div className="capitalize font-medium">{t(`days.${day}` as never)}</div>
+                <div className="capitalize font-medium">
+                  {t(`days.${day}` as never)}
+                </div>
 
                 {/* From Time */}
                 <FormItem>
@@ -235,7 +248,7 @@ export const OperatingHoursStep: React.FC<
                       <SelectTrigger className="w-full">
                         <SelectValue>
                           {timeOptions.find(
-                            (opt) => opt.value === dayHours.from
+                            (opt) => opt.value === dayHours.from,
                           )?.label || "9:00 AM"}
                         </SelectValue>
                       </SelectTrigger>
@@ -290,7 +303,7 @@ export const OperatingHoursStep: React.FC<
                       <SelectTrigger className="w-full">
                         <SelectValue>
                           {timeOptions.find(
-                            (opt) => opt.value === dayHours.breakHour
+                            (opt) => opt.value === dayHours.breakHour,
                           )?.label || "12:00 PM"}
                         </SelectValue>
                       </SelectTrigger>

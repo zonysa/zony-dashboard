@@ -44,7 +44,7 @@ import { createZoneCustomerServiceColumns } from "@/components/tables/columns/zo
 import { createZoneDistrictsColumns } from "@/components/tables/columns/zone-districts-columns";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { AutoFitMap } from "@/components/ui/StaticMap";
-import { BranchDetails as Branch } from "@/lib/schema/branch.schema";
+import { Branch } from "@/lib/schema/branch.schema";
 
 function BranchDetails() {
   const param = useParams();
@@ -105,7 +105,7 @@ function BranchDetails() {
         .filter(
           (branch: Branch) =>
             branch?.coordinates?.latitude != null &&
-            branch?.coordinates?.longitude != null
+            branch?.coordinates?.longitude != null,
         )
         .map((branch: Branch) => ({
           lat: branch.coordinates!.latitude,
@@ -167,7 +167,7 @@ function BranchDetails() {
   };
 
   const handleAssignSupervisors = async (
-    supervisorIds: string[] | number[]
+    supervisorIds: string[] | number[],
   ) => {
     await assignSupervisorsMutation.mutateAsync(supervisorIds as string[]);
   };
@@ -177,10 +177,10 @@ function BranchDetails() {
   };
 
   const handleAssignCustomerServices = async (
-    customerServiceIds: string[] | number[]
+    customerServiceIds: string[] | number[],
   ) => {
     await assignCustomerServicesMutation.mutateAsync(
-      customerServiceIds as string[]
+      customerServiceIds as string[],
     );
   };
 
@@ -188,7 +188,7 @@ function BranchDetails() {
   const handleOpenDeleteDialog = (
     type: "district" | "supervisor" | "courier" | "customerService",
     id: string | number,
-    name: string
+    name: string,
   ) => {
     setDeleteDialogConfig({ type, id, name });
     setDeleteDialogOpen(true);
@@ -201,22 +201,22 @@ function BranchDetails() {
       switch (deleteDialogConfig.type) {
         case "district":
           await unassignDistrictMutation.mutateAsync(
-            deleteDialogConfig.id as string
+            deleteDialogConfig.id as string,
           );
           break;
         case "supervisor":
           await unassignSupervisorMutation.mutateAsync(
-            deleteDialogConfig.id as string
+            deleteDialogConfig.id as string,
           );
           break;
         case "courier":
           await unassignCourierMutation.mutateAsync(
-            deleteDialogConfig.id as string
+            deleteDialogConfig.id as string,
           );
           break;
         case "customerService":
           await unassignCustomerServiceMutation.mutateAsync(
-            deleteDialogConfig.id as string
+            deleteDialogConfig.id as string,
           );
           break;
       }

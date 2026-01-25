@@ -1,36 +1,15 @@
 import { z } from "zod";
 import { passwordSchema, registerSchema } from "./auth.schema";
 
-// API Response Interfaces
-export interface BranchDetails {
-  id: number;
-  name: string;
-  establishment_name: string;
-  establishment_type: string;
-  registration_number: string;
-  tax_number: string;
-  city: string;
-  district: string;
-  zone: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-  address: string;
-  branch_coordinates?: string;
-  responsible_name: string;
-  responsible_phone: string;
-  operating_hours: OperatingHours;
-  bank_name: string;
-  account_holder_name: string;
-  account_number: string;
-  iban: string;
-  status: string;
-}
+export const ResponsibleSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1),
+  phone_number: z.string().min(6),
+});
 
 // Get Branches
 export interface GetBranchesRes {
-  pudos: BranchDetails[];
+  pudos: Branch[];
   total: number;
   page: number;
   limit: number;
@@ -40,7 +19,7 @@ export interface GetBranchesRes {
 // Get Branch
 export interface GetBranchRes {
   message: string;
-  pudo: BranchDetails;
+  pudo: Branch;
   status: string;
 }
 
@@ -62,6 +41,52 @@ export interface OperatingHours {
     breakHour?: string;
   };
 }
+
+const CoordinatesSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
+
+const OperatingDaySchema = z.object({
+  breakHour: z.string(),
+  enabled: z.boolean(),
+  from: z.string(),
+  to: z.string(),
+});
+
+const OperatingHoursSchema = z.object({
+  friday: OperatingDaySchema,
+  monday: OperatingDaySchema,
+  saturday: OperatingDaySchema,
+  sunday: OperatingDaySchema,
+  thursday: OperatingDaySchema,
+  tuesday: OperatingDaySchema,
+  wednesday: OperatingDaySchema,
+});
+
+export const branchSchema = z.object({
+  activated_at: z.string().nullable(),
+  address: z.string(),
+  city_name: z.string(),
+  coordinates: CoordinatesSchema,
+  created_at: z.string(),
+  cumulative_active_days: z.number().int(),
+  district_name: z.string(),
+  gallery: z.array(z.any()),
+  id: z.number().int(),
+  last_receive: z.string().nullable(),
+  municipal_license: z.string(),
+  name: z.string(),
+  oprating_hours: OperatingHoursSchema,
+  partner_name: z.string(),
+  point_usage_percentage: z.number(),
+  responsible: ResponsibleSchema,
+  status: z.string(),
+  supervisor_names: z.array(z.string()),
+  total_parcels: z.number().int(),
+  updated_at: z.string(),
+  zone_id: z.number().int(),
+});
 
 // Enum Schemas
 export const branchStatusSchema = z.enum([
@@ -115,7 +140,7 @@ export const operatingHoursSchema = z.object({
         from: z.string(),
         to: z.string(),
         breakHour: z.string().optional(),
-      })
+      }),
     )
     .optional(),
   termsAccepted: z.boolean().optional(),
@@ -123,7 +148,7 @@ export const operatingHoursSchema = z.object({
 });
 
 // Combined Schemas
-export const branchSchema = branchInfoSchema.and(operatingHoursSchema);
+export const createBranchSchema = branchInfoSchema.and(operatingHoursSchema);
 
 // Query Schema for listing branches
 export const branchesQuerySchema = z.object({
@@ -156,7 +181,9 @@ export interface CreateBranchRequest {
 }
 
 // Exported Types
-export type BranchFormData = z.infer<typeof branchSchema>;
+
+export type Branch = z.infer<typeof branchSchema>;
+export type CreateBranch = z.infer<typeof createBranchSchema>;
 export type BranchInfoData = z.infer<typeof branchInfoSchema>;
 export type ResponsibleData = z.infer<typeof responsibleSchema>;
 export type OperatingHoursData = z.infer<typeof operatingHoursSchema>;
