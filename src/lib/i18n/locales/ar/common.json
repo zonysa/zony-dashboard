@@ -88,7 +88,7 @@
     "email": "البريد الإلكتروني",
     "deliveryRate": "معدل التسليم",
     "receivingDate": "تاريخ الوصول",
-    "courier": "الموصل",
+    "courier": "المندوب",
     "firstName": "الاسم الأول",
     "lastName": "اسم العائلة",
     "activeFilter": "التصفية الفعالة"
@@ -108,7 +108,7 @@
     "title": "خدمة العملاء"
   },
   "couriers": {
-    "title": "الموصلون"
+    "title": "المندوبون"
   },
   "settings": {
     "title": "الإعدادات",
@@ -184,7 +184,7 @@
     "districts": "الأحياء",
     "supervisors": "المشرفون",
     "assignedBranches": "الفروع المعينة",
-    "couriers": "الموصلون",
+    "couriers": "المندوبون",
     "customerServices": "خدمة العملاء",
     "zoneDetails": "تفاصيل المنطقة",
     "zoneDetailsDescription": "معلومات المنطقة وتفاصيل الموقع",
@@ -193,7 +193,7 @@
     "branchLocation": "موقع الفرع",
     "assignedDistricts": "الأحياء المعينة",
     "assignedSupervisors": "المشرفون المعينون",
-    "assignedCouriers": "الموصلون المعينون",
+    "assignedCouriers": "المندوبون المعينون",
     "assignedCustomerServices": "خدمات العملاء المعينة",
     "assignDistricts": "تعيين أحياء",
     "assignSupervisors": "تعيين مشرفين",
@@ -204,7 +204,7 @@
     "assignSupervisorsToZone": "تعيين مشرفين إلى المنطقة",
     "assignSupervisorsDescription": "اختر المشرفين لتعيينهم إلى هذه المنطقة",
     "assignCouriersToZone": "تعيين موصلين إلى المنطقة",
-    "assignCouriersDescription": "اختر الموصلين لتعيينهم إلى هذه المنطقة",
+    "assignCouriersDescription": "اختر المندوبين لتعيينهم إلى هذه المنطقة",
     "assignCustomerServicesToZone": "تعيين خدمة عملاء إلى المنطقة",
     "assignCustomerServicesDescription": "اختر موظفي خدمة العملاء لتعيينهم إلى هذه المنطقة",
     "removeFromZone": "إزالة من المنطقة",
@@ -215,7 +215,7 @@
     "searchCustomerServices": "بحث عن خدمة عملاء...",
     "searchDistrictName": "بحث عن اسم الحي...",
     "searchSupervisorName": "بحث عن اسم المشرف...",
-    "searchCourierName": "بحث عن اسم الموصل...",
+    "searchCourierName": "بحث عن اسم المندوب...",
     "searchCustomerServiceName": "بحث عن اسم خدمة العملاء...",
     "searchBranchName": "بحث عن اسم الفرع...",
     "zoneId": "رقم المنطقة",
@@ -400,7 +400,7 @@
       "operatingHours": "ساعات العمل",
       "operatingHoursDescription": "حدد ساعات عمل موقع PUDO الخاص بك",
       "supervisorInformation": "معلومات المشرف",
-      "courierInformation": "معلومات الموصل",
+      "courierInformation": "معلومات المندوب",
       "customerServiceInformation": "معلومات خدمة العملاء"
     },
     "roles": {
@@ -580,6 +580,8 @@
     "sections": {
       "branchInfo": "معلومات الفرع",
       "branchInfoDescription": "معلومات الفرع وتفاصيل الموقع",
+      "locationDescription": "وصف الموقع",
+      "location": "الموقع",
       "responsiblePerson": "الشخص المسؤول",
       "responsiblePersonDescription": "جهة الاتصال الأساسية لهذا الفرع",
       "documents": "المستندات",
@@ -595,8 +597,8 @@
       "deliveryTimelineDescription": "تواريخ التسليم المهمة ومعلومات انتهاء صلاحية الإيصال",
       "customer": "العميل",
       "customerDescription": "معلومات العميل وتفاصيل الاتصال",
-      "courier": "الموصل",
-      "courierDescription": "معلومات الموصل المعين وتفاصيل الاتصال",
+      "courier": "المندوب",
+      "courierDescription": "معلومات المندوب المعين وتفاصيل الاتصال",
       "pickupPoint": "نقطة الاستلام",
       "pickupPointDescription": "هل تحتاج إلى مزيد من الوقت لاستلام الطرد الخاص بك؟ اطلب تمديداً هنا",
       "extensionRequest": "طلب التمديد",
@@ -616,6 +618,17 @@
       "bankStatement": "كشف حساب بنكي",
       "uploaded": "تم التحميل",
       "trackingNumber": "رقم التتبع",
+      "barcode": "الباركود",
+      "client": "العميل",
+      "deliveryMethod": "طريقة التسليم",
+      "receivingCode": "رمز الاستلام",
+      "pickupPeriod": "فترة الاستلام",
+      "receivingDate": "تاريخ الاستلام",
+      "deliveringDate": "تاريخ التوصيل",
+      "deliveryAddress": "عنوان التوصيل",
+      "deliveryDate": "تاريخ التوصيل",
+      "deliveryTime": "وقت التوصيل",
+      "customerId": "معرف العميل",
       "pickupEndsAt": "ينتهي الاستلام في",
       "from": "من",
       "to": "إلى",
@@ -625,8 +638,13 @@
       "extensionAvailable": "التمديد متاح",
       "customerName": "اسم العميل",
       "customerPhoneNumber": "رقم هاتف العميل",
-      "courierName": "اسم الموصل",
-      "courierPhoneNumber": "رقم هاتف الموصل"
+      "courierName": "اسم المندوب",
+      "courierPhoneNumber": "رقم هاتف المندوب",
+      "status": "الحالة",
+      "municipalLicense": "الترخيص البلدي",
+      "clickToView": "انقر للعرض",
+      "document": "مستند",
+      "closed": "مغلق"
     },
     "buttons": {
       "saveChanges": "حفظ التغييرات",
@@ -638,7 +656,9 @@
     "messages": {
       "operatingHoursPlaceholder": "سيتم عرض معلومات ساعات العمل هنا",
       "needMoreTime": "هل تحتاج إلى مزيد من الوقت لاستلام الطرد الخاص بك؟",
-      "extendReceiptTime": "لتمديد وقت الاستلام، انقر أدناه:"
+      "extendReceiptTime": "لتمديد وقت الاستلام، انقر أدناه:",
+      "noCourierAssigned": "لم يتم تعيين موصل بعد",
+      "noDocuments": "لا توجد مستندات متاحة"
     }
   },
   "notFound": {
@@ -661,7 +681,7 @@
     "zones": "المناطق",
     "clients": "العملاء",
     "tickets": "التذاكر",
-    "courier": "الموصلون",
+    "courier": "المندوبون",
     "supervisors": "المشرفون",
     "customer-service": "خدمة العملاء",
     "settings": "الإعدادات",

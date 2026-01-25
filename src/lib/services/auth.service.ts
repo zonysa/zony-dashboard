@@ -83,7 +83,9 @@ export const refreshToken = async (refreshToken: string) => {
   return apiCall({
     method: "POST",
     url: "/auth/refresh",
-    data: { refreshToken },
+    headers: {
+      Authorization: `Bearer ${refreshToken}`,
+    },
   });
 };
 

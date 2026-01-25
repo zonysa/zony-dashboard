@@ -6,6 +6,7 @@ import { ReactQueryProvider } from "@/provider/reactQueryProvidor";
 import { I18nProvider } from "@/provider/I18nProvider";
 import { Toaster } from "sonner";
 import { HtmlWrapper } from "@/components/ui/HTMLWrapper";
+import { AuthInitializer } from "@/components/providers/AuthInitializer";
 
 const poppins = localFont({
   src: [
@@ -70,12 +71,14 @@ export default function RootLayout({
   return (
     <HtmlWrapper>
       <body className={`${poppins.variable} ${poppins.className} ${cairo.variable} antialiased`}>
-        <I18nProvider>
-          <ReactQueryProvider>
-            <Toaster position="top-center" richColors />
-            {children}
-          </ReactQueryProvider>
-        </I18nProvider>
+        <AuthInitializer>
+          <I18nProvider>
+            <ReactQueryProvider>
+              <Toaster position="top-center" richColors />
+              {children}
+            </ReactQueryProvider>
+          </I18nProvider>
+        </AuthInitializer>
       </body>
     </HtmlWrapper>
   );

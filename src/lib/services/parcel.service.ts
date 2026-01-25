@@ -3,11 +3,14 @@ import {
   getParcelsRes,
   parcelFilterOptions,
   ParcelFormData,
+  CreateParcelFormData,
 } from "../schema/parcel.schema";
 import { apiCall } from "./apiClient";
 
-// Create Partner
-export const createParcel = async (data: ParcelFormData) => {
+// Create Parcel
+export const createParcel = async (
+  data: CreateParcelFormData | ParcelFormData
+) => {
   return apiCall({
     method: "POST",
     url: "/parcels",

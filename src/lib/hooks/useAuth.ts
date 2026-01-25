@@ -64,7 +64,7 @@ export const useResetPassword = () => {
     mutationFn: resetPassword,
     onSuccess: () => {
       router.replace(
-        "/auth/login?message=Password reset successfully. Please sign in with your new password."
+        "/auth/login?message=Password reset successfully. Please sign in with your new password.",
       );
     },
     onError: (error) => {
@@ -217,7 +217,7 @@ export function useLogout() {
       toast.success("Logged out successfully");
 
       // Redirect to login
-      router.push("/login");
+      router.push("/auth/login");
     },
     onError: (error: Error) => {
       // Even if API call fails, clear local data
@@ -230,7 +230,7 @@ export function useLogout() {
       logoutStore();
 
       console.error("Logout error:", error);
-      router.push("/login");
+      router.push("/auth/login");
     },
   });
 }

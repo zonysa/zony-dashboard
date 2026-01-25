@@ -11,6 +11,30 @@ import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
+// Helper function to format date
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+// Helper function to format datetime
+const formatDateTime = (dateString: string | null) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 export default function Page() {
   const params = useParams();
   const parcelId = (params.id as string) || "";
@@ -23,20 +47,7 @@ export default function Page() {
     notFound();
   }
 
-  const trackingData = {
-    trackingNumber: "#1234AS54SQ",
-    pickupEndsAt: "41:34:17",
-    fromLocation: "Buraidah, Saudi Arabia",
-    toLocation: "Riyadh, Saudi Arabia",
-    date: "Mar 21, 2025",
-    expirationTime: "00:11, March 26, 2025",
-    status: "In Transit",
-    extensionAvailable: "Yes",
-    customerName: "Amir Yousry",
-    customerPhoneNumber: "0120213012",
-    courierName: "Amir Yousry",
-    courierPhoneNumber: "0120213012",
-  };
+  const parcelData = parcel?.parcel;
 
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
@@ -61,20 +72,35 @@ export default function Page() {
                 <div className="grid grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.trackingNumber")}
-                    value={String(parcel?.parcel?.id ?? "")}
+                    value={parcelData?.tracking_number || "N/A"}
                   />
                   <DataItem
-                    label={t("detailPages.labels.pickupEndsAt")}
-                    value={trackingData.pickupEndsAt}
+                    label={t("detailPages.labels.barcode")}
+                    value={parcelData?.barcode || "N/A"}
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <DataItem label={t("detailPages.labels.from")} value={trackingData.fromLocation} />
-                  <DataItem label={t("detailPages.labels.to")} value={trackingData.toLocation} />
+                  <DataItem
+                    label={t("detailPages.labels.client")}
+                    value={parcelData?.client_name || "N/A"}
+                  />
+                  <DataItem
+                    label={t("detailPages.labels.deliveryMethod")}
+                    value={parcelData?.delivery_method?.replace(/_/g, " ") || "N/A"}
+                  />
                 </div>
 
-                <DataItem label={t("detailPages.labels.shipmentDate")} value={trackingData.date} />
+                <div className="grid grid-cols-2 gap-3">
+                  <DataItem
+                    label={t("detailPages.labels.shipmentDate")}
+                    value={formatDate(parcelData?.created_at || null)}
+                  />
+                  <DataItem
+                    label={t("detailPages.labels.receivingCode")}
+                    value={parcelData?.receiving_code || "N/A"}
+                  />
+                </div>
               </CardContent>
             </Card>
 
@@ -89,20 +115,44 @@ export default function Page() {
               <CardContent className="flex-1 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <DataItem
-                    label={t("detailPages.labels.expirationTime")}
-                    value={trackingData.expirationTime}
+                    label={t("detailPages.labels.currentStatus")}
+                    value={parcelData?.status?.replace(/_/g, " ") || "N/A"}
                   />
                   <DataItem
-                    label={t("detailPages.labels.currentStatus")}
-                    value={trackingData.status}
+                    label={t("detailPages.labels.pickupPeriod")}
+                    value={parcelData?.pickup_period ? `${parcelData.pickup_period} days` : "N/A"}
                   />
                 </div>
 
-                <DataItem
-                  label={t("detailPages.labels.extensionAvailable")}
-                  value={trackingData.extensionAvailable}
-                  valueClassName="text-green-600"
-                />
+                <div className="grid grid-cols-2 gap-3">
+                  <DataItem
+                    label={t("detailPages.labels.receivingDate")}
+                    value={formatDateTime(parcelData?.receiving_date || null)}
+                  />
+                  <DataItem
+                    label={t("detailPages.labels.deliveringDate")}
+                    value={formatDateTime(parcelData?.delivering_date || null)}
+                  />
+                </div>
+
+                {parcelData?.delivery_address && (
+                  <>
+                    <DataItem
+                      label={t("detailPages.labels.deliveryAddress")}
+                      value={parcelData.delivery_address.short_address || "N/A"}
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <DataItem
+                        label={t("detailPages.labels.deliveryDate")}
+                        value={formatDate(parcelData.delivery_address.date)}
+                      />
+                      <DataItem
+                        label={t("detailPages.labels.deliveryTime")}
+                        value={`${parcelData.delivery_address.from_time} - ${parcelData.delivery_address.to_time}`}
+                      />
+                    </div>
+                  </>
+                )}
               </CardContent>
             </Card>
 
@@ -118,14 +168,18 @@ export default function Page() {
                 <div className="grid grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.customerName")}
-                    value={trackingData.customerName}
+                    value={parcelData?.customer_name || "N/A"}
                     valueClassName="text-primary"
                   />
                   <DataItem
                     label={t("detailPages.labels.customerPhoneNumber")}
-                    value={trackingData.customerPhoneNumber}
+                    value={parcelData?.customer_phone_number || "N/A"}
                   />
                 </div>
+                <DataItem
+                  label={t("detailPages.labels.customerId")}
+                  value={parcelData?.customer_id || "N/A"}
+                />
               </CardContent>
             </Card>
 
@@ -138,47 +192,55 @@ export default function Page() {
                 icon={Truck}
               />
               <CardContent className="flex-1 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <DataItem
-                    label={t("detailPages.labels.courierName")}
-                    value={trackingData.courierName}
-                  />
-                  <DataItem
-                    label={t("detailPages.labels.courierPhoneNumber")}
-                    value={trackingData.courierPhoneNumber}
-                  />
-                </div>
+                {parcelData?.courier_name || parcelData?.courier_phone_number ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.courierName")}
+                      value={parcelData?.courier_name || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.courierPhoneNumber")}
+                      value={parcelData?.courier_phone_number || "N/A"}
+                    />
+                  </div>
+                ) : (
+                  <div className="text-sm text-muted-foreground py-4">
+                    {t("detailPages.messages.noCourierAssigned")}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* PUDO Card */}
-            <Card className="flex flex-row items-center px-6 border-0 border-b rounded-none shadow-none">
-              <DataItem
-                isHeading={true}
-                label={t("detailPages.sections.pickupPoint")}
-                value={t("detailPages.sections.pickupPointDescription")}
-                icon={Store}
-                iconClassName="text-primary"
-              />
-              <CardContent className="flex-1">
-                <div className="px-4 py-4">
-                  <div className="flex flex-col gap-4">
-                    <div className="text-center text-gray-600 text-sm">
-                      {t("detailPages.messages.needMoreTime")}
-                    </div>
-                    <div className="text-center text-gray-500 text-xs">
-                      {t("detailPages.messages.extendReceiptTime")}
+            {parcelData?.pudo_id && (
+              <Card className="flex flex-row items-center px-6 border-0 border-b rounded-none shadow-none">
+                <DataItem
+                  isHeading={true}
+                  label={t("detailPages.sections.pickupPoint")}
+                  value={t("detailPages.sections.pickupPointDescription")}
+                  icon={Store}
+                  iconClassName="text-primary"
+                />
+                <CardContent className="flex-1">
+                  <div className="px-4 py-4">
+                    <div className="flex flex-col gap-4">
+                      <div className="text-center text-gray-600 text-sm">
+                        {t("detailPages.messages.needMoreTime")}
+                      </div>
+                      <div className="text-center text-gray-500 text-xs">
+                        {t("detailPages.messages.extendReceiptTime")}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-              <Link
-                href={`/pudos/${parcelId}`}
-                className="w-1/4 bg-primary hover:bg-primary/80 py-2 text-center text-white rounded-md text-sm font-medium transition-colors"
-              >
-                {t("detailPages.buttons.viewPickupPoint")}
-              </Link>
-            </Card>
+                </CardContent>
+                <Link
+                  href={`/pudos/${parcelData.pudo_id}`}
+                  className="w-1/4 bg-primary hover:bg-primary/80 py-2 text-center text-white rounded-md text-sm font-medium transition-colors"
+                >
+                  {t("detailPages.buttons.viewPickupPoint")}
+                </Link>
+              </Card>
+            )}
             {/* Extension Request Card */}
             <Card className="flex flex-row items-center px-6 border-0 border-b rounded-none shadow-none">
               <DataItem

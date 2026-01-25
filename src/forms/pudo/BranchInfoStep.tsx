@@ -32,7 +32,7 @@ import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import { Button } from "@/components/ui/button";
-import { BranchFormData } from "@/lib/schema/branch.schema";
+import { CreateBranch } from "@/lib/schema/branch.schema";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { CityDetails } from "@/lib/schema/city.schema";
 import { DistrictDetails } from "@/lib/schema/district.schema";
@@ -46,7 +46,7 @@ import { PartnerDetails } from "@/lib/schema/partner.schema";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
-export const BranchInfoStep: React.FC<StepComponentProps<BranchFormData>> = ({
+export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
   form,
   onNext,
   onBack,

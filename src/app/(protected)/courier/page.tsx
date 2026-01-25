@@ -32,10 +32,10 @@ function Page() {
     },
   ];
 
-  const handleRowClick = (row: Row<UserDetails>) => {
-    const courierId = row.getValue("ID") as string;
-    router.replace(`/courier/${courierId}`);
-  };
+  // const handleRowClick = (row: Row<UserDetails>) => {
+  //   const courierId = row.getValue("ID") as string;
+  //   router.replace(`/courier/${courierId}`);
+  // };
 
   return (
     <div className="w-full py-10 px-6">
@@ -45,7 +45,7 @@ function Page() {
         enableFiltering={true}
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
-        onRowClick={handleRowClick}
+        // onRowClick={handleRowClick}
         searchPlaceholder="Search partners..."
       />
     </div>

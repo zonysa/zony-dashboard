@@ -92,13 +92,13 @@ function Header() {
         );
       case "/pudos":
         return (
-          <Button onClick={() => router.push("/pudos/create")}>
+          <Button size="sm" onClick={() => router.push("/pudos/create")}>
             {t("buttons.addNewBranch")}
           </Button>
         );
       case "/settings":
         return (
-          <Button onClick={() => console.log("Save settings")}>
+          <Button size="sm" onClick={() => console.log("Save settings")}>
             {t("common.save")}
           </Button>
         );
@@ -118,7 +118,7 @@ function Header() {
         );
       case "/courier":
         return (
-          <Button onClick={() => handleAddUser(6)}>
+          <Button size="sm" onClick={() => handleAddUser(6)}>
             {t("buttons.createCourier")}
           </Button>
         );

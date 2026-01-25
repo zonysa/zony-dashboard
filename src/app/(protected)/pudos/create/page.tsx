@@ -4,10 +4,7 @@ import { MultiStepForm } from "@/forms/MultiStepForm";
 import { OperatingHoursStep } from "@/forms/pudo/OperatingHours";
 import { StepConfig, useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { BranchInfoStep } from "@/forms/pudo/BranchInfoStep";
-import {
-  BranchFormData,
-  CreateBranchRequest,
-} from "@/lib/schema/branch.schema";
+import { CreateBranch, CreateBranchRequest } from "@/lib/schema/branch.schema";
 import { useCreateBranch } from "@/lib/hooks/useBranch";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -18,13 +15,13 @@ export default function Page() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const formSteps: StepConfig<BranchFormData>[] = [
+  const formSteps: StepConfig<CreateBranch>[] = [
     {
       id: "pudoInfo",
       title: t("forms.sections.branchInfo"),
       description: t("forms.sections.branchInfoDescription"),
       component: BranchInfoStep,
-      validation: async (data: BranchFormData) => {
+      validation: async (data: CreateBranch) => {
         // Validate PUDO info fields
         if (!data["branchName"]) {
           console.log("Branch name is required");
@@ -54,7 +51,7 @@ export default function Page() {
       title: t("forms.sections.operatingHours"),
       description: t("forms.sections.operatingHoursDescription"),
       component: OperatingHoursStep,
-      validation: async (data: BranchFormData) => {
+      validation: async (data: CreateBranch) => {
         // Operating hours validation
         // If 24/7 is selected, no other validation needed
         if (data["twentyFourSeven"]) {
@@ -92,7 +89,7 @@ export default function Page() {
     },
   ];
 
-  const multiStep = useMultiStepForm<BranchFormData>({
+  const multiStep = useMultiStepForm<CreateBranch>({
     steps: formSteps,
     defaultValues: {
       // Set default values for the form
@@ -152,7 +149,7 @@ export default function Page() {
       // Here you would typically send the data to your API
       const [lat, lng] = data.coordinates
         .split(",")
-        .map((coord) => coord.trim());
+        .map((coord: string) => coord.trim());
       try {
         const branchData: CreateBranchRequest = {
           // Branch info
@@ -180,8 +177,8 @@ export default function Page() {
             toast.success(
               t("dialogs.createBranch.success").replace(
                 "{name}",
-                data.branchName
-              )
+                data.branchName,
+              ),
             );
             router.push("/pudos");
           },

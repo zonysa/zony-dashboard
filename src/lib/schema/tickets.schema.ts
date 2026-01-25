@@ -3,7 +3,17 @@ import { z } from "zod";
 // Customer data in ticket
 export interface CustomerData {
   phone_number: string;
-  first_name: string;
+  first_name: string | null;
+}
+
+// Ticket Log Entry
+export interface TicketLog {
+  id: number;
+  ticket_id: number;
+  action: string;
+  description: string;
+  created_by: string | null;
+  created_at: string;
 }
 
 // Ticket Details (API Response)
@@ -19,6 +29,10 @@ export interface TicketDetails {
   customer_data: CustomerData;
   created_at: string;
   updated_at: string;
+  parcel_id?: number;
+  description?: string;
+  type?: string;
+  logs?: TicketLog[];
 }
 
 // Get Tickets Response (List)

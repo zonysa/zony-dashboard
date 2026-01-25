@@ -16,16 +16,24 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   const router = useRouter();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isInitialized = useAuthStore((state) => state.isInitialized);
+  const logout = useAuthStore((state) => state.logout);
 
   useEffect(() => {
     // Check for token in localStorage
     const token = localStorage.getItem("authToken");
 
+    // Handle inconsistent state: auth store says authenticated but no token
+    if (isAuthenticated && !token && isInitialized) {
+      // Clear stale auth state
+      logout();
+      return;
+    }
+
     // If user is authenticated and has a token, redirect to dashboard
     if (token && isAuthenticated && isInitialized) {
       router.replace("/");
     }
-  }, [isAuthenticated, isInitialized, router]);
+  }, [isAuthenticated, isInitialized, router, logout]);
 
   // Show loading while checking auth status
   if (!isInitialized) {
