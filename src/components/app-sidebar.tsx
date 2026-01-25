@@ -133,9 +133,9 @@ function AppSidebarContent() {
     <>
       <SidebarHeader className="ps-4 pe-3 pt-6">
         {state === "expanded" ? (
-          <Image src="/icons/zony-logo.svg" alt="Logo" width={74} height={36} />
+          <Image src="/icons/zony-logo.png" alt="Logo" width={74} height={36} />
         ) : (
-          <Image src="/icons/mini-logo.svg" alt="Logo" width={46} height={46} />
+          <Image src="/icons/mini-logo.png" alt="Logo" width={46} height={46} />
         )}
       </SidebarHeader>
       <SidebarContent>

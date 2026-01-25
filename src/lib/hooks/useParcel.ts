@@ -24,10 +24,15 @@ export const parcelKeys = {
   detail: (id: string) => [...parcelKeys.details(), id] as const,
 };
 
-// Create parcel mutation
 export function useCreateParcel() {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: createParcel,
+    onSuccess: () => {
+      // Invalidate all parcel lists so they refetch automatically
+      queryClient.invalidateQueries({ queryKey: parcelKeys.lists() });
+    },
   });
 }
 
