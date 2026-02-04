@@ -8,6 +8,7 @@ import { useCreatePartner } from "@/lib/hooks/usePartner";
 import {
   CreatePartnerRequest,
   PartnerFormData,
+  bankSchema,
 } from "@/lib/schema/partner.schema";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -48,50 +49,98 @@ export default function Page() {
       title: "Bank Account",
       description: "Bank Account",
       component: BankAccountStep,
+      validation: async (data: PartnerFormData) => {
+        try {
+          // Validate bank account fields using Zod schema
+          bankSchema.parse({
+            bankName: data.bankName,
+            accountHolderName: data.accountHolderName,
+            accountNumber: data.accountNumber,
+            iban: data.iban,
+          });
+          return true;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+          // Show validation errors from Zod
+          if (error.issues && error.issues.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            error.issues.forEach((issue: any) => {
+              toast.error(issue.message);
+            });
+          } else {
+            toast.error("Validation failed");
+          }
+          return false;
+        }
+      },
     },
   ];
 
   const multiStep = useMultiStepForm<PartnerFormData>({
     steps: formSteps,
     defaultValues: {
-      partnerName: `Test`,
+      partnerName: ``,
       currency: "SAR",
-      payoutPerParcel: 1,
+      payoutPerParcel: undefined,
       type: "super market",
-      accountNumber: "123123123123213123",
-      accountHolderName: "Ahmed Fathy",
-      iban: "123123123123123123",
-      bankName: "Ahly",
-      unifiedNumber: "123123123",
+      accountNumber: "",
+      accountHolderName: "",
+      iban: "",
+      bankName: "",
+      unifiedNumber: "",
     },
     onComplete: async (data: PartnerFormData) => {
-      const partnerData: CreatePartnerRequest = {
-        // partner info
-        name: data.partnerName,
-        type: data.type,
-        status: "Active",
-        commercial_registration: "asdfas",
-        payout_per_parcel: Number(data.payoutPerParcel),
-        unified_number: data.unifiedNumber,
-        currency: data.currency,
+      try {
+        // Validate all data before submission
+        bankSchema.parse({
+          bankName: data.bankName,
+          accountHolderName: data.accountHolderName,
+          accountNumber: data.accountNumber,
+          iban: data.iban,
+        });
 
-        // bank
-        bank_name: data.bankName,
-        bank_holder_name: data.accountHolderName,
-        bank_account_number: data.accountNumber,
-        IBAN: data.iban,
+        const partnerData: CreatePartnerRequest = {
+          // partner info
+          name: data.partnerName,
+          type: data.type,
+          status: "Active",
+          commercial_registration: "",
+          payout_per_parcel: Number(data.payoutPerParcel),
+          unified_number: data.unifiedNumber,
+          currency: data.currency,
 
-        // representative
-        representative_id: String(data.representative),
-      };
+          // bank
+          bank_name: data.bankName,
+          bank_holder_name: data.accountHolderName,
+          bank_account_number: data.accountNumber,
+          IBAN: data.iban,
 
-      // console.log(partnerData);
-      await partnerMutation.mutateAsync(partnerData, {
-        onSuccess: () => {
-          toast.success(`New Partner ${data.partnerName} Created Successfuly`);
-          router.push("/partners");
-        },
-      });
+          // representative
+          representative_id: String(data.representative),
+        };
+
+        // console.log(partnerData);
+        await partnerMutation.mutateAsync(partnerData, {
+          onSuccess: () => {
+            toast.success(
+              `New Partner ${data.partnerName} Created Successfuly`,
+            );
+            router.push("/partners");
+          },
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        // Show validation errors from Zod
+        if (error.issues && error.issues.length > 0) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          error.issues.forEach((issue: any) => {
+            toast.error(issue.message);
+          });
+        } else {
+          toast.error("Please check all required fields");
+        }
+        throw error; // Re-throw to prevent submission
+      }
     },
     persistState: false,
   });

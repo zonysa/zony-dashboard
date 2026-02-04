@@ -7,13 +7,23 @@ export interface CustomerData {
 }
 
 // Ticket Log Entry
+export interface TicketLogChange {
+  new: string;
+  old: string;
+}
+
 export interface TicketLog {
-  id: number;
-  ticket_id: number;
-  action: string;
-  description: string;
-  created_by: string | null;
-  created_at: string;
+  changes: {
+    action_taken?: TicketLogChange;
+    comment?: TicketLogChange;
+    status?: TicketLogChange;
+    [key: string]: TicketLogChange | undefined;
+  };
+  performed_by: {
+    role: string;
+    user_id: string;
+  };
+  timestamp: string;
 }
 
 // Ticket Details (API Response)
@@ -64,10 +74,10 @@ export const ticketStatusSchema = z.enum([
 
 export const actionTakenSchema = z.enum([
   "pending",
-  "in_progress",
-  "resolved",
+  "investigating",
   "escalated",
-  "cancelled",
+  "resolved",
+  "no_action",
 ]);
 
 export const customerDataSchema = z.object({

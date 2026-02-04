@@ -162,7 +162,7 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent defaultValue="Cairo">
-                      {cities?.cities.map((city: CityDetails) => (
+                      {cities?.cities?.map((city: CityDetails) => (
                         <SelectItem key={city.id} value={String(city.id)}>
                           {city.name}
                         </SelectItem>

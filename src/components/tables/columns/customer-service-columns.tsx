@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { UserDetails } from "@/lib/schema/user.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import Link from "next/link";
 
 export const columns = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -14,7 +15,16 @@ export const columns = () => {
       header: t("table.name") || "Name",
       cell: ({ row }) => {
         const name = row.getValue("first_name") as string;
-        return <div className="font-medium ">{name}</div>;
+        const userId = row.original.id;
+
+        return (
+          <Link
+            href={`/users/${userId}`}
+            className="font-medium text-primary hover:underline"
+          >
+            {name}
+          </Link>
+        );
       },
       filterFn: "includesString",
     },

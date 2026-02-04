@@ -31,6 +31,8 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Filter, Search, X } from "lucide-react";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
+import { Spinner } from "@/components/ui/spinner";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface FilterOption {
   value: string;
@@ -42,6 +44,7 @@ interface FilterConfig {
   label: string;
   placeholder: string;
   options?: FilterOption[];
+  type?: "select" | "date"; // Add type field
 }
 
 interface DataTableProps<TData, TValue> {
@@ -52,6 +55,12 @@ interface DataTableProps<TData, TValue> {
   enableGlobalSearch?: boolean;
   searchPlaceholder?: string;
   onRowClick?: (row: Row<TData>) => void;
+
+  // Server-side mode (optional - backward compatible)
+  serverSide?: boolean;
+  onFilterChange?: (filters: Record<string, string>) => void;
+  onSearchChange?: (search: string) => void;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -62,6 +71,10 @@ export function DataTable<TData, TValue>({
   filterConfigs = [],
   enableGlobalSearch = false,
   searchPlaceholder = "Search...",
+  serverSide = false,
+  onFilterChange,
+  onSearchChange,
+  isLoading = false,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -71,6 +84,7 @@ export function DataTable<TData, TValue>({
 
   // Local filter states for the UI
   const [localFilters, setLocalFilters] = useState<Record<string, string>>({});
+  const [localDateFilters, setLocalDateFilters] = useState<Record<string, Date | undefined>>({});
   const [localSearch, setLocalSearch] = useState("");
 
   const table = useReactTable({
@@ -78,13 +92,14 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
+    ...(!serverSide && {
+      getFilteredRowModel: getFilteredRowModel(),
+      onColumnFiltersChange: setColumnFilters,
+      onGlobalFilterChange: setGlobalFilter,
+    }),
     globalFilterFn: "includesString",
     state: {
-      columnFilters,
-      globalFilter,
+      ...(!serverSide && { columnFilters, globalFilter }),
     },
   });
 
@@ -104,31 +119,54 @@ export function DataTable<TData, TValue>({
   };
 
   const applyFilters = () => {
-    // Apply global search
-    setGlobalFilter(localSearch);
+    if (serverSide) {
+      // Server-side mode: emit changes to parent component
+      onSearchChange?.(localSearch);
 
-    // Apply column filters
-    const filters: ColumnFiltersState = [];
-    Object.entries(localFilters).forEach(([key, value]) => {
-      if (value) {
-        filters.push({ id: key, value });
-      }
-    });
-    setColumnFilters(filters);
+      // Merge regular filters and date filters
+      const allFilters: Record<string, string> = { ...localFilters };
+      Object.entries(localDateFilters).forEach(([key, date]) => {
+        if (date) {
+          allFilters[key] = date.toISOString();
+        }
+      });
 
-    // Console log the selected options
-    console.log(t("table.appliedFilters"), {
-      search: localSearch,
-      filters: localFilters,
-      appliedAt: new Date().toISOString(),
-    });
+      onFilterChange?.(allFilters);
+    } else {
+      // Client-side mode: apply to table state (existing behavior)
+      setGlobalFilter(localSearch);
+
+      // Apply column filters
+      const filters: ColumnFiltersState = [];
+      Object.entries(localFilters).forEach(([key, value]) => {
+        if (value) {
+          filters.push({ id: key, value });
+        }
+      });
+      setColumnFilters(filters);
+
+      // Console log the selected options
+      console.log(t("table.appliedFilters"), {
+        search: localSearch,
+        filters: localFilters,
+        appliedAt: new Date().toISOString(),
+      });
+    }
   };
 
   const clearFilters = () => {
     setLocalFilters({});
+    setLocalDateFilters({});
     setLocalSearch("");
-    setColumnFilters([]);
-    setGlobalFilter("");
+    if (serverSide) {
+      // Server-side mode: emit empty filters
+      onSearchChange?.("");
+      onFilterChange?.({});
+    } else {
+      // Client-side mode: clear table state
+      setColumnFilters([]);
+      setGlobalFilter("");
+    }
   };
 
   const updateLocalFilter = (key: string, value: string) => {
@@ -138,8 +176,17 @@ export function DataTable<TData, TValue>({
     }));
   };
 
+  const updateLocalDateFilter = (key: string, date: Date | undefined) => {
+    setLocalDateFilters((prev) => ({
+      ...prev,
+      [key]: date,
+    }));
+  };
+
   const hasActiveFilters =
-    Object.values(localFilters).some(Boolean) || localSearch;
+    Object.values(localFilters).some(Boolean) ||
+    Object.values(localDateFilters).some(Boolean) ||
+    localSearch;
 
   return (
     <div className="space-y-4">
@@ -247,7 +294,12 @@ export function DataTable<TData, TValue>({
       )}
 
       {/* Table */}
-      <div className="overflow-hidden rounded-md border">
+      <div className="overflow-hidden rounded-md border relative">
+        {isLoading && (
+          <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+            <Spinner />
+          </div>
+        )}
         <Table>
           <TableHeader className="bg-gray-50">
             {table.getHeaderGroups().map((headerGroup) => (

@@ -30,6 +30,9 @@ export interface BranchFilterOptions {
   zone?: string;
   supervisor?: string;
   status?: string;
+  page?: number;
+  limit?: number;
+  search?: string;
 }
 
 // Operating Hours Interface

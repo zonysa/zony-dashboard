@@ -100,6 +100,9 @@ const CreateUserSheet = ({
             form.reset();
             // Invalidate users query to refetch the list
             queryClient.invalidateQueries({ queryKey: ["users"] });
+            // Invalidate available responsibles and representatives
+            queryClient.invalidateQueries({ queryKey: ["available-responsibles"] });
+            queryClient.invalidateQueries({ queryKey: ["available-representatives"] });
             // Close the sheet
             if (onOpenChange) {
               onOpenChange(false);

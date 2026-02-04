@@ -1,17 +1,31 @@
 "use client";
 
-import { columns } from "@/components/tables/columns/tickets-columns";
+import { useState } from "react";
+import { Columns } from "@/components/tables/columns/tickets-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetTickets } from "@/lib/hooks/useTicket";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { TicketDetails } from "@/lib/schema/tickets.schema";
-import { Row } from "@tanstack/react-table";
-import { useRouter } from "next/navigation";
+import { useDebounce } from "@/lib/hooks/useDebounce";
+import { TicketsQuery } from "@/lib/schema/tickets.schema";
 
 export default function Page() {
-  const { data: tickets } = useGetTickets();
   const { t } = useTranslation();
-  const router = useRouter();
+
+  // Filter state management
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
+
+  // Build query object
+  const query: Partial<TicketsQuery> = {
+    page: 1,
+    limit: 50,
+    search: debouncedSearch,
+    filters: filters,
+  };
+
+  // Fetch tickets with query
+  const { data: tickets, isLoading } = useGetTickets(query);
 
   const filterConfigs = [
     {
@@ -41,21 +55,19 @@ export default function Page() {
     },
   ];
 
-  const handleRowClick = (row: Row<TicketDetails>) => {
-    const ticketId = row.original.id;
-    router.push(`/tickets/${ticketId}`);
-  };
-
   return (
     <div className="w-full py-10 px-6">
       <DataTable
-        columns={columns()}
+        columns={Columns({ t })}
         data={tickets?.tickets ?? []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
         searchPlaceholder={t("table.searchTick")}
-        onRowClick={handleRowClick}
+        serverSide={true}
+        onFilterChange={setFilters}
+        onSearchChange={setSearch}
+        isLoading={isLoading}
       />
     </div>
   );

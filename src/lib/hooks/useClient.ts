@@ -8,7 +8,7 @@ import {
   updateClient,
   deleteClient,
 } from "@/lib/services/client.service";
-import { ClientsResponse } from "@/lib/schema/client.schema";
+import { ClientsResponse, ClientFilterOptions } from "@/lib/schema/client.schema";
 import { ClientFormData } from "../schema/client.schema";
 
 // Query keys
@@ -22,7 +22,7 @@ export const clientKeys = {
 };
 
 // Get all clients
-export function useGetClients(filters?: Record<string, unknown>) {
+export function useGetClients(filters?: ClientFilterOptions) {
   return useQuery<ClientsResponse, Error>({
     queryKey: clientKeys.list(JSON.stringify(filters)),
     queryFn: () => getClients(filters),

@@ -18,6 +18,10 @@ export type UserDetails = {
   last_login: string;
   created_at: string;
   updated_at: string;
+  zone?: string | null;
+  zone_id?: number | null;
+  district?: string | null;
+  district_id?: number | null;
 };
 
 // Get single user response
@@ -55,11 +59,38 @@ export type GetCustomerServicesRes = Omit<
   total_customer_service: number;
 };
 
+// Available user types for selection
+export type AvailableUser = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+};
+
+export type GetAvailableResponsiblesRes = {
+  message: string;
+  status: "success" | "error";
+  users: AvailableUser[];
+};
+
+export type GetAvailableRepresentativesRes = {
+  message: string;
+  status: "success" | "error";
+  users: AvailableUser[];
+};
+
 // Filter options
 export interface userFilterOptions {
   is_active?: boolean;
   role_id: number;
+  city?: string;
+  district?: string;
+  zone?: string;
+  status?: string;
+  search?: string;
   page?: number;
+  limit?: number;
 }
 
 // Form schema for creating/updating users

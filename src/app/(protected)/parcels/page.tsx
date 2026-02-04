@@ -1,17 +1,37 @@
 "use client";
 
+import { useState } from "react";
 import { Columns } from "@/components/tables/columns/parcels-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetParcels } from "@/lib/hooks/useParcel";
-import { ParcelDetails } from "@/lib/schema/parcel.schema";
+import { ParcelDetails, parcelFilterOptions } from "@/lib/schema/parcel.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 
 export default function Page() {
   const { t } = useTranslation();
-  const { data: parcels } = useGetParcels();
   const router = useRouter();
+
+  // Filter state management
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
+
+  // Build query object
+  const query: parcelFilterOptions = {
+    page: 1,
+    limit: 50,
+    search: debouncedSearch,
+    client: filters.client_name,
+    city: filters.city_name,
+    zone: filters.zone_name,
+    status: filters.status,
+  };
+
+  // Fetch parcels with query
+  const { data: parcels, isLoading } = useGetParcels(query);
 
   const filterConfigs = [
     { key: "date", label: t("table.date"), placeholder: t("table.date") },
@@ -47,6 +67,10 @@ export default function Page() {
         enableGlobalSearch={true}
         searchPlaceholder={t("parcels.searchPlaceholder")}
         onRowClick={handleRowClick}
+        serverSide={true}
+        onFilterChange={setFilters}
+        onSearchChange={setSearch}
+        isLoading={isLoading}
       />
     </div>
   );

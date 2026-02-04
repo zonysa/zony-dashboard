@@ -6,9 +6,9 @@ import dynamic from "next/dynamic";
 const CoordinatePickerDialog = dynamic(
   () =>
     import("@/components/CoordinatePickerDialog").then(
-      (mod) => mod.CoordinatePickerDialog
+      (mod) => mod.CoordinatePickerDialog,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 import {
@@ -40,8 +40,8 @@ import { useGetZones } from "@/lib/hooks/useZone";
 import { useGetDistricts } from "@/lib/hooks/useDistrict";
 import { useGetPartners } from "@/lib/hooks/usePartner";
 import CreateUserSheet from "@/components/CreateUserSheet";
-import { UserDetails } from "@/lib/schema/user.schema";
-import { useGetUsers } from "@/lib/hooks/useUsers";
+import { AvailableUser } from "@/lib/schema/user.schema";
+import { useGetAvailableResponsibles } from "@/lib/hooks/useUsers";
 import { PartnerDetails } from "@/lib/schema/partner.schema";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -54,7 +54,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
   isFirstStep,
   isLastStep,
 }) => {
-  const { data: users } = useGetUsers({ role_id: 3 });
+  const { data: responsibles } = useGetAvailableResponsibles();
   const [showUserSheet, setShowUserSheet] = useState(false);
   const [showCoordinatePicker, setShowCoordinatePicker] = useState(false);
   const [showPassword, setShowPassword] = useState(true);
@@ -208,7 +208,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {zones?.zones.map((zone: ZoneDetails) => (
+                      {zones?.zones?.map((zone: ZoneDetails) => (
                         <SelectItem
                           key={zone.id}
                           value={zone.id.toLocaleString()}
@@ -247,7 +247,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {district?.districts.map(
+                        {district?.districts?.map(
                           (district: DistrictDetails) => (
                             <SelectItem
                               key={district.id}
@@ -255,7 +255,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
                             >
                               {district.name}
                             </SelectItem>
-                          )
+                          ),
                         )}
                       </SelectContent>
                     </div>
@@ -365,13 +365,13 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
                         <SelectTrigger className="w-full">
                           <SelectValue
                             placeholder={t(
-                              "forms.placeholders.selectResponsible"
+                              "forms.placeholders.selectResponsible",
                             )}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {users?.users.map((user: UserDetails) => (
+                        {responsibles?.users?.map((user: AvailableUser) => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.first_name} {user.last_name}
                           </SelectItem>

@@ -79,6 +79,9 @@ export type getParcelsRes = {
 
 // Filter
 export interface parcelFilterOptions {
+  page?: number;
+  limit?: number;
+  search?: string;
   date?: Date;
   status?: string;
   client?: string;

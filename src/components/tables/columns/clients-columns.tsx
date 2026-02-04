@@ -3,6 +3,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Client } from "@/lib/schema/client.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import Link from "next/link";
 
 export const columns = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -17,6 +18,19 @@ export const columns = () => {
     {
       accessorKey: "name",
       header: t("table.client"),
+      cell: ({ row }) => {
+        const name = row.getValue("name") as string;
+        const clientId = row.original.id;
+
+        return (
+          <Link
+            href={`/clients/${clientId}`}
+            className="font-medium text-primary hover:underline"
+          >
+            {name}
+          </Link>
+        );
+      },
       filterFn: "includesString",
     },
     {

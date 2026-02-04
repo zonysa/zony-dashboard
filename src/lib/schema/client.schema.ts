@@ -53,10 +53,27 @@ export const clientsResponseSchema = z.object({
   message: z.string(),
 });
 
+// Clients list response schema
+export const clientResponseSchema = z.object({
+  client: clientSchema,
+  status: z.string(),
+  message: z.string(),
+});
+
+// Filter options for clients
+export interface ClientFilterOptions {
+  type?: string;
+  status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
 // Types
 export type Client = z.infer<typeof clientSchema>;
 export type ClientFormData = z.infer<typeof clientFormSchema>;
 export type ClientsResponse = z.infer<typeof clientsResponseSchema>;
+export type ClientResponse = z.infer<typeof clientResponseSchema>;
 export type ClientStatusType = z.infer<typeof ClientStatus>;
 export type ClientTypeEnum = z.infer<typeof ClientType>;
 export type CurrencyType = z.infer<typeof Currency>;

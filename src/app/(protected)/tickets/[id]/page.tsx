@@ -48,14 +48,14 @@ export default function TicketHistoryPage() {
     switch (action.toLowerCase()) {
       case "resolved":
         return "success";
-      case "cancelled":
+      case "escalated":
         return "destructive";
       case "pending":
         return "outline";
-      case "in_progress":
+      case "investigating":
         return "default";
-      case "escalated":
-        return "destructive";
+      case "no_action":
+        return "secondary";
       default:
         return "secondary";
     }
@@ -67,7 +67,7 @@ export default function TicketHistoryPage() {
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
           <p className="mt-2 text-sm text-muted-foreground">
-            Loading ticket...
+            {t("tickets.loading")}
           </p>
         </div>
       </div>
@@ -80,13 +80,13 @@ export default function TicketHistoryPage() {
         <Card className="w-full max-w-md">
           <CardContent className="pt-6">
             <p className="text-center text-destructive">
-              Failed to load ticket details
+              {t("tickets.loadingError")}
             </p>
             <Button
               className="mt-4 w-full"
               onClick={() => router.push("/tickets")}
             >
-              Back to Tickets
+              {t("tickets.backToTickets")}
             </Button>
           </CardContent>
         </Card>
@@ -110,9 +110,9 @@ export default function TicketHistoryPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold">Ticket #{ticket.id}</h1>
+            <h1 className="text-2xl font-bold">{t("tickets.ticketNumber")}{ticket.id}</h1>
             <p className="text-sm text-muted-foreground">
-              Created {formatDate(ticket.created_at)}
+              {t("tickets.created")} {formatDate(ticket.created_at)}
             </p>
           </div>
         </div>
@@ -129,7 +129,7 @@ export default function TicketHistoryPage() {
       {/* Main Information */}
       <Card>
         <CardHeader>
-          <CardTitle>Ticket Details</CardTitle>
+          <CardTitle>{t("tickets.sections.details")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -138,7 +138,7 @@ export default function TicketHistoryPage() {
               <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Tracking Number
+                  {t("tickets.labels.trackingNumber")}
                 </p>
                 <p className="font-mono text-sm">{ticket.tracking_number}</p>
               </div>
@@ -150,7 +150,7 @@ export default function TicketHistoryPage() {
                 <Package className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Parcel ID
+                    {t("tickets.labels.parcelId")}
                   </p>
                   <p className="font-mono text-sm">{ticket.parcel_id}</p>
                 </div>
@@ -162,7 +162,7 @@ export default function TicketHistoryPage() {
               <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Zone
+                  {t("tickets.labels.zone")}
                 </p>
                 <p className="text-sm">{ticket.zone_name}</p>
               </div>
@@ -173,7 +173,7 @@ export default function TicketHistoryPage() {
               <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  PUDO Point
+                  {t("tickets.labels.pudoPoint")}
                 </p>
                 <p className="text-sm">{ticket.pudo_name}</p>
               </div>
@@ -185,7 +185,7 @@ export default function TicketHistoryPage() {
                 <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    Type
+                    {t("tickets.labels.type")}
                   </p>
                   <p className="text-sm capitalize">{ticket.type}</p>
                 </div>
@@ -197,7 +197,7 @@ export default function TicketHistoryPage() {
               <Star className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Rating
+                  {t("tickets.labels.rating")}
                 </p>
                 <div className="flex items-center gap-1 mt-1">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -222,20 +222,20 @@ export default function TicketHistoryPage() {
           <div>
             <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
               <User className="h-4 w-4" />
-              Customer Information
+              {t("tickets.sections.customerInfo")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-6">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Name
+                  {t("tickets.labels.name")}
                 </p>
                 <p className="text-sm">
-                  {ticket.customer_data.first_name || "N/A"}
+                  {ticket.customer_data.first_name || t("tickets.labels.notAvailable")}
                 </p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Phone Number
+                  {t("tickets.labels.phoneNumber")}
                 </p>
                 <p className="font-mono text-sm">
                   {ticket.customer_data.phone_number}
@@ -250,7 +250,7 @@ export default function TicketHistoryPage() {
           {ticket.description && (
             <>
               <div>
-                <h3 className="text-sm font-semibold mb-2">Description</h3>
+                <h3 className="text-sm font-semibold mb-2">{t("tickets.sections.description")}</h3>
                 <p className="text-sm text-muted-foreground">
                   {ticket.description}
                 </p>
@@ -261,7 +261,7 @@ export default function TicketHistoryPage() {
 
           {/* Comment */}
           <div>
-            <h3 className="text-sm font-semibold mb-2">Comment</h3>
+            <h3 className="text-sm font-semibold mb-2">{t("tickets.sections.comment")}</h3>
             <p className="text-sm text-muted-foreground">{ticket.comment}</p>
           </div>
 
@@ -269,13 +269,13 @@ export default function TicketHistoryPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Created At
+                {t("tickets.labels.createdAt")}
               </p>
               <p className="text-sm">{formatDate(ticket.created_at)}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Last Updated
+                {t("tickets.labels.lastUpdated")}
               </p>
               <p className="text-sm">{formatDate(ticket.updated_at)}</p>
             </div>
@@ -286,54 +286,89 @@ export default function TicketHistoryPage() {
       {/* Ticket History/Logs */}
       <Card>
         <CardHeader>
-          <CardTitle>Ticket History</CardTitle>
+          <CardTitle>{t("tickets.history.title", { defaultValue: "Ticket History" })}</CardTitle>
         </CardHeader>
         <CardContent>
           {ticket.logs && ticket.logs.length > 0 ? (
             <div className="space-y-4">
-              {ticket.logs.map((log, index) => (
-                <div
-                  key={log.id}
-                  className="flex gap-4 pb-4 border-b last:border-b-0"
-                >
-                  <div className="flex flex-col items-center">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Clock className="h-4 w-4 text-primary" />
-                    </div>
-                    {index < ticket.logs!.length - 1 && (
-                      <div className="w-0.5 flex-1 bg-border mt-2" />
-                    )}
-                  </div>
-                  <div className="flex-1 pt-1">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="font-medium text-sm capitalize">
-                          {log.action}
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {log.description}
-                        </p>
+              {ticket.logs.map((log, index) => {
+                const changes = Object.entries(log.changes).filter(([_, value]) => value);
+
+                return (
+                  <div
+                    key={index}
+                    className="flex gap-4 pb-4 border-b last:border-b-0"
+                  >
+                    <div className="flex flex-col items-center">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Clock className="h-4 w-4 text-primary" />
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(log.created_at)}
-                        </p>
-                        {log.created_by && (
-                          <p className="text-xs text-muted-foreground">
-                            by {log.created_by}
+                      {index < ticket.logs!.length - 1 && (
+                        <div className="w-0.5 flex-1 bg-border mt-2" />
+                      )}
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {t(`tickets.roles.${log.performed_by.role}`, {
+                                defaultValue: log.performed_by.role
+                              })}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {t("tickets.history.madeChanges", { defaultValue: "made changes" })}
+                            </span>
+                          </div>
+
+                          <div className="space-y-2">
+                            {changes.map(([field, change]) => (
+                              <div key={field} className="text-sm">
+                                <span className="font-medium capitalize">
+                                  {t(`tickets.fields.${field}`, {
+                                    defaultValue: field.replace(/_/g, ' ')
+                                  })}:
+                                </span>
+                                <div className="ml-4 mt-1 space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">
+                                      {t("tickets.history.from", { defaultValue: "From" })}:
+                                    </span>
+                                    <Badge variant="secondary" className="text-xs">
+                                      {change?.old || t("common.empty", { defaultValue: "Empty" })}
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground">
+                                      {t("tickets.history.to", { defaultValue: "To" })}:
+                                    </span>
+                                    <Badge variant="default" className="text-xs">
+                                      {change?.new || t("common.empty", { defaultValue: "Empty" })}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className="text-xs text-muted-foreground whitespace-nowrap">
+                            {formatDate(log.timestamp)}
                           </p>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="text-center py-8">
               <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
-                No history logs available for this ticket
+                {t("tickets.history.noLogs", {
+                  defaultValue: "No history logs available for this ticket"
+                })}
               </p>
             </div>
           )}

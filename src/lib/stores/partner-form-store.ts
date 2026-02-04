@@ -18,10 +18,10 @@ interface PartnerFormStore {
 }
 
 const initialFormData: Partial<PartnerFormData> = {
-  type: "convenience store",
+  type: "super market",
   unifiedNumber: "",
-  payoutPerParcel: 1.0,
-  currency: "EGP",
+  payoutPerParcel: undefined,
+  currency: "SAR",
   partnerName: "",
   accountHolderName: "",
   bankName: "",
@@ -81,6 +81,6 @@ export const usePartnerFormStore = create<PartnerFormStore>()(
     }),
     {
       name: "partner-form-store", // for devtools
-    }
-  )
+    },
+  ),
 );

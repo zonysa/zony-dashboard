@@ -1,16 +1,16 @@
 "use client";
 
-import { Columns } from "@/components/tables/columns/parcels-columns";
+import { Columns } from "@/components/tables/columns/tickets-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { SectionCards } from "@/components/ui/section-cards";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { useGetKPIEvaluations } from "@/lib/hooks/useKpi";
-import { useGetParcels } from "@/lib/hooks/useParcel";
+import { useGetTickets } from "@/lib/hooks/useTicket";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export default function Page() {
   const { data, isLoading } = useGetKPIEvaluations();
-  const { data: parcels } = useGetParcels();
+  const { data: tickets } = useGetTickets();
   const { t } = useTranslation();
 
   return (
@@ -25,7 +25,7 @@ export default function Page() {
             <div className="px-4 lg:px-6">
               <DataTable
                 columns={Columns({ t })}
-                data={parcels?.parcels || []}
+                data={tickets?.tickets || []}
                 enableFiltering={false}
                 enableGlobalSearch={false}
                 searchPlaceholder={t("parcels.searchPlaceholder")}

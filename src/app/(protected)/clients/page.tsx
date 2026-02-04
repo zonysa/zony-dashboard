@@ -4,13 +4,27 @@ import { columns } from "@/components/tables/columns/clients-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { useGetClients } from "@/lib/hooks/useClient";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { Client } from "@/lib/schema/client.schema";
+import { Client, ClientFilterOptions } from "@/lib/schema/client.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 
 export default function Page() {
-  const { data: clients } = useGetClients();
   const { t } = useTranslation();
+  const router = useRouter();
+
+  const [filters, setFilters] = useState<ClientFilterOptions>({
+    page: 1,
+    limit: 50,
+  });
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
+
+  const { data: clients, isLoading } = useGetClients({
+    ...filters,
+    search: debouncedSearch,
+  });
 
   const filterConfigs = [
     { key: "type", label: t("table.type"), placeholder: t("table.allTypes") },
@@ -21,10 +35,21 @@ export default function Page() {
     },
   ];
 
-  const router = useRouter();
   const handleRowClick = (row: Row<Client>) => {
     const id = row.getValue("id");
     router.replace(`/clients/${id}`);
+  };
+
+  const handleFilterChange = (newFilters: Record<string, string>) => {
+    setFilters((prev) => ({
+      ...prev,
+      type: newFilters.type || undefined,
+      status: newFilters.status || undefined,
+    }));
+  };
+
+  const handleSearchChange = (searchValue: string) => {
+    setSearch(searchValue);
   };
 
   return (
@@ -35,8 +60,12 @@ export default function Page() {
         enableFiltering={true}
         filterConfigs={filterConfigs}
         enableGlobalSearch={true}
-        searchPlaceholder="Search partners..."
+        searchPlaceholder={t("table.search", "table.clients")}
         onRowClick={handleRowClick}
+        serverSide={true}
+        onFilterChange={handleFilterChange}
+        onSearchChange={handleSearchChange}
+        isLoading={isLoading}
       />
     </div>
   );

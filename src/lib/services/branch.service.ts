@@ -29,6 +29,10 @@ export const getBranches = async (
   if (filters?.zone) params.append("zone", filters.zone);
   if (filters?.district) params.append("district", filters.district);
   if (filters?.status) params.append("status", filters.status);
+  if (filters?.supervisor) params.append("supervisor", filters.supervisor);
+  if (filters?.page) params.append("page", filters.page.toString());
+  if (filters?.limit) params.append("limit", filters.limit.toString());
+  if (filters?.search) params.append("search", filters.search);
 
   return apiCall({
     method: "GET",

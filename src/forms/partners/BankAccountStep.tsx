@@ -16,8 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import { CardContent } from "@/components/ui/card";
@@ -156,53 +154,6 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
         </CardContent>
 
         <Separator className="my-12" />
-
-        {/* Confirmation */}
-        <CardContent className="space-y-4 px-0">
-          <FormField
-            control={control}
-            name="confirmDetails"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>{t("forms.doubleCheck.label")}</FormLabel>
-                  <FormDescription>
-                    {t("forms.doubleCheck.desc")}
-                  </FormDescription>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
-            name="termsAccepted"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>{t("forms.acceptTerms.label")}</FormLabel>
-                  <FormDescription>
-                    {t("forms.acceptTerms.desc")}
-                  </FormDescription>
-                </div>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </CardContent>
 
         {/* Navigation */}
         <StepNavigation

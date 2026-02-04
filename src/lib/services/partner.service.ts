@@ -25,6 +25,9 @@ export const getPartners = async (
 
   if (filters?.type) params.append("type", filters.type);
   if (filters?.status) params.append("status", filters.status);
+  if (filters?.search) params.append("search", filters.search);
+  if (filters?.page) params.append("page", filters.page.toString());
+  if (filters?.limit) params.append("limit", filters.limit.toString());
 
   return apiCall({
     method: "GET",

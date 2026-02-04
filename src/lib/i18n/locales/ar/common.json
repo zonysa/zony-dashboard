@@ -38,7 +38,8 @@
     "reset": "إعادة تعيين",
     "saving": "جاري الحفظ...",
     "unsaved": "غير محفوظ",
-    "retry": "إعادة المحاولة"
+    "retry": "إعادة المحاولة",
+    "empty": "فارغ"
   },
   "table": {
     "page": "الصفحة",
@@ -91,7 +92,8 @@
     "courier": "المندوب",
     "firstName": "الاسم الأول",
     "lastName": "اسم العائلة",
-    "activeFilter": "التصفية الفعالة"
+    "activeFilter": "التصفية الفعالة",
+    "createdAt": "تاريخ الإنشاء"
   },
   "parcels": {
     "title": "الطرود",
@@ -99,16 +101,110 @@
     "searchPlaceholder": "بحث عن طرد..."
   },
   "clients": {
-    "title": "العملاء"
+    "title": "العملاء",
+    "loading": "جاري تحميل العميل...",
+    "loadingError": "فشل تحميل تفاصيل العميل",
+    "backToClients": "العودة إلى العملاء",
+    "sections": {
+      "clientInfo": "معلومات العميل",
+      "financialInfo": "المعلومات المالية",
+      "statistics": "الإحصائيات"
+    },
+    "labels": {
+      "client": "عميل",
+      "clientId": "معرف العميل",
+      "email": "البريد الإلكتروني",
+      "phoneNumber": "رقم الهاتف",
+      "contactPerson": "الشخص المسؤول",
+      "type": "النوع",
+      "status": "الحالة",
+      "currency": "العملة",
+      "payoutPerParcel": "الدفع لكل طرد",
+      "totalParcels": "إجمالي الطرود",
+      "deliveryRate": "معدل التسليم",
+      "pudoPointsUsed": "نقاط الاستلام المستخدمة"
+    }
   },
   "tickets": {
-    "title": "التذاكر"
+    "title": "التذاكر",
+    "ticketNumber": "تذكرة #",
+    "created": "تم الإنشاء",
+    "loading": "جاري تحميل التذكرة...",
+    "loadingError": "فشل تحميل تفاصيل التذكرة",
+    "backToTickets": "العودة إلى التذاكر",
+    "sections": {
+      "details": "تفاصيل التذكرة",
+      "description": "الوصف",
+      "comment": "التعليق",
+      "customerInfo": "معلومات العميل"
+    },
+    "labels": {
+      "trackingNumber": "رقم التتبع",
+      "parcelId": "رقم الطرد",
+      "zone": "المنطقة",
+      "pudoPoint": "نقطة الاستلام",
+      "type": "النوع",
+      "rating": "التقييم",
+      "name": "الاسم",
+      "phoneNumber": "رقم الهاتف",
+      "createdAt": "تاريخ الإنشاء",
+      "lastUpdated": "آخر تحديث",
+      "notAvailable": "غير متوفر"
+    },
+    "history": {
+      "title": "سجل التذكرة",
+      "noLogs": "لا توجد سجلات متاحة لهذه التذكرة",
+      "madeChanges": "قام بإجراء تغييرات",
+      "from": "من",
+      "to": "إلى"
+    },
+    "roles": {
+      "admin": "مدير",
+      "supervisor": "مشرف",
+      "customer_service": "خدمة العملاء",
+      "courier": "مندوب",
+      "user": "مستخدم"
+    },
+    "fields": {
+      "action_taken": "الإجراء المتخذ",
+      "comment": "التعليق",
+      "status": "الحالة",
+      "rating": "التقييم",
+      "assigned_to": "مُسند إلى"
+    }
   },
   "customerService": {
     "title": "خدمة العملاء"
   },
   "couriers": {
     "title": "المندوبون"
+  },
+  "users": {
+    "title": "المستخدمون",
+    "loading": "جاري تحميل المستخدم...",
+    "loadingError": "فشل تحميل تفاصيل المستخدم",
+    "sections": {
+      "personalInfo": "المعلومات الشخصية",
+      "locationInfo": "معلومات الموقع",
+      "accountInfo": "معلومات الحساب"
+    },
+    "labels": {
+      "email": "البريد الإلكتروني",
+      "phoneNumber": "رقم الهاتف",
+      "gender": "الجنس",
+      "birthDate": "تاريخ الميلاد",
+      "identity": "الهوية",
+      "country": "الدولة",
+      "city": "المدينة",
+      "district": "الحي",
+      "zone": "المنطقة",
+      "userId": "معرف المستخدم",
+      "username": "اسم المستخدم",
+      "status": "الحالة",
+      "lastLogin": "آخر تسجيل دخول",
+      "createdAt": "تاريخ الإنشاء",
+      "updatedAt": "تاريخ التحديث"
+    }
   },
   "settings": {
     "title": "الإعدادات",

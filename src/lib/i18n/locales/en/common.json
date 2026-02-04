@@ -37,7 +37,8 @@
     "reset": "Reset",
     "saving": "Saving...",
     "unsaved": "Unsaved",
-    "retry": "Retry"
+    "retry": "Retry",
+    "empty": "Empty"
   },
   "table": {
     "page": "Page",
@@ -90,7 +91,8 @@
     "courier": "Courier",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "activeFilter": "Active filters:"
+    "activeFilter": "Active filters:",
+    "createdAt": "Created At"
   },
   "parcels": {
     "title": "Parcels",
@@ -98,16 +100,110 @@
     "searchPlaceholder": "Search parcels..."
   },
   "clients": {
-    "title": "Client"
+    "title": "Client",
+    "loading": "Loading client...",
+    "loadingError": "Failed to load client details",
+    "backToClients": "Back to Clients",
+    "sections": {
+      "clientInfo": "Client Information",
+      "financialInfo": "Financial Information",
+      "statistics": "Statistics"
+    },
+    "labels": {
+      "client": "Client",
+      "clientId": "Client ID",
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "contactPerson": "Contact Person",
+      "type": "Type",
+      "status": "Status",
+      "currency": "Currency",
+      "payoutPerParcel": "Payout Per Parcel",
+      "totalParcels": "Total Parcels",
+      "deliveryRate": "Delivery Rate",
+      "pudoPointsUsed": "PUDO Points Used"
+    }
   },
   "tickets": {
-    "title": "Tickets"
+    "title": "Tickets",
+    "ticketNumber": "Ticket #",
+    "created": "Created",
+    "loading": "Loading ticket...",
+    "loadingError": "Failed to load ticket details",
+    "backToTickets": "Back to Tickets",
+    "sections": {
+      "details": "Ticket Details",
+      "description": "Description",
+      "comment": "Comment",
+      "customerInfo": "Customer Information"
+    },
+    "labels": {
+      "trackingNumber": "Tracking Number",
+      "parcelId": "Parcel ID",
+      "zone": "Zone",
+      "pudoPoint": "PUDO Point",
+      "type": "Type",
+      "rating": "Rating",
+      "name": "Name",
+      "phoneNumber": "Phone Number",
+      "createdAt": "Created At",
+      "lastUpdated": "Last Updated",
+      "notAvailable": "N/A"
+    },
+    "history": {
+      "title": "Ticket History",
+      "noLogs": "No history logs available for this ticket",
+      "madeChanges": "made changes",
+      "from": "From",
+      "to": "To"
+    },
+    "roles": {
+      "admin": "Admin",
+      "supervisor": "Supervisor",
+      "customer_service": "Customer Service",
+      "courier": "Courier",
+      "user": "User"
+    },
+    "fields": {
+      "action_taken": "Action Taken",
+      "comment": "Comment",
+      "status": "Status",
+      "rating": "Rating",
+      "assigned_to": "Assigned To"
+    }
   },
   "customerService": {
     "title": "Customer Service"
   },
   "couriers": {
     "title": "Courier"
+  },
+  "users": {
+    "title": "Users",
+    "loading": "Loading user...",
+    "loadingError": "Failed to load user details",
+    "sections": {
+      "personalInfo": "Personal Information",
+      "locationInfo": "Location Information",
+      "accountInfo": "Account Information"
+    },
+    "labels": {
+      "email": "Email",
+      "phoneNumber": "Phone Number",
+      "gender": "Gender",
+      "birthDate": "Birth Date",
+      "identity": "Identity",
+      "country": "Country",
+      "city": "City",
+      "district": "District",
+      "zone": "Zone",
+      "userId": "User ID",
+      "username": "Username",
+      "status": "Status",
+      "lastLogin": "Last Login",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "settings": {
     "title": "Settings",

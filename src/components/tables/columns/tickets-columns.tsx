@@ -6,12 +6,9 @@ import { Star } from "lucide-react";
 import Link from "next/link";
 import TicketActionsCell from "@/components/TicketSheet";
 import { CustomerData, TicketDetails } from "@/lib/schema/tickets.schema";
-import { useTranslation } from "@/lib/hooks/useTranslation";
+import { ColumnsProps } from "@/lib/types/genral.types";
 
-export const columns = () => {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { t } = useTranslation();
-
+export const Columns = ({ t }: ColumnsProps) => {
   const columns: ColumnDef<TicketDetails>[] = [
     {
       accessorKey: "tracking_number",
@@ -56,11 +53,13 @@ export const columns = () => {
           switch (actionTaken) {
             case "resolved":
               return "success";
-            case "cancelled":
+            case "escalated":
               return "destructive";
             case "pending":
               return "outline";
             case "investigating":
+              return "secondary";
+            case "no_action":
               return "secondary";
             default:
               return "secondary";

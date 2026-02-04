@@ -5,12 +5,16 @@ import {
   getUser,
   getUsers,
   updateUser,
+  getAvailableResponsibles,
+  getAvailableRepresentatives,
 } from "@/lib/services/users.service";
 import {
   UserFormData,
   userFilterOptions,
   GetUsersRes,
   GetUserRes,
+  GetAvailableResponsiblesRes,
+  GetAvailableRepresentativesRes,
 } from "../schema/user.schema";
 import { useRouter } from "next/navigation";
 
@@ -55,6 +59,9 @@ export function useCreateUser() {
     onSuccess: () => {
       // Invalidate and refetch users list
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });
+      // Invalidate available responsibles and representatives
+      queryClient.invalidateQueries({ queryKey: ["available-responsibles"] });
+      queryClient.invalidateQueries({ queryKey: ["available-representatives"] });
       // Redirect to users list
       router.push("/users");
     },
@@ -117,5 +124,29 @@ export function useToggleUserStatus(id: string) {
     onError: (error) => {
       console.error("Toggle user status error:", error);
     },
+  });
+}
+
+// Get available responsibles
+export function useGetAvailableResponsibles() {
+  return useQuery<GetAvailableResponsiblesRes, Error>({
+    queryKey: ["available-responsibles"],
+    queryFn: getAvailableResponsibles,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// Get available representatives
+export function useGetAvailableRepresentatives() {
+  return useQuery<GetAvailableRepresentativesRes, Error>({
+    queryKey: ["available-representatives"],
+    queryFn: getAvailableRepresentatives,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }

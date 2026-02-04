@@ -23,8 +23,8 @@ import { PartnerFormData } from "@/lib/schema/partner.schema";
 import CreateUserSheet from "@/components/CreateUserSheet";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useGetUsers } from "@/lib/hooks/useAuth";
-import { UserDetails } from "@/lib/schema/user.schema";
+import { useGetAvailableRepresentatives } from "@/lib/hooks/useUsers";
+import { AvailableUser } from "@/lib/schema/user.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
 export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
@@ -34,7 +34,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   isFirstStep,
   isLastStep,
 }) => {
-  const { data: users } = useGetUsers({ role_id: 2 });
+  const { data: representatives } = useGetAvailableRepresentatives();
   const [showUserSheet, setShowUserSheet] = useState(false);
   const { control } = form;
   const { t } = useTranslation();
@@ -128,7 +128,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                       <SelectTrigger>
                         <SelectValue
                           placeholder={t(
-                            "forms.placeholders.selectBusinessType"
+                            "forms.placeholders.selectBusinessType",
                           )}
                         />
                       </SelectTrigger>
@@ -176,13 +176,13 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                         <SelectTrigger className="w-full">
                           <SelectValue
                             placeholder={t(
-                              "forms.placeholders.selectRepresentative"
+                              "forms.placeholders.selectRepresentative",
                             )}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {users?.users.map((user: UserDetails) => (
+                        {representatives?.users?.map((user: AvailableUser) => (
                           <SelectItem key={user.id} value={user.id}>
                             {user.first_name} {user.last_name}
                           </SelectItem>

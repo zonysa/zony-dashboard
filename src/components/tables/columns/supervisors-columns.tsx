@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { UserDetails } from "@/lib/schema/user.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 
 export const columns = () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -15,7 +17,16 @@ export const columns = () => {
       header: t("table.firstName") || "Name",
       cell: ({ row }) => {
         const name = row.getValue("first_name") as string;
-        return <div className="font-medium">{name}</div>;
+        const userId = row.original.id;
+
+        return (
+          <Link
+            href={`/users/${userId}`}
+            className="font-medium text-primary hover:underline"
+          >
+            {name}
+          </Link>
+        );
       },
       filterFn: "includesString",
     },
@@ -42,7 +53,21 @@ export const columns = () => {
       header: t("table.zone") || "Zone",
       cell: ({ row }) => {
         const zone = row.getValue("zone") as string;
-        return <div className="text-sm">{zone}</div>;
+        const zoneId = row.original.zone_id;
+
+        if (!zone) return <div className="text-sm text-muted-foreground">-</div>;
+
+        if (!zoneId) return <div className="text-sm">{zone}</div>;
+
+        return (
+          <Link
+            href={`/zones/${zoneId}`}
+            className="flex items-center gap-1 text-sm hover:text-primary transition-colors group"
+          >
+            <span>{zone}</span>
+            <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Link>
+        );
       },
       filterFn: "includesString",
     },

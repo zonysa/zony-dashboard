@@ -1,6 +1,6 @@
 "use client";
 
-import { Pen } from "lucide-react";
+import { Eye, MoreHorizontal, Pen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
@@ -36,15 +36,24 @@ import { Row } from "@tanstack/react-table";
 import { t } from "i18next";
 import { useUpdateTicket } from "@/lib/hooks/useTicket";
 import { Spinner } from "./ui/spinner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 // Define your form type
 type TicketActionForm = {
   action_taken:
     | "pending"
-    | "in_progress"
-    | "resolved"
+    | "investigating"
     | "escalated"
-    | "cancelled";
+    | "resolved"
+    | "no_action";
   comment: string;
 };
 
@@ -56,6 +65,7 @@ const TicketActionsCell = ({ row }: TicketActionsCellProps) => {
   const [sheetOpen, setSheetOpen] = useState(false);
   const ticket = row.original; // Get all ticket data
   const updateTicketMutation = useUpdateTicket();
+  const router = useRouter();
 
   const form = useForm<TicketActionForm>({
     defaultValues: {
@@ -86,17 +96,36 @@ const TicketActionsCell = ({ row }: TicketActionsCellProps) => {
     }
   };
 
+  const handleViewTicket = () => {
+    router.push(`/tickets/${ticket.id}`);
+  };
+
   return (
     <>
-      <Button
-        variant="ghost"
-        className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-        size="icon"
-        onClick={() => setSheetOpen(true)}
-      >
-        <Pen />
-        <span className="sr-only">Open menu</span>
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
+            size="icon"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>{t("table.actions")}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleViewTicket}>
+            <Eye className="mr-2 h-4 w-4" />
+            {t("table.view", { defaultValue: "View Details" })}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setSheetOpen(true)}>
+            <Pen className="mr-2 h-4 w-4" />
+            {t("table.takeAction", { defaultValue: "Take Action" })}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent className="sm:max-w-[625px] overflow-y-auto px-6">
@@ -202,10 +231,10 @@ const TicketActionsCell = ({ row }: TicketActionsCellProps) => {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="in_progress">In Progress</SelectItem>
-                            <SelectItem value="resolved">Resolved</SelectItem>
+                            <SelectItem value="investigating">Investigating</SelectItem>
                             <SelectItem value="escalated">Escalated</SelectItem>
-                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                            <SelectItem value="resolved">Resolved</SelectItem>
+                            <SelectItem value="no_action">No Action</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

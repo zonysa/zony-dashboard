@@ -40,6 +40,9 @@ export type GetPartnerRes = {
 export interface partnerFilterOptions {
   type?: string;
   status?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export type table = {
@@ -87,15 +90,61 @@ export const partnerInfoSchema = z.object({
   representative: z.string(),
 });
 
+// IBAN Validation Helper
+const validateIBAN = (iban: string): boolean => {
+  // Remove spaces and convert to uppercase
+  const cleanIBAN = iban.replace(/\s/g, "").toUpperCase();
+
+  // Check basic format: 2 letter country code + 2 digits + up to 30 alphanumeric characters
+  const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]+$/;
+  if (!ibanRegex.test(cleanIBAN)) {
+    return false;
+  }
+
+  // Check length (IBAN should be between 15-34 characters)
+  if (cleanIBAN.length < 15 || cleanIBAN.length > 34) {
+    return false;
+  }
+
+  // Validate checksum using mod-97 algorithm
+  const rearranged = cleanIBAN.slice(4) + cleanIBAN.slice(0, 4);
+  const numericString = rearranged
+    .split("")
+    .map((char) => {
+      const code = char.charCodeAt(0);
+      // Convert A-Z to 10-35
+      return code >= 65 && code <= 90 ? (code - 55).toString() : char;
+    })
+    .join("");
+
+  // Calculate mod 97
+  let remainder = numericString.slice(0, 9);
+  for (let i = 9; i < numericString.length; i += 7) {
+    remainder =
+      (parseInt(remainder, 10) % 97).toString() + numericString.slice(i, i + 7);
+  }
+
+  return parseInt(remainder, 10) % 97 === 1;
+};
+
 // Step 2: Bank Step Schema
 export const bankSchema = z.object({
   bankName: z.string().min(1, "Bank name is required"),
   accountHolderName: z.string().min(1, "Bank holder name is required"),
-  accountNumber: z.string().min(1, "Bank account number is required"),
-  iban: z.string().min(1, "IBAN is required"),
+  accountNumber: z
+    .string()
+    .min(1, "Bank account number is required")
+    .regex(/^\d+$/, "Account number must contain only digits")
+    .min(8, "Account number must be at least 8 digits")
+    .max(20, "Account number must not exceed 20 digits"),
+  iban: z
+    .string()
+    .min(1, "IBAN is required")
+    .refine(
+      (value) => validateIBAN(value),
+      "Invalid IBAN format. Please enter a valid IBAN (e.g., EG00 0000 0000 0000 0000 0000 000)",
+    ),
   bankStatement: z.file().optional(),
-  confirmDetails: z.boolean().optional(),
-  termsAccepted: z.boolean().optional(),
 });
 
 export const partnerSchema = partnerInfoSchema.and(bankSchema);
