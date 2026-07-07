@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { toast } from "sonner";
 
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -58,8 +57,9 @@ export function SignupForm({
     },
   });
 
-  // Restore non-sensitive fields if the customer came back here to fix a
-  // mistake (e.g. wrong email) after being sent to /auth/verify-otp.
+  // Restore non-sensitive fields left over from an earlier visit (e.g. the
+  // customer left mid-way, or came back to fix a mistake after being sent
+  // to /auth/verify-otp).
   useEffect(() => {
     const draft = readSignupDraft();
     if (draft) {
@@ -73,15 +73,22 @@ export function SignupForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onSubmit = (data: CustomerSignupFormData) => {
-    saveSignupDraft({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      username: data.username,
-      email: data.email,
-      phoneNumber: data.phoneNumber,
+  // Keep the draft in sync as the customer types, so navigating away (even
+  // without submitting) never loses their progress. Password is never saved.
+  useEffect(() => {
+    const subscription = form.watch((values) => {
+      saveSignupDraft({
+        firstName: values.firstName ?? "",
+        lastName: values.lastName ?? "",
+        username: values.username ?? "",
+        email: values.email ?? "",
+        phoneNumber: values.phoneNumber ?? "",
+      });
     });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
+  const onSubmit = (data: CustomerSignupFormData) => {
     registerMutation.mutate(
       {
         first_name: data.firstName,
@@ -313,16 +320,6 @@ export function SignupForm({
                   {registerMutation.error.message}
                 </div>
               )}
-
-              <p className="text-sm text-center text-muted-foreground">
-                {t("auth.signup.haveAccount")}{" "}
-                <Link
-                  href="/auth/login"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {t("auth.signup.signIn")}
-                </Link>
-              </p>
             </form>
           </Form>
         </CardContent>

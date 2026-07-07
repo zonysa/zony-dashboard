@@ -591,20 +591,16 @@
       "forgotPassword": "Forgot your password",
       "CTA": "Sign In",
       "logout": "Logout",
-      "register": "Register",
       "resetPassword": "Reset Password",
       "email": "Email",
       "password": "Password",
-      "confirmPassword": "Confirm Password",
-      "noAccountPrompt": "Don't have an account?"
+      "confirmPassword": "Confirm Password"
     },
     "signup": {
       "title": "Sign Up",
       "formTitle": "Create your customer account",
       "CTA": "Sign Up",
-      "success": "Account created! Please verify your email.",
-      "haveAccount": "Already have an account?",
-      "signIn": "Sign in"
+      "success": "Account created! Please verify your email."
     },
     "verifyOtp": {
       "title": "Verify Your Email"

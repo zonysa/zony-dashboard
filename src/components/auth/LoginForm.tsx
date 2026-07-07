@@ -170,18 +170,6 @@ export function LoginForm({
                   {loginMutation.error.message}
                 </div>
               )}
-
-              <p className="text-sm text-center text-muted-foreground">
-                {t("auth.login.noAccountPrompt")}{" "}
-                <Link
-                  href="/auth/signup"
-                  className="text-primary underline-offset-4 hover:underline"
-                >
-                  {t("auth.login.register")}
-                </Link>
-              </p>
-
-              {/* Remember Me and Forgot Password */}
             </form>
           </Form>
         </CardContent>
