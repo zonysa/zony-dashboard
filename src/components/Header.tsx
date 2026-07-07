@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { BellDot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LocationDropDown } from "./ui/LocatoinDropdown";
-import CreateParcelSheet from "./CreateParcelDiaglog";
 import NotificationsSheet from "./NotificationsSheet";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import CreateUserSheet from "./CreateUserSheet";
@@ -103,7 +102,11 @@ function Header() {
           </Button>
         );
       case "/parcels":
-        return <CreateParcelSheet />;
+        return (
+          <Button size="sm" onClick={() => router.push("/parcels/create")}>
+            {t("buttons.createParcel")}
+          </Button>
+        );
       case "/supervisors":
         return (
           <Button size="sm" onClick={() => handleAddUser(4)}>

@@ -6,7 +6,7 @@ import { ComingSoon } from "@/components/ui/coming-soon";
 import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetParcel } from "@/lib/hooks/useParcel";
-import { ArrowRight, Clock, Package, Store, Truck, User } from "lucide-react";
+import { ArrowRight, Box, Clock, Package, Store, Truck, User } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -155,6 +155,58 @@ export default function Page() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Parcel Content Card */}
+            {parcelData?.content && (
+              <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+                <DataItem
+                  isHeading={true}
+                  label={t("detailPages.sections.parcelContent")}
+                  value={t("detailPages.sections.parcelContentDescription")}
+                  icon={Box}
+                />
+                <CardContent className="flex-1 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.description")}
+                      value={parcelData.content.description || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.size")}
+                      value={
+                        parcelData.content.size
+                          ? t(`forms.options.parcelSize.${parcelData.content.size}`)
+                          : "N/A"
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.quantity")}
+                      value={
+                        parcelData.content.quantity != null
+                          ? String(parcelData.content.quantity)
+                          : "N/A"
+                      }
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.weight")}
+                      value={
+                        parcelData.content.weight != null
+                          ? `${parcelData.content.weight} kg`
+                          : "N/A"
+                      }
+                    />
+                  </div>
+                  {parcelData.content.dimensions && (
+                    <DataItem
+                      label={t("detailPages.labels.dimensions")}
+                      value={`${parcelData.content.dimensions.length} x ${parcelData.content.dimensions.width} x ${parcelData.content.dimensions.height} ${parcelData.content.dimensions.unit || "cm"}`}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Sender Card */}
             <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">

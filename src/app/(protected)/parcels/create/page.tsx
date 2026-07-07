@@ -27,8 +27,10 @@ import { normalizeRole } from "@/lib/rbac/roles";
 import { Client } from "@/lib/schema/client.schema";
 import { CreateParcelFormData, createParcelSchema } from "@/lib/schema/parcel.schema";
 import { PartySection } from "@/forms/parcel/PartySection";
+import { ParcelContentSection } from "@/forms/parcel/ParcelContentSection";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -47,16 +49,14 @@ export default function Page() {
       tracking_number: "",
       pickup_period: 2,
       // Customers are always the sender — the backend snapshots their
-      // profile server-side, so no sender block is collected here.
-      ...(isCustomer
-        ? {}
-        : {
-            sender: {
-              personal: { name: "", phone_number: "", email: "" },
-              location: { address: "" },
-            },
-          }),
+      // personal profile server-side, but still needs the sender's
+      // location, which is collected below regardless of role.
+      sender: {
+        personal: { name: "", phone_number: "", email: "" },
+        location: { address: "" },
+      },
       receiver: { personal: { name: "", phone_number: "", email: "" }, location: { address: "" } },
+      content: { description: "", quantity: 1 },
     },
     mode: "onChange",
   });
@@ -67,6 +67,19 @@ export default function Page() {
     setValue,
     formState: { isSubmitting },
   } = form;
+
+  // Customers don't edit their own name/phone/email in this form — prefill
+  // them from the logged-in profile once available, since the backend
+  // still runs full sender validation (personal.name/phone are required).
+  useEffect(() => {
+    if (!isCustomer || !user) return;
+    setValue(
+      "sender.personal.name",
+      `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.username,
+    );
+    setValue("sender.personal.phone_number", user.phone_number || "");
+    setValue("sender.personal.email", user.email || "");
+  }, [isCustomer, user, setValue]);
 
   function handleClientSelect(clientId: string) {
     const client = clients?.clients?.find((c: Client) => String(c.id) === clientId);
@@ -80,6 +93,13 @@ export default function Page() {
 
   async function onSubmit(data: CreateParcelFormData) {
     try {
+      const dimensions = data.content.dimensions;
+      const hasDimensions =
+        dimensions &&
+        [dimensions.length, dimensions.width, dimensions.height].every(
+          (v) => v !== undefined,
+        );
+
       const payload = {
         ...data,
         sender: data.sender
@@ -99,6 +119,10 @@ export default function Page() {
             phone_number: toE164SaudiPhone(data.receiver.personal.phone_number),
             email: data.receiver.personal.email || undefined,
           },
+        },
+        content: {
+          ...data.content,
+          dimensions: hasDimensions ? dimensions : undefined,
         },
       };
 
@@ -137,120 +161,138 @@ export default function Page() {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("forms.sections.parcelDetails")}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <FormField
-                control={control}
-                name="tracking_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("forms.fields.trackingNumber")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t("forms.placeholders.enterTrackingNumber")}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("forms.sections.sender")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isCustomer ? (
+                    <>
+                      <div className="text-sm text-muted-foreground">
+                        {t("forms.fields.name")}:{" "}
+                        <span className="text-foreground font-medium">
+                          {`${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+                            user?.username}
+                        </span>
+                        {" · "}
+                        {t("forms.fields.phoneNumber")}:{" "}
+                        <span className="text-foreground font-medium">
+                          {user?.phone_number}
+                        </span>
+                      </div>
+                      <PartySection form={form} prefix="sender" showPersonal={false} />
+                    </>
+                  ) : (
+                    <>
+                      <FormItem>
+                        <FormLabel>{t("table.client")}</FormLabel>
+                        <Select onValueChange={handleClientSelect}>
+                          <FormControl>
+                            <SelectTrigger className="w-full">
+                              <SelectValue
+                                placeholder={t("forms.placeholders.selectClient")}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {clients?.clients?.map((client: Client) => (
+                              <SelectItem key={client.id} value={String(client.id)}>
+                                {client.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
 
-              <FormField
-                control={control}
-                name="barcode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("forms.fields.barcode")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t("forms.placeholders.enterBarcode")}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      <PartySection form={form} prefix="sender" />
+                    </>
+                  )}
+                </CardContent>
+              </Card>
 
-              <FormField
-                control={control}
-                name="pickup_period"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("forms.fields.pickupPeriod")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        min={1}
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("forms.sections.receiver")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <PartySection form={form} prefix="receiver" />
+                </CardContent>
+              </Card>
+            </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("forms.sections.sender")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isCustomer ? (
-                <div className="text-sm text-muted-foreground">
-                  {t("forms.fields.name")}:{" "}
-                  <span className="text-foreground font-medium">
-                    {`${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
-                      user?.username}
-                  </span>
-                  {" · "}
-                  {t("forms.fields.phoneNumber")}:{" "}
-                  <span className="text-foreground font-medium">
-                    {user?.phone_number}
-                  </span>
-                </div>
-              ) : (
-                <>
-                  <FormItem>
-                    <FormLabel>{t("table.client")}</FormLabel>
-                    <Select onValueChange={handleClientSelect}>
-                      <FormControl>
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={t("forms.placeholders.selectClient")}
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("forms.sections.parcelDetails")}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={control}
+                    name="tracking_number"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forms.fields.trackingNumber")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t("forms.placeholders.enterTrackingNumber")}
+                            {...field}
                           />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {clients?.clients?.map((client: Client) => (
-                          <SelectItem key={client.id} value={String(client.id)}>
-                            {client.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                  <PartySection form={form} prefix="sender" />
-                </>
-              )}
-            </CardContent>
-          </Card>
+                  <FormField
+                    control={control}
+                    name="barcode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forms.fields.barcode")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder={t("forms.placeholders.enterBarcode")}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("forms.sections.receiver")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <PartySection form={form} prefix="receiver" />
-            </CardContent>
-          </Card>
+                  <FormField
+                    control={control}
+                    name="pickup_period"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("forms.fields.pickupPeriod")}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min={1}
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t("forms.sections.parcelContent")}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ParcelContentSection form={form} />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <Button

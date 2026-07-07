@@ -40,11 +40,13 @@ import { CreateParcelFormData } from "@/lib/schema/parcel.schema";
 interface PartySectionProps {
   form: UseFormReturn<CreateParcelFormData>;
   prefix: "sender" | "receiver";
+  showPersonal?: boolean;
 }
 
 export const PartySection: React.FC<PartySectionProps> = ({
   form,
   prefix,
+  showPersonal = true,
 }) => {
   const { t } = useTranslation();
   const { control, setValue } = form;
@@ -74,56 +76,60 @@ export const PartySection: React.FC<PartySectionProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          control={control}
-          name={`${prefix}.personal.name`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("forms.fields.name")}</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder={t("forms.placeholders.enterName")}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name={`${prefix}.personal.phone_number`}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
-              <FormControl>
-                <PhoneInput value={field.value} onChange={field.onChange} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      {showPersonal && (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name={`${prefix}.personal.name`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("forms.fields.name")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder={t("forms.placeholders.enterName")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name={`${prefix}.personal.phone_number`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
+                  <FormControl>
+                    <PhoneInput {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-      <FormField
-        control={control}
-        name={`${prefix}.personal.email`}
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              {t("forms.fields.email")} {t("forms.fields.optional")}
-            </FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                placeholder={t("forms.placeholders.enterEmail")}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+          <FormField
+            control={control}
+            name={`${prefix}.personal.email`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  {t("forms.fields.email")} {t("forms.fields.optional")}
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder={t("forms.placeholders.enterEmail")}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
 
       <FormField
         control={control}

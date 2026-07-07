@@ -422,7 +422,15 @@
       "optional": "(اختياري)",
       "name": "الاسم",
       "coordinates": "الإحداثيات",
-      "pickupPeriod": "فترة الاستلام"
+      "pickupPeriod": "فترة الاستلام",
+      "description": "الوصف",
+      "size": "الحجم",
+      "quantity": "الكمية",
+      "weight": "الوزن (كجم)",
+      "length": "الطول (سم)",
+      "width": "العرض (سم)",
+      "height": "الارتفاع (سم)",
+      "unit": "الوحدة"
     },
     "placeholders": {
       "enterFirstName": "أدخل الاسم الأول",
@@ -467,7 +475,14 @@
       "selectResponsible": "اختر المسؤول",
       "selectAction": "اختر الإجراء",
       "addComment": "أضف تعليق للتذكرة هنا...",
-      "enterName": "أدخل الاسم الكامل"
+      "enterName": "أدخل الاسم الكامل",
+      "enterDescription": "ما هو محتوى الطرد؟",
+      "selectSize": "اختر الحجم",
+      "enterQuantity": "أدخل الكمية",
+      "enterWeight": "أدخل الوزن",
+      "enterLength": "الطول",
+      "enterWidth": "العرض",
+      "enterHeight": "الارتفاع"
     },
     "descriptions": {
       "emailDescription": "البريد الإلكتروني الأساسي للاتصال بالمسؤول",
@@ -494,6 +509,7 @@
       "accountDetails": "تفاصيل الحساب",
       "personalInformation": "المعلومات الشخصية",
       "parcelDetails": "تفاصيل الطرد",
+      "parcelContent": "محتوى الطرد",
       "assignment": "التعيين",
       "sender": "المرسل",
       "receiver": "المستلم",
@@ -513,6 +529,18 @@
       "customerService": "خدمة عملاء",
       "courier": "موصل",
       "customer": "عميل"
+    },
+    "options": {
+      "parcelSize": {
+        "small": "صغير",
+        "medium": "متوسط",
+        "large": "كبير",
+        "extra_large": "كبير جدًا"
+      },
+      "unit": {
+        "cm": "سم",
+        "in": "بوصة"
+      }
     }
   },
   "dialogs": {
@@ -709,6 +737,8 @@
       "deliveryTimelineDescription": "تواريخ التسليم المهمة ومعلومات انتهاء صلاحية الإيصال",
       "customer": "العميل",
       "customerDescription": "معلومات العميل وتفاصيل الاتصال",
+      "parcelContent": "محتوى الطرد",
+      "parcelContentDescription": "محتويات الطرد",
       "sender": "المرسل",
       "senderDescription": "معلومات المرسل وموقع الاستلام",
       "receiver": "المستلم",
@@ -744,6 +774,11 @@
       "deliveryAddress": "عنوان التوصيل",
       "deliveryDate": "تاريخ التوصيل",
       "deliveryTime": "وقت التوصيل",
+      "description": "الوصف",
+      "size": "الحجم",
+      "quantity": "الكمية",
+      "weight": "الوزن",
+      "dimensions": "الأبعاد",
       "customerId": "معرف العميل",
       "pickupEndsAt": "ينتهي الاستلام في",
       "from": "من",
