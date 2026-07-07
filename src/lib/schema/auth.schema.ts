@@ -139,6 +139,11 @@ export type VerifyOtpResponse = {
   refresh_token?: string;
 };
 
+export type ResendOtpResponse = {
+  message: string;
+  success: boolean;
+};
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type CustomerSignupFormData = z.infer<typeof customerSignupSchema>;

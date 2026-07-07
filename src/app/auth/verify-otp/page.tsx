@@ -26,11 +26,12 @@ import {
 
 // Import our validation schema and hook
 import { otpSchema, OtpFormData } from "@/lib/schema/auth.schema";
-import { useVerifyOtp } from "@/lib/hooks/useAuth";
+import { useVerifyOtp, useResendOtp } from "@/lib/hooks/useAuth";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
   const verifyOtpMutation = useVerifyOtp();
+  const resendOtpMutation = useResendOtp();
 
   // Get email from session storage (set during registration)
   const [email, setEmail] = React.useState<string>("");
@@ -64,10 +65,7 @@ export default function VerifyOtpPage() {
   };
 
   const handleResendOtp = () => {
-    // In a real app, this would trigger a resend OTP API call
-    console.log("Resend OTP for:", email);
-    // You could show a toast message here
-    alert("OTP resent to " + email);
+    resendOtpMutation.mutate(email);
   };
 
   if (!email) {
@@ -197,10 +195,10 @@ export default function VerifyOtpPage() {
                   variant="ghost"
                   size="sm"
                   onClick={handleResendOtp}
-                  disabled={verifyOtpMutation.isPending}
+                  disabled={verifyOtpMutation.isPending || resendOtpMutation.isPending}
                   className="text-primary hover:text-primary/80"
                 >
-                  Resend OTP
+                  {resendOtpMutation.isPending ? "Resending..." : "Resend OTP"}
                 </Button>
               </div>
             </form>
