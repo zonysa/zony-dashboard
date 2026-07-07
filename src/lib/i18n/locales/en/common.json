@@ -600,7 +600,8 @@
       "title": "Sign Up",
       "formTitle": "Create your customer account",
       "CTA": "Sign Up",
-      "success": "Account created! Please verify your email."
+      "success": "Account created! Please verify your email.",
+      "emailTakenSignInPrompt": "Already have an account with this email?"
     },
     "verifyOtp": {
       "title": "Verify Your Email"

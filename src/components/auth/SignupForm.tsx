@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
+import { ApiError } from "@/lib/services/apiClient";
 import {
   Form,
   FormControl,
@@ -40,6 +42,7 @@ export function SignupForm({
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [emailTaken, setEmailTaken] = useState(false);
 
   const registerMutation = useRegister();
 
@@ -88,7 +91,19 @@ export function SignupForm({
     return () => subscription.unsubscribe();
   }, [form]);
 
+  // Once the "email already registered" error has been shown, clear it as
+  // soon as the customer edits the email field again.
+  useEffect(() => {
+    const subscription = form.watch((_values, { name }) => {
+      if (name === "email" && emailTaken) {
+        setEmailTaken(false);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, emailTaken]);
+
   const onSubmit = (data: CustomerSignupFormData) => {
+    setEmailTaken(false);
     registerMutation.mutate(
       {
         first_name: data.firstName,
@@ -103,6 +118,20 @@ export function SignupForm({
         onSuccess: () => {
           toast.success(t("auth.signup.success"));
           router.push("/auth/verify-otp");
+        },
+        onError: (error) => {
+          // Backend returns 409 for an email that already belongs to a
+          // verified account. Surface it on the email field itself so it's
+          // obvious which value needs to change, and offer a way to sign in
+          // instead of re-typing everything.
+          if (
+            error instanceof ApiError &&
+            error.status === 409 &&
+            error.message.toLowerCase().includes("email")
+          ) {
+            form.setError("email", { type: "manual", message: error.message });
+            setEmailTaken(true);
+          }
         },
       }
     );
@@ -196,6 +225,17 @@ export function SignupForm({
                       />
                     </FormControl>
                     <FormMessage />
+                    {emailTaken && (
+                      <p className="text-sm text-muted-foreground">
+                        {t("auth.signup.emailTakenSignInPrompt")}{" "}
+                        <Link
+                          href="/auth/login"
+                          className="text-primary underline-offset-4 hover:underline"
+                        >
+                          {t("auth.login.CTA")}
+                        </Link>
+                      </p>
+                    )}
                   </FormItem>
                 )}
               />
@@ -315,7 +355,7 @@ export function SignupForm({
                 )}
               </Button>
 
-              {registerMutation.error && (
+              {registerMutation.error && !emailTaken && (
                 <div className="text-sm text-red-500 text-center p-3 bg-red-50 rounded-md">
                   {registerMutation.error.message}
                 </div>
