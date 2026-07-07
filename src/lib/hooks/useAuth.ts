@@ -15,6 +15,7 @@ import {
   resetPassword,
 } from "@/lib/services/auth.service";
 import { GetUsersRes } from "../schema/user.schema";
+import { clearSignupDraft } from "@/lib/auth/signupDraft";
 import {
   LoginFormData,
   LoginResponse,
@@ -169,8 +170,9 @@ export function useVerifyOtp() {
         localStorage.setItem("refreshToken", refresh_token);
       }
 
-      // Clear pending verification email
+      // Clear pending verification email and signup draft
       sessionStorage.removeItem("pendingVerificationEmail");
+      clearSignupDraft();
 
       // Update cache with user data
       queryClient.setQueryData(["user", "profile"], { data: { user } });

@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, EyeOff, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -28,6 +28,7 @@ import {
   customerSignupSchema,
 } from "@/lib/schema/auth.schema";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
+import { readSignupDraft, saveSignupDraft } from "@/lib/auth/signupDraft";
 
 const CUSTOMER_ROLE_ID = 7;
 
@@ -57,7 +58,30 @@ export function SignupForm({
     },
   });
 
+  // Restore non-sensitive fields if the customer came back here to fix a
+  // mistake (e.g. wrong email) after being sent to /auth/verify-otp.
+  useEffect(() => {
+    const draft = readSignupDraft();
+    if (draft) {
+      form.reset({
+        ...draft,
+        password: "",
+        confirmPassword: "",
+        roleId: CUSTOMER_ROLE_ID,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const onSubmit = (data: CustomerSignupFormData) => {
+    saveSignupDraft({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      username: data.username,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+    });
+
     registerMutation.mutate(
       {
         first_name: data.firstName,

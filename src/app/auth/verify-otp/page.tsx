@@ -117,6 +117,16 @@ export default function VerifyOtpPage() {
             We sent a 6-digit code to{" "}
             <span className="font-medium text-gray-900">{email}</span>
           </p>
+          <p className="text-sm text-center">
+            <button
+              type="button"
+              onClick={() => router.push("/auth/signup")}
+              disabled={verifyOtpMutation.isPending}
+              className="text-primary underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50"
+            >
+              Wrong email? Edit and sign up again
+            </button>
+          </p>
         </CardHeader>
 
         <CardContent>

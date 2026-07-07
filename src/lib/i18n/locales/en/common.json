@@ -606,6 +606,9 @@
       "haveAccount": "Already have an account?",
       "signIn": "Sign in"
     },
+    "verifyOtp": {
+      "title": "Verify Your Email"
+    },
     "resetPassword": {
       "title": "Create New Password",
       "newPassword": "New Password",
