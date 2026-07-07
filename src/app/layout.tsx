@@ -7,6 +7,7 @@ import { I18nProvider } from "@/provider/I18nProvider";
 import { Toaster } from "sonner";
 import { HtmlWrapper } from "@/components/ui/HTMLWrapper";
 import { AuthInitializer } from "@/components/providers/AuthInitializer";
+import { RouteLoadingIndicator } from "@/components/RouteLoadingIndicator";
 
 const poppins = localFont({
   src: [
@@ -77,6 +78,7 @@ export default function RootLayout({
           <I18nProvider>
             <ReactQueryProvider>
               <Toaster position="top-center" richColors />
+              <RouteLoadingIndicator />
               {children}
             </ReactQueryProvider>
           </I18nProvider>
