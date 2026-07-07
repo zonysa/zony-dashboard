@@ -22,6 +22,8 @@ import {
 import { useGetClients } from "@/lib/hooks/useClient";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useCreateParcel } from "@/lib/hooks/useParcel";
+import { useUser } from "@/lib/stores/auth-store";
+import { normalizeRole } from "@/lib/rbac/roles";
 import { Client } from "@/lib/schema/client.schema";
 import { CreateParcelFormData, createParcelSchema } from "@/lib/schema/parcel.schema";
 import { PartySection } from "@/forms/parcel/PartySection";
@@ -32,6 +34,8 @@ import { toast } from "sonner";
 export default function Page() {
   const { t } = useTranslation();
   const router = useRouter();
+  const user = useUser();
+  const isCustomer = normalizeRole(user?.role || "") === "customer";
   const { data: clients } = useGetClients();
   const parcelMutation = useCreateParcel();
 
@@ -41,7 +45,16 @@ export default function Page() {
       barcode: "",
       tracking_number: "",
       pickup_period: 2,
-      sender: { personal: { name: "", phone_number: "", email: "" }, location: { address: "" } },
+      // Customers are always the sender — the backend snapshots their
+      // profile server-side, so no sender block is collected here.
+      ...(isCustomer
+        ? {}
+        : {
+            sender: {
+              personal: { name: "", phone_number: "", email: "" },
+              location: { address: "" },
+            },
+          }),
       receiver: { personal: { name: "", phone_number: "", email: "" }, location: { address: "" } },
     },
     mode: "onChange",
@@ -68,13 +81,15 @@ export default function Page() {
     try {
       const payload = {
         ...data,
-        sender: {
-          ...data.sender,
-          personal: {
-            ...data.sender.personal,
-            email: data.sender.personal.email || undefined,
-          },
-        },
+        sender: data.sender
+          ? {
+              ...data.sender,
+              personal: {
+                ...data.sender.personal,
+                email: data.sender.personal.email || undefined,
+              },
+            }
+          : undefined,
         receiver: {
           ...data.receiver,
           personal: {
@@ -184,27 +199,44 @@ export default function Page() {
               <CardTitle>{t("forms.sections.sender")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <FormItem>
-                <FormLabel>{t("table.client")}</FormLabel>
-                <Select onValueChange={handleClientSelect}>
-                  <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue
-                        placeholder={t("forms.placeholders.selectClient")}
-                      />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {clients?.clients?.map((client: Client) => (
-                      <SelectItem key={client.id} value={String(client.id)}>
-                        {client.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
+              {isCustomer ? (
+                <div className="text-sm text-muted-foreground">
+                  {t("forms.fields.name")}:{" "}
+                  <span className="text-foreground font-medium">
+                    {`${user?.first_name || ""} ${user?.last_name || ""}`.trim() ||
+                      user?.username}
+                  </span>
+                  {" · "}
+                  {t("forms.fields.phoneNumber")}:{" "}
+                  <span className="text-foreground font-medium">
+                    {user?.phone_number}
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <FormItem>
+                    <FormLabel>{t("table.client")}</FormLabel>
+                    <Select onValueChange={handleClientSelect}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue
+                            placeholder={t("forms.placeholders.selectClient")}
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {clients?.clients?.map((client: Client) => (
+                          <SelectItem key={client.id} value={String(client.id)}>
+                            {client.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
 
-              <PartySection form={form} prefix="sender" />
+                  <PartySection form={form} prefix="sender" />
+                </>
+              )}
             </CardContent>
           </Card>
 

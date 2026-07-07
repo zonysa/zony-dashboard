@@ -171,7 +171,9 @@ export const createParcelSchema = z.object({
     .int()
     .positive("Pickup period must be a positive integer"),
   client_id: z.number().int().positive().optional(),
-  sender: parcelPartySchema,
+  // Optional: customers creating their own parcel don't submit a sender —
+  // the backend snapshots it from their profile instead.
+  sender: parcelPartySchema.optional(),
   receiver: parcelPartySchema,
 });
 
