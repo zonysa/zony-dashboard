@@ -14,12 +14,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { CustomerServiceFormData } from "@/lib/schema/customer-service.schema";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { FileInput } from "@/components/ui/file-input";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
 const Page: React.FC = () => {
@@ -48,7 +50,7 @@ const Page: React.FC = () => {
         {
           first_name: data.firstName,
           last_name: data.lastName,
-          phone_number: data.phoneNumber,
+          phone_number: toE164SaudiPhone(data.phoneNumber),
           email: data.email,
           password: data.password,
           username: data.username,
@@ -172,13 +174,9 @@ const Page: React.FC = () => {
                       <FormItem>
                         <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            type="tel"
-                            placeholder={t(
-                              "forms.placeholders.enterPhoneNumber"
-                            )}
-                            autoComplete="tel"
+                          <PhoneInput
+                            value={field.value}
+                            onChange={field.onChange}
                           />
                         </FormControl>
 

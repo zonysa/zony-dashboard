@@ -27,6 +27,7 @@ import { normalizeRole } from "@/lib/rbac/roles";
 import { Client } from "@/lib/schema/client.schema";
 import { CreateParcelFormData, createParcelSchema } from "@/lib/schema/parcel.schema";
 import { PartySection } from "@/forms/parcel/PartySection";
+import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -86,6 +87,7 @@ export default function Page() {
               ...data.sender,
               personal: {
                 ...data.sender.personal,
+                phone_number: toE164SaudiPhone(data.sender.personal.phone_number),
                 email: data.sender.personal.email || undefined,
               },
             }
@@ -94,6 +96,7 @@ export default function Page() {
           ...data.receiver,
           personal: {
             ...data.receiver.personal,
+            phone_number: toE164SaudiPhone(data.receiver.personal.phone_number),
             email: data.receiver.personal.email || undefined,
           },
         },

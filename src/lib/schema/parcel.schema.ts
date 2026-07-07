@@ -1,5 +1,7 @@
 import z from "zod";
 
+import { saudiPhoneSchema } from "@/lib/validators/phone";
+
 export interface ParcelTable {
   tn: number;
   pudo: string;
@@ -141,7 +143,7 @@ export const parcelSchema = z.object({
 // Sender/receiver party schemas (Bosta-style personal + location blocks)
 export const partyPersonalSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  phone_number: z.string().min(7, "Phone number is required"),
+  phone_number: saudiPhoneSchema,
   email: z
     .string()
     .email("Invalid email address")

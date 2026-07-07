@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -97,10 +98,7 @@ export const PartySection: React.FC<PartySectionProps> = ({
             <FormItem>
               <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder={t("forms.placeholders.enterPhoneNumber")}
-                />
+                <PhoneInput value={field.value} onChange={field.onChange} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -15,12 +15,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { CustomerServiceFormData } from "@/lib/schema/customer-service.schema";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import { FileInput } from "@/components/ui/file-input";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/useAuth";
 import { useRouter } from "next/navigation";
+import { toE164SaudiPhone } from "@/lib/validators/phone";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -46,7 +48,7 @@ const Page: React.FC = () => {
       const apiData = {
         first_name: formData.firstName,
         last_name: formData.lastName,
-        phone_number: formData.phoneNumber,
+        phone_number: toE164SaudiPhone(formData.phoneNumber),
         email: formData.email,
         password: formData.password,
         username: formData.username,
@@ -173,16 +175,11 @@ const Page: React.FC = () => {
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <Input
-                            {...field}
-                            type="tel"
-                            placeholder="Enter phone number"
-                            autoComplete="tel"
+                          <PhoneInput
+                            value={field.value}
+                            onChange={field.onChange}
                           />
                         </FormControl>
-                        <FormDescription>
-                          Include country code (e.g., +20 123 456 7890)
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
