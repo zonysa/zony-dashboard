@@ -99,7 +99,7 @@ export const ResponsiblePersonStep: React.FC<StepComponentProps> = ({
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <PhoneInput value={field.value} onChange={field.onChange} />
+                  <PhoneInput {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

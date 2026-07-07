@@ -178,10 +178,7 @@ const Page: React.FC = () => {
                       <FormItem>
                         <FormLabel>Phone Number</FormLabel>
                         <FormControl>
-                          <PhoneInput
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
+                          <PhoneInput {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

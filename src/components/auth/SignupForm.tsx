@@ -250,8 +250,7 @@ export function SignupForm({
                     </FormLabel>
                     <FormControl>
                       <PhoneInput
-                        value={field.value}
-                        onChange={field.onChange}
+                        {...field}
                         disabled={registerMutation.isPending}
                       />
                     </FormControl>
