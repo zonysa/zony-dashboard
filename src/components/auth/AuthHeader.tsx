@@ -13,6 +13,8 @@ function AuthHeader() {
     switch (pathname) {
       case "/auth/login":
         return t("auth.login.title");
+      case "/auth/signup":
+        return t("auth.signup.title");
       case "/auth/request-password":
         return t("auth.requestPassword.title");
       default:

@@ -595,7 +595,16 @@
       "resetPassword": "Reset Password",
       "email": "Email",
       "password": "Password",
-      "confirmPassword": "Confirm Password"
+      "confirmPassword": "Confirm Password",
+      "noAccountPrompt": "Don't have an account?"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "formTitle": "Create your customer account",
+      "CTA": "Sign Up",
+      "success": "Account created! Please verify your email.",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in"
     },
     "resetPassword": {
       "title": "Create New Password",

@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { saudiPhoneSchema } from "@/lib/validators/phone";
+
 export type User = {
   id?: string;
   email: string;
@@ -20,9 +22,7 @@ export type User = {
 
 export const emailSchema = z.string().min(1, "Email is required");
 
-export const phoneSchema = z
-  .string()
-  .regex(/^[\d\s\-\+\(\)]{10,}$/, "Please enter a valid phone number");
+export const phoneSchema = saudiPhoneSchema;
 
 export const passwordSchema = z
   .string()
@@ -54,9 +54,7 @@ export const registerSchema = z.object({
     .min(3, "Username must be at least 3 characters")
     .max(30, "Username must be less than 30 characters"),
   email: z.string().email("Please enter a valid email address"),
-  phoneNumber: z
-    .string()
-    .regex(/^[0-9]{10,15}$/, "Please enter a valid phone number"),
+  phoneNumber: saudiPhoneSchema,
   password: z.string().min(6, "Password must be at least 6 characters"),
   roleId: z
     .number({
@@ -66,6 +64,16 @@ export const registerSchema = z.object({
     .min(1, "Invalid role")
     .max(7, "Invalid role"),
 });
+
+// Customer signup schema (public self-service registration)
+export const customerSignupSchema = registerSchema
+  .extend({
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 // Forgot password schema
 export const requestPasswordSchema = z.object({
@@ -133,6 +141,7 @@ export type VerifyOtpResponse = {
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+export type CustomerSignupFormData = z.infer<typeof customerSignupSchema>;
 export type RequestPasswordFormData = z.infer<typeof requestPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
 export type OtpFormData = z.infer<typeof otpSchema>;
