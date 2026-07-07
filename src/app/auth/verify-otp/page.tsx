@@ -36,7 +36,6 @@ export default function VerifyOtpPage() {
   const [email, setEmail] = React.useState<string>("");
 
   useEffect(() => {
-    sessionStorage.setItem("pendingVerificationEmail", "123456");
     const pendingEmail = sessionStorage.getItem("pendingVerificationEmail");
     if (pendingEmail) {
       setEmail(pendingEmail);
