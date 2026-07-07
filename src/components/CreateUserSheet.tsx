@@ -29,8 +29,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "./ui/input";
+import { PhoneInput } from "./ui/phone-input";
 import { toast } from "sonner";
 import { RegisterFormData, registerSchema } from "@/lib/schema/auth.schema";
+import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useRegister } from "@/lib/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -87,7 +89,7 @@ const CreateUserSheet = ({
           role_id: data.roleId,
           email: data.email,
           password: data.password,
-          phone_number: data.phoneNumber,
+          phone_number: toE164SaudiPhone(data.phoneNumber),
         },
         {
           onSuccess: () => {
@@ -241,11 +243,7 @@ const CreateUserSheet = ({
                   <FormItem>
                     <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
                     <FormControl>
-                      <Input
-                        type="tel"
-                        placeholder={t("forms.placeholders.enterPhoneNumber")}
-                        {...field}
-                      />
+                      <PhoneInput {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

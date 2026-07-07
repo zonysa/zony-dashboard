@@ -9,12 +9,14 @@ import {
   register,
   requestPassword,
   verifyOtp,
+  resendOtp,
   logout,
   getUsers,
   getUser,
   resetPassword,
 } from "@/lib/services/auth.service";
 import { GetUsersRes } from "../schema/user.schema";
+import { clearSignupDraft } from "@/lib/auth/signupDraft";
 import {
   LoginFormData,
   LoginResponse,
@@ -169,8 +171,9 @@ export function useVerifyOtp() {
         localStorage.setItem("refreshToken", refresh_token);
       }
 
-      // Clear pending verification email
+      // Clear pending verification email and signup draft
       sessionStorage.removeItem("pendingVerificationEmail");
+      clearSignupDraft();
 
       // Update cache with user data
       queryClient.setQueryData(["user", "profile"], { data: { user } });
@@ -189,6 +192,20 @@ export function useVerifyOtp() {
     onError: (error: Error) => {
       console.error("OTP verification failed:", error);
       toast.error(error.message || "Invalid OTP. Please try again.");
+    },
+  });
+}
+
+// Resend OTP hook
+export function useResendOtp() {
+  return useMutation({
+    mutationFn: resendOtp,
+    onSuccess: () => {
+      toast.success("OTP resent to your email");
+    },
+    onError: (error: Error) => {
+      console.error("Resend OTP failed:", error);
+      toast.error(error.message || "Failed to resend OTP. Please try again.");
     },
   });
 }

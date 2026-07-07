@@ -9,6 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PhoneInput } from "@/components/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -102,16 +103,8 @@ export const RepresentativeStep: React.FC<
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="tel"
-                      placeholder="Enter phone number"
-                      autoComplete="tel"
-                    />
+                    <PhoneInput {...field} />
                   </FormControl>
-                  <FormDescription>
-                    Include country code (e.g., +20 123 456 7890)
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

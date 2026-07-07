@@ -9,6 +9,7 @@ import {
   RegisterResponse,
   RequestPasswordResponse,
   VerifyOtpResponse,
+  ResendOtpResponse,
 } from "@/lib/schema/auth.schema.js";
 import { RegisterApiRequest } from "@/lib/types/api.types";
 import { GetUserRes, GetUsersRes } from "../schema/user.schema";
@@ -76,6 +77,16 @@ export const verifyOtp = async (
     method: "POST",
     url: "/auth/verify-otp",
     data,
+  });
+};
+
+export const resendOtp = async (
+  email: string
+): Promise<ResendOtpResponse> => {
+  return apiCall({
+    method: "POST",
+    url: "/auth/resend-otp",
+    data: { email },
   });
 };
 

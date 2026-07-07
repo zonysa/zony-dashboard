@@ -98,8 +98,8 @@ export const Columns = ({ t }: ColumnsProps) => {
       accessorKey: "client_name",
       header: t("table.client"),
       cell: ({ row }) => {
-        const client = row.getValue("client_name") as string;
-        return <div className="font-medium">{client}</div>;
+        const client = row.getValue("client_name") as string | null;
+        return <div className="font-medium">{client || "N/A"}</div>;
       },
       filterFn: "includesString",
     },

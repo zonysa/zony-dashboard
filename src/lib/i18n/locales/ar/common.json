@@ -9,6 +9,7 @@
     "createSupervisor": "إنشاء مشرف",
     "createCustomerService": "إنشاء خدمة عملاء",
     "createCourier": "إنشاء موصل",
+    "createParcel": "إنشاء طرد",
     "save": "حفظ"
   },
   "common": {
@@ -418,7 +419,18 @@
       "action": "الإجراء",
       "comment": "التعليق",
       "identity": "الهوية (اختياري)",
-      "optional": "(اختياري)"
+      "optional": "(اختياري)",
+      "name": "الاسم",
+      "coordinates": "الإحداثيات",
+      "pickupPeriod": "فترة الاستلام",
+      "description": "الوصف",
+      "size": "الحجم",
+      "quantity": "الكمية",
+      "weight": "الوزن (كجم)",
+      "length": "الطول (سم)",
+      "width": "العرض (سم)",
+      "height": "الارتفاع (سم)",
+      "unit": "الوحدة"
     },
     "placeholders": {
       "enterFirstName": "أدخل الاسم الأول",
@@ -462,7 +474,15 @@
       "selectPartner": "اختر الشريك",
       "selectResponsible": "اختر المسؤول",
       "selectAction": "اختر الإجراء",
-      "addComment": "أضف تعليق للتذكرة هنا..."
+      "addComment": "أضف تعليق للتذكرة هنا...",
+      "enterName": "أدخل الاسم الكامل",
+      "enterDescription": "ما هو محتوى الطرد؟",
+      "selectSize": "اختر الحجم",
+      "enterQuantity": "أدخل الكمية",
+      "enterWeight": "أدخل الوزن",
+      "enterLength": "الطول",
+      "enterWidth": "العرض",
+      "enterHeight": "الارتفاع"
     },
     "descriptions": {
       "emailDescription": "البريد الإلكتروني الأساسي للاتصال بالمسؤول",
@@ -489,7 +509,10 @@
       "accountDetails": "تفاصيل الحساب",
       "personalInformation": "المعلومات الشخصية",
       "parcelDetails": "تفاصيل الطرد",
+      "parcelContent": "محتوى الطرد",
       "assignment": "التعيين",
+      "sender": "المرسل",
+      "receiver": "المستلم",
       "bankAccount": "الحساب البنكي",
       "branchInfo": "معلومات الفرع",
       "branchInfoDescription": "موقع بودو وتفاصيل الفرع",
@@ -506,6 +529,18 @@
       "customerService": "خدمة عملاء",
       "courier": "موصل",
       "customer": "عميل"
+    },
+    "options": {
+      "parcelSize": {
+        "small": "صغير",
+        "medium": "متوسط",
+        "large": "كبير",
+        "extra_large": "كبير جدًا"
+      },
+      "unit": {
+        "cm": "سم",
+        "in": "بوصة"
+      }
     }
   },
   "dialogs": {
@@ -584,11 +619,20 @@
       "forgotPassword": "نسيت كلمة المرور",
       "CTA": "تسجيل الدخول",
       "logout": "تسجيل الخروج",
-      "register": "إنشاء حساب",
       "resetPassword": "إعادة تعيين كلمة المرور",
       "email": "البريد الإلكتروني",
       "password": "كلمة المرور",
       "confirmPassword": "تأكيد كلمة المرور"
+    },
+    "signup": {
+      "title": "إنشاء حساب",
+      "formTitle": "أنشئ حساب العميل الخاص بك",
+      "CTA": "إنشاء حساب",
+      "success": "تم إنشاء الحساب! يرجى التحقق من بريدك الإلكتروني.",
+      "emailTakenSignInPrompt": "هل لديك حساب بالفعل بهذا البريد الإلكتروني؟"
+    },
+    "verifyOtp": {
+      "title": "تحقق من بريدك الإلكتروني"
     },
     "resetPassword": {
       "title": "إنشاء كلمة مرور جديدة",
@@ -693,6 +737,12 @@
       "deliveryTimelineDescription": "تواريخ التسليم المهمة ومعلومات انتهاء صلاحية الإيصال",
       "customer": "العميل",
       "customerDescription": "معلومات العميل وتفاصيل الاتصال",
+      "parcelContent": "محتوى الطرد",
+      "parcelContentDescription": "محتويات الطرد",
+      "sender": "المرسل",
+      "senderDescription": "معلومات المرسل وموقع الاستلام",
+      "receiver": "المستلم",
+      "receiverDescription": "معلومات المستلم وموقع التسليم",
       "courier": "المندوب",
       "courierDescription": "معلومات المندوب المعين وتفاصيل الاتصال",
       "pickupPoint": "نقطة الاستلام",
@@ -724,6 +774,11 @@
       "deliveryAddress": "عنوان التوصيل",
       "deliveryDate": "تاريخ التوصيل",
       "deliveryTime": "وقت التوصيل",
+      "description": "الوصف",
+      "size": "الحجم",
+      "quantity": "الكمية",
+      "weight": "الوزن",
+      "dimensions": "الأبعاد",
       "customerId": "معرف العميل",
       "pickupEndsAt": "ينتهي الاستلام في",
       "from": "من",
@@ -734,6 +789,13 @@
       "extensionAvailable": "التمديد متاح",
       "customerName": "اسم العميل",
       "customerPhoneNumber": "رقم هاتف العميل",
+      "senderName": "اسم المرسل",
+      "senderPhoneNumber": "رقم هاتف المرسل",
+      "receiverName": "اسم المستلم",
+      "receiverPhoneNumber": "رقم هاتف المستلم",
+      "address": "العنوان",
+      "city": "المدينة",
+      "zone": "المنطقة",
       "courierName": "اسم المندوب",
       "courierPhoneNumber": "رقم هاتف المندوب",
       "status": "الحالة",

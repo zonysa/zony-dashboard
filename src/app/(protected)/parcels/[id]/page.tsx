@@ -6,7 +6,7 @@ import { ComingSoon } from "@/components/ui/coming-soon";
 import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetParcel } from "@/lib/hooks/useParcel";
-import { ArrowRight, Clock, Package, Store, Truck, User } from "lucide-react";
+import { ArrowRight, Box, Clock, Package, Store, Truck, User } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -156,30 +156,131 @@ export default function Page() {
               </CardContent>
             </Card>
 
-            {/* Customer Card */}
+            {/* Parcel Content Card */}
+            {parcelData?.content && (
+              <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+                <DataItem
+                  isHeading={true}
+                  label={t("detailPages.sections.parcelContent")}
+                  value={t("detailPages.sections.parcelContentDescription")}
+                  icon={Box}
+                />
+                <CardContent className="flex-1 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.description")}
+                      value={parcelData.content.description || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.size")}
+                      value={
+                        parcelData.content.size
+                          ? t(`forms.options.parcelSize.${parcelData.content.size}`)
+                          : "N/A"
+                      }
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.quantity")}
+                      value={
+                        parcelData.content.quantity != null
+                          ? String(parcelData.content.quantity)
+                          : "N/A"
+                      }
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.weight")}
+                      value={
+                        parcelData.content.weight != null
+                          ? `${parcelData.content.weight} kg`
+                          : "N/A"
+                      }
+                    />
+                  </div>
+                  {parcelData.content.dimensions && (
+                    <DataItem
+                      label={t("detailPages.labels.dimensions")}
+                      value={`${parcelData.content.dimensions.length} x ${parcelData.content.dimensions.width} x ${parcelData.content.dimensions.height} ${parcelData.content.dimensions.unit || "cm"}`}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Sender Card */}
             <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
               <DataItem
                 isHeading={true}
-                label={t("detailPages.sections.customer")}
-                value={t("detailPages.sections.customerDescription")}
+                label={t("detailPages.sections.sender")}
+                value={t("detailPages.sections.senderDescription")}
+                icon={Store}
+              />
+              <CardContent className="flex-1 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <DataItem
+                    label={t("detailPages.labels.senderName")}
+                    value={parcelData?.client_name || "N/A"}
+                    valueClassName="text-primary"
+                  />
+                  <DataItem
+                    label={t("detailPages.labels.senderPhoneNumber")}
+                    value={parcelData?.sender?.personal.phone_number || "N/A"}
+                  />
+                </div>
+                {parcelData?.sender?.location && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.address")}
+                      value={parcelData.sender.location.address || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.city")}
+                      value={parcelData.sender.location.city || "N/A"}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Receiver Card */}
+            <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+              <DataItem
+                isHeading={true}
+                label={t("detailPages.sections.receiver")}
+                value={t("detailPages.sections.receiverDescription")}
                 icon={User}
               />
               <CardContent className="flex-1 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <DataItem
-                    label={t("detailPages.labels.customerName")}
+                    label={t("detailPages.labels.receiverName")}
                     value={parcelData?.customer_name || "N/A"}
                     valueClassName="text-primary"
                   />
                   <DataItem
-                    label={t("detailPages.labels.customerPhoneNumber")}
+                    label={t("detailPages.labels.receiverPhoneNumber")}
                     value={parcelData?.customer_phone_number || "N/A"}
                   />
                 </div>
-                <DataItem
-                  label={t("detailPages.labels.customerId")}
-                  value={parcelData?.customer_id || "N/A"}
-                />
+                {parcelData?.receiver?.location && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.address")}
+                      value={parcelData.receiver.location.address || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.city")}
+                      value={parcelData.receiver.location.city || "N/A"}
+                    />
+                  </div>
+                )}
+                {parcelData?.customer_id && (
+                  <DataItem
+                    label={t("detailPages.labels.customerId")}
+                    value={parcelData.customer_id}
+                  />
+                )}
               </CardContent>
             </Card>
 

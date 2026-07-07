@@ -8,7 +8,8 @@
     "addNewBranch": "Add New Branch",
     "createSupervisor": "Create Supervisor",
     "createCustomerService": "Create Customer Service",
-    "createCourier": "Create Courier"
+    "createCourier": "Create Courier",
+    "createParcel": "Create Parcel"
   },
   "common": {
     "save": "Save",
@@ -416,7 +417,18 @@
       "action": "Action",
       "comment": "Comment",
       "identity": "Identity (Optional)",
-      "optional": "(Optional)"
+      "optional": "(Optional)",
+      "name": "Name",
+      "coordinates": "Coordinates",
+      "pickupPeriod": "Pickup Period",
+      "description": "Description",
+      "size": "Size",
+      "quantity": "Quantity",
+      "weight": "Weight (kg)",
+      "length": "Length (cm)",
+      "width": "Width (cm)",
+      "height": "Height (cm)",
+      "unit": "Unit"
     },
     "placeholders": {
       "enterFirstName": "Enter first name",
@@ -460,7 +472,15 @@
       "selectPartner": "Select Partner",
       "selectResponsible": "Select Responsible",
       "selectAction": "Select Action",
-      "addComment": "Add comment for the ticket here..."
+      "addComment": "Add comment for the ticket here...",
+      "enterName": "Enter full name",
+      "enterDescription": "What's inside the parcel?",
+      "selectSize": "Select size",
+      "enterQuantity": "Enter quantity",
+      "enterWeight": "Enter weight",
+      "enterLength": "Length",
+      "enterWidth": "Width",
+      "enterHeight": "Height"
     },
     "descriptions": {
       "emailDescription": "Primary contact email for the responsible person",
@@ -487,7 +507,10 @@
       "accountDetails": "Account Details",
       "personalInformation": "Personal Information",
       "parcelDetails": "Parcel Details",
+      "parcelContent": "Parcel Content",
       "assignment": "Assignment",
+      "sender": "Sender",
+      "receiver": "Receiver",
       "bankAccount": "Bank Account",
       "branchInfo": "Branch Info",
       "branchInfoDescription": "Branch location and details",
@@ -504,6 +527,18 @@
       "customerService": "Customer Service",
       "courier": "Courier",
       "customer": "Customer"
+    },
+    "options": {
+      "parcelSize": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "extra_large": "Extra Large"
+      },
+      "unit": {
+        "cm": "cm",
+        "in": "in"
+      }
     }
   },
   "dialogs": {
@@ -584,11 +619,20 @@
       "forgotPassword": "Forgot your password",
       "CTA": "Sign In",
       "logout": "Logout",
-      "register": "Register",
       "resetPassword": "Reset Password",
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm Password"
+    },
+    "signup": {
+      "title": "Sign Up",
+      "formTitle": "Create your customer account",
+      "CTA": "Sign Up",
+      "success": "Account created! Please verify your email.",
+      "emailTakenSignInPrompt": "Already have an account with this email?"
+    },
+    "verifyOtp": {
+      "title": "Verify Your Email"
     },
     "resetPassword": {
       "title": "Create New Password",
@@ -696,6 +740,12 @@
       "deliveryTimelineDescription": "Important delivery dates and receipt expiration information",
       "customer": "Customer",
       "customerDescription": "Customer information and contact details",
+      "parcelContent": "Parcel Content",
+      "parcelContentDescription": "What's inside the parcel",
+      "sender": "Sender",
+      "senderDescription": "Sender information and pickup location",
+      "receiver": "Receiver",
+      "receiverDescription": "Receiver information and delivery location",
       "courier": "Courier",
       "courierDescription": "Assigned courier information and contact details",
       "pickupPoint": "Pickup Point",
@@ -727,6 +777,11 @@
       "deliveryAddress": "Delivery Address",
       "deliveryDate": "Delivery Date",
       "deliveryTime": "Delivery Time",
+      "description": "Description",
+      "size": "Size",
+      "quantity": "Quantity",
+      "weight": "Weight",
+      "dimensions": "Dimensions",
       "customerId": "Customer ID",
       "pickupEndsAt": "Pickup Ends At",
       "from": "From",
@@ -737,6 +792,13 @@
       "extensionAvailable": "Extension Available",
       "customerName": "Customer Name",
       "customerPhoneNumber": "Customer Phone Number",
+      "senderName": "Sender Name",
+      "senderPhoneNumber": "Sender Phone Number",
+      "receiverName": "Receiver Name",
+      "receiverPhoneNumber": "Receiver Phone Number",
+      "address": "Address",
+      "city": "City",
+      "zone": "Zone",
       "courierName": "Courier Name",
       "courierPhoneNumber": "Courier Phone Number",
       "status": "Status",

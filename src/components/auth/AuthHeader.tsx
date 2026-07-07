@@ -13,6 +13,10 @@ function AuthHeader() {
     switch (pathname) {
       case "/auth/login":
         return t("auth.login.title");
+      case "/auth/signup":
+        return t("auth.signup.title");
+      case "/auth/verify-otp":
+        return t("auth.verifyOtp.title");
       case "/auth/request-password":
         return t("auth.requestPassword.title");
       default:

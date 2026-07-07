@@ -85,6 +85,18 @@ apiClient.interceptors.response.use(
   }
 );
 
+// Error thrown by apiCall; carries the HTTP status so callers can branch on
+// it (e.g. 409 conflicts) instead of parsing the message string.
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 // Generic API call function
 export async function apiCall<T>(config: AxiosRequestConfig): Promise<T> {
   try {
@@ -94,7 +106,7 @@ export async function apiCall<T>(config: AxiosRequestConfig): Promise<T> {
     if (axios.isAxiosError(error)) {
       const message = error.response?.data?.message || error.message;
       const status = error.response?.status || 500;
-      throw new Error(`API Error (${status}): ${message}`);
+      throw new ApiError(message, status);
     }
     throw error;
   }

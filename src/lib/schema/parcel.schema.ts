@@ -1,5 +1,7 @@
 import z from "zod";
 
+import { saudiPhoneSchema } from "@/lib/validators/phone";
+
 export interface ParcelTable {
   tn: number;
   pudo: string;
@@ -24,18 +26,54 @@ export interface DeliveryAddress {
   short_address: string;
 }
 
+// Sender/receiver party snapshot (personal + location)
+export interface PartyPersonal {
+  name: string;
+  phone_number: string;
+  email?: string | null;
+}
+
+export interface PartyLocation {
+  address: string;
+  city?: string | null;
+  zone?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+}
+
+export interface ParcelParty {
+  personal: PartyPersonal;
+  location?: PartyLocation | null;
+}
+
+// What's inside the parcel
+export interface Dimensions {
+  length: number;
+  width: number;
+  height: number;
+  unit?: "cm" | "in";
+}
+
+export interface ParcelContent {
+  description: string;
+  size?: "small" | "medium" | "large" | "extra_large";
+  quantity?: number;
+  weight?: number;
+  dimensions?: Dimensions | null;
+}
+
 // Type for parcel details
 export type ParcelDetails = {
   barcode: string;
   city_name: string | null;
-  client_name: string;
+  client_name: string | null;
   courier_id: string | null;
   courier_name: string | null;
   courier_phone_number: string | null;
   created_at: string;
-  customer_id: string;
-  customer_name: string;
-  customer_phone_number: string;
+  customer_id: string | null;
+  customer_name: string | null;
+  customer_phone_number: string | null;
   delivering_date: string | null;
   delivery_address: DeliveryAddress | null;
   delivery_method: string;
@@ -46,6 +84,9 @@ export type ParcelDetails = {
   pudo_id: number | null;
   receiving_code: string | null;
   receiving_date: string | null;
+  sender: ParcelParty | null;
+  receiver: ParcelParty | null;
+  content: ParcelContent | null;
   status:
     | "waiting_confirmation"
     | "pending"
@@ -116,18 +157,86 @@ export const parcelSchema = z.object({
   customer_id: z.string().uuid("Invalid customer ID format"),
 });
 
-// Schema for creating parcels (minimal required fields)
+// Sender/receiver party schemas (Bosta-style personal + location blocks)
+export const partyPersonalSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  phone_number: saudiPhoneSchema,
+  email: z
+    .string()
+    .email("Invalid email address")
+    .optional()
+    .or(z.literal("")),
+});
+
+export const partyLocationSchema = z.object({
+  address: z.string().min(1, "Address is required"),
+  city: z.string().optional(),
+  zone: z.string().optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+});
+
+export const parcelPartySchema = z.object({
+  personal: partyPersonalSchema,
+  location: partyLocationSchema,
+});
+
+// Parcel content schemas (what's inside the parcel)
+// Sub-fields are individually optional (blank inputs come through as
+// `undefined`), but if any one of length/width/height is filled in, all
+// three are required together — mirrors the backend's DimensionsSchema.
+export const dimensionsSchema = z
+  .object({
+    length: z.number().positive("Length must be greater than 0").optional(),
+    width: z.number().positive("Width must be greater than 0").optional(),
+    height: z.number().positive("Height must be greater than 0").optional(),
+    unit: z.enum(["cm", "in"]).optional(),
+  })
+  .refine(
+    (d) => {
+      const provided = [d.length, d.width, d.height].filter(
+        (v) => v !== undefined,
+      );
+      return provided.length === 0 || provided.length === 3;
+    },
+    {
+      message: "Provide length, width and height together",
+      path: ["length"],
+    },
+  );
+
+export const parcelContentSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  size: z.enum(["small", "medium", "large", "extra_large"]).optional(),
+  quantity: z
+    .number()
+    .int()
+    .positive("Quantity must be a positive integer")
+    .optional(),
+  weight: z.number().positive("Weight must be greater than 0").optional(),
+  dimensions: dimensionsSchema.optional(),
+});
+
+// Schema for creating parcels: Bosta-style sender + receiver sections
 export const createParcelSchema = z.object({
   tracking_number: z.string().min(1, "Tracking number is required"),
   barcode: z.string().min(1, "Barcode is required"),
-  pickup_period: z.coerce
+  pickup_period: z
     .number()
     .int()
     .positive("Pickup period must be a positive integer"),
-  client_id: z.coerce.number().int().positive("Client is required"),
-  customer_id: z.string().uuid("Invalid customer ID format"),
+  client_id: z.number().int().positive().optional(),
+  // Optional: customers creating their own parcel don't submit a sender —
+  // the backend snapshots the personal info from their profile instead,
+  // but still needs the sender's location from this form.
+  sender: parcelPartySchema.optional(),
+  receiver: parcelPartySchema,
+  content: parcelContentSchema,
 });
 
 // Type inference
 export type ParcelFormData = z.infer<typeof parcelSchema>;
 export type CreateParcelFormData = z.infer<typeof createParcelSchema>;
+export type ParcelPartyFormData = z.infer<typeof parcelPartySchema>;
+export type DimensionsFormData = z.infer<typeof dimensionsSchema>;
+export type ParcelContentFormData = z.infer<typeof parcelContentSchema>;

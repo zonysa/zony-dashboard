@@ -170,8 +170,6 @@ export function LoginForm({
                   {loginMutation.error.message}
                 </div>
               )}
-
-              {/* Remember Me and Forgot Password */}
             </form>
           </Form>
         </CardContent>
