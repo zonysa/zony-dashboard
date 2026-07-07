@@ -9,6 +9,7 @@
     "createSupervisor": "إنشاء مشرف",
     "createCustomerService": "إنشاء خدمة عملاء",
     "createCourier": "إنشاء موصل",
+    "createParcel": "إنشاء طرد",
     "save": "حفظ"
   },
   "common": {
@@ -418,7 +419,10 @@
       "action": "الإجراء",
       "comment": "التعليق",
       "identity": "الهوية (اختياري)",
-      "optional": "(اختياري)"
+      "optional": "(اختياري)",
+      "name": "الاسم",
+      "coordinates": "الإحداثيات",
+      "pickupPeriod": "فترة الاستلام"
     },
     "placeholders": {
       "enterFirstName": "أدخل الاسم الأول",
@@ -462,7 +466,8 @@
       "selectPartner": "اختر الشريك",
       "selectResponsible": "اختر المسؤول",
       "selectAction": "اختر الإجراء",
-      "addComment": "أضف تعليق للتذكرة هنا..."
+      "addComment": "أضف تعليق للتذكرة هنا...",
+      "enterName": "أدخل الاسم الكامل"
     },
     "descriptions": {
       "emailDescription": "البريد الإلكتروني الأساسي للاتصال بالمسؤول",
@@ -490,6 +495,8 @@
       "personalInformation": "المعلومات الشخصية",
       "parcelDetails": "تفاصيل الطرد",
       "assignment": "التعيين",
+      "sender": "المرسل",
+      "receiver": "المستلم",
       "bankAccount": "الحساب البنكي",
       "branchInfo": "معلومات الفرع",
       "branchInfoDescription": "موقع بودو وتفاصيل الفرع",
@@ -693,6 +700,10 @@
       "deliveryTimelineDescription": "تواريخ التسليم المهمة ومعلومات انتهاء صلاحية الإيصال",
       "customer": "العميل",
       "customerDescription": "معلومات العميل وتفاصيل الاتصال",
+      "sender": "المرسل",
+      "senderDescription": "معلومات المرسل وموقع الاستلام",
+      "receiver": "المستلم",
+      "receiverDescription": "معلومات المستلم وموقع التسليم",
       "courier": "المندوب",
       "courierDescription": "معلومات المندوب المعين وتفاصيل الاتصال",
       "pickupPoint": "نقطة الاستلام",
@@ -734,6 +745,13 @@
       "extensionAvailable": "التمديد متاح",
       "customerName": "اسم العميل",
       "customerPhoneNumber": "رقم هاتف العميل",
+      "senderName": "اسم المرسل",
+      "senderPhoneNumber": "رقم هاتف المرسل",
+      "receiverName": "اسم المستلم",
+      "receiverPhoneNumber": "رقم هاتف المستلم",
+      "address": "العنوان",
+      "city": "المدينة",
+      "zone": "المنطقة",
       "courierName": "اسم المندوب",
       "courierPhoneNumber": "رقم هاتف المندوب",
       "status": "الحالة",

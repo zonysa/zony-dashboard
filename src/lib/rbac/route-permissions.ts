@@ -107,6 +107,10 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
 
   // Parcels - Most roles can view
   {
+    path: "/parcels/create",
+    permission: Permission.CREATE_PARCELS,
+  },
+  {
     path: "/parcels",
     permission: Permission.VIEW_PARCELS,
   },

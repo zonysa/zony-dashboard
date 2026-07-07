@@ -193,7 +193,6 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   customer: [
     Permission.VIEW_DASHBOARD,
     Permission.VIEW_PARCELS,
-    Permission.CREATE_PARCELS,
     Permission.TRACK_PARCELS,
     Permission.VIEW_TICKETS,
     Permission.CREATE_TICKETS,

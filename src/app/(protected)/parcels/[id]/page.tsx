@@ -156,30 +156,79 @@ export default function Page() {
               </CardContent>
             </Card>
 
-            {/* Customer Card */}
+            {/* Sender Card */}
             <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
               <DataItem
                 isHeading={true}
-                label={t("detailPages.sections.customer")}
-                value={t("detailPages.sections.customerDescription")}
+                label={t("detailPages.sections.sender")}
+                value={t("detailPages.sections.senderDescription")}
+                icon={Store}
+              />
+              <CardContent className="flex-1 space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <DataItem
+                    label={t("detailPages.labels.senderName")}
+                    value={parcelData?.client_name || "N/A"}
+                    valueClassName="text-primary"
+                  />
+                  <DataItem
+                    label={t("detailPages.labels.senderPhoneNumber")}
+                    value={parcelData?.sender?.personal.phone_number || "N/A"}
+                  />
+                </div>
+                {parcelData?.sender?.location && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.address")}
+                      value={parcelData.sender.location.address || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.city")}
+                      value={parcelData.sender.location.city || "N/A"}
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Receiver Card */}
+            <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+              <DataItem
+                isHeading={true}
+                label={t("detailPages.sections.receiver")}
+                value={t("detailPages.sections.receiverDescription")}
                 icon={User}
               />
               <CardContent className="flex-1 space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <DataItem
-                    label={t("detailPages.labels.customerName")}
+                    label={t("detailPages.labels.receiverName")}
                     value={parcelData?.customer_name || "N/A"}
                     valueClassName="text-primary"
                   />
                   <DataItem
-                    label={t("detailPages.labels.customerPhoneNumber")}
+                    label={t("detailPages.labels.receiverPhoneNumber")}
                     value={parcelData?.customer_phone_number || "N/A"}
                   />
                 </div>
-                <DataItem
-                  label={t("detailPages.labels.customerId")}
-                  value={parcelData?.customer_id || "N/A"}
-                />
+                {parcelData?.receiver?.location && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.address")}
+                      value={parcelData.receiver.location.address || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.city")}
+                      value={parcelData.receiver.location.city || "N/A"}
+                    />
+                  </div>
+                )}
+                {parcelData?.customer_id && (
+                  <DataItem
+                    label={t("detailPages.labels.customerId")}
+                    value={parcelData.customer_id}
+                  />
+                )}
               </CardContent>
             </Card>
 

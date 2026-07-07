@@ -8,7 +8,8 @@
     "addNewBranch": "Add New Branch",
     "createSupervisor": "Create Supervisor",
     "createCustomerService": "Create Customer Service",
-    "createCourier": "Create Courier"
+    "createCourier": "Create Courier",
+    "createParcel": "Create Parcel"
   },
   "common": {
     "save": "Save",
@@ -416,7 +417,10 @@
       "action": "Action",
       "comment": "Comment",
       "identity": "Identity (Optional)",
-      "optional": "(Optional)"
+      "optional": "(Optional)",
+      "name": "Name",
+      "coordinates": "Coordinates",
+      "pickupPeriod": "Pickup Period"
     },
     "placeholders": {
       "enterFirstName": "Enter first name",
@@ -460,7 +464,8 @@
       "selectPartner": "Select Partner",
       "selectResponsible": "Select Responsible",
       "selectAction": "Select Action",
-      "addComment": "Add comment for the ticket here..."
+      "addComment": "Add comment for the ticket here...",
+      "enterName": "Enter full name"
     },
     "descriptions": {
       "emailDescription": "Primary contact email for the responsible person",
@@ -488,6 +493,8 @@
       "personalInformation": "Personal Information",
       "parcelDetails": "Parcel Details",
       "assignment": "Assignment",
+      "sender": "Sender",
+      "receiver": "Receiver",
       "bankAccount": "Bank Account",
       "branchInfo": "Branch Info",
       "branchInfoDescription": "Branch location and details",
@@ -696,6 +703,10 @@
       "deliveryTimelineDescription": "Important delivery dates and receipt expiration information",
       "customer": "Customer",
       "customerDescription": "Customer information and contact details",
+      "sender": "Sender",
+      "senderDescription": "Sender information and pickup location",
+      "receiver": "Receiver",
+      "receiverDescription": "Receiver information and delivery location",
       "courier": "Courier",
       "courierDescription": "Assigned courier information and contact details",
       "pickupPoint": "Pickup Point",
@@ -737,6 +748,13 @@
       "extensionAvailable": "Extension Available",
       "customerName": "Customer Name",
       "customerPhoneNumber": "Customer Phone Number",
+      "senderName": "Sender Name",
+      "senderPhoneNumber": "Sender Phone Number",
+      "receiverName": "Receiver Name",
+      "receiverPhoneNumber": "Receiver Phone Number",
+      "address": "Address",
+      "city": "City",
+      "zone": "Zone",
       "courierName": "Courier Name",
       "courierPhoneNumber": "Courier Phone Number",
       "status": "Status",
