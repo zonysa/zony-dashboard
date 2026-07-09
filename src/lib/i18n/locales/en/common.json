@@ -552,8 +552,8 @@
     "createParcel": {
       "title": "Create New Parcel",
       "description": "Fill in the parcel details below to create a new delivery order.",
-      "success": "Parcel \"{id}\" created successfully",
-      "error": "Failed to create user: {error}",
+      "success": "Parcel created successfully",
+      "error": "Failed to create parcel: {error}",
       "assignment": "Assignment"
     },
     "createCity": {
@@ -581,7 +581,13 @@
       "latitudePlaceholder": "e.g., 33.315200",
       "longitudePlaceholder": "e.g., 44.366100",
       "selected": "Selected",
-      "confirmLocation": "Confirm Location"
+      "confirmLocation": "Confirm Location",
+      "searchPlaceholder": "Search for an address or place...",
+      "searchResults": "Search Results",
+      "noResults": "No results found",
+      "pickupPoints": "Pickup Points",
+      "useCurrentLocation": "Use my current location",
+      "locationError": "Unable to get your current location"
     },
     "ticket": {
       "title": "Ticket Information",

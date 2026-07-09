@@ -554,8 +554,8 @@
     "createParcel": {
       "title": "إنشاء طرد جديد",
       "description": "املأ تفاصيل الطرد أدناه لإنشاء طلب توصيل جديد.",
-      "success": "تم إنشاء الطرد \"{id}\" بنجاح",
-      "error": "فشل إنشاء المستخدم: {error}",
+      "success": "تم إنشاء الطرد بنجاح",
+      "error": "فشل إنشاء الطرد: {error}",
       "assignment": "المهمة"
     },
     "createCity": {
@@ -581,7 +581,13 @@
       "latitudePlaceholder": "مثال: 33.315200",
       "longitudePlaceholder": "مثال: 44.366100",
       "selected": "المحدد",
-      "confirmLocation": "تأكيد الموقع"
+      "confirmLocation": "تأكيد الموقع",
+      "searchPlaceholder": "ابحث عن عنوان أو مكان...",
+      "searchResults": "نتائج البحث",
+      "noResults": "لا توجد نتائج",
+      "pickupPoints": "نقاط الاستلام",
+      "useCurrentLocation": "استخدام موقعي الحالي",
+      "locationError": "تعذر الحصول على موقعك الحالي"
     },
     "createBranch": {
       "success": "تم إنشاء الفرع {name} بنجاح",

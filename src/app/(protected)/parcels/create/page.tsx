@@ -3,15 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormItem, FormLabel } from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -45,8 +37,6 @@ export default function Page() {
   const form = useForm<CreateParcelFormData>({
     resolver: zodResolver(createParcelSchema),
     defaultValues: {
-      barcode: "",
-      tracking_number: "",
       pickup_period: 2,
       // Customers are always the sender — the backend snapshots their
       // personal profile server-side, but still needs the sender's
@@ -62,7 +52,6 @@ export default function Page() {
   });
 
   const {
-    control,
     handleSubmit,
     setValue,
     formState: { isSubmitting },
@@ -128,12 +117,7 @@ export default function Page() {
 
       await parcelMutation.mutateAsync(payload, {
         onSuccess: () => {
-          toast.success(
-            t("dialogs.createParcel.success").replace(
-              "{trackingNumber}",
-              data.tracking_number,
-            ),
-          );
+          toast.success(t("dialogs.createParcel.success"));
           router.push("/parcels");
         },
         onError: (err) => {
@@ -149,18 +133,35 @@ export default function Page() {
   }
 
   return (
-    <div className="w-full px-6 py-10">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-foreground">
-          {t("dialogs.createParcel.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("dialogs.createParcel.description")}
-        </p>
-      </div>
-
+    <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-semibold text-foreground">
+                {t("dialogs.createParcel.title")}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {t("dialogs.createParcel.description")}
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={() => router.push("/parcels")}
+              >
+                {t("forms.actions.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? t("forms.actions.save") + "..."
+                  : t("forms.actions.save")}
+              </Button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <Card>
@@ -225,66 +226,6 @@ export default function Page() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>{t("forms.sections.parcelDetails")}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={control}
-                    name="tracking_number"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("forms.fields.trackingNumber")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t("forms.placeholders.enterTrackingNumber")}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={control}
-                    name="barcode"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("forms.fields.barcode")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder={t("forms.placeholders.enterBarcode")}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={control}
-                    name="pickup_period"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("forms.fields.pickupPeriod")}</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={1}
-                            {...field}
-                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
                   <CardTitle>{t("forms.sections.parcelContent")}</CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -292,22 +233,6 @@ export default function Page() {
                 </CardContent>
               </Card>
             </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isSubmitting}
-              onClick={() => router.push("/parcels")}
-            >
-              {t("forms.actions.cancel")}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? t("forms.actions.save") + "..."
-                : t("forms.actions.save")}
-            </Button>
           </div>
         </form>
       </Form>

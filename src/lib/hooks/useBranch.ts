@@ -41,10 +41,11 @@ export function useCreateBranch() {
 }
 
 // Get Branches
-export function useGetBranches(filters?: BranchFilterOptions) {
+export function useGetBranches(filters?: BranchFilterOptions, enabled = true) {
   return useQuery<GetBranchesRes>({
     queryKey: branchKeys.list(JSON.stringify(filters) || ""),
     queryFn: () => getBranches(filters || {}),
+    enabled,
     staleTime: 5 * 60 * 1000, // Keep fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Cache for 10 minutes
     retry: 3, // Retry 3 times

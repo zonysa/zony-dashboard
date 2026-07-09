@@ -266,6 +266,7 @@ export const PartySection: React.FC<PartySectionProps> = ({
         open={showCoordinatePicker}
         onOpenChange={setShowCoordinatePicker}
         onCoordinatesSelect={handleCoordinatesSelect}
+        showPudos
         initialCoordinates={
           latitude != null && longitude != null
             ? { lat: Number(latitude), lng: Number(longitude) }
