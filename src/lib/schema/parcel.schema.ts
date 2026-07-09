@@ -35,10 +35,10 @@ export interface PartyPersonal {
 
 export interface PartyLocation {
   address: string;
-  city?: string | null;
-  zone?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
+  city: string;
+  zone: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface ParcelParty {
@@ -170,10 +170,10 @@ export const partyPersonalSchema = z.object({
 
 export const partyLocationSchema = z.object({
   address: z.string().min(1, "Address is required"),
-  city: z.string().optional(),
-  zone: z.string().optional(),
-  latitude: z.number().min(-90).max(90).optional(),
-  longitude: z.number().min(-180).max(180).optional(),
+  city: z.string({ error: "City is required" }).min(1, "City is required"),
+  zone: z.string({ error: "Zone is required" }).min(1, "Zone is required"),
+  latitude: z.number({ error: "Location is required" }).min(-90).max(90),
+  longitude: z.number({ error: "Location is required" }).min(-180).max(180),
 });
 
 export const parcelPartySchema = z.object({

@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useGetBranches } from "@/lib/hooks/useBranch";
@@ -114,12 +113,6 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
     initialCoordinates || null
   );
-  const [manualLat, setManualLat] = useState<string>(
-    initialCoordinates?.lat.toString() || ""
-  );
-  const [manualLng, setManualLng] = useState<string>(
-    initialCoordinates?.lng.toString() || ""
-  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -142,14 +135,6 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
     (pudo: Branch) =>
       pudo.coordinates?.latitude != null && pudo.coordinates?.longitude != null
   );
-
-  // Update manual inputs when position changes from map click
-  useEffect(() => {
-    if (position) {
-      setManualLat(position.lat.toFixed(6));
-      setManualLng(position.lng.toFixed(6));
-    }
-  }, [position]);
 
   // Geocode the debounced query via OpenStreetMap Nominatim
   useEffect(() => {
@@ -219,22 +204,6 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }, [flyAndSelect, t]);
-
-  const handleManualUpdate = useCallback(() => {
-    const lat = parseFloat(manualLat);
-    const lng = parseFloat(manualLng);
-
-    if (
-      !isNaN(lat) &&
-      !isNaN(lng) &&
-      lat >= -90 &&
-      lat <= 90 &&
-      lng >= -180 &&
-      lng <= 180
-    ) {
-      setPosition({ lat, lng });
-    }
-  }, [manualLat, manualLng]);
 
   const handleSubmit = useCallback(() => {
     if (position) {
@@ -324,39 +293,6 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
                   ))}
                 </div>
               )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <Label htmlFor="latitude" className="text-xs">
-                  {t("dialogs.coordinatePicker.latitude")}
-                </Label>
-                <Input
-                  id="latitude"
-                  type="number"
-                  step="0.000001"
-                  placeholder={t("dialogs.coordinatePicker.latitudePlaceholder")}
-                  value={manualLat}
-                  onChange={(e) => setManualLat(e.target.value)}
-                  onBlur={handleManualUpdate}
-                />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="longitude" className="text-xs">
-                  {t("dialogs.coordinatePicker.longitude")}
-                </Label>
-                <Input
-                  id="longitude"
-                  type="number"
-                  step="0.000001"
-                  placeholder={t(
-                    "dialogs.coordinatePicker.longitudePlaceholder"
-                  )}
-                  value={manualLng}
-                  onChange={(e) => setManualLng(e.target.value)}
-                  onBlur={handleManualUpdate}
-                />
-              </div>
             </div>
 
             {position && (
