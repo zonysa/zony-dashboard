@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { UseFormReturn, useWatch } from "react-hook-form";
@@ -21,7 +21,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { PhoneInput } from "@/components/ui/phone-input";
 import {
   Select,
   SelectContent,
@@ -36,23 +35,28 @@ import { CityDetails } from "@/lib/schema/city.schema";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { CreateParcelFormData } from "@/lib/schema/parcel.schema";
+import { parseLocationInput } from "@/lib/validators/location";
 
 interface PartySectionProps {
   form: UseFormReturn<CreateParcelFormData>;
   prefix: "sender" | "receiver";
-  showPersonal?: boolean;
 }
 
 export const PartySection: React.FC<PartySectionProps> = ({
   form,
   prefix,
-  showPersonal = true,
 }) => {
   const { t } = useTranslation();
-  const { control, setValue } = form;
+  const {
+    control,
+    setValue,
+    formState: { errors },
+  } = form;
 
   const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
   const [showCoordinatePicker, setShowCoordinatePicker] = useState(false);
+  const [coordinatesInput, setCoordinatesInput] = useState("");
+  const [coordinatesError, setCoordinatesError] = useState(false);
 
   const { data: cities } = useGetCities();
   const { data: zones } = useGetZones({ cityId: selectedCityId ?? undefined });
@@ -63,74 +67,45 @@ export const PartySection: React.FC<PartySectionProps> = ({
     name: `${prefix}.location.longitude`,
   });
 
+  // Keep the text field in sync with values set via the map picker.
+  useEffect(() => {
+    setCoordinatesInput(
+      latitude != null && longitude != null
+        ? `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`
+        : "",
+    );
+    setCoordinatesError(false);
+  }, [latitude, longitude]);
+
   const handleCoordinatesSelect = (lat: number, lng: number) => {
     setValue(`${prefix}.location.latitude`, lat, { shouldValidate: true });
     setValue(`${prefix}.location.longitude`, lng, { shouldValidate: true });
     setShowCoordinatePicker(false);
   };
 
-  const coordinatesDisplay =
-    latitude != null && longitude != null
-      ? `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`
-      : "";
+  const handleCoordinatesInputBlur = () => {
+    if (!coordinatesInput.trim()) {
+      setCoordinatesError(false);
+      return;
+    }
+
+    const parsed = parseLocationInput(coordinatesInput);
+    if (!parsed) {
+      setCoordinatesError(true);
+      return;
+    }
+
+    setCoordinatesError(false);
+    setValue(`${prefix}.location.latitude`, parsed.lat, { shouldValidate: true });
+    setValue(`${prefix}.location.longitude`, parsed.lng, { shouldValidate: true });
+  };
+
+  const coordinatesRequiredError =
+    !coordinatesError &&
+    (errors[prefix]?.location?.latitude || errors[prefix]?.location?.longitude);
 
   return (
     <div className="space-y-4">
-      {showPersonal && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={control}
-              name={`${prefix}.personal.name`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("forms.fields.name")}</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder={t("forms.placeholders.enterName")}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={control}
-              name={`${prefix}.personal.phone_number`}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
-                  <FormControl>
-                    <PhoneInput {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <FormField
-            control={control}
-            name={`${prefix}.personal.email`}
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  {t("forms.fields.email")} {t("forms.fields.optional")}
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder={t("forms.placeholders.enterEmail")}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </>
-      )}
-
       <FormField
         control={control}
         name={`${prefix}.location.address`}
@@ -154,7 +129,9 @@ export const PartySection: React.FC<PartySectionProps> = ({
           name={`${prefix}.location.city`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("forms.fields.city")}</FormLabel>
+              <FormLabel>
+                {t("forms.fields.city")} <span className="text-destructive">*</span>
+              </FormLabel>
               <Select
                 onValueChange={(value) => {
                   const city = cities?.cities.find(
@@ -200,7 +177,9 @@ export const PartySection: React.FC<PartySectionProps> = ({
           name={`${prefix}.location.zone`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t("forms.fields.zone")}</FormLabel>
+              <FormLabel>
+                {t("forms.fields.zone")} <span className="text-destructive">*</span>
+              </FormLabel>
               <Select
                 onValueChange={(value) => {
                   const zone = zones?.zones?.find(
@@ -242,30 +221,48 @@ export const PartySection: React.FC<PartySectionProps> = ({
       </div>
 
       <FormItem>
-        <FormLabel>{t("forms.fields.coordinates")}</FormLabel>
+        <FormLabel>
+          {t("forms.fields.coordinates")} <span className="text-destructive">*</span>
+        </FormLabel>
+        <p className="text-sm text-muted-foreground">
+          {t("forms.descriptions.coordinatesInputDescription")}
+        </p>
         <div className="flex gap-2">
           <FormControl className="flex-1">
             <Input
-              value={coordinatesDisplay}
-              placeholder={t("forms.placeholders.selectFromGPS")}
-              readOnly
+              value={coordinatesInput}
+              onChange={(e) => setCoordinatesInput(e.target.value)}
+              onBlur={handleCoordinatesInputBlur}
+              placeholder={t("forms.placeholders.enterCoordinatesOrLink")}
+              aria-invalid={coordinatesError || !!coordinatesRequiredError}
             />
           </FormControl>
           <Button
             type="button"
             variant="outline"
-            size="icon"
             onClick={() => setShowCoordinatePicker(true)}
           >
             <MapPin className="h-4 w-4" />
+            {t("forms.actions.pickFromMap")}
           </Button>
         </div>
+        {coordinatesError && (
+          <p className="text-sm text-destructive">
+            {t("forms.errors.invalidCoordinates")}
+          </p>
+        )}
+        {coordinatesRequiredError && (
+          <p className="text-sm text-destructive">
+            {t("forms.errors.coordinatesRequired")}
+          </p>
+        )}
       </FormItem>
 
       <CoordinatePickerDialog
         open={showCoordinatePicker}
         onOpenChange={setShowCoordinatePicker}
         onCoordinatesSelect={handleCoordinatesSelect}
+        showPudos
         initialCoordinates={
           latitude != null && longitude != null
             ? { lat: Number(latitude), lng: Number(longitude) }

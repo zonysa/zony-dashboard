@@ -359,7 +359,12 @@
       "signingIn": "Signing in...",
       "newZone": "New Zone",
       "newCity": "New City",
-      "newDistrict": "New District"
+      "newDistrict": "New District",
+      "pickFromMap": "Pick From Map"
+    },
+    "errors": {
+      "invalidCoordinates": "Enter valid coordinates (e.g. 33.3152, 44.3661) or a Google Maps link",
+      "coordinatesRequired": "Location is required — enter coordinates, a Google Maps link, or pick from the map"
     },
     "doubleCheck": {
       "label": "I confirm that all bank account details are correct",
@@ -468,6 +473,7 @@
       "enterIban": "EG00 0000 0000 0000 0000 0000 000",
       "enterBusinessName": "Enter Business Name",
       "selectFromGPS": "Select From GPS",
+      "enterCoordinatesOrLink": "e.g. 33.3152, 44.3661 or paste a Google Maps link",
       "enterAddress": "Enter Short Address",
       "selectPartner": "Select Partner",
       "selectResponsible": "Select Responsible",
@@ -490,6 +496,7 @@
       "commercialRegistrationDescription": "Upload your commercial registration document (PDF or image)",
       "uploadPhoto": "Upload Customer Service Personal Photo",
       "coordinatesDescription": "Click the location icon to select coordinates",
+      "coordinatesInputDescription": "Enter coordinates directly or paste a Google Maps link, or pick a location from the map",
       "businessName": "Your business registration name",
       "unifiedNumber": "Your business registration number",
       "businessType": "Select your business entity type",
@@ -509,8 +516,12 @@
       "parcelDetails": "Parcel Details",
       "parcelContent": "Parcel Content",
       "assignment": "Assignment",
-      "sender": "Sender",
-      "receiver": "Receiver",
+      "sender": "Sender Location",
+      "senderLocationDescription": "Where should the courier pick up the parcel?",
+      "senderInfo": "Sender Information",
+      "receiver": "Receiver Location",
+      "receiverLocationDescription": "Where should the courier deliver the parcel?",
+      "receiverInfo": "Receiver Information",
       "bankAccount": "Bank Account",
       "branchInfo": "Branch Info",
       "branchInfoDescription": "Branch location and details",
@@ -552,8 +563,8 @@
     "createParcel": {
       "title": "Create New Parcel",
       "description": "Fill in the parcel details below to create a new delivery order.",
-      "success": "Parcel \"{id}\" created successfully",
-      "error": "Failed to create user: {error}",
+      "success": "Parcel created successfully",
+      "error": "Failed to create parcel: {error}",
       "assignment": "Assignment"
     },
     "createCity": {
@@ -576,12 +587,14 @@
     "coordinatePicker": {
       "title": "Select Location Coordinates",
       "description": "Click on the map to select coordinates or enter them manually below.",
-      "latitude": "Latitude",
-      "longitude": "Longitude",
-      "latitudePlaceholder": "e.g., 33.315200",
-      "longitudePlaceholder": "e.g., 44.366100",
       "selected": "Selected",
-      "confirmLocation": "Confirm Location"
+      "confirmLocation": "Confirm Location",
+      "searchPlaceholder": "Search for an address or place...",
+      "searchResults": "Search Results",
+      "noResults": "No results found",
+      "pickupPoints": "Pickup Points",
+      "useCurrentLocation": "Use my current location",
+      "locationError": "Unable to get your current location"
     },
     "ticket": {
       "title": "Ticket Information",

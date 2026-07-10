@@ -360,7 +360,12 @@
       "signingIn": "جاري تسجيل الدخول...",
       "newZone": "المنطقة الجديدة",
       "newCity": "المدينة الجديدة",
-      "newDistrict": "الحي الجديد"
+      "newDistrict": "الحي الجديد",
+      "pickFromMap": "اختر من الخريطة"
+    },
+    "errors": {
+      "invalidCoordinates": "أدخل إحداثيات صحيحة (مثال: 33.3152, 44.3661) أو رابط خرائط جوجل",
+      "coordinatesRequired": "الموقع مطلوب — أدخل الإحداثيات أو رابط خرائط جوجل أو اختر من الخريطة"
     },
     "doubleCheck": {
       "label": "أؤكد أن جميع بيانات الحساب البنكي صحيحة",
@@ -470,6 +475,7 @@
       "enterIban": "EG00 0000 0000 0000 0000 0000 000",
       "enterBusinessName": "أدخل اسم النشاط التجاري",
       "selectFromGPS": "اختر من GPS",
+      "enterCoordinatesOrLink": "مثال: 33.3152, 44.3661 أو الصق رابط خرائط جوجل",
       "enterAddress": "أدخل عنوان مختصر",
       "selectPartner": "اختر الشريك",
       "selectResponsible": "اختر المسؤول",
@@ -492,6 +498,7 @@
       "commercialRegistrationDescription": "تحميل وثيقة السجل التجاري (بدف أو صورة)",
       "uploadPhoto": "قم بتحميل الصورة الشخصية لخدمة العملاء",
       "coordinatesDescription": "انقر فوق رمز الموقع لتحديد الإحداثيات",
+      "coordinatesInputDescription": "أدخل الإحداثيات مباشرة أو الصق رابط خرائط جوجل، أو اختر الموقع من الخريطة",
       "businessName": "اسم تسجيل نشاطك التجاري",
       "unifiedNumber": "الرقم الموحد للسجل التجاري",
       "businessType": "نوع الكيان التجاري",
@@ -511,8 +518,12 @@
       "parcelDetails": "تفاصيل الطرد",
       "parcelContent": "محتوى الطرد",
       "assignment": "التعيين",
-      "sender": "المرسل",
-      "receiver": "المستلم",
+      "sender": "موقع المرسل",
+      "senderLocationDescription": "أين يجب على المندوب استلام الطرد؟",
+      "senderInfo": "معلومات المرسل",
+      "receiver": "موقع المستلم",
+      "receiverLocationDescription": "أين يجب على المندوب تسليم الطرد؟",
+      "receiverInfo": "معلومات المستلم",
       "bankAccount": "الحساب البنكي",
       "branchInfo": "معلومات الفرع",
       "branchInfoDescription": "موقع بودو وتفاصيل الفرع",
@@ -554,8 +565,8 @@
     "createParcel": {
       "title": "إنشاء طرد جديد",
       "description": "املأ تفاصيل الطرد أدناه لإنشاء طلب توصيل جديد.",
-      "success": "تم إنشاء الطرد \"{id}\" بنجاح",
-      "error": "فشل إنشاء المستخدم: {error}",
+      "success": "تم إنشاء الطرد بنجاح",
+      "error": "فشل إنشاء الطرد: {error}",
       "assignment": "المهمة"
     },
     "createCity": {
@@ -576,12 +587,14 @@
     "coordinatePicker": {
       "title": "تحديد إحداثيات الموقع",
       "description": "انقر على الخريطة لتحديد الإحداثيات أو أدخلها يدوياً أدناه.",
-      "latitude": "خط العرض",
-      "longitude": "خط الطول",
-      "latitudePlaceholder": "مثال: 33.315200",
-      "longitudePlaceholder": "مثال: 44.366100",
       "selected": "المحدد",
-      "confirmLocation": "تأكيد الموقع"
+      "confirmLocation": "تأكيد الموقع",
+      "searchPlaceholder": "ابحث عن عنوان أو مكان...",
+      "searchResults": "نتائج البحث",
+      "noResults": "لا توجد نتائج",
+      "pickupPoints": "نقاط الاستلام",
+      "useCurrentLocation": "استخدام موقعي الحالي",
+      "locationError": "تعذر الحصول على موقعك الحالي"
     },
     "createBranch": {
       "success": "تم إنشاء الفرع {name} بنجاح",
