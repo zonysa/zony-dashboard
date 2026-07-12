@@ -46,6 +46,32 @@ export function SignupForm({
 
   const registerMutation = useRegister();
 
+  // Password strength indicator
+  const getPasswordStrength = (password: string) => {
+    let strength = 0;
+    if (password.length >= 8) strength += 1;
+    if (/[a-z]/.test(password)) strength += 1;
+    if (/[A-Z]/.test(password)) strength += 1;
+    if (/\d/.test(password)) strength += 1;
+    if (/[^a-zA-Z\d]/.test(password)) strength += 1;
+    return strength;
+  };
+
+  const strengthLabels = [
+    t("auth.resetPassword.strengthLabels.veryWeak"),
+    t("auth.resetPassword.strengthLabels.weak"),
+    t("auth.resetPassword.strengthLabels.fair"),
+    t("auth.resetPassword.strengthLabels.good"),
+    t("auth.resetPassword.strengthLabels.strong"),
+  ];
+  const strengthColors = [
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-yellow-500",
+    "bg-blue-500",
+    "bg-green-500",
+  ];
+
   const form = useForm<CustomerSignupFormData>({
     resolver: zodResolver(customerSignupSchema),
     defaultValues: {
@@ -59,6 +85,8 @@ export function SignupForm({
       roleId: CUSTOMER_ROLE_ID,
     },
   });
+
+  const passwordStrength = getPasswordStrength(form.watch("password") || "");
 
   // Restore non-sensitive fields left over from an earlier visit (e.g. the
   // customer left mid-way, or came back to fix a mistake after being sent
@@ -293,6 +321,32 @@ export function SignupForm({
                         </Button>
                       </div>
                     </FormControl>
+
+                    {/* Password Strength Indicator */}
+                    {field.value && (
+                      <div className="mt-2">
+                        <div className="flex space-x-1 mb-1">
+                          {[1, 2, 3, 4, 5].map((level) => (
+                            <div
+                              key={level}
+                              className={cn(
+                                "h-1 w-full rounded-full",
+                                passwordStrength >= level
+                                  ? strengthColors[passwordStrength - 1]
+                                  : "bg-gray-200"
+                              )}
+                            />
+                          ))}
+                        </div>
+                        {passwordStrength > 0 && (
+                          <p className="text-xs text-gray-600">
+                            {t("auth.resetPassword.strength")}{" "}
+                            {strengthLabels[passwordStrength - 1]}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <FormMessage />
                   </FormItem>
                 )}
@@ -338,6 +392,59 @@ export function SignupForm({
                   </FormItem>
                 )}
               />
+
+              {/* Password Requirements */}
+              <div className="bg-gray-50 p-4 rounded-md">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  {t("auth.resetPassword.requirements")}
+                </p>
+                <ul className="text-xs text-gray-600 space-y-1">
+                  <li className="flex items-center">
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full mr-2",
+                        (form.watch("password")?.length ?? 0) >= 8
+                          ? "bg-green-500"
+                          : "bg-gray-300"
+                      )}
+                    />
+                    {t("auth.resetPassword.minChars")}
+                  </li>
+                  <li className="flex items-center">
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full mr-2",
+                        /[a-z]/.test(form.watch("password") || "")
+                          ? "bg-green-500"
+                          : "bg-gray-300"
+                      )}
+                    />
+                    {t("auth.resetPassword.lowercase")}
+                  </li>
+                  <li className="flex items-center">
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full mr-2",
+                        /[A-Z]/.test(form.watch("password") || "")
+                          ? "bg-green-500"
+                          : "bg-gray-300"
+                      )}
+                    />
+                    {t("auth.resetPassword.uppercase")}
+                  </li>
+                  <li className="flex items-center">
+                    <span
+                      className={cn(
+                        "w-2 h-2 rounded-full mr-2",
+                        /\d/.test(form.watch("password") || "")
+                          ? "bg-green-500"
+                          : "bg-gray-300"
+                      )}
+                    />
+                    {t("auth.resetPassword.number")}
+                  </li>
+                </ul>
+              </div>
 
               <Button
                 disabled={registerMutation.isPending}

@@ -635,7 +635,8 @@
       "resetPassword": "Reset Password",
       "email": "Email",
       "password": "Password",
-      "confirmPassword": "Confirm Password"
+      "confirmPassword": "Confirm Password",
+      "noAccountPrompt": "Don't have an account?"
     },
     "signup": {
       "title": "Sign Up",

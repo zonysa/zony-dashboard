@@ -26,7 +26,7 @@ function AuthHeader() {
 
   return (
     <div className="flex w-full justify-between items-center">
-      <Image src="/icons/zony-logo.svg" alt="Logo" width={80} height={40} />
+      <Image src="/icons/zony-logo.png" alt="Logo" width={80} height={40} />
       <h1 className="text-xl font-semibold">{getTitle()}</h1>
       <LanguageSwitcher />
     </div>

@@ -170,6 +170,16 @@ export function LoginForm({
                   {loginMutation.error.message}
                 </div>
               )}
+
+              <p className="text-sm text-muted-foreground text-center">
+                {t("auth.login.noAccountPrompt")}{" "}
+                <Link
+                  href="/auth/signup"
+                  className="text-primary underline-offset-4 hover:underline"
+                >
+                  {t("auth.signup.CTA")}
+                </Link>
+              </p>
             </form>
           </Form>
         </CardContent>

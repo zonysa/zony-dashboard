@@ -68,6 +68,7 @@ export const registerSchema = z.object({
 // Customer signup schema (public self-service registration)
 export const customerSignupSchema = registerSchema
   .extend({
+    password: passwordSchema,
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
