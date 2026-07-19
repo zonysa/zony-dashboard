@@ -361,11 +361,14 @@
       "newZone": "المنطقة الجديدة",
       "newCity": "المدينة الجديدة",
       "newDistrict": "الحي الجديد",
-      "pickFromMap": "اختر من الخريطة"
+      "pickFromMap": "اختر من الخريطة",
+      "verify": "تحقق",
+      "verifying": "جاري التحقق..."
     },
     "errors": {
       "invalidCoordinates": "أدخل إحداثيات صحيحة (مثال: 33.3152, 44.3661) أو رابط خرائط جوجل",
-      "coordinatesRequired": "الموقع مطلوب — أدخل الإحداثيات أو رابط خرائط جوجل أو اختر من الخريطة"
+      "coordinatesRequired": "الموقع مطلوب — أدخل الإحداثيات أو رابط خرائط جوجل أو اختر من الخريطة",
+      "nationalAddressNotFound": "تعذر العثور على هذا العنوان — حاول مرة أخرى أو اختر موقعك من الخريطة"
     },
     "doubleCheck": {
       "label": "أؤكد أن جميع بيانات الحساب البنكي صحيحة",
@@ -392,6 +395,7 @@
       "district": "الحي",
       "zone": "المنطقة",
       "address": "العنوان",
+      "nationalAddress": "العنوان الوطني",
       "trackingNumber": "رقم التتبع",
       "barcode": "الباركود",
       "customerId": "رقم العميل",
@@ -477,6 +481,7 @@
       "selectFromGPS": "اختر من GPS",
       "enterCoordinatesOrLink": "مثال: 33.3152, 44.3661 أو الصق رابط خرائط جوجل",
       "enterAddress": "أدخل عنوان مختصر",
+      "enterNationalAddressCode": "مثال: RQAA6355",
       "selectPartner": "اختر الشريك",
       "selectResponsible": "اختر المسؤول",
       "selectAction": "اختر الإجراء",
@@ -499,6 +504,7 @@
       "uploadPhoto": "قم بتحميل الصورة الشخصية لخدمة العملاء",
       "coordinatesDescription": "انقر فوق رمز الموقع لتحديد الإحداثيات",
       "coordinatesInputDescription": "أدخل الإحداثيات مباشرة أو الصق رابط خرائط جوجل، أو اختر الموقع من الخريطة",
+      "nationalAddressDescription": "أدخل رمز العنوان الوطني لتعبئة العنوان والمدينة والمنطقة تلقائيًا",
       "businessName": "اسم تسجيل نشاطك التجاري",
       "unifiedNumber": "الرقم الموحد للسجل التجاري",
       "businessType": "نوع الكيان التجاري",
@@ -643,7 +649,8 @@
       "formTitle": "أنشئ حساب العميل الخاص بك",
       "CTA": "إنشاء حساب",
       "success": "تم إنشاء الحساب! يرجى التحقق من بريدك الإلكتروني.",
-      "emailTakenSignInPrompt": "هل لديك حساب بالفعل بهذا البريد الإلكتروني؟"
+      "emailTakenSignInPrompt": "هل لديك حساب بالفعل بهذا البريد الإلكتروني؟",
+      "haveAccountPrompt": "هل لديك حساب بالفعل؟"
     },
     "verifyOtp": {
       "title": "تحقق من بريدك الإلكتروني"
@@ -940,5 +947,33 @@
       "customerMarket": "العملاء والسوق",
       "qualitySatisfaction": "الجودة والرضا"
     }
+  },
+  "waybill": {
+    "title": "بوليصة الشحن",
+    "printWaybill": "طباعة بوليصة الشحن",
+    "print": "طباعة",
+    "backToParcel": "العودة إلى الطرد",
+    "trackingNumber": "رقم التتبع",
+    "sender": "المرسل",
+    "receiver": "المستلم",
+    "name": "الاسم",
+    "phone": "رقم الهاتف",
+    "address": "العنوان",
+    "city": "المدينة",
+    "zone": "المنطقة",
+    "content": "محتوى الشحنة",
+    "description": "الوصف",
+    "size": "الحجم",
+    "quantity": "الكمية",
+    "weightKg": "الوزن (كجم)",
+    "deliveryMethod": "طريقة التوصيل",
+    "deliveryMethods": {
+      "home_delivery": "توصيل للمنزل",
+      "PUDO_point": "نقطة استلام"
+    },
+    "pickupPeriod": "مدة الاستلام",
+    "createdAt": "تاريخ الإنشاء",
+    "scanToTrack": "امسح الرمز لتتبع شحنتك",
+    "notFound": "بيانات البوليصة غير متوفرة"
   }
 }

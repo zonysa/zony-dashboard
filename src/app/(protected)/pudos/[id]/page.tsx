@@ -206,7 +206,7 @@ function BranchDetails() {
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
       <Tabs defaultValue="info" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
-          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
+          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="info">{t("detailPages.tabs.info")}</TabsTrigger>
             <TabsTrigger value="parcels">
               {t("detailPages.tabs.parcels")}
@@ -220,7 +220,7 @@ function BranchDetails() {
 
         <TabsContent className="flex flex-col gap-6" value="info">
           {/* Branch Info Card */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.branchInfo")}
@@ -228,8 +228,8 @@ function BranchDetails() {
               icon={Store}
               iconClassName="text-black"
             />
-            <CardContent className="w-2/4 flex-1 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.name")}
                   value={String(branch?.pudo?.name || "N/A")}
@@ -244,7 +244,7 @@ function BranchDetails() {
 
               {/* PUDO Photos Gallery */}
               {branch?.pudo?.gallery && branch.pudo.gallery.length > 0 && (
-                <div className="grid grid-cols-3 gap-3 mt-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                   {branch.pudo.gallery.map((photo, index) => (
                     <div key={index} className="relative aspect-video">
                       <Image
@@ -287,7 +287,7 @@ function BranchDetails() {
           </Card>
 
           {/* Location */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.location") || "Location"}
@@ -298,9 +298,9 @@ function BranchDetails() {
               icon={MapPin}
               iconClassName="text-black"
             />
-            <CardContent className="w-2/4 flex-1 space-y-3">
+            <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
               {/* City, Zone, and District */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <DataItem
                   label={t("table.city")}
                   value={
@@ -397,7 +397,7 @@ function BranchDetails() {
           </Card>
 
           {/* Responsible Person */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.responsiblePerson")}
@@ -405,8 +405,8 @@ function BranchDetails() {
               icon={User}
               iconClassName="text-black"
             />
-            <CardContent className="w-2/4 flex-1 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.name")}
                   value={formData.responsibleName}
@@ -452,7 +452,7 @@ function BranchDetails() {
           </Card>
 
           {/* Documents */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.documents")}
@@ -570,9 +570,9 @@ function BranchDetails() {
                     ([day, hours]) => (
                       <div
                         key={day}
-                        className="flex items-center justify-between py-2 border-b last:border-b-0"
+                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-2 border-b last:border-b-0"
                       >
-                        <div className="font-medium capitalize w-32">{day}</div>
+                        <div className="font-medium capitalize sm:w-32">{day}</div>
                         <div className="flex-1">
                           {hours.enabled ? (
                             <div className="flex items-center gap-2">

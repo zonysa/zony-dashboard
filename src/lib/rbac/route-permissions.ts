@@ -118,6 +118,10 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     path: "/parcels/[id]",
     permission: Permission.VIEW_PARCELS,
   },
+  {
+    path: "/parcels/[id]/waybill",
+    permission: Permission.PRINT_PARCELS,
+  },
 ];
 
 /**

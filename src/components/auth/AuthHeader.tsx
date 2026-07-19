@@ -25,9 +25,17 @@ function AuthHeader() {
   };
 
   return (
-    <div className="flex w-full justify-between items-center">
-      <Image src="/icons/zony-logo.png" alt="Logo" width={80} height={40} />
-      <h1 className="text-xl font-semibold">{getTitle()}</h1>
+    <div className="flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      <Image
+        src="/icons/zony-logo.png"
+        alt="Logo"
+        width={80}
+        height={40}
+        className="h-8 w-auto sm:h-10"
+      />
+      <h1 className="order-3 w-full text-center text-lg font-semibold truncate sm:order-none sm:w-auto sm:text-xl">
+        {getTitle()}
+      </h1>
       <LanguageSwitcher />
     </div>
   );

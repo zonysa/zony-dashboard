@@ -20,7 +20,7 @@ export default function ProtectedLayout({
           <AppSidebar side={isRTL ? "right" : "left"} />
           <SidebarInset>
             <Header />
-            <div className="w-full mt-16">{children}</div>
+            <div className="w-full">{children}</div>
           </SidebarInset>
         </SidebarProvider>
       </RoutePermissionGuard>

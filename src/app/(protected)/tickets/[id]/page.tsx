@@ -100,7 +100,7 @@ export default function TicketHistoryPage() {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -308,7 +308,7 @@ export default function TicketHistoryPage() {
                       )}
                     </div>
                     <div className="flex-1 pt-1">
-                      <div className="flex items-start justify-between">
+                      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
                             <Badge variant="outline" className="text-xs capitalize">
@@ -351,7 +351,7 @@ export default function TicketHistoryPage() {
                             ))}
                           </div>
                         </div>
-                        <div className="text-right ml-4">
+                        <div className="text-left sm:text-right sm:ml-4">
                           <p className="text-xs text-muted-foreground whitespace-nowrap">
                             {formatDate(log.timestamp)}
                           </p>

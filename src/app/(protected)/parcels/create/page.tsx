@@ -50,9 +50,12 @@ export default function Page() {
       // location, which is collected below regardless of role.
       sender: {
         personal: { name: "", phone_number: "", email: "" },
-        location: { address: "" },
+        location: { address: "", short_address: "" },
       },
-      receiver: { personal: { name: "", phone_number: "", email: "" }, location: { address: "" } },
+      receiver: {
+        personal: { name: "", phone_number: "", email: "" },
+        location: { address: "", short_address: "" },
+      },
       content: { description: "", quantity: 1 },
     },
     mode: "onChange",
@@ -122,9 +125,10 @@ export default function Page() {
       };
 
       await parcelMutation.mutateAsync(payload, {
-        onSuccess: () => {
+        onSuccess: (res) => {
           toast.success(t("dialogs.createParcel.success"));
-          router.push("/parcels");
+          const newParcelId = res?.parcel?.id;
+          router.push(newParcelId ? `/parcels/${newParcelId}` : "/parcels");
         },
         onError: (err) => {
           toast.error(

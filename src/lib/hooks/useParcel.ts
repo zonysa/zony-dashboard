@@ -29,9 +29,17 @@ export function useCreateParcel() {
 
   return useMutation({
     mutationFn: createParcel,
-    onSuccess: () => {
+    onSuccess: (data) => {
       // Invalidate all parcel lists so they refetch automatically
       queryClient.invalidateQueries({ queryKey: parcelKeys.lists() });
+      // Seed the detail cache so navigating straight to the new parcel
+      // (e.g. to print its waybill) renders instantly without a refetch
+      if (data?.parcel?.id) {
+        queryClient.setQueryData(
+          parcelKeys.detail(String(data.parcel.id)),
+          data,
+        );
+      }
     },
   });
 }

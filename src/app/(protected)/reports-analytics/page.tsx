@@ -78,7 +78,7 @@ function ReportsAnalyticsPage() {
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
       {/* Header with refresh button */}
-      <div className="flex justify-between items-center px-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 px-4 sm:px-6">
         <h1 className="text-2xl font-semibold">{t("reports.title")}</h1>
         <Button
           onClick={() => refetch()}
@@ -95,7 +95,7 @@ function ReportsAnalyticsPage() {
 
       <Tabs defaultValue="core-financial" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
-          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
+          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="core-financial">
               {t("reports.categories.coreFinancial")}
             </TabsTrigger>

@@ -40,6 +40,7 @@ export enum Permission {
   DELETE_PARCELS = "delete:parcels",
   TRACK_PARCELS = "track:parcels",
   ASSIGN_PARCELS = "assign:parcels",
+  PRINT_PARCELS = "print:parcels",
 
   // Clients
   VIEW_CLIENTS = "view:clients",
@@ -98,6 +99,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.DELETE_PARCELS,
     Permission.TRACK_PARCELS,
     Permission.ASSIGN_PARCELS,
+    Permission.PRINT_PARCELS,
     Permission.VIEW_CLIENTS,
     Permission.CREATE_CLIENTS,
     Permission.EDIT_CLIENTS,
@@ -151,6 +153,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.DELETE_PARCELS,
     Permission.TRACK_PARCELS,
     Permission.ASSIGN_PARCELS,
+    Permission.PRINT_PARCELS,
     Permission.VIEW_CLIENTS,
     Permission.VIEW_TICKETS,
     Permission.CREATE_TICKETS,
@@ -195,6 +198,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_PARCELS,
     Permission.CREATE_PARCELS,
     Permission.TRACK_PARCELS,
+    Permission.PRINT_PARCELS,
     Permission.VIEW_TICKETS,
     Permission.CREATE_TICKETS,
     Permission.VIEW_PROFILE,

@@ -360,11 +360,14 @@
       "newZone": "New Zone",
       "newCity": "New City",
       "newDistrict": "New District",
-      "pickFromMap": "Pick From Map"
+      "pickFromMap": "Pick From Map",
+      "verify": "Verify",
+      "verifying": "Verifying..."
     },
     "errors": {
       "invalidCoordinates": "Enter valid coordinates (e.g. 33.3152, 44.3661) or a Google Maps link",
-      "coordinatesRequired": "Location is required — enter coordinates, a Google Maps link, or pick from the map"
+      "coordinatesRequired": "Location is required — enter coordinates, a Google Maps link, or pick from the map",
+      "nationalAddressNotFound": "Couldn't find that address — try again or pick your location on the map"
     },
     "doubleCheck": {
       "label": "I confirm that all bank account details are correct",
@@ -390,6 +393,7 @@
       "district": "District",
       "zone": "Zone",
       "address": "Address",
+      "nationalAddress": "National Address",
       "trackingNumber": "Tracking Number",
       "barcode": "Barcode",
       "customerId": "Customer ID",
@@ -475,6 +479,7 @@
       "selectFromGPS": "Select From GPS",
       "enterCoordinatesOrLink": "e.g. 33.3152, 44.3661 or paste a Google Maps link",
       "enterAddress": "Enter Short Address",
+      "enterNationalAddressCode": "e.g. RQAA6355",
       "selectPartner": "Select Partner",
       "selectResponsible": "Select Responsible",
       "selectAction": "Select Action",
@@ -497,6 +502,7 @@
       "uploadPhoto": "Upload Customer Service Personal Photo",
       "coordinatesDescription": "Click the location icon to select coordinates",
       "coordinatesInputDescription": "Enter coordinates directly or paste a Google Maps link, or pick a location from the map",
+      "nationalAddressDescription": "Enter your National Address short code to auto-fill the address, city and zone",
       "businessName": "Your business registration name",
       "unifiedNumber": "Your business registration number",
       "businessType": "Select your business entity type",
@@ -643,7 +649,8 @@
       "formTitle": "Create your customer account",
       "CTA": "Sign Up",
       "success": "Account created! Please verify your email.",
-      "emailTakenSignInPrompt": "Already have an account with this email?"
+      "emailTakenSignInPrompt": "Already have an account with this email?",
+      "haveAccountPrompt": "Already have an account?"
     },
     "verifyOtp": {
       "title": "Verify Your Email"
@@ -943,5 +950,33 @@
       "customerMarket": "Customer & Market",
       "qualitySatisfaction": "Quality & Satisfaction"
     }
+  },
+  "waybill": {
+    "title": "Waybill",
+    "printWaybill": "Print Waybill",
+    "print": "Print",
+    "backToParcel": "Back to Parcel",
+    "trackingNumber": "Tracking Number",
+    "sender": "Sender",
+    "receiver": "Receiver",
+    "name": "Name",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "zone": "Zone",
+    "content": "Contents",
+    "description": "Description",
+    "size": "Size",
+    "quantity": "Qty",
+    "weightKg": "Weight (kg)",
+    "deliveryMethod": "Delivery Method",
+    "deliveryMethods": {
+      "home_delivery": "Home Delivery",
+      "PUDO_point": "Pickup Point"
+    },
+    "pickupPeriod": "Pickup Period",
+    "createdAt": "Created",
+    "scanToTrack": "Scan to track your parcel",
+    "notFound": "Waybill data unavailable"
   }
 }

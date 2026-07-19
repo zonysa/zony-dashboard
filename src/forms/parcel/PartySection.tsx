@@ -31,8 +31,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { useGetZones } from "@/lib/hooks/useZone";
+import {
+  useGeocodeCoordinates,
+  useResolveShortAddress,
+} from "@/lib/hooks/useNationalAddress";
 import { CityDetails } from "@/lib/schema/city.schema";
 import { ZoneDetails } from "@/lib/schema/zones.schema";
+import { ResolvedNationalAddress } from "@/lib/schema/nationalAddress.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { CreateParcelFormData } from "@/lib/schema/parcel.schema";
 import { parseLocationInput } from "@/lib/validators/location";
@@ -57,14 +62,23 @@ export const PartySection: React.FC<PartySectionProps> = ({
   const [showCoordinatePicker, setShowCoordinatePicker] = useState(false);
   const [coordinatesInput, setCoordinatesInput] = useState("");
   const [coordinatesError, setCoordinatesError] = useState(false);
+  const [nationalAddressError, setNationalAddressError] = useState<
+    string | null
+  >(null);
 
   const { data: cities } = useGetCities();
   const { data: zones } = useGetZones({ cityId: selectedCityId ?? undefined });
+  const resolveShortAddress = useResolveShortAddress();
+  const geocodeCoordinates = useGeocodeCoordinates();
 
   const latitude = useWatch({ control, name: `${prefix}.location.latitude` });
   const longitude = useWatch({
     control,
     name: `${prefix}.location.longitude`,
+  });
+  const shortAddress = useWatch({
+    control,
+    name: `${prefix}.location.short_address`,
   });
 
   // Keep the text field in sync with values set via the map picker.
@@ -77,10 +91,93 @@ export const PartySection: React.FC<PartySectionProps> = ({
     setCoordinatesError(false);
   }, [latitude, longitude]);
 
+  // Fills in whatever the National Address API resolved — never clobbers
+  // fields the resolution didn't return (e.g. it keeps zone untouched,
+  // since gov "district" doesn't map to our operational zones).
+  const applyResolvedAddress = (resolved: ResolvedNationalAddress) => {
+    if (resolved.short_address) {
+      setValue(`${prefix}.location.short_address`, resolved.short_address, {
+        shouldValidate: true,
+      });
+    }
+    if (resolved.address) {
+      setValue(`${prefix}.location.address`, resolved.address, {
+        shouldValidate: true,
+      });
+    }
+    if (resolved.city) {
+      const matchedCity = cities?.cities.find(
+        (c: CityDetails) =>
+          c.name.trim().toLowerCase() === resolved.city!.trim().toLowerCase(),
+      );
+      setValue(`${prefix}.location.city`, matchedCity?.name ?? resolved.city, {
+        shouldValidate: true,
+      });
+      if (matchedCity?.id != null) setSelectedCityId(matchedCity.id);
+    }
+    if (resolved.district) {
+      setValue(`${prefix}.location.district`, resolved.district);
+    }
+    if (resolved.postal_code) {
+      setValue(`${prefix}.location.postal_code`, resolved.postal_code);
+    }
+    if (resolved.building_number) {
+      setValue(`${prefix}.location.building_number`, resolved.building_number);
+    }
+    if (resolved.additional_number) {
+      setValue(
+        `${prefix}.location.additional_number`,
+        resolved.additional_number,
+      );
+    }
+    if (resolved.latitude != null && resolved.longitude != null) {
+      setValue(`${prefix}.location.latitude`, resolved.latitude, {
+        shouldValidate: true,
+      });
+      setValue(`${prefix}.location.longitude`, resolved.longitude, {
+        shouldValidate: true,
+      });
+    }
+  };
+
+  const handleShortAddressBlur = () => {
+    const value = shortAddress?.trim().toUpperCase();
+    if (!value || value.length !== 8) {
+      setNationalAddressError(null);
+      return;
+    }
+
+    resolveShortAddress.mutate(
+      { shortAddress: value },
+      {
+        onSuccess: (res) => {
+          setNationalAddressError(null);
+          applyResolvedAddress(res.address);
+        },
+        onError: () => {
+          setNationalAddressError(t("forms.errors.nationalAddressNotFound"));
+        },
+      },
+    );
+  };
+
   const handleCoordinatesSelect = (lat: number, lng: number) => {
     setValue(`${prefix}.location.latitude`, lat, { shouldValidate: true });
     setValue(`${prefix}.location.longitude`, lng, { shouldValidate: true });
     setShowCoordinatePicker(false);
+
+    // Map-pin fallback: reverse-geocode the picked point into a National
+    // Address. If it can't be resolved, the raw coordinates set above still
+    // stand — same graceful fallback as before this feature existed.
+    geocodeCoordinates.mutate(
+      { lat, long: lng },
+      {
+        onSuccess: (res) => {
+          setNationalAddressError(null);
+          applyResolvedAddress(res.address);
+        },
+      },
+    );
   };
 
   const handleCoordinatesInputBlur = () => {
@@ -106,6 +203,51 @@ export const PartySection: React.FC<PartySectionProps> = ({
 
   return (
     <div className="space-y-4">
+      <FormField
+        control={control}
+        name={`${prefix}.location.short_address`}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>{t("forms.fields.nationalAddress")}</FormLabel>
+            <p className="text-sm text-muted-foreground">
+              {t("forms.descriptions.nationalAddressDescription")}
+            </p>
+            <div className="flex gap-2">
+              <FormControl className="flex-1">
+                <Input
+                  {...field}
+                  maxLength={8}
+                  onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                  onBlur={() => {
+                    field.onBlur();
+                    handleShortAddressBlur();
+                  }}
+                  placeholder={t("forms.placeholders.enterNationalAddressCode")}
+                  aria-invalid={!!nationalAddressError}
+                />
+              </FormControl>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={resolveShortAddress.isPending}
+                onClick={handleShortAddressBlur}
+              >
+                {resolveShortAddress.isPending
+                  ? t("forms.actions.verifying")
+                  : t("forms.actions.verify")}
+              </Button>
+            </div>
+            {nationalAddressError ? (
+              <p className="text-sm text-destructive">
+                {nationalAddressError}
+              </p>
+            ) : (
+              <FormMessage />
+            )}
+          </FormItem>
+        )}
+      />
+
       <FormField
         control={control}
         name={`${prefix}.location.address`}

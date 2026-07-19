@@ -1,4 +1,5 @@
 import {
+  CreateParcelRes,
   GetParcelRes,
   getParcelsRes,
   parcelFilterOptions,
@@ -10,7 +11,7 @@ import { apiCall } from "./apiClient";
 // Create Parcel
 export const createParcel = async (
   data: CreateParcelFormData | ParcelFormData
-) => {
+): Promise<CreateParcelRes> => {
   return apiCall({
     method: "POST",
     url: "/parcels",

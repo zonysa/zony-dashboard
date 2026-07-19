@@ -70,8 +70,8 @@ export default function VerifyOtpPage() {
 
   if (!email) {
     return (
-      <div className="w-full flex flex-col gap-10 items-center justify-center md:p-10">
-        <Card className="w-full max-w-md">
+      <div className="w-full flex flex-col gap-10 items-center justify-center px-4 sm:p-10">
+        <Card className="w-full max-w-sm sm:max-w-md">
           <CardContent className="pt-6">
             <div className="text-center">
               <p>Loading...</p>
@@ -83,9 +83,9 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-10 items-center justify-center md:p-10">
+    <div className="relative w-full flex flex-col gap-10 items-center justify-center overflow-hidden px-4 sm:p-10">
       <Image
-        className="absolute right-0 bottom-0 -z-0"
+        className="absolute right-0 bottom-0 -z-0 hidden w-[320px] h-auto sm:block md:w-[450px] lg:w-[630px]"
         src="/icons/login-illustration.svg"
         alt="Login Illustration"
         width={630}
@@ -93,7 +93,7 @@ export default function VerifyOtpPage() {
       />
       {/* Test credentials info for development */}
       {process.env.NEXT_PUBLIC_USE_MOCK_API === "true" && (
-        <Card className="w-full max-w-md border-green-200 bg-green-50">
+        <Card className="w-full max-w-sm sm:max-w-md border-green-200 bg-green-50">
           <CardContent className="pt-4">
             <p className="text-sm text-green-700 font-medium mb-2">Test OTP:</p>
             <div className="text-xs text-green-600">
@@ -106,12 +106,12 @@ export default function VerifyOtpPage() {
         </Card>
       )}
 
-      <Card className="w-full max-w-md z-1">
+      <Card className="w-full max-w-sm sm:max-w-md z-1">
         <CardHeader>
           <CardTitle className="text-center">
             Enter Code sent to your email
           </CardTitle>
-          <p className="text-sm text-gray-600 text-center mt-2">
+          <p className="text-sm text-gray-600 text-center mt-2 break-words">
             We sent a 6-digit code to{" "}
             <span className="font-medium text-gray-900">{email}</span>
           </p>

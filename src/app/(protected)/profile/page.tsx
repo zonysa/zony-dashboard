@@ -159,7 +159,7 @@ const ProfilePage = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Personal Information Card */}
-      <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+      <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
           label={t("profile.sections.personalInfo.title")}
@@ -167,8 +167,8 @@ const ProfilePage = () => {
           icon={User}
           iconClassName="text-black"
         />
-        <CardContent className="w-2/4 flex-1 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataItem
               label={t("profile.fields.firstName")}
               value={formData.first_name || ""}
@@ -183,7 +183,7 @@ const ProfilePage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataItem
               label={t("profile.fields.username")}
               value={formData.username || ""}
@@ -199,7 +199,7 @@ const ProfilePage = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataItem
               label={t("profile.fields.gender")}
               value={formData.gender || t("profile.values.notSet")}
@@ -263,7 +263,7 @@ const ProfilePage = () => {
       </Card>
 
       {/* Contact Information Card */}
-      <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+      <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
           label={t("profile.sections.contactInfo.title")}
@@ -271,8 +271,8 @@ const ProfilePage = () => {
           icon={Mail}
           iconClassName="text-black"
         />
-        <CardContent className="w-2/4 flex-1 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataItem
               label={t("profile.fields.emailAddress")}
               value={formData.email || ""}
@@ -319,7 +319,7 @@ const ProfilePage = () => {
       </Card>
 
       {/* Location Information Card */}
-      <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+      <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
           label={t("profile.sections.locationInfo.title")}
@@ -327,8 +327,8 @@ const ProfilePage = () => {
           icon={MapPin}
           iconClassName="text-black"
         />
-        <CardContent className="w-2/4 flex-1 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataItem
               label={t("profile.fields.city")}
               value={formData.city || t("profile.values.notSet")}
@@ -373,7 +373,7 @@ const ProfilePage = () => {
       </Card>
 
       {/* Account Information (Read-only) */}
-      <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+      <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
           label={t("profile.sections.accountInfo.title")}
@@ -381,8 +381,8 @@ const ProfilePage = () => {
           icon={Shield}
           iconClassName="text-black"
         />
-        <CardContent className="w-2/4 flex-1 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+        <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <DataItem
               label={t("profile.fields.userId")}
               value={profile.id}

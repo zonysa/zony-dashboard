@@ -134,15 +134,15 @@ function Header() {
   const breadcrumbSegments = getBreadcrumbSegments();
 
   return (
-    <header className="fixed w-[90%] top-0 z-40 pe-32 ps-6 bg-background/95 backdrblur supports-[backdropop--filter]:bg-background/60 flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:w-12/12 group-has-data-[collapsible=icon]/sidebar-wrapper:pe-12 border-b border-border">
+    <header className="sticky w-full top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex h-16 shrink-0 items-center gap-2 px-4 sm:px-6 transition-[width,height] ease-linear border-b border-border">
       <SidebarTrigger className="-ml-1" />
       <Separator
         orientation="vertical"
         className="mr-2 data-[orientation=vertical]:h-4"
       />
-      <div className="w-full flex justify-between items-center gap-2 px-4">
-        <Breadcrumb className="flex justify-start gap-2 items-start">
-          <BreadcrumbList>
+      <div className="w-full flex flex-wrap justify-between items-center gap-2">
+        <Breadcrumb className="flex justify-start gap-2 items-start overflow-x-auto">
+          <BreadcrumbList className="flex-nowrap whitespace-nowrap">
             {breadcrumbSegments.map((segment) => (
               <React.Fragment key={segment.href}>
                 <BreadcrumbItem>
@@ -162,17 +162,17 @@ function Header() {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="w-auto flex justify-end items-center gap-3">
+        <div className="w-auto flex justify-end items-center gap-2 sm:gap-3 shrink-0">
           {getHeaderButton()}
           <BellDot
-            className="cursor-pointer"
+            className="cursor-pointer shrink-0"
             onClick={() => setNotificationsOpen(true)}
             width={22}
             height={22}
           />
           <Avatar
             onClick={handleNavigateProfile}
-            className="circle border border-gray-800 w-[34px] h-[34px] cursor-pointer"
+            className="circle border border-gray-800 w-[34px] h-[34px] cursor-pointer shrink-0"
           >
             <AvatarImage alt="@evilrabbit" />
             <AvatarFallback className="text-[12px]">ER</AvatarFallback>

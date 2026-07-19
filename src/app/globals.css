@@ -211,3 +211,33 @@ html[dir="ltr"] body {
 [dir="rtl"] .text-right {
   text-align: right !important;
 }
+
+/* Waybill printing — isolate the label from the rest of the page chrome
+   (sidebar/header from the protected layout) instead of hiding them
+   individually, so no layout files need print-specific edits. */
+@media print {
+  @page {
+    size: 105mm 148mm;
+    margin: 0;
+  }
+
+  body {
+    visibility: hidden;
+  }
+
+  .waybill-print-area,
+  .waybill-print-area * {
+    visibility: visible;
+  }
+
+  .waybill-print-area {
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    width: 105mm;
+    height: 148mm;
+    margin: 0;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

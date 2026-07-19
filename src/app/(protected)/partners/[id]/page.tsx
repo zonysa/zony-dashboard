@@ -108,7 +108,7 @@ function PartnerDetails() {
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
       <Tabs defaultValue="info" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
-          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
+          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="info">
               {t("detailPages.tabs.partnerInfo")}
             </TabsTrigger>
@@ -120,7 +120,7 @@ function PartnerDetails() {
 
         <TabsContent className="w-full" value="info">
           {/* Partner Info */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.partnerInfo")}
@@ -128,8 +128,8 @@ function PartnerDetails() {
               icon={User}
               iconClassName="text-black"
             />
-            <CardContent className="w-2/4 flex-1 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.name")}
                   value={String(partner?.partner?.name)}
@@ -166,7 +166,7 @@ function PartnerDetails() {
           </Card>
 
           {/* Representative Person */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.representativePerson")}
@@ -174,8 +174,8 @@ function PartnerDetails() {
               icon={User}
               iconClassName="text-black"
             />
-            <CardContent className="w-2/4 flex-1 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+            <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.name")}
                   value={formData.repName || ""}
@@ -219,7 +219,7 @@ function PartnerDetails() {
           </Card>
 
           {/* Payment Information */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.paymentInformation")}
@@ -228,7 +228,7 @@ function PartnerDetails() {
               iconClassName="text-black"
             />
             <CardContent className="flex-1 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.bankName")}
                   value={formData.bankName || ""}
@@ -253,7 +253,7 @@ function PartnerDetails() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.iban")}
                   value={formData.iban || ""}
@@ -296,7 +296,7 @@ function PartnerDetails() {
           </Card>
 
           {/* Payment Information */}
-          <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
             <DataItem
               isHeading={true}
               label={t("detailPages.sections.financialOverview")}
@@ -305,7 +305,7 @@ function PartnerDetails() {
               iconClassName="text-black"
             />
             <CardContent className="flex-1 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <DataItem
                   label={t("detailPages.labels.payoutPerParcel")}
                   value={String(formData.payoutPerParcel || 0)}

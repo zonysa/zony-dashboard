@@ -193,11 +193,11 @@ export function DataTable<TData, TValue>({
       {/* Filter Section */}
       {(enableFiltering || enableGlobalSearch) && (
         <div>
-          <div className="flex flex-nowrap justify-between items-end gap-4">
-            <div className="w-5/6 flex gap-4">
+          <div className="flex flex-col lg:flex-row lg:flex-nowrap justify-between items-stretch lg:items-end gap-4">
+            <div className="w-full lg:w-5/6 flex flex-wrap gap-4">
               {/* Global Search */}
               {enableGlobalSearch && (
-                <div className="flex flex-1 flex-col gap-2 items-start space-x-2">
+                <div className="flex flex-1 min-w-[200px] flex-col gap-2 items-start space-x-2">
                   <span className="text-sm font-medium whitespace-nowrap">
                     {t("table.search")}
                   </span>
@@ -219,7 +219,7 @@ export function DataTable<TData, TValue>({
                 filterConfigs.map((config) => (
                   <div
                     key={config.key}
-                    className="flex flex-col gap-2 justify-between space-x-2"
+                    className="flex flex-1 min-w-[160px] sm:flex-none flex-col gap-2 justify-between space-x-2"
                   >
                     <span className="text-sm font-medium whitespace-nowrap">
                       {config.label}
@@ -230,7 +230,7 @@ export function DataTable<TData, TValue>({
                         updateLocalFilter(config.key, value)
                       }
                     >
-                      <SelectTrigger className="w-40">
+                      <SelectTrigger className="w-full sm:w-40">
                         <SelectValue placeholder={config.placeholder} />
                       </SelectTrigger>
                       <SelectContent>
@@ -248,7 +248,7 @@ export function DataTable<TData, TValue>({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex w-1/6 items-center justify-end space-x-2 ml-auto">
+            <div className="flex w-full lg:w-1/6 items-center justify-end gap-2 lg:ml-auto">
               {hasActiveFilters && (
                 <Button variant="outline" onClick={clearFilters}>
                   <X />
@@ -356,7 +356,7 @@ export function DataTable<TData, TValue>({
       </div>
 
       {/* Pagination & Results Info */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-gray-600">
           {t("table.showing")} {table.getRowModel().rows.length} {t("table.of")}{" "}
           {data.length} {t("table.results")}

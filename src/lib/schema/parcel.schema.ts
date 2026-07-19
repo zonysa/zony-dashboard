@@ -34,11 +34,18 @@ export interface PartyPersonal {
 }
 
 export interface PartyLocation {
-  address: string;
+  address?: string;
   city: string;
   zone: string;
   latitude: number;
   longitude: number;
+  // National Address (SPL) enrichment — resolved server-side from
+  // short_address or from the picked map coordinates.
+  short_address?: string;
+  district?: string;
+  postal_code?: string;
+  building_number?: string;
+  additional_number?: string;
 }
 
 export interface ParcelParty {
@@ -106,6 +113,13 @@ export type GetParcelRes = {
   status: "success" | "error";
 };
 
+// Type for the createParcel API response (same shape as GetParcelRes)
+export type CreateParcelRes = {
+  message: string;
+  parcel: ParcelDetails;
+  status: "success" | "error";
+};
+
 // Type for the complete API response
 export type getParcelsRes = {
   current_page: number;
@@ -168,13 +182,40 @@ export const partyPersonalSchema = z.object({
     .or(z.literal("")),
 });
 
-export const partyLocationSchema = z.object({
-  address: z.string().min(1, "Address is required"),
-  city: z.string({ error: "City is required" }).min(1, "City is required"),
-  zone: z.string({ error: "Zone is required" }).min(1, "Zone is required"),
-  latitude: z.number({ error: "Location is required" }).min(-90).max(90),
-  longitude: z.number({ error: "Location is required" }).min(-180).max(180),
-});
+// A location is valid if it carries ONE of: a National Address short code,
+// a coordinate pair (from the map picker), or a manual address+city+zone —
+// mirrors the backend's PartyLocationSchema.validate_locatable rule.
+export const partyLocationSchema = z
+  .object({
+    address: z.string().optional(),
+    city: z.string().optional(),
+    zone: z.string().optional(),
+    latitude: z.number().min(-90).max(90).optional(),
+    longitude: z.number().min(-180).max(180).optional(),
+    short_address: z
+      .string()
+      .optional()
+      .refine((v) => !v || v.length === 8, {
+        message: "National address code must be 8 characters",
+      }),
+    district: z.string().optional(),
+    postal_code: z.string().optional(),
+    building_number: z.string().optional(),
+    additional_number: z.string().optional(),
+  })
+  .refine(
+    (loc) => {
+      const hasShortAddress = !!loc.short_address;
+      const hasCoords = loc.latitude != null && loc.longitude != null;
+      const hasManual = !!loc.address && !!loc.city && !!loc.zone;
+      return hasShortAddress || hasCoords || hasManual;
+    },
+    {
+      message:
+        "Enter a national address code, pick a location on the map, or fill in address, city and zone",
+      path: ["short_address"],
+    },
+  );
 
 export const parcelPartySchema = z.object({
   personal: partyPersonalSchema,

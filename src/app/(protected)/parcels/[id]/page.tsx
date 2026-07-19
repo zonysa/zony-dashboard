@@ -6,10 +6,12 @@ import { ComingSoon } from "@/components/ui/coming-soon";
 import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetParcel } from "@/lib/hooks/useParcel";
-import { ArrowRight, Box, Clock, Package, Store, Truck, User } from "lucide-react";
+import { ArrowRight, Box, Clock, Package, Printer, Store, Truck, User } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { Can } from "@/components/auth/Can";
+import { Permission } from "@/lib/rbac/permissions";
 
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
@@ -51,9 +53,22 @@ export default function Page() {
 
   return (
     <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
+      <div className="flex w-full items-center justify-between px-6">
+        <h1 className="text-lg font-semibold">
+          {parcelData?.tracking_number || t("detailPages.tabs.parcelInfo")}
+        </h1>
+        <Can do={Permission.PRINT_PARCELS}>
+          <Button asChild variant="outline">
+            <Link href={`/parcels/${parcelId}/waybill`}>
+              <Printer className="h-4 w-4" />
+              {t("waybill.printWaybill")}
+            </Link>
+          </Button>
+        </Can>
+      </div>
       <Tabs defaultValue="info" className="w-full">
         <TabsList className="flex justify-start bg-transparent px-6 gap-2">
-          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px]">
+          <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="info">{t("detailPages.tabs.parcelInfo")}</TabsTrigger>
             <TabsTrigger value="pudos">{t("detailPages.tabs.parcelTracking")}</TabsTrigger>
           </div>
@@ -61,7 +76,7 @@ export default function Page() {
         <TabsContent value="info" className=" py-10">
           <div className="flex flex-col gap-6">
             {/* Tracking Information Card */}
-            <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+            <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
               <DataItem
                 isHeading={true}
                 label={t("detailPages.sections.trackingInformation")}
@@ -69,7 +84,7 @@ export default function Page() {
                 icon={Package}
               />
               <CardContent className="flex-1 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.trackingNumber")}
                     value={parcelData?.tracking_number || "N/A"}
@@ -80,7 +95,7 @@ export default function Page() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.client")}
                     value={parcelData?.client_name || "N/A"}
@@ -91,7 +106,7 @@ export default function Page() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.shipmentDate")}
                     value={formatDate(parcelData?.created_at || null)}
@@ -105,7 +120,7 @@ export default function Page() {
             </Card>
 
             {/* Delivery Timeline Card */}
-            <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+            <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
               <DataItem
                 isHeading={true}
                 label={t("detailPages.sections.deliveryTimeline")}
@@ -113,7 +128,7 @@ export default function Page() {
                 icon={Clock}
               />
               <CardContent className="flex-1 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.currentStatus")}
                     value={parcelData?.status?.replace(/_/g, " ") || "N/A"}
@@ -124,7 +139,7 @@ export default function Page() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.receivingDate")}
                     value={formatDateTime(parcelData?.receiving_date || null)}
@@ -141,7 +156,7 @@ export default function Page() {
                       label={t("detailPages.labels.deliveryAddress")}
                       value={parcelData.delivery_address.short_address || "N/A"}
                     />
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <DataItem
                         label={t("detailPages.labels.deliveryDate")}
                         value={formatDate(parcelData.delivery_address.date)}
@@ -158,7 +173,7 @@ export default function Page() {
 
             {/* Parcel Content Card */}
             {parcelData?.content && (
-              <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+              <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
                 <DataItem
                   isHeading={true}
                   label={t("detailPages.sections.parcelContent")}
@@ -166,7 +181,7 @@ export default function Page() {
                   icon={Box}
                 />
                 <CardContent className="flex-1 space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <DataItem
                       label={t("detailPages.labels.description")}
                       value={parcelData.content.description || "N/A"}
@@ -180,7 +195,7 @@ export default function Page() {
                       }
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <DataItem
                       label={t("detailPages.labels.quantity")}
                       value={
@@ -209,7 +224,7 @@ export default function Page() {
             )}
 
             {/* Sender Card */}
-            <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+            <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
               <DataItem
                 isHeading={true}
                 label={t("detailPages.sections.sender")}
@@ -217,7 +232,7 @@ export default function Page() {
                 icon={Store}
               />
               <CardContent className="flex-1 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.senderName")}
                     value={parcelData?.client_name || "N/A"}
@@ -229,7 +244,7 @@ export default function Page() {
                   />
                 </div>
                 {parcelData?.sender?.location && (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <DataItem
                       label={t("detailPages.labels.address")}
                       value={parcelData.sender.location.address || "N/A"}
@@ -244,7 +259,7 @@ export default function Page() {
             </Card>
 
             {/* Receiver Card */}
-            <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+            <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
               <DataItem
                 isHeading={true}
                 label={t("detailPages.sections.receiver")}
@@ -252,7 +267,7 @@ export default function Page() {
                 icon={User}
               />
               <CardContent className="flex-1 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <DataItem
                     label={t("detailPages.labels.receiverName")}
                     value={parcelData?.customer_name || "N/A"}
@@ -264,7 +279,7 @@ export default function Page() {
                   />
                 </div>
                 {parcelData?.receiver?.location && (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <DataItem
                       label={t("detailPages.labels.address")}
                       value={parcelData.receiver.location.address || "N/A"}
@@ -285,7 +300,7 @@ export default function Page() {
             </Card>
 
             {/* Courier Card */}
-            <Card className="flex flex-row border-0 border-b px-6 rounded-none shadow-none">
+            <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
               <DataItem
                 isHeading={true}
                 label={t("detailPages.sections.courier")}
@@ -294,7 +309,7 @@ export default function Page() {
               />
               <CardContent className="flex-1 space-y-3">
                 {parcelData?.courier_name || parcelData?.courier_phone_number ? (
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <DataItem
                       label={t("detailPages.labels.courierName")}
                       value={parcelData?.courier_name || "N/A"}
@@ -314,7 +329,7 @@ export default function Page() {
 
             {/* PUDO Card */}
             {parcelData?.pudo_id && (
-              <Card className="flex flex-row items-center px-6 border-0 border-b rounded-none shadow-none">
+              <Card className="flex flex-col sm:flex-row sm:items-center px-6 border-0 border-b rounded-none shadow-none">
                 <DataItem
                   isHeading={true}
                   label={t("detailPages.sections.pickupPoint")}
@@ -336,14 +351,14 @@ export default function Page() {
                 </CardContent>
                 <Link
                   href={`/pudos/${parcelData.pudo_id}`}
-                  className="w-1/4 bg-primary hover:bg-primary/80 py-2 text-center text-white rounded-md text-sm font-medium transition-colors"
+                  className="w-full sm:w-1/4 bg-primary hover:bg-primary/80 py-2 text-center text-white rounded-md text-sm font-medium transition-colors"
                 >
                   {t("detailPages.buttons.viewPickupPoint")}
                 </Link>
               </Card>
             )}
             {/* Extension Request Card */}
-            <Card className="flex flex-row items-center px-6 border-0 border-b rounded-none shadow-none">
+            <Card className="flex flex-col sm:flex-row sm:items-center px-6 border-0 border-b rounded-none shadow-none">
               <DataItem
                 isHeading={true}
                 label={t("detailPages.sections.extensionRequest")}
@@ -363,7 +378,7 @@ export default function Page() {
                   </div>
                 </div>
               </CardContent>
-              <Button className="w-1/4 bg-primary hover:bg-primary/80 py-2 text-white rounded-md text-sm font-medium transition-colors">
+              <Button className="w-full sm:w-1/4 bg-primary hover:bg-primary/80 py-2 text-white rounded-md text-sm font-medium transition-colors">
                 {t("detailPages.buttons.extensionRequest")}
               </Button>
             </Card>

@@ -42,9 +42,9 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6 p-4 sm:p-6">
       {/* Language Preferences Card */}
-      <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+      <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
           label={t("settings.languagePreferences", {
@@ -56,7 +56,7 @@ const SettingsPage = () => {
           icon={Globe}
           iconClassName="text-black"
         />
-        <CardContent className="w-2/4 flex-1 space-y-3">
+        <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
           <div className="grid grid-cols-1 gap-3">
             <DataItem
               label={t("settings.language", {
@@ -115,7 +115,7 @@ const SettingsPage = () => {
       </Card>
 
       {/* KPI Settings Card */}
-      <Card className="flex flex-row border-0 border-b rounded-none shadow-none px-6">
+      <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
           isHeading={true}
           label={t("settings.kpi.title", {
@@ -127,7 +127,7 @@ const SettingsPage = () => {
           icon={BarChart3}
           iconClassName="text-black"
         />
-        <CardContent className="w-2/4 flex-1 space-y-3">
+        <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
           <div className="grid grid-cols-1 gap-3">
             <div className="text-sm text-gray-500">
               <p>

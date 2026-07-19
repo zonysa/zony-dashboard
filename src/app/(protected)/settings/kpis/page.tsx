@@ -235,7 +235,7 @@ export default function KPISettingsPage() {
         {/* Color Legend */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex items-center gap-8 justify-center">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-8 justify-center">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 rounded bg-red-500"></div>
                 <span className="text-sm text-gray-600">
@@ -289,8 +289,8 @@ export default function KPISettingsPage() {
                   value={kpi.id.toString()}
                   className="bg-white rounded-lg border shadow-sm"
                 >
-                  <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                    <div className="flex items-center gap-4 text-left">
+                  <AccordionTrigger className="px-4 sm:px-6 py-4 hover:no-underline">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-left">
                       <div>
                         <h3 className="font-medium">{kpi.name}</h3>
                         {kpi.description && (
@@ -309,11 +309,11 @@ export default function KPISettingsPage() {
                       )}
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-6 pb-6">
+                  <AccordionContent className="px-4 sm:px-6 pb-6">
                     <div className="space-y-6">
                       {/* Comparison Type */}
-                      <div className="flex items-center gap-4">
-                        <Label className="min-w-30">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                        <Label className="sm:min-w-30">
                           {t("settings.kpi.comparison", {
                             defaultValue: "Comparison",
                           })}
@@ -324,7 +324,7 @@ export default function KPISettingsPage() {
                             updateComparison(kpi.id, value)
                           }
                         >
-                          <SelectTrigger className="w-70">
+                          <SelectTrigger className="w-full sm:w-70">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -361,14 +361,14 @@ export default function KPISettingsPage() {
                             return (
                               <div
                                 key={zone.name}
-                                className={`flex items-center gap-4 p-4 rounded-lg border ${colors.bg} ${colors.border}`}
+                                className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 p-4 rounded-lg border ${colors.bg} ${colors.border}`}
                               >
                                 <div
-                                  className={`font-medium capitalize min-w-20 ${colors.text}`}
+                                  className={`font-medium capitalize sm:min-w-20 ${colors.text}`}
                                 >
                                   {zone.name}
                                 </div>
-                                <div className="flex items-center gap-2 flex-1">
+                                <div className="flex flex-wrap items-center gap-2 flex-1">
                                   {isHighestOrder ? (
                                     <span className="text-sm text-gray-600">
                                       {comparison === "gte"

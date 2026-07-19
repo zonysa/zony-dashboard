@@ -170,6 +170,15 @@ export function SignupForm({
       <Card>
         <CardHeader>
           <CardTitle>{t("auth.signup.formTitle")}</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {t("auth.signup.haveAccountPrompt")}{" "}
+            <Link
+              href="/auth/login"
+              className="text-primary underline-offset-4 hover:underline"
+            >
+              {t("auth.login.CTA")}
+            </Link>
+          </p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -394,57 +403,52 @@ export function SignupForm({
               />
 
               {/* Password Requirements */}
-              <div className="bg-gray-50 p-4 rounded-md">
-                <p className="text-sm font-medium text-gray-700 mb-2">
-                  {t("auth.resetPassword.requirements")}
-                </p>
-                <ul className="text-xs text-gray-600 space-y-1">
-                  <li className="flex items-center">
-                    <span
-                      className={cn(
-                        "w-2 h-2 rounded-full mr-2",
-                        (form.watch("password")?.length ?? 0) >= 8
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      )}
-                    />
-                    {t("auth.resetPassword.minChars")}
-                  </li>
-                  <li className="flex items-center">
-                    <span
-                      className={cn(
-                        "w-2 h-2 rounded-full mr-2",
-                        /[a-z]/.test(form.watch("password") || "")
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      )}
-                    />
-                    {t("auth.resetPassword.lowercase")}
-                  </li>
-                  <li className="flex items-center">
-                    <span
-                      className={cn(
-                        "w-2 h-2 rounded-full mr-2",
-                        /[A-Z]/.test(form.watch("password") || "")
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      )}
-                    />
-                    {t("auth.resetPassword.uppercase")}
-                  </li>
-                  <li className="flex items-center">
-                    <span
-                      className={cn(
-                        "w-2 h-2 rounded-full mr-2",
-                        /\d/.test(form.watch("password") || "")
-                          ? "bg-green-500"
-                          : "bg-gray-300"
-                      )}
-                    />
-                    {t("auth.resetPassword.number")}
-                  </li>
-                </ul>
-              </div>
+              <ul className="flex flex-wrap gap-x-3 gap-y-1 bg-gray-50 px-3 py-2 rounded-md text-xs text-gray-600">
+                <li className="flex items-center">
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full mr-1",
+                      (form.watch("password")?.length ?? 0) >= 8
+                        ? "bg-green-500"
+                        : "bg-gray-300"
+                    )}
+                  />
+                  {t("auth.resetPassword.minChars")}
+                </li>
+                <li className="flex items-center">
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full mr-1",
+                      /[a-z]/.test(form.watch("password") || "")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
+                    )}
+                  />
+                  {t("auth.resetPassword.lowercase")}
+                </li>
+                <li className="flex items-center">
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full mr-1",
+                      /[A-Z]/.test(form.watch("password") || "")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
+                    )}
+                  />
+                  {t("auth.resetPassword.uppercase")}
+                </li>
+                <li className="flex items-center">
+                  <span
+                    className={cn(
+                      "w-2 h-2 rounded-full mr-1",
+                      /\d/.test(form.watch("password") || "")
+                        ? "bg-green-500"
+                        : "bg-gray-300"
+                    )}
+                  />
+                  {t("auth.resetPassword.number")}
+                </li>
+              </ul>
 
               <Button
                 disabled={registerMutation.isPending}
