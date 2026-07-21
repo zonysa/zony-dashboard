@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Star, Clock, User, Package, MapPin } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { PageContainer } from "@/components/PageContainer";
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
@@ -98,7 +99,7 @@ export default function TicketHistoryPage() {
   const rating = parseFloat(ticket.rating);
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-10 space-y-6">
+    <PageContainer className="px-4 py-10 space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
@@ -374,6 +375,6 @@ export default function TicketHistoryPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 }

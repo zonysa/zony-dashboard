@@ -24,6 +24,7 @@ import { useUser } from "@/lib/stores/auth-store";
 import { normalizeRole } from "@/lib/rbac/roles";
 import { Client } from "@/lib/schema/client.schema";
 import { CreateParcelFormData, createParcelSchema } from "@/lib/schema/parcel.schema";
+import { PageContainer } from "@/components/PageContainer";
 import { PartySection } from "@/forms/parcel/PartySection";
 import { PartyPersonalSection } from "@/forms/parcel/PartyPersonalSection";
 import { ParcelContentSection } from "@/forms/parcel/ParcelContentSection";
@@ -143,7 +144,7 @@ export default function Page() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <PageContainer size="xl" className="px-6 py-10">
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -252,6 +253,6 @@ export default function Page() {
           </div>
         </form>
       </Form>
-    </div>
+    </PageContainer>
   );
 }

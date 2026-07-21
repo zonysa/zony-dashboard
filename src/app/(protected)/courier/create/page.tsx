@@ -20,6 +20,7 @@ import { FileInput } from "@/components/ui/file-input";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContainer } from "@/components/PageContainer";
 import { useRegister } from "@/lib/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
@@ -76,7 +77,7 @@ const Page: React.FC = () => {
   }
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 mt-10 space-y-8">
+    <PageContainer size="sm" className="px-4 mt-10 space-y-8">
       {/* Basic Information Section */}
       <Card>
         <CardHeader>
@@ -247,7 +248,7 @@ const Page: React.FC = () => {
           </Form>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

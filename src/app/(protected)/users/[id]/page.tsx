@@ -9,6 +9,7 @@ import { ArrowLeft, User, Mail, Phone, Calendar, MapPin, Building2 } from "lucid
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PageContainer } from "@/components/PageContainer";
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
@@ -69,7 +70,7 @@ export default function UserDetailPage() {
   const initials = `${user.first_name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase();
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-10 space-y-6">
+    <PageContainer className="px-4 py-10 space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
@@ -308,6 +309,6 @@ export default function UserDetailPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 }

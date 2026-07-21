@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Client } from "@/lib/schema/client.schema";
+import { PageContainer } from "@/components/PageContainer";
 
 // Helper function to get status variant
 const getStatusVariant = (status: string) => {
@@ -77,7 +78,7 @@ export default function ClientDetailPage() {
   const client = data.client as Client;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-10 space-y-6">
+    <PageContainer className="px-4 py-10 space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
@@ -275,6 +276,6 @@ export default function ClientDetailPage() {
           </CardContent>
         </Card>
       )}
-    </div>
+    </PageContainer>
   );
 }

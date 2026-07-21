@@ -25,6 +25,7 @@ import { KPIDetails, ThresholdZone, Thresholds } from "@/lib/schema/kpi.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { PageContainer } from "@/components/PageContainer";
 
 // Zone colors for visual indicator
 const zoneColors: Record<string, { bg: string; border: string; text: string }> =
@@ -174,11 +175,11 @@ export default function KPISettingsPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <div className="max-w-4xl mx-auto space-y-4">
+        <PageContainer size="md" className="space-y-4">
           <Skeleton className="h-10 w-48" />
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-64 w-full" />
-        </div>
+        </PageContainer>
       </div>
     );
   }
@@ -186,7 +187,7 @@ export default function KPISettingsPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 py-8 px-4">
-        <div className="max-w-4xl mx-auto">
+        <PageContainer size="md">
           <Card className="border-red-200 bg-red-50">
             <CardContent className="pt-6">
               <p className="text-red-700">
@@ -201,7 +202,7 @@ export default function KPISettingsPage() {
               </Button>
             </CardContent>
           </Card>
-        </div>
+        </PageContainer>
       </div>
     );
   }
@@ -210,7 +211,7 @@ export default function KPISettingsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
+      <PageContainer size="md">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Button
@@ -458,7 +459,7 @@ export default function KPISettingsPage() {
             })}
           </Accordion>
         )}
-      </div>
+      </PageContainer>
     </div>
   );
 }
