@@ -8,7 +8,7 @@ export default function AuthLayout({
 }) {
   return (
     <AuthRedirect>
-      <div className="relative flex flex-col gap-6 sm:gap-10 w-full items-center justify-start px-4 sm:px-6 pt-6 pb-10 overflow-x-hidden">
+      <div className="relative flex min-h-dvh flex-col gap-6 sm:gap-10 w-full items-center justify-start px-4 sm:px-6 pt-6 pb-10 overflow-x-hidden">
         <AuthHeader />
         {children}
       </div>
