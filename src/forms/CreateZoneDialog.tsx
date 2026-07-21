@@ -80,31 +80,18 @@ export function CreateZone({ open, onOpenChange }: CreateZoneProps) {
 
   async function onSubmit(data: ZoneFormData) {
     try {
-      await zoneMutation.mutateAsync(
-        {
-          name: data.name,
-          city_id: Number(data.city_id), // Convert to number for API
-          status: "active",
-          // districts: data.districts.map(d => Number(d.value))
-        },
-        {
-          onSuccess: () => {
-            toast.success(`Zone ${data.name} created successfuly`);
-            onOpenChange(false);
-            form.reset();
-          },
-          onError: (error) => {
-            toast.error(`Error ${error.message}`);
-          },
-        }
-      );
+      await zoneMutation.mutateAsync({
+        name: data.name,
+        city_id: Number(data.city_id), // Convert to number for API
+        status: "active",
+        // districts: data.districts.map(d => Number(d.value))
+      });
 
+      toast.success(`Zone ${data.name} created successfuly`);
       onOpenChange(false);
       form.reset();
-    } catch (error) {
-      toast.error("Error", {
-        description: `${error}`,
-      });
+    } catch {
+      // useCreateZone's onError already shows the error toast
     }
   }
 

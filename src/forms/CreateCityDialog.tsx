@@ -22,7 +22,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useCreateCity } from "@/lib/hooks/useCity";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
@@ -44,15 +43,7 @@ export function CreateCity({ open, onOpenChange }: Props) {
   const cityMutation = useCreateCity();
 
   function onSubmit(data: CityFormData) {
-    cityMutation.mutate(data, {
-      onSuccess: () => {
-        toast.success("Created New City");
-      },
-      onError: (error) =>
-        toast.error("Error", {
-          description: `The ${error.message} problem`,
-        }),
-    });
+    cityMutation.mutate(data);
   }
 
   return (

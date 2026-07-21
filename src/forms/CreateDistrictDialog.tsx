@@ -62,24 +62,15 @@ export function CreateDistrict({ open, onOpenChange }: Props) {
   const { control } = form;
   async function onSubmit(data: DistrictFormData) {
     try {
-      await districtMutation.mutateAsync(
-        {
-          name: data.name,
-          city_id: data.city_id,
-          zone_id: data.zone_id,
-        },
-        {
-          onSuccess: (data) => {
-            toast.success(t("dialogs.createDistrict.success", { name: data.district.name }));
-            onOpenChange(false);
-            form.reset();
-          },
-          onError: (error) => {
-            toast.error(`Error: ${error.message}`);
-          },
-        }
-      );
+      const response = await districtMutation.mutateAsync({
+        name: data.name,
+        city_id: data.city_id,
+        zone_id: data.zone_id,
+      });
 
+      toast.success(
+        t("dialogs.createDistrict.success", { name: response.district.name })
+      );
       onOpenChange(false);
       form.reset();
     } catch (error) {
