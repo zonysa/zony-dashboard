@@ -13,12 +13,13 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter, usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { BellDot } from "lucide-react";
+import { BellDot, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LocationDropDown } from "./ui/LocatoinDropdown";
 import NotificationsSheet from "./NotificationsSheet";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import CreateUserSheet from "./CreateUserSheet";
+import { useLanguage, useSetLanguage } from "@/lib/stores/user-preferences-store";
 
 interface BreadcrumbSegment {
   label: string;
@@ -33,6 +34,12 @@ function Header() {
   const [showUserSheet, setShowUserSheet] = useState(false);
   const [userRoleId, setUserRoleId] = useState<number>(0);
   const { t } = useTranslation();
+  const language = useLanguage();
+  const setLanguage = useSetLanguage();
+
+  const toggleLanguage = () => {
+    setLanguage(language === "en" ? "ar" : "en");
+  };
 
   // Generate breadcrumb segments from pathname
   const getBreadcrumbSegments = (): BreadcrumbSegment[] => {
@@ -164,6 +171,15 @@ function Header() {
         </Breadcrumb>
         <div className="w-auto flex justify-end items-center gap-2 sm:gap-3 shrink-0">
           {getHeaderButton()}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleLanguage}
+            className="cursor-pointer gap-1.5 shrink-0"
+          >
+            <Globe className="h-4 w-4" />
+            {language === "en" ? "العربية" : "English"}
+          </Button>
           <BellDot
             className="cursor-pointer shrink-0"
             onClick={() => setNotificationsOpen(true)}
