@@ -39,13 +39,25 @@ apiClient.interceptors.request.use(
   }
 );
 
+// Endpoints whose own 401s are expected auth failures (e.g. wrong
+// credentials), not an expired session — they must not trigger the
+// refresh/redirect flow below.
+const AUTH_ENDPOINTS = ["/auth/login", "/auth/register", "/auth/refresh"];
+
 //Response interceptor for error handling and token refresh
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const isAuthEndpoint = AUTH_ENDPOINTS.some((url) =>
+      originalRequest?.url?.includes(url)
+    );
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !isAuthEndpoint &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       try {
