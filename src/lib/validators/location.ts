@@ -6,7 +6,7 @@ export interface LatLng {
 const isValidLatLng = ({ lat, lng }: LatLng): boolean =>
   !isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 
-/** Matches a plain "lat, lng" pair, e.g. "33.3152, 44.3661". */
+/** Matches a plain "lat, lng" pair, e.g. "24.7136, 46.6753". */
 function parseCoordinatePair(value: string): LatLng | null {
   const match = value.trim().match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
   if (!match) return null;
@@ -16,7 +16,7 @@ function parseCoordinatePair(value: string): LatLng | null {
 }
 
 // Covers the coordinate patterns Google Maps embeds in its share links, e.g.
-// ".../@33.3152,44.3661,15z", "?q=33.3152,44.3661" and "?ll=33.3152,44.3661".
+// ".../@24.7136,46.6753,15z", "?q=24.7136,46.6753" and "?ll=24.7136,46.6753".
 // Shortened links (maps.app.goo.gl/...) can't be resolved client-side since
 // that requires following a redirect, so those are left unmatched on purpose.
 const GOOGLE_MAPS_URL_PATTERNS = [

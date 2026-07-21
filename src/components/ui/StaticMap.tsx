@@ -47,7 +47,7 @@ export const StaticMap: React.FC<StaticMapProps> = ({
   // Default center to first coordinate or fallback
   const mapCenter =
     center ||
-    (coordinates.length > 0 ? coordinates[0] : { lat: 33.3152, lng: 44.3661 });
+    (coordinates.length > 0 ? coordinates[0] : { lat: 24.7136, lng: 46.6753 });
 
   return (
     <div
@@ -94,7 +94,7 @@ export const InteractiveMap: React.FC<StaticMapProps> = ({
 }) => {
   const mapCenter =
     center ||
-    (coordinates.length > 0 ? coordinates[0] : { lat: 33.3152, lng: 44.3661 });
+    (coordinates.length > 0 ? coordinates[0] : { lat: 24.7136, lng: 46.6753 });
 
   return (
     <div
@@ -156,7 +156,7 @@ export const AutoFitMap: React.FC<StaticMapProps> = ({
   className = "",
   showPopups = false,
 }) => {
-  const fallbackCenter = { lat: 33.3152, lng: 44.3661 };
+  const fallbackCenter = { lat: 24.7136, lng: 46.6753 };
 
   // Filter out any invalid coordinates
   const validCoordinates = coordinates.filter(

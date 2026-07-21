@@ -109,7 +109,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
 }) => {
   const { t, currentLanguage } = useTranslation();
   // Default to Baghdad, Iraq coordinates
-  const defaultCenter = { lat: 33.3152, lng: 44.3661 };
+  const defaultCenter = { lat: 24.7136, lng: 46.6753 };
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
     initialCoordinates || null
   );

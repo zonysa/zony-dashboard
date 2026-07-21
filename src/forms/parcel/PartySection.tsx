@@ -208,7 +208,9 @@ export const PartySection: React.FC<PartySectionProps> = ({
         name={`${prefix}.location.short_address`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("forms.fields.nationalAddress")}</FormLabel>
+            <FormLabel>
+              {t("forms.fields.nationalAddress")} {t("forms.fields.optional")}
+            </FormLabel>
             <p className="text-sm text-muted-foreground">
               {t("forms.descriptions.nationalAddressDescription")}
             </p>
@@ -253,7 +255,12 @@ export const PartySection: React.FC<PartySectionProps> = ({
         name={`${prefix}.location.address`}
         render={({ field }) => (
           <FormItem>
-            <FormLabel>{t("forms.fields.address")}</FormLabel>
+            <FormLabel>
+              {t("forms.fields.address")} {t("forms.fields.optional")}
+            </FormLabel>
+            <p className="text-sm text-muted-foreground">
+              {t("forms.descriptions.addressDescription")}
+            </p>
             <FormControl>
               <Input
                 {...field}

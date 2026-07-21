@@ -182,40 +182,26 @@ export const partyPersonalSchema = z.object({
     .or(z.literal("")),
 });
 
-// A location is valid if it carries ONE of: a National Address short code,
-// a coordinate pair (from the map picker), or a manual address+city+zone —
-// mirrors the backend's PartyLocationSchema.validate_locatable rule.
-export const partyLocationSchema = z
-  .object({
-    address: z.string().optional(),
-    city: z.string().optional(),
-    zone: z.string().optional(),
-    latitude: z.number().min(-90).max(90).optional(),
-    longitude: z.number().min(-180).max(180).optional(),
-    short_address: z
-      .string()
-      .optional()
-      .refine((v) => !v || v.length === 8, {
-        message: "National address code must be 8 characters",
-      }),
-    district: z.string().optional(),
-    postal_code: z.string().optional(),
-    building_number: z.string().optional(),
-    additional_number: z.string().optional(),
-  })
-  .refine(
-    (loc) => {
-      const hasShortAddress = !!loc.short_address;
-      const hasCoords = loc.latitude != null && loc.longitude != null;
-      const hasManual = !!loc.address && !!loc.city && !!loc.zone;
-      return hasShortAddress || hasCoords || hasManual;
-    },
-    {
-      message:
-        "Enter a national address code, pick a location on the map, or fill in address, city and zone",
-      path: ["short_address"],
-    },
-  );
+// City, zone and coordinates are required by the API. Address and the
+// National Address short code are optional — the short code is just a
+// convenience that auto-fills the other fields.
+export const partyLocationSchema = z.object({
+  address: z.string().max(255).optional(),
+  city: z.string().min(1, "City is required"),
+  zone: z.string().min(1, "Zone is required"),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  short_address: z
+    .string()
+    .optional()
+    .refine((v) => !v || v.length === 8, {
+      message: "National address code must be 8 characters",
+    }),
+  district: z.string().optional(),
+  postal_code: z.string().optional(),
+  building_number: z.string().optional(),
+  additional_number: z.string().optional(),
+});
 
 export const parcelPartySchema = z.object({
   personal: partyPersonalSchema,

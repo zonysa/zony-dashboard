@@ -366,7 +366,7 @@
       "verifying": "جاري التحقق..."
     },
     "errors": {
-      "invalidCoordinates": "أدخل إحداثيات صحيحة (مثال: 33.3152, 44.3661) أو رابط خرائط جوجل",
+      "invalidCoordinates": "أدخل إحداثيات صحيحة (مثال: 24.7136, 46.6753) أو رابط خرائط جوجل",
       "coordinatesRequired": "الموقع مطلوب — أدخل الإحداثيات أو رابط خرائط جوجل أو اختر من الخريطة",
       "nationalAddressNotFound": "تعذر العثور على هذا العنوان — حاول مرة أخرى أو اختر موقعك من الخريطة"
     },
@@ -479,8 +479,8 @@
       "enterIban": "EG00 0000 0000 0000 0000 0000 000",
       "enterBusinessName": "أدخل اسم النشاط التجاري",
       "selectFromGPS": "اختر من GPS",
-      "enterCoordinatesOrLink": "مثال: 33.3152, 44.3661 أو الصق رابط خرائط جوجل",
-      "enterAddress": "أدخل عنوان مختصر",
+      "enterCoordinatesOrLink": "مثال: 24.7136, 46.6753 أو الصق رابط خرائط جوجل",
+      "enterAddress": "مثال: طريق الملك فهد، مبنى 12، بالقرب من برج الفيصلية",
       "enterNationalAddressCode": "مثال: RQAA6355",
       "selectPartner": "اختر الشريك",
       "selectResponsible": "اختر المسؤول",
@@ -505,6 +505,7 @@
       "coordinatesDescription": "انقر فوق رمز الموقع لتحديد الإحداثيات",
       "coordinatesInputDescription": "أدخل الإحداثيات مباشرة أو الصق رابط خرائط جوجل، أو اختر الموقع من الخريطة",
       "nationalAddressDescription": "أدخل رمز العنوان الوطني لتعبئة العنوان والمدينة والمنطقة تلقائيًا",
+      "addressDescription": "اسم الشارع، رقم المبنى، وأي علامات مميزة تساعد المندوب في الوصول إلى الموقع",
       "businessName": "اسم تسجيل نشاطك التجاري",
       "unifiedNumber": "الرقم الموحد للسجل التجاري",
       "businessType": "نوع الكيان التجاري",
