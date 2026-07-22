@@ -367,7 +367,8 @@
     "errors": {
       "invalidCoordinates": "Enter valid coordinates (e.g. 24.7136, 46.6753) or a Google Maps link",
       "coordinatesRequired": "Location is required — enter coordinates, a Google Maps link, or pick from the map",
-      "nationalAddressNotFound": "Couldn't find that address — try again or pick your location on the map"
+      "nationalAddressNotFound": "Couldn't find that address — try again or pick your location on the map",
+      "rolesUnavailable": "Roles haven't loaded yet — please try again in a moment"
     },
     "doubleCheck": {
       "label": "I confirm that all bank account details are correct",

@@ -33,24 +33,42 @@ import { PhoneInput } from "./ui/phone-input";
 import { toast } from "sonner";
 import { RegisterFormData, registerSchema } from "@/lib/schema/auth.schema";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
-import { useRegister } from "@/lib/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useEffect } from "react";
+import { useCreateUser } from "@/lib/hooks/useUsers";
+import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
+
+// Maps a role's DB name to its translation key under forms.roles.* — the
+// naming isn't 1:1 (snake_case in the DB vs camelCase in translations).
+const ROLE_TRANSLATION_KEYS: Record<string, string> = {
+  representative: "forms.roles.representative",
+  responsible: "forms.roles.responsible",
+  supervisor: "forms.roles.supervisor",
+  customer_service: "forms.roles.customerService",
+  courier: "forms.roles.courier",
+  customer: "forms.roles.customer",
+};
 
 interface CreateUserSheetProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  userRole?: number;
+  // Role name (e.g. "courier", "responsible") to lock the form to. Role ids
+  // are resolved dynamically via useRoles() since they aren't stable across
+  // environments.
+  userRoleName?: string;
 }
 
 const CreateUserSheet = ({
   open,
   onOpenChange,
-  userRole,
+  userRoleName,
 }: CreateUserSheetProps) => {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
+  const { data: rolesData } = useRoles();
+  const roles = rolesData?.roles;
+  const selectableRoles = roles?.filter((role) => role.name !== "admin") ?? [];
 
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -58,17 +76,19 @@ const CreateUserSheet = ({
       username: "",
       email: "",
       password: "",
-      roleId: userRole,
       phoneNumber: "",
     },
     mode: "onChange",
   });
 
   useEffect(() => {
-    if (userRole) {
-      form.setValue("roleId", userRole);
+    if (userRoleName) {
+      const roleId = getRoleId(roles, userRoleName);
+      if (roleId) {
+        form.setValue("roleId", roleId);
+      }
     }
-  }, [userRole, form]);
+  }, [userRoleName, roles, form]);
 
   const {
     control,
@@ -76,11 +96,10 @@ const CreateUserSheet = ({
     formState: { isSubmitting },
   } = form;
 
-  const createUserMutation = useRegister();
+  const createUserMutation = useCreateUser();
 
   async function onSubmit(data: RegisterFormData) {
     try {
-      console.log("Form submitted:", data);
       await createUserMutation.mutateAsync(
         {
           first_name: data.firstName,
@@ -259,7 +278,7 @@ const CreateUserSheet = ({
                     <Select
                       onValueChange={(value) => field.onChange(Number(value))}
                       value={field.value?.toString()}
-                      disabled={!!userRole}
+                      disabled={!!userRoleName}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -269,24 +288,14 @@ const CreateUserSheet = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="2">
-                          {t("forms.roles.representative")}
-                        </SelectItem>
-                        <SelectItem value="3">
-                          {t("forms.roles.responsible")}
-                        </SelectItem>
-                        <SelectItem value="4">
-                          {t("forms.roles.supervisor")}
-                        </SelectItem>
-                        <SelectItem value="5">
-                          {t("forms.roles.customerService")}
-                        </SelectItem>
-                        <SelectItem value="6">
-                          {t("forms.roles.courier")}
-                        </SelectItem>
-                        <SelectItem value="7">
-                          {t("forms.roles.customer")}
-                        </SelectItem>
+                        {selectableRoles.map((role) => (
+                          <SelectItem key={role.id} value={role.id.toString()}>
+                            {t(
+                              (ROLE_TRANSLATION_KEYS[role.name] ??
+                                role.name) as never
+                            )}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

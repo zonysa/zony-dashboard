@@ -18,10 +18,23 @@ export type UserDetails = {
   last_login: string;
   created_at: string;
   updated_at: string;
+  role?: string;
   zone?: string | null;
   zone_id?: number | null;
   district?: string | null;
   district_id?: number | null;
+};
+
+// Admin-provisioned user creation (bypasses the public OTP-verified
+// self-registration flow; the account is active immediately)
+export type CreateUserRequest = {
+  first_name: string;
+  last_name: string;
+  username: string;
+  email: string;
+  phone_number: string;
+  password: string;
+  role_id: number;
 };
 
 // Get single user response

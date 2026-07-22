@@ -49,10 +49,11 @@ export function useGetUser(id: string) {
   });
 }
 
-// Create user
+// Create user (admin-provisioned, no email OTP). Navigation/toasts are left
+// to the caller via the onSuccess/onError passed to mutateAsync, since this
+// hook is shared across several different creation forms.
 export function useCreateUser() {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   return useMutation({
     mutationFn: createUser,
@@ -62,8 +63,6 @@ export function useCreateUser() {
       // Invalidate available responsibles and representatives
       queryClient.invalidateQueries({ queryKey: ["available-responsibles"] });
       queryClient.invalidateQueries({ queryKey: ["available-representatives"] });
-      // Redirect to users list
-      router.push("/users");
     },
     onError: (error) => {
       console.error("Create user error:", error);

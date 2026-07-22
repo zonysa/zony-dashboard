@@ -283,7 +283,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
       <CreateUserSheet
         open={showUserSheet}
         onOpenChange={setShowUserSheet}
-        userRole={2}
+        userRoleName="representative"
       />
     </>
   );

@@ -21,14 +21,16 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContainer } from "@/components/PageContainer";
-import { useRegister } from "@/lib/hooks/useAuth";
+import { useCreateUser } from "@/lib/hooks/useUsers";
+import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
 import { useRouter } from "next/navigation";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
-  const registerMutation = useRegister();
+  const registerMutation = useCreateUser();
+  const { data: rolesData } = useRoles();
 
   const form = useForm<CustomerServiceFormData>({
     defaultValues: {
@@ -45,6 +47,12 @@ const Page: React.FC = () => {
 
   async function onSubmit() {
     try {
+      const roleId = getRoleId(rolesData?.roles, "courier");
+      if (!roleId) {
+        toast.error("Roles haven't loaded yet — please try again in a moment");
+        return;
+      }
+
       const formData = form.getValues();
       const apiData = {
         first_name: formData.firstName,
@@ -53,7 +61,7 @@ const Page: React.FC = () => {
         email: formData.email,
         password: formData.password,
         username: formData.username,
-        role_id: 6,
+        role_id: roleId,
       };
       await registerMutation.mutateAsync(apiData, {
         onSuccess: () => {

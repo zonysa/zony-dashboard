@@ -20,7 +20,8 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContainer } from "@/components/PageContainer";
-import { useRegister } from "@/lib/hooks/useAuth";
+import { useCreateUser } from "@/lib/hooks/useUsers";
+import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
 import { useRouter } from "next/navigation";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -28,7 +29,8 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
-  const customerServiceMutation = useRegister();
+  const customerServiceMutation = useCreateUser();
+  const { data: rolesData } = useRoles();
   const { t, isRTL } = useTranslation();
 
   const form = useForm<CustomerServiceFormData>({
@@ -46,6 +48,12 @@ const Page: React.FC = () => {
 
   async function onSubmit() {
     try {
+      const roleId = getRoleId(rolesData?.roles, "customer_service");
+      if (!roleId) {
+        toast.error(t("forms.errors.rolesUnavailable"));
+        return;
+      }
+
       const data = form.getValues();
       await customerServiceMutation.mutateAsync(
         {
@@ -55,7 +63,7 @@ const Page: React.FC = () => {
           email: data.email,
           password: data.password,
           username: data.username,
-          role_id: 5,
+          role_id: roleId,
         },
         {
           onSuccess: () => {

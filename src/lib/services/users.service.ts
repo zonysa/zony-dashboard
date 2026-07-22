@@ -3,13 +3,14 @@ import {
   UserFormData,
   userFilterOptions,
   GetUserRes,
+  CreateUserRequest,
   GetAvailableResponsiblesRes,
   GetAvailableRepresentativesRes,
 } from "../schema/user.schema";
 import { apiCall } from "./apiClient";
 
-// Create User
-export const createUser = async (data: UserFormData) => {
+// Create User (admin-provisioned: no email OTP, active immediately)
+export const createUser = async (data: CreateUserRequest): Promise<GetUserRes> => {
   return apiCall({
     method: "POST",
     url: "/users",

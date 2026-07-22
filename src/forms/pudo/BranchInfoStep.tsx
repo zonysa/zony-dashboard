@@ -441,7 +441,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
       <CreateUserSheet
         open={showUserSheet}
         onOpenChange={setShowUserSheet}
-        userRole={3}
+        userRoleName="responsible"
       />
       <CoordinatePickerDialog
         open={showCoordinatePicker}

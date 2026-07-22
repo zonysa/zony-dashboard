@@ -21,13 +21,15 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContainer } from "@/components/PageContainer";
-import { useRegister } from "@/lib/hooks/useAuth";
+import { useCreateUser } from "@/lib/hooks/useUsers";
+import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
 import { useRouter } from "next/navigation";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
-  const customerServiceMutation = useRegister();
+  const supervisorMutation = useCreateUser();
+  const { data: rolesData } = useRoles();
 
   const router = useRouter();
 
@@ -46,8 +48,14 @@ const Page: React.FC = () => {
 
   async function onSubmit() {
     try {
+      const roleId = getRoleId(rolesData?.roles, "supervisor");
+      if (!roleId) {
+        toast.error("Roles haven't loaded yet — please try again in a moment");
+        return;
+      }
+
       const data = form.getValues();
-      await customerServiceMutation.mutateAsync(
+      await supervisorMutation.mutateAsync(
         {
           first_name: data.firstName,
           last_name: data.lastName,
@@ -55,12 +63,12 @@ const Page: React.FC = () => {
           email: data.email,
           password: data.password,
           username: data.username,
-          role_id: 5,
+          role_id: roleId,
         },
         {
           onSuccess: () => {
             toast.success(
-              `Customer Service ${data.firstName} ${data.lastName} created successfuly`
+              `Supervisor ${data.firstName} ${data.lastName} created successfuly`
             );
             form.reset();
             router.push("/supervisors");
@@ -84,7 +92,7 @@ const Page: React.FC = () => {
       {/* Basic Information Section */}
       <Card>
         <CardHeader>
-          <CardTitle>Customer Service Information</CardTitle>
+          <CardTitle>Supervisor Information</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>

@@ -32,7 +32,7 @@ function Header() {
   const pathname = usePathname();
   const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
   const [showUserSheet, setShowUserSheet] = useState(false);
-  const [userRoleId, setUserRoleId] = useState<number>(0);
+  const [userRoleName, setUserRoleName] = useState<string>("");
   const { t } = useTranslation();
   const language = useLanguage();
   const setLanguage = useSetLanguage();
@@ -81,9 +81,9 @@ function Header() {
     router.push("/profile");
   };
 
-  const handleAddUser = (roleId: number) => {
-    if (roleId) {
-      setUserRoleId(roleId);
+  const handleAddUser = (roleName: string) => {
+    if (roleName) {
+      setUserRoleName(roleName);
     }
     setShowUserSheet(true);
   };
@@ -116,19 +116,19 @@ function Header() {
         );
       case "/supervisors":
         return (
-          <Button size="sm" onClick={() => handleAddUser(4)}>
+          <Button size="sm" onClick={() => handleAddUser("supervisor")}>
             {t("buttons.createSupervisor")}
           </Button>
         );
       case "/customer-service":
         return (
-          <Button size="sm" onClick={() => handleAddUser(5)}>
+          <Button size="sm" onClick={() => handleAddUser("customer_service")}>
             {t("buttons.createCustomerService")}
           </Button>
         );
       case "/courier":
         return (
-          <Button size="sm" onClick={() => handleAddUser(6)}>
+          <Button size="sm" onClick={() => handleAddUser("courier")}>
             {t("buttons.createCourier")}
           </Button>
         );
@@ -202,7 +202,7 @@ function Header() {
       <CreateUserSheet
         open={showUserSheet}
         onOpenChange={setShowUserSheet}
-        userRole={userRoleId}
+        userRoleName={userRoleName}
       />
     </header>
   );
