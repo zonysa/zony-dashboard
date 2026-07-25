@@ -234,13 +234,16 @@ function PartnerDetails() {
                   value={formData.bankName || ""}
                   type="select"
                   selectOptions={[
-                    {
-                      value: "National Bank of Egypt",
-                      label: "National Bank of Egypt",
-                    },
-                    { value: "Banque Misr", label: "Banque Misr" },
-                    { value: "CIB", label: "Commercial International Bank" },
-                    { value: "ADCB", label: "Abu Dhabi Commercial Bank" },
+                    { value: "Saudi National Bank", label: "Saudi National Bank (SNB)" },
+                    { value: "Al Rajhi Bank", label: "Al Rajhi Bank" },
+                    { value: "Riyad Bank", label: "Riyad Bank" },
+                    { value: "Banque Saudi Fransi", label: "Banque Saudi Fransi" },
+                    { value: "Saudi British Bank", label: "Saudi British Bank (SABB)" },
+                    { value: "Arab National Bank", label: "Arab National Bank (ANB)" },
+                    { value: "Alinma Bank", label: "Alinma Bank" },
+                    { value: "Bank Albilad", label: "Bank Albilad" },
+                    { value: "Bank Aljazira", label: "Bank Aljazira" },
+                    { value: "Saudi Investment Bank", label: "Saudi Investment Bank (SAIB)" },
                   ]}
                   isEditable={editStates.paymentInfo}
                   onChange={(value) => updateFormData("bankName", value)}

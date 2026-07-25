@@ -142,7 +142,7 @@ export const bankSchema = z.object({
     .min(1, "IBAN is required")
     .refine(
       (value) => validateIBAN(value),
-      "Invalid IBAN format. Please enter a valid IBAN (e.g., EG00 0000 0000 0000 0000 0000 000)",
+      "Invalid IBAN format. Please enter a valid IBAN (e.g., SA00 0000 0000 0000 0000 0000)",
     ),
   bankStatement: z.file().optional(),
 });

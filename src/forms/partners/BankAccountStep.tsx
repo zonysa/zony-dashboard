@@ -56,23 +56,35 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="nbe">
-                        {t("partners.banks.nbe")}
+                      <SelectItem value="snb">
+                        {t("partners.banks.snb")}
                       </SelectItem>
-                      <SelectItem value="cib">
-                        {t("partners.banks.cib")}
+                      <SelectItem value="rajhi">
+                        {t("partners.banks.rajhi")}
                       </SelectItem>
-                      <SelectItem value="qnb">
-                        {t("partners.banks.qnb")}
+                      <SelectItem value="riyad">
+                        {t("partners.banks.riyad")}
                       </SelectItem>
-                      <SelectItem value="hsbc">
-                        {t("partners.banks.hsbc")}
+                      <SelectItem value="bsf">
+                        {t("partners.banks.bsf")}
                       </SelectItem>
-                      <SelectItem value="aib">
-                        {t("partners.banks.aib")}
+                      <SelectItem value="sabb">
+                        {t("partners.banks.sabb")}
                       </SelectItem>
-                      <SelectItem value="saib">
-                        {t("partners.banks.saib")}
+                      <SelectItem value="anb">
+                        {t("partners.banks.anb")}
+                      </SelectItem>
+                      <SelectItem value="alinma">
+                        {t("partners.banks.alinma")}
+                      </SelectItem>
+                      <SelectItem value="albilad">
+                        {t("partners.banks.albilad")}
+                      </SelectItem>
+                      <SelectItem value="aljazira">
+                        {t("partners.banks.aljazira")}
+                      </SelectItem>
+                      <SelectItem value="sib">
+                        {t("partners.banks.sib")}
                       </SelectItem>
                       <SelectItem value="other">
                         {t("partners.banks.other")}
@@ -139,7 +151,7 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="EG00 0000 0000 0000 0000 0000 000"
+                      placeholder="SA00 0000 0000 0000 0000 0000"
                       autoComplete="off"
                     />
                   </FormControl>

@@ -262,12 +262,16 @@
       "nonprofit": "Non-Profit Organization"
     },
     "banks": {
-      "nbe": "National Bank of Egypt (NBE)",
-      "cib": "Commercial International Bank (CIB)",
-      "qnb": "QNB ALAHLI",
-      "hsbc": "HSBC Egypt",
-      "aib": "Arab International Bank",
-      "saib": "Société Arabe Internationale de Banque",
+      "snb": "Saudi National Bank (SNB)",
+      "rajhi": "Al Rajhi Bank",
+      "riyad": "Riyad Bank",
+      "bsf": "Banque Saudi Fransi",
+      "sabb": "Saudi British Bank (SABB)",
+      "anb": "Arab National Bank (ANB)",
+      "alinma": "Alinma Bank",
+      "albilad": "Bank Albilad",
+      "aljazira": "Bank Aljazira",
+      "sib": "Saudi Investment Bank (SAIB)",
       "other": "Other"
     }
   },
