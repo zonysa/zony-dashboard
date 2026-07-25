@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DataItem from "@/components/ui/DataItem";
-import { Globe, BarChart3 } from "lucide-react";
+import { Globe, BarChart3, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import {
   useLanguage,
@@ -13,6 +13,7 @@ import {
 import { languageNames } from "@/lib/i18n/config";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useRouter } from "next/navigation";
+import { RoleGuard } from "@/components/auth/RoleGuard";
 
 type Language = "en" | "ar";
 
@@ -148,6 +149,44 @@ const SettingsPage = () => {
           </Button>
         </div>
       </Card>
+
+      {/* Business Types Settings Card */}
+      <RoleGuard allowedRoles={["admin"]} fallback={null}>
+        <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
+          <DataItem
+            isHeading={true}
+            label={t("settings.businessTypes.title", {
+              defaultValue: "Business Types",
+            })}
+            value={t("settings.businessTypes.description", {
+              defaultValue:
+                "Manage the list of business types available across the platform",
+            })}
+            icon={Briefcase}
+            iconClassName="text-black"
+          />
+          <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+            <div className="grid grid-cols-1 gap-3">
+              <div className="text-sm text-gray-500">
+                <p>
+                  {t("settings.businessTypes.settingsDescription", {
+                    defaultValue:
+                      "Add, edit, or remove business types used to categorize clients and partners.",
+                  })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => router.push("/settings/business-types")}
+              variant="outline"
+            >
+              {t("settings.businessTypes.configure", { defaultValue: "Configure" })}
+            </Button>
+          </div>
+        </Card>
+      </RoleGuard>
 
       {/* Future Settings Sections */}
       {/* Add more settings cards here following the same pattern */}
