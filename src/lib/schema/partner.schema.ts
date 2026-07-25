@@ -59,16 +59,9 @@ export const partnerStatusSchema = z.enum([
   "Pending",
   "Suspended",
 ]);
-export const partnerTypeSchema = z.enum([
-  "super market",
-  "convenience store",
-  "pharmacy",
-  "gas station",
-  "restaurant",
-  "retail store",
-  "shopping mall",
-  "logistics hub",
-]);
+// Business type is now a dynamic, admin-managed list (see /business-types API)
+// rather than a fixed set of values.
+export const partnerTypeSchema = z.string().min(1, "Business type is required");
 
 // Representative Person
 export const representativeSchema = registerSchema.extend({

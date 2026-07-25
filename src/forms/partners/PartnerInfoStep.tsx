@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { useGetAvailableRepresentatives } from "@/lib/hooks/useUsers";
 import { AvailableUser } from "@/lib/schema/user.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useGetBusinessTypes } from "@/lib/hooks/useBusinessType";
 
 export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   form,
@@ -35,6 +36,8 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   isLastStep,
 }) => {
   const { data: representatives } = useGetAvailableRepresentatives();
+  const { data: businessTypes, isLoading: businessTypesLoading } =
+    useGetBusinessTypes();
   const [showUserSheet, setShowUserSheet] = useState(false);
   const { control } = form;
   const { t } = useTranslation();
@@ -134,21 +137,26 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="w-full">
-                      <SelectItem value="llc">
-                        {t("partners.businessTypes.llc")}
-                      </SelectItem>
-                      <SelectItem value="corporation">
-                        {t("partners.businessTypes.corporation")}
-                      </SelectItem>
-                      <SelectItem value="partnership">
-                        {t("partners.businessTypes.partnership")}
-                      </SelectItem>
-                      <SelectItem value="sole-proprietorship">
-                        {t("partners.businessTypes.sole-proprietorship")}
-                      </SelectItem>
-                      <SelectItem value="nonprofit">
-                        {t("partners.businessTypes.nonprofit")}
-                      </SelectItem>
+                      {businessTypesLoading ? (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          {t("common.loading", { defaultValue: "Loading..." })}
+                        </div>
+                      ) : businessTypes?.business_types?.length ? (
+                        businessTypes.business_types.map((businessType) => (
+                          <SelectItem
+                            key={businessType.id}
+                            value={businessType.name}
+                          >
+                            {businessType.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                          {t("forms.placeholders.noBusinessTypes", {
+                            defaultValue: "No business types configured",
+                          })}
+                        </div>
+                      )}
                     </SelectContent>
                   </Select>
                   <FormDescription>

@@ -268,13 +268,6 @@
       "EGP": "Egyptian Pound (EGP)",
       "SAR": "Saudi Riyal (SAR)"
     },
-    "businessTypes": {
-      "llc": "Limited Liability Company (LLC)",
-      "corporation": "Corporation",
-      "partnership": "Partnership",
-      "sole-proprietorship": "Sole Proprietorship",
-      "nonprofit": "Non-Profit Organization"
-    },
     "banks": {
       "snb": "Saudi National Bank (SNB)",
       "rajhi": "Al Rajhi Bank",
@@ -488,6 +481,7 @@
       "enterPartnerName": "Enter name for this partner",
       "enterUnifiedNumber": "Enter unified business number",
       "selectBusinessType": "Select business type",
+      "noBusinessTypes": "No business types configured",
       "selectRepresentative": "Select Representative",
       "selectCurrency": "Select currency",
       "selectBank": "Select your bank",

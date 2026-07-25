@@ -82,7 +82,7 @@ export default function Page() {
       partnerName: ``,
       currency: "SAR",
       payoutPerParcel: undefined,
-      type: "super market",
+      type: "",
       accountNumber: "",
       accountHolderName: "",
       iban: "",

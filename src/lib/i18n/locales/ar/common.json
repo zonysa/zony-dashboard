@@ -269,13 +269,6 @@
       "EGP": "الجنية المصري (EGP)",
       "SAR": "الريال السعودي (SAR)"
     },
-    "businessTypes": {
-      "llc": "شركة ذات مسؤولية محدودة (LLC)",
-      "corporation": "شركة مساهمة",
-      "partnership": "شركة تضامن",
-      "sole-proprietorship": "منشأة فردية",
-      "nonprofit": "منظمة غير ربحية"
-    },
     "banks": {
       "snb": "البنك الأهلي السعودي (SNB)",
       "rajhi": "مصرف الراجحي",
@@ -490,6 +483,7 @@
       "enterPartnerName": "أدخل اسم الشريك",
       "enterUnifiedNumber": "أدخل الرقم الموحد للنشاط",
       "selectBusinessType": "اختر نوع النشاط",
+      "noBusinessTypes": "لا توجد أنواع أعمال مُعرّفة",
       "selectRepresentative": "اختر المندوب",
       "selectCurrency": "اختر العملة",
       "selectBank": "اختر البنك",
