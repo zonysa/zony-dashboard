@@ -28,10 +28,6 @@ export function WaybillTemplate({ parcel }: WaybillTemplateProps) {
   const senderLocation = parcel.sender?.location;
   const receiverLocation = parcel.receiver?.location;
 
-  const deliveryMethodLabel = parcel.delivery_method
-    ? t(`waybill.deliveryMethods.${parcel.delivery_method}` as never)
-    : EMPTY;
-
   const sizeLabel = parcel.content?.size
     ? t(`forms.options.parcelSize.${parcel.content.size}`)
     : EMPTY;
@@ -135,12 +131,6 @@ export function WaybillTemplate({ parcel }: WaybillTemplateProps) {
             {t("waybill.pickupPeriod")}:
           </span>{" "}
           {parcel.pickup_period ?? EMPTY}
-        </div>
-        <div className="col-span-2">
-          <span className="text-muted-foreground">
-            {t("waybill.deliveryMethod")}:
-          </span>{" "}
-          {deliveryMethodLabel}
         </div>
       </div>
 

@@ -233,6 +233,20 @@
       "order": "Order:",
       "aboveThreshold": "Above previous threshold",
       "belowThreshold": "Below previous threshold"
+    },
+    "businessTypes": {
+      "title": "Business Types",
+      "description": "Manage the list of business types available across the platform",
+      "settingsDescription": "Add, edit, or remove business types used to categorize clients and partners.",
+      "configure": "Configure",
+      "add": "Add Business Type",
+      "createTitle": "Add Business Type",
+      "editTitle": "Edit Business Type",
+      "namePlaceholder": "e.g. Retail",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description",
+      "deleteTitle": "Delete Business Type",
+      "deleteDescription": "Are you sure you want to delete this business type? This action cannot be undone."
     }
   },
   "logout": {
@@ -975,11 +989,6 @@
     "size": "Size",
     "quantity": "Qty",
     "weightKg": "Weight (kg)",
-    "deliveryMethod": "Delivery Method",
-    "deliveryMethods": {
-      "home_delivery": "Home Delivery",
-      "PUDO_point": "Pickup Point"
-    },
     "pickupPeriod": "Pickup Period",
     "createdAt": "Created",
     "scanToTrack": "Scan to track your parcel",

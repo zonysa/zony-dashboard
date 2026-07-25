@@ -234,6 +234,20 @@
       "order": "الترتيب:",
       "aboveThreshold": "فوق العتبة السابقة",
       "belowThreshold": "تحت العتبة السابقة"
+    },
+    "businessTypes": {
+      "title": "أنواع الأعمال",
+      "description": "إدارة قائمة أنواع الأعمال المتاحة عبر المنصة",
+      "settingsDescription": "إضافة أو تعديل أو حذف أنواع الأعمال المستخدمة لتصنيف العملاء والشركاء.",
+      "configure": "تكوين",
+      "add": "إضافة نوع عمل",
+      "createTitle": "إضافة نوع عمل",
+      "editTitle": "تعديل نوع العمل",
+      "namePlaceholder": "مثال: تجزئة",
+      "descriptionLabel": "الوصف",
+      "descriptionPlaceholder": "وصف اختياري",
+      "deleteTitle": "حذف نوع العمل",
+      "deleteDescription": "هل أنت متأكد أنك تريد حذف نوع العمل هذا؟ لا يمكن التراجع عن هذا الإجراء."
     }
   },
   "logout": {
@@ -972,11 +986,6 @@
     "size": "الحجم",
     "quantity": "الكمية",
     "weightKg": "الوزن (كجم)",
-    "deliveryMethod": "طريقة التوصيل",
-    "deliveryMethods": {
-      "home_delivery": "توصيل للمنزل",
-      "PUDO_point": "نقطة استلام"
-    },
     "pickupPeriod": "مدة الاستلام",
     "createdAt": "تاريخ الإنشاء",
     "scanToTrack": "امسح الرمز لتتبع شحنتك",
