@@ -59,6 +59,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
                 </FormLabel>
                 <FormControl>
                   <FileInput
+                    variant="row"
                     value={field.value}
                     onChange={field.onChange}
                     accept="image/*, application/pdf"
