@@ -211,6 +211,7 @@ export interface CreateBranchRequest {
   password: string;
   coordinates: Record<string, unknown>;
   partner_id: number;
+  city_id: number | string;
   district_id: number | string;
   zone_id: number | string;
   responsible_id: string;

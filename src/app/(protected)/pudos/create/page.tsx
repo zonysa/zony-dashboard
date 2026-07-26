@@ -130,6 +130,7 @@ export default function Page() {
             longitude: lng,
           },
           partner_id: data.partner,
+          city_id: data.city,
           district_id: data.district,
           zone_id: data.zone,
 
