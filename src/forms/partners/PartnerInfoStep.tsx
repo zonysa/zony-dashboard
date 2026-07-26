@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Form,
   FormControl,
@@ -19,7 +19,7 @@ import {
 import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
-import { PartnerFormData } from "@/lib/schema/partner.schema";
+import { PartnerFormData, partnerStepSchema } from "@/lib/schema/partner.schema";
 import CreateUserSheet from "@/components/CreateUserSheet";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ import { useGetAvailableRepresentatives } from "@/lib/hooks/useUsers";
 import { AvailableUser } from "@/lib/schema/user.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useGetBusinessTypes } from "@/lib/hooks/useBusinessType";
+import { useWatch } from "react-hook-form";
 
 export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   form,
@@ -41,6 +42,12 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   const [showUserSheet, setShowUserSheet] = useState(false);
   const { control } = form;
   const { t } = useTranslation();
+
+  const watchedValues = useWatch({ control });
+  const isStepValid = useMemo(
+    () => partnerStepSchema.safeParse(watchedValues).success,
+    [watchedValues],
+  );
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     onSubmit(e);
@@ -286,6 +293,7 @@ export const PartnerStep: React.FC<StepComponentProps<PartnerFormData>> = ({
             onNext={onSubmit}
             isFirstStep={isFirstStep}
             isLastStep={isLastStep}
+            nextDisabled={!isStepValid}
           />
         </form>
       </Form>

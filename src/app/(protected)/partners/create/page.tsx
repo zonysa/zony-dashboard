@@ -9,6 +9,7 @@ import {
   CreatePartnerRequest,
   PartnerFormData,
   bankSchema,
+  partnerStepSchema,
 } from "@/lib/schema/partner.schema";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -24,24 +25,31 @@ export default function Page() {
       description: "Step description",
       component: PartnerStep,
       validation: async (data: PartnerFormData) => {
-        // Simple validation - just check if key fields have values
-        if (!data.type) {
-          console.log("Business type is required");
+        try {
+          // Validate partner info fields using Zod schema
+          partnerStepSchema.parse({
+            partnerName: data.partnerName,
+            type: data.type,
+            commercialRegistration: data.commercialRegistration,
+            payoutPerParcel: data.payoutPerParcel,
+            currency: data.currency,
+            unifiedNumber: data.unifiedNumber,
+            representative: data.representative,
+          });
+          return true;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+          // Show validation errors from Zod
+          if (error.issues && error.issues.length > 0) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            error.issues.forEach((issue: any) => {
+              toast.error(issue.message);
+            });
+          } else {
+            toast.error("Validation failed");
+          }
           return false;
         }
-
-        if (!data["unifiedNumber"]) {
-          console.log("Unified number is required");
-          return false;
-        }
-
-        if (!data.currency) {
-          console.log("Currency is required");
-          return false;
-        }
-
-        // All validations passed
-        return true;
       },
     },
     {

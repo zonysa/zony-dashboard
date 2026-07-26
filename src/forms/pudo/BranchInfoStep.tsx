@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useWatch } from "react-hook-form";
 import { Eye, EyeOff, Plus } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -32,7 +32,7 @@ import { FileInput } from "@/components/ui/file-input";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import { Button } from "@/components/ui/button";
-import { CreateBranch } from "@/lib/schema/branch.schema";
+import { CreateBranch, isBranchInfoStepValid } from "@/lib/schema/branch.schema";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { CityDetails } from "@/lib/schema/city.schema";
 import { DistrictDetails } from "@/lib/schema/district.schema";
@@ -73,6 +73,12 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
   });
 
   const { t, isRTL } = useTranslation();
+
+  const watchedValues = useWatch({ control });
+  const isStepValid = useMemo(
+    () => isBranchInfoStepValid(watchedValues as Partial<CreateBranch>),
+    [watchedValues],
+  );
 
   const { data: partners } = useGetPartners();
   const { data: cities } = useGetCities();
@@ -418,6 +424,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
             onNext={onNext}
             isFirstStep={isFirstStep}
             isLastStep={isLastStep}
+            nextDisabled={!isStepValid}
           />
         </form>
       </Form>

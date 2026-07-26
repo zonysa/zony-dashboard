@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Form,
   FormControl,
@@ -19,9 +19,10 @@ import {
 import { StepNavigation } from "@/forms/StepNavigation";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import { CardContent } from "@/components/ui/card";
-import { PartnerFormData } from "@/lib/schema/partner.schema";
+import { PartnerFormData, bankSchema } from "@/lib/schema/partner.schema";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useWatch } from "react-hook-form";
 
 export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
   form,
@@ -33,6 +34,12 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
 }) => {
   const { control } = form;
   const { t } = useTranslation();
+
+  const watchedValues = useWatch({ control });
+  const isStepValid = useMemo(
+    () => bankSchema.safeParse(watchedValues).success,
+    [watchedValues],
+  );
 
   return (
     <Form {...form}>
@@ -174,6 +181,7 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
           isFirstStep={isFirstStep}
           isLastStep={isLastStep}
           submitLabel="Complete Registration"
+          nextDisabled={!isStepValid}
         />
       </form>
     </Form>

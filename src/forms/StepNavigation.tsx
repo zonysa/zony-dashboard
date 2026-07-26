@@ -7,6 +7,7 @@ interface StepNavigationProps {
   isFirstStep: boolean;
   isLastStep: boolean;
   isLoading?: boolean;
+  nextDisabled?: boolean;
   backLabel?: string;
   nextLabel?: string;
   submitLabel?: string;
@@ -18,6 +19,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
   isFirstStep,
   isLastStep,
   isLoading = false,
+  nextDisabled = false,
   backLabel = "Back",
   nextLabel = "Next",
   submitLabel = "Submit",
@@ -35,7 +37,11 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
           {backLabel}
         </Button>
       )}
-      <Button type="submit" disabled={isLoading} className="ml-auto">
+      <Button
+        type="submit"
+        disabled={isLoading || nextDisabled}
+        className="ml-auto"
+      >
         {isLoading ? "Loading..." : isLastStep ? submitLabel : nextLabel}
       </Button>
     </div>

@@ -153,6 +153,39 @@ export const operatingHoursSchema = z.object({
 // Combined Schemas
 export const createBranchSchema = branchInfoSchema.and(operatingHoursSchema);
 
+// Step-level "required fields present" checks used to gate progression (submit)
+// and to drive live UI state (e.g. disabling the Next button). Kept as simple
+// presence checks - rather than parsing with branchInfoSchema - because city/
+// district/zone are stored as numbers on the form but typed as strings in the
+// schema, so a strict parse would never pass.
+export function isBranchInfoStepValid(data: Partial<CreateBranch>): boolean {
+  return Boolean(
+    data.branchName && data.city && data.district && data.zone && data.address,
+  );
+}
+
+export function isOperatingHoursStepValid(data: Partial<CreateBranch>): boolean {
+  if (data.twentyFourSeven) return true;
+
+  const operatingHours = data.operatingHours;
+  if (!operatingHours) return false;
+
+  const days = [
+    "saturday",
+    "sunday",
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+  ];
+
+  return days.some((day) => {
+    const dayHours = operatingHours[day];
+    return dayHours && dayHours.enabled !== false;
+  });
+}
+
 // Query Schema for listing branches
 export const branchesQuerySchema = z.object({
   page: z.number().min(1).default(1),

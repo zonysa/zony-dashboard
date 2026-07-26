@@ -127,6 +127,12 @@ export const useMultiStepForm = <T extends Record<string, unknown>>({
 
   const submitForm = useCallback(
     async (data: T) => {
+      const currentStepConfig = steps[currentStep];
+      if (currentStepConfig.validation) {
+        const isValid = await currentStepConfig.validation(data);
+        if (!isValid) return;
+      }
+
       if (currentStep < steps.length - 1) {
         setCurrentStep(currentStep + 1);
       } else {
@@ -147,7 +153,7 @@ export const useMultiStepForm = <T extends Record<string, unknown>>({
         }
       }
     },
-    [currentStep, steps.length]
+    [currentStep, steps]
   );
 
   const currentStepConfig = steps[currentStep];

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useWatch } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -18,7 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { StepNavigation } from "@/forms/StepNavigation";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
-import { CreateBranch } from "@/lib/schema/branch.schema";
+import { CreateBranch, isOperatingHoursStepValid } from "@/lib/schema/branch.schema";
 import { StepComponentProps } from "@/lib/hooks/useMutliStepForm";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
@@ -36,6 +37,12 @@ export const OperatingHoursStep: React.FC<StepComponentProps<CreateBranch>> = ({
   const sameHoursEveryday = watch("sameHoursEveryday");
   const is24_7 = watch("twentyFourSeven");
   const operatingHours = watch("operatingHours");
+
+  const watchedValues = useWatch({ control });
+  const isStepValid = useMemo(
+    () => isOperatingHoursStepValid(watchedValues as Partial<CreateBranch>),
+    [watchedValues],
+  );
 
   const days = [
     "saturday",
@@ -344,6 +351,7 @@ export const OperatingHoursStep: React.FC<StepComponentProps<CreateBranch>> = ({
           onNext={onNext}
           isFirstStep={isFirstStep}
           isLastStep={isLastStep}
+          nextDisabled={!isStepValid}
         />
       </form>
     </Form>

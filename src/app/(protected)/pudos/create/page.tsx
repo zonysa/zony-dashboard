@@ -4,7 +4,12 @@ import { MultiStepForm } from "@/forms/MultiStepForm";
 import { OperatingHoursStep } from "@/forms/pudo/OperatingHours";
 import { StepConfig, useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { BranchInfoStep } from "@/forms/pudo/BranchInfoStep";
-import { CreateBranch, CreateBranchRequest } from "@/lib/schema/branch.schema";
+import {
+  CreateBranch,
+  CreateBranchRequest,
+  isBranchInfoStepValid,
+  isOperatingHoursStepValid,
+} from "@/lib/schema/branch.schema";
 import { useCreateBranch } from "@/lib/hooks/useBranch";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -23,25 +28,8 @@ export default function Page() {
       description: t("forms.sections.branchInfoDescription"),
       component: BranchInfoStep,
       validation: async (data: CreateBranch) => {
-        // Validate PUDO info fields
-        if (!data["branchName"]) {
-          console.log("Branch name is required");
-          return false;
-        }
-        if (!data.city) {
-          console.log("City is required");
-          return false;
-        }
-        if (!data.district) {
-          console.log("District is required");
-          return false;
-        }
-        if (!data.zone) {
-          console.log("Zone is required");
-          return false;
-        }
-        if (!data["address"]) {
-          console.log("Address is required");
+        if (!isBranchInfoStepValid(data)) {
+          toast.error("Please fill in all required fields");
           return false;
         }
         return true;
@@ -53,38 +41,14 @@ export default function Page() {
       description: t("forms.sections.operatingHoursDescription"),
       component: OperatingHoursStep,
       validation: async (data: CreateBranch) => {
-        // Operating hours validation
-        // If 24/7 is selected, no other validation needed
-        if (data["twentyFourSeven"]) {
-          return true;
-        }
-
-        // Check if at least one day has operating hours set
-        const operatingHours = data["operatingHours"];
-        if (!operatingHours) {
-          console.log("Operating hours must be configured");
+        if (!isOperatingHoursStepValid(data)) {
+          toast.error(
+            data["operatingHours"]
+              ? "At least one day must have operating hours"
+              : "Operating hours must be configured",
+          );
           return false;
         }
-
-        const days = [
-          "saturday",
-          "sunday",
-          "monday",
-          "tuesday",
-          "wednesday",
-          "thursday",
-          "friday",
-        ];
-        const hasAtLeastOneDay = days.some((day) => {
-          const dayHours = operatingHours[day];
-          return dayHours && dayHours.enabled !== false;
-        });
-
-        if (!hasAtLeastOneDay) {
-          console.log("At least one day must have operating hours");
-          return false;
-        }
-
         return true;
       },
     },

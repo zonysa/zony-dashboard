@@ -80,8 +80,11 @@ export const partnerInfoSchema = z.object({
     .min(1, "Payout per parcel must be positive"),
   currency: z.enum(["USD", "EUR", "EGP", "SAR"]),
   unifiedNumber: z.string().min(1, "Unified number is required"),
-  representative: z.string(),
+  representative: z.string().min(1, "Representative is required"),
 });
+
+// Step 1 fields as they appear in the form (status is set on submit, not user-entered)
+export const partnerStepSchema = partnerInfoSchema.omit({ status: true });
 
 // IBAN Validation Helper
 const validateIBAN = (iban: string): boolean => {
