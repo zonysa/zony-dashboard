@@ -132,14 +132,19 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
             <FormField
               control={control}
               name="accountNumber"
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>{t("forms.fields.accountNumber")}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
+                      inputMode="numeric"
+                      maxLength={20}
                       placeholder="Enter account number"
                       autoComplete="off"
+                      onChange={(e) => {
+                        onChange(e.target.value.replace(/\D/g, "").slice(0, 20));
+                      }}
                     />
                   </FormControl>
                   <FormDescription>
@@ -152,14 +157,23 @@ export const BankAccountStep: React.FC<StepComponentProps<PartnerFormData>> = ({
             <FormField
               control={control}
               name="iban"
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <FormItem>
                   <FormLabel>{t("forms.fields.iban")}</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
+                      maxLength={34}
                       placeholder="SA00 0000 0000 0000 0000 0000"
                       autoComplete="off"
+                      onChange={(e) => {
+                        onChange(
+                          e.target.value
+                            .toUpperCase()
+                            .replace(/[^A-Z0-9]/g, "")
+                            .slice(0, 34),
+                        );
+                      }}
                     />
                   </FormControl>
                   <FormDescription>
