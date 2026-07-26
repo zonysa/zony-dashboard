@@ -10,6 +10,7 @@ import { ProfileFormData } from "@/lib/schema/profile.schema";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "react-i18next";
+import { PageContainer } from "@/components/PageContainer";
 
 type EditSection = "personalInfo" | "contactInfo" | "locationInfo";
 
@@ -157,7 +158,7 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <PageContainer size="xl" className="flex flex-col gap-6 py-10 px-6">
       {/* Personal Information Card */}
       <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
@@ -394,7 +395,7 @@ const ProfilePage = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+    </PageContainer>
   );
 };
 

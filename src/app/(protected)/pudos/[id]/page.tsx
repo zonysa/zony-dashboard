@@ -22,6 +22,7 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 import { StaticMap } from "@/components/ui/StaticMap";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { useGetZones, useGetZoneDistricts } from "@/lib/hooks/useZone";
+import { PageContainer } from "@/components/PageContainer";
 
 function BranchDetails() {
   const { t } = useTranslation();
@@ -203,7 +204,7 @@ function BranchDetails() {
   };
 
   return (
-    <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
+    <PageContainer size="xl" className="flex flex-col gap-6 py-10">
       <Tabs defaultValue="info" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
@@ -615,7 +616,7 @@ function BranchDetails() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 }
 

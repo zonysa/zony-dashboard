@@ -7,6 +7,7 @@ import { SidebarInset } from "@/components/ui/sidebar";
 import { useGetKPIEvaluations } from "@/lib/hooks/useKpi";
 import { useGetTickets } from "@/lib/hooks/useTicket";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { PageContainer } from "@/components/PageContainer";
 
 export default function Page() {
   const { data, isLoading } = useGetKPIEvaluations();
@@ -17,7 +18,7 @@ export default function Page() {
     <SidebarInset>
       <div className="flex flex-1 flex-col">
         <div className="@container/main flex flex-1 flex-col gap-2">
-          <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <PageContainer size="xl" className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
             <SectionCards
               kpis={data?.evaluations || []}
               isLoading={isLoading}
@@ -31,7 +32,7 @@ export default function Page() {
                 searchPlaceholder={t("parcels.searchPlaceholder")}
               />
             </div>
-          </div>
+          </PageContainer>
         </div>
       </div>
     </SidebarInset>

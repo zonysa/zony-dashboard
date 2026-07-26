@@ -14,6 +14,7 @@ import { languageNames } from "@/lib/i18n/config";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useRouter } from "next/navigation";
 import { RoleGuard } from "@/components/auth/RoleGuard";
+import { PageContainer } from "@/components/PageContainer";
 
 type Language = "en" | "ar";
 
@@ -43,7 +44,7 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6">
+    <PageContainer size="xl" className="flex flex-col gap-6 p-4 sm:p-6">
       {/* Language Preferences Card */}
       <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
         <DataItem
@@ -190,7 +191,7 @@ const SettingsPage = () => {
 
       {/* Future Settings Sections */}
       {/* Add more settings cards here following the same pattern */}
-    </div>
+    </PageContainer>
   );
 };
 

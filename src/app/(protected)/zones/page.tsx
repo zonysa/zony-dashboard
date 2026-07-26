@@ -13,6 +13,7 @@ import { useGetCities } from "@/lib/hooks/useCity";
 import { useGetDistricts } from "@/lib/hooks/useDistrict";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageContainer } from "@/components/PageContainer";
 
 export default function Page() {
   const [filters, setFilters] = useState<GetZonesFilter>({});
@@ -77,7 +78,7 @@ export default function Page() {
   };
 
   return (
-    <div className="py-10 px-6">
+    <PageContainer size="xl" className="py-10 px-6">
       <Tabs defaultValue="zones" className="w-full">
         <TabsList>
           <TabsTrigger value="zones">{t("zones.title") || "Zones"}</TabsTrigger>
@@ -129,6 +130,6 @@ export default function Page() {
           />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 }

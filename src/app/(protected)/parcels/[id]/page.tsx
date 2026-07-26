@@ -12,6 +12,7 @@ import { notFound, useParams } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Can } from "@/components/auth/Can";
 import { Permission } from "@/lib/rbac/permissions";
+import { PageContainer } from "@/components/PageContainer";
 
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
@@ -52,7 +53,7 @@ export default function Page() {
   const parcelData = parcel?.parcel;
 
   return (
-    <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
+    <PageContainer size="xl" className="flex flex-col gap-6 py-10">
       <div className="flex w-full items-center justify-between px-6">
         <h1 className="text-lg font-semibold">
           {parcelData?.tracking_number || t("detailPages.tabs.parcelInfo")}
@@ -393,6 +394,6 @@ export default function Page() {
           />
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 }

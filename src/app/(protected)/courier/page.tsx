@@ -11,6 +11,7 @@ import { useGetDistricts } from "@/lib/hooks/useDistrict";
 import { UserDetails, userFilterOptions } from "@/lib/schema/user.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { PageContainer } from "@/components/PageContainer";
 
 function Page() {
   const router = useRouter();
@@ -86,7 +87,7 @@ function Page() {
   };
 
   return (
-    <div className="w-full py-10 px-6">
+    <PageContainer size="xl" className="py-10 px-6">
       <DataTable
         columns={columns()}
         data={couriers?.users ?? []}
@@ -100,7 +101,7 @@ function Page() {
         onSearchChange={handleSearchChange}
         isLoading={isLoading}
       />
-    </div>
+    </PageContainer>
   );
 }
 

@@ -10,6 +10,7 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useState } from "react";
 import { userFilterOptions } from "@/lib/schema/user.schema";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { PageContainer } from "@/components/PageContainer";
 
 export default function Page() {
   const { t } = useTranslation();
@@ -88,7 +89,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full mx-auto py-10 px-6">
+    <PageContainer size="xl" className="py-10 px-6">
       <DataTable
         columns={columns()}
         data={users ? users.users : []}
@@ -101,6 +102,6 @@ export default function Page() {
         onSearchChange={handleSearchChange}
         isLoading={isLoading}
       />
-    </div>
+    </PageContainer>
   );
 }

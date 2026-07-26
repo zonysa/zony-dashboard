@@ -8,6 +8,7 @@ import { KPIEvaluationItem } from "@/lib/schema/kpi.schema";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { PageContainer } from "@/components/PageContainer";
 
 // KPI category mapping based on kpi_id
 // Core Financial: 1-4
@@ -76,7 +77,7 @@ function ReportsAnalyticsPage() {
   }
 
   return (
-    <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
+    <PageContainer size="xl" className="flex flex-col gap-6 py-10">
       {/* Header with refresh button */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 px-4 sm:px-6">
         <h1 className="text-2xl font-semibold">{t("reports.title")}</h1>
@@ -146,7 +147,7 @@ function ReportsAnalyticsPage() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+    </PageContainer>
   );
 }
 

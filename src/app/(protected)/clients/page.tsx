@@ -9,6 +9,7 @@ import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks/useDebounce";
+import { PageContainer } from "@/components/PageContainer";
 
 export default function Page() {
   const { t } = useTranslation();
@@ -53,7 +54,7 @@ export default function Page() {
   };
 
   return (
-    <div className="px-6 py-10">
+    <PageContainer size="xl" className="px-6 py-10">
       <DataTable
         columns={columns()}
         data={clients ? clients?.clients : []}
@@ -67,6 +68,6 @@ export default function Page() {
         onSearchChange={handleSearchChange}
         isLoading={isLoading}
       />
-    </div>
+    </PageContainer>
   );
 }

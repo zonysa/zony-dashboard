@@ -7,6 +7,7 @@ import { useGetTickets } from "@/lib/hooks/useTicket";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { TicketsQuery } from "@/lib/schema/tickets.schema";
+import { PageContainer } from "@/components/PageContainer";
 
 export default function Page() {
   const { t } = useTranslation();
@@ -56,7 +57,7 @@ export default function Page() {
   ];
 
   return (
-    <div className="w-full py-10 px-6">
+    <PageContainer size="xl" className="py-10 px-6">
       <DataTable
         columns={Columns({ t })}
         data={tickets?.tickets ?? []}
@@ -69,6 +70,6 @@ export default function Page() {
         onSearchChange={setSearch}
         isLoading={isLoading}
       />
-    </div>
+    </PageContainer>
   );
 }

@@ -9,6 +9,7 @@ import { useCreateBranch } from "@/lib/hooks/useBranch";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { PageContainer } from "@/components/PageContainer";
 
 export default function Page() {
   const branchMutation = useCreateBranch();
@@ -193,7 +194,7 @@ export default function Page() {
   });
 
   return (
-    <div className="w-full flex flex-col justify-center items-center gap-6 py-6">
+    <PageContainer size="sm" className="flex flex-col items-center gap-6 py-6">
       <MultiStepForm
         steps={multiStep.steps}
         currentStep={multiStep.currentStep}
@@ -205,6 +206,6 @@ export default function Page() {
         isFirstStep={multiStep.isFirstStep}
         isLastStep={multiStep.isLastStep}
       />
-    </div>
+    </PageContainer>
   );
 }

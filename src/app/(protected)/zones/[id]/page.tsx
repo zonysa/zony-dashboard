@@ -45,6 +45,7 @@ import { createZoneDistrictsColumns } from "@/components/tables/columns/zone-dis
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { AutoFitMap } from "@/components/ui/StaticMap";
 import { Branch } from "@/lib/schema/branch.schema";
+import { PageContainer } from "@/components/PageContainer";
 
 function BranchDetails() {
   const param = useParams();
@@ -247,7 +248,7 @@ function BranchDetails() {
   const pudoColumns = branchColumns();
 
   return (
-    <div className="flex w-full justify-center align-top flex-col gap-6 py-10">
+    <PageContainer size="xl" className="flex flex-col gap-6 py-10">
       <Tabs defaultValue="zone-details" className="w-full gap-6">
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
@@ -510,7 +511,7 @@ function BranchDetails() {
           unassignCustomerServiceMutation.isPending
         }
       />
-    </div>
+    </PageContainer>
   );
 }
 

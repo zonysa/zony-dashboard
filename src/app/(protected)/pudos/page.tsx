@@ -11,6 +11,7 @@ import { Branch, BranchFilterOptions } from "@/lib/schema/branch.schema";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PageContainer } from "@/components/PageContainer";
 
 export default function Page() {
   const [filters, setFilters] = useState<BranchFilterOptions>({});
@@ -84,7 +85,7 @@ export default function Page() {
   };
 
   return (
-    <div className="py-10 px-6">
+    <PageContainer size="xl" className="py-10 px-6">
       <DataTable
         columns={columns}
         data={branches?.pudos || []}
@@ -98,6 +99,6 @@ export default function Page() {
         onSearchChange={handleSearchChange}
         isLoading={isLoading}
       />
-    </div>
+    </PageContainer>
   );
 }
