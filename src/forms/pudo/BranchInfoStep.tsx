@@ -36,8 +36,7 @@ import { CreateBranch } from "@/lib/schema/branch.schema";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { CityDetails } from "@/lib/schema/city.schema";
 import { DistrictDetails } from "@/lib/schema/district.schema";
-import { useGetZones } from "@/lib/hooks/useZone";
-import { useGetDistricts } from "@/lib/hooks/useDistrict";
+import { useGetZones, useGetZoneDistricts } from "@/lib/hooks/useZone";
 import { useGetPartners } from "@/lib/hooks/usePartner";
 import CreateUserSheet from "@/components/CreateUserSheet";
 import { AvailableUser } from "@/lib/schema/user.schema";
@@ -78,7 +77,9 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
   const { data: partners } = useGetPartners();
   const { data: cities } = useGetCities();
   const { data: zones } = useGetZones({ cityId: Number(selectedCity) });
-  const { data: district } = useGetDistricts(Number(selectedZone));
+  const { data: district } = useGetZoneDistricts(
+    selectedZone ? String(selectedZone) : "",
+  );
 
   const handleCoordinatesSelect = (lat: number, lng: number) => {
     const coordinateString = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
