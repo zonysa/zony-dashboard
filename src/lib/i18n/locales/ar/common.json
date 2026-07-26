@@ -379,7 +379,13 @@
       "newDistrict": "الحي الجديد",
       "pickFromMap": "اختر من الخريطة",
       "verify": "تحقق",
-      "verifying": "جاري التحقق..."
+      "verifying": "جاري التحقق...",
+      "generatePassword": "توليد كلمة مرور",
+      "copyPassword": "نسخ كلمة المرور",
+      "showPassword": "إظهار كلمة المرور",
+      "hidePassword": "إخفاء كلمة المرور",
+      "copied": "تم النسخ",
+      "copyFailed": "فشل النسخ"
     },
     "errors": {
       "invalidCoordinates": "أدخل إحداثيات صحيحة (مثال: 24.7136, 46.6753) أو رابط خرائط جوجل",
@@ -399,6 +405,7 @@
     "fields": {
       "firstName": "الاسم الأول",
       "lastName": "اسم العائلة",
+      "fullName": "الاسم الكامل",
       "email": "البريد الإلكتروني",
       "emailAddress": "عنوان البريد الإلكتروني",
       "password": "كلمة المرور",
@@ -461,6 +468,7 @@
     "placeholders": {
       "enterFirstName": "أدخل الاسم الأول",
       "enterLastName": "أدخل اسم العائلة",
+      "enterFullName": "أدخل الاسم الكامل",
       "enterBranchName": "أدخل اسم الفرع",
       "enterEmail": "أدخل عنوان البريد الإلكتروني",
       "enterPassword": "أدخل كلمة المرور",

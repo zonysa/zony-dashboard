@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -31,13 +30,26 @@ import {
 import { Input } from "./ui/input";
 import { PhoneInput } from "./ui/phone-input";
 import { toast } from "sonner";
-import { RegisterFormData, registerSchema } from "@/lib/schema/auth.schema";
+import { CreateUserFormData, createUserSchema } from "@/lib/schema/auth.schema";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCreateUser } from "@/lib/hooks/useUsers";
 import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
+import { Eye, EyeOff, RefreshCw, Copy } from "lucide-react";
+
+const PASSWORD_CHARSET =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+
+function generateSecurePassword(length = 12) {
+  const randomValues = new Uint32Array(length);
+  crypto.getRandomValues(randomValues);
+  return Array.from(
+    randomValues,
+    (value) => PASSWORD_CHARSET[value % PASSWORD_CHARSET.length]
+  ).join("");
+}
 
 // Maps a role's DB name to its translation key under forms.roles.* — the
 // naming isn't 1:1 (snake_case in the DB vs camelCase in translations).
@@ -65,14 +77,16 @@ const CreateUserSheet = ({
   userRoleName,
 }: CreateUserSheetProps) => {
   const queryClient = useQueryClient();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
+  const [showPassword, setShowPassword] = useState(false);
   const { data: rolesData } = useRoles();
   const roles = rolesData?.roles;
   const selectableRoles = roles?.filter((role) => role.name !== "admin") ?? [];
 
-  const form = useForm<RegisterFormData>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<CreateUserFormData>({
+    resolver: zodResolver(createUserSchema),
     defaultValues: {
+      fullName: "",
       username: "",
       email: "",
       password: "",
@@ -98,12 +112,35 @@ const CreateUserSheet = ({
 
   const createUserMutation = useCreateUser();
 
-  async function onSubmit(data: RegisterFormData) {
+  function handleGeneratePassword() {
+    const generated = generateSecurePassword();
+    form.setValue("password", generated, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setShowPassword(true);
+  }
+
+  async function handleCopyPassword() {
+    const password = form.getValues("password");
+    if (!password) return;
+    try {
+      await navigator.clipboard.writeText(password);
+      toast.success(t("forms.actions.copied"));
+    } catch {
+      toast.error(t("forms.actions.copyFailed"));
+    }
+  }
+
+  async function onSubmit(data: CreateUserFormData) {
+    const [firstName, ...rest] = data.fullName.trim().split(/\s+/);
+    const lastName = rest.join(" ");
+
     try {
       await createUserMutation.mutateAsync(
         {
-          first_name: data.firstName,
-          last_name: data.lastName,
+          first_name: firstName,
+          last_name: lastName,
           username: data.username,
           role_id: data.roleId,
           email: data.email,
@@ -144,7 +181,10 @@ const CreateUserSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-[625px] overflow-y-auto px-6">
+      <SheetContent
+        side={isRTL ? "left" : "right"}
+        className="sm:max-w-[625px] overflow-y-auto px-6"
+      >
         <SheetHeader className="px-0">
           <SheetTitle className="text-xl font-semibold">
             {t("dialogs.createUser.title")}
@@ -163,30 +203,13 @@ const CreateUserSheet = ({
               </h3>
               <FormField
                 control={control}
-                name="firstName"
+                name="fullName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("forms.fields.firstName")}</FormLabel>
+                    <FormLabel>{t("forms.fields.fullName")}</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder={t("forms.placeholders.enterFirstName")}
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("forms.fields.lastName")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder={t("forms.placeholders.enterLastName")}
+                        placeholder={t("forms.placeholders.enterFullName")}
                         {...field}
                       />
                     </FormControl>
@@ -237,11 +260,58 @@ const CreateUserSheet = ({
                   <FormItem>
                     <FormLabel>{t("forms.fields.password")}</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder={t("forms.placeholders.enterPassword")}
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder={t("forms.placeholders.enterPassword")}
+                          className={isRTL ? "pl-28" : "pr-28"}
+                          {...field}
+                        />
+                        <div
+                          className={`absolute ${
+                            isRTL ? "left-0" : "right-0"
+                          } top-0 flex h-full items-center`}
+                        >
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-full px-2 hover:bg-transparent"
+                            title={t("forms.actions.generatePassword")}
+                            onClick={handleGeneratePassword}
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-full px-2 hover:bg-transparent"
+                            title={t("forms.actions.copyPassword")}
+                            onClick={handleCopyPassword}
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-full px-2 hover:bg-transparent"
+                            title={
+                              showPassword
+                                ? t("forms.actions.hidePassword")
+                                : t("forms.actions.showPassword")
+                            }
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -305,16 +375,15 @@ const CreateUserSheet = ({
             </div>
 
             {/* Footer Actions */}
-            <SheetFooter className="w-full gap-2 pt-6 border-t px-0">
-              <SheetClose asChild>
-                <Button type="button" variant="outline" disabled={isSubmitting}>
-                  {t("forms.actions.cancel")}
-                </Button>
-              </SheetClose>
-              <Button type="submit" disabled={isSubmitting}>
+            <SheetFooter className="w-full pt-6 border-t px-0">
+              <Button
+                type="submit"
+                className="w-full py-6"
+                disabled={isSubmitting}
+              >
                 {isSubmitting
                   ? t("forms.actions.creating")
-                  : t("forms.actions.submit")}
+                  : t("forms.actions.create")}
               </Button>
             </SheetFooter>
           </form>

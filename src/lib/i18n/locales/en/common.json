@@ -378,7 +378,13 @@
       "newDistrict": "New District",
       "pickFromMap": "Pick From Map",
       "verify": "Verify",
-      "verifying": "Verifying..."
+      "verifying": "Verifying...",
+      "generatePassword": "Generate password",
+      "copyPassword": "Copy password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "copied": "Copied to clipboard",
+      "copyFailed": "Failed to copy"
     },
     "errors": {
       "invalidCoordinates": "Enter valid coordinates (e.g. 24.7136, 46.6753) or a Google Maps link",
@@ -397,6 +403,7 @@
     "fields": {
       "firstName": "First Name",
       "lastName": "Last Name",
+      "fullName": "Full Name",
       "email": "Email",
       "emailAddress": "Email Address",
       "password": "Password",
@@ -460,6 +467,7 @@
       "enterFirstName": "Enter first name",
       "enterBranchName": "Enter BranchName",
       "enterLastName": "Enter last name",
+      "enterFullName": "Enter full name",
       "enterEmail": "Enter email address",
       "enterPassword": "Enter password",
       "enterNewPassword": "Enter your new password",

@@ -65,6 +65,33 @@ export const registerSchema = z.object({
     .max(7, "Invalid role"),
 });
 
+// Internal "create user" sheet schema (admin-created users, e.g.
+// representatives/responsibles) — uses a single full name field instead of
+// separate first/last name inputs.
+export const createUserSchema = z.object({
+  fullName: z
+    .string()
+    .trim()
+    .min(1, "Full name is required")
+    .refine((val) => val.trim().split(/\s+/).length >= 2, {
+      message: "Please enter both a first and last name",
+    }),
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must be less than 30 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phoneNumber: saudiPhoneSchema,
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  roleId: z
+    .number({
+      error: "Role is required",
+    })
+    .int()
+    .min(1, "Invalid role")
+    .max(7, "Invalid role"),
+});
+
 // Customer signup schema (public self-service registration)
 export const customerSignupSchema = registerSchema
   .extend({
@@ -147,6 +174,7 @@ export type ResendOtpResponse = {
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
+export type CreateUserFormData = z.infer<typeof createUserSchema>;
 export type CustomerSignupFormData = z.infer<typeof customerSignupSchema>;
 export type RequestPasswordFormData = z.infer<typeof requestPasswordSchema>;
 export type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
