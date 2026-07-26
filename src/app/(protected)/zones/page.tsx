@@ -12,14 +12,33 @@ import { useGetZones } from "@/lib/hooks/useZone";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { useGetDistricts } from "@/lib/hooks/useDistrict";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageContainer } from "@/components/PageContainer";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 export default function Page() {
   const [filters, setFilters] = useState<GetZonesFilter>({});
   const { data: zones, isLoading: zonesLoading } = useGetZones(filters);
-  const { data: cities, isLoading: citiesLoading } = useGetCities();
-  const { data: districts, isLoading: districtsLoading } = useGetDistricts();
+
+  // Unfiltered lists, used to populate the city/district filter dropdowns on the Zones tab
+  const { data: cities } = useGetCities();
+  const { data: districts } = useGetDistricts();
+
+  const [citiesSearch, setCitiesSearch] = useState("");
+  const debouncedCitiesSearch = useDebounce(citiesSearch, 400);
+  const { data: citiesList, isLoading: citiesLoading } = useGetCities({
+    search: debouncedCitiesSearch,
+  });
+
+  const [districtsSearch, setDistrictsSearch] = useState("");
+  const debouncedDistrictsSearch = useDebounce(districtsSearch, 400);
+  const { data: districtsList, isLoading: districtsLoading } = useGetDistricts(
+    undefined,
+    { search: debouncedDistrictsSearch }
+  );
+
   const { t } = useTranslation();
 
   // Map cities and districts to filter options
@@ -106,28 +125,56 @@ export default function Page() {
           />
         </TabsContent>
 
-        <TabsContent value="cities" className="mt-6">
-          <DataTable
-            columns={createCitiesColumns()}
-            data={cities ? cities.cities : []}
-            enableGlobalSearch={true}
-            searchPlaceholder={
-              t("table.search") + " " + t("table.city") + "..."
-            }
-            isLoading={citiesLoading}
-          />
+        <TabsContent value="cities" className="mt-6 space-y-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder={t("table.search") + " " + t("table.city") + "..."}
+              value={citiesSearch}
+              onChange={(e) => setCitiesSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {debouncedCitiesSearch && citiesList?.total_cities === 0 ? (
+            <div className="rounded-md border h-24 flex items-center justify-center text-sm text-gray-600">
+              {t("table.noResultsForSearch", { term: debouncedCitiesSearch })}
+            </div>
+          ) : (
+            <DataTable
+              columns={createCitiesColumns()}
+              data={citiesList ? citiesList.cities : []}
+              isLoading={citiesLoading}
+            />
+          )}
         </TabsContent>
 
-        <TabsContent value="districts" className="mt-6">
-          <DataTable
-            columns={createDistrictsColumns()}
-            data={districts ? districts.districts : []}
-            enableGlobalSearch={true}
-            searchPlaceholder={
-              t("table.search") + " " + t("table.district") + "..."
-            }
-            isLoading={districtsLoading}
-          />
+        <TabsContent value="districts" className="mt-6 space-y-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder={
+                t("table.search") + " " + t("table.district") + "..."
+              }
+              value={districtsSearch}
+              onChange={(e) => setDistrictsSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          {debouncedDistrictsSearch && districtsList?.total_districts === 0 ? (
+            <div className="rounded-md border h-24 flex items-center justify-center text-sm text-gray-600">
+              {t("table.noResultsForSearch", {
+                term: debouncedDistrictsSearch,
+              })}
+            </div>
+          ) : (
+            <DataTable
+              columns={createDistrictsColumns()}
+              data={districtsList ? districtsList.districts : []}
+              isLoading={districtsLoading}
+            />
+          )}
         </TabsContent>
       </Tabs>
     </PageContainer>

@@ -3,7 +3,11 @@ import {
   CreateCityRes,
   GetCitiesRes,
 } from "@/lib/schema/city.schema";
-import { createCity, getCities } from "@/lib/services/location/city.service";
+import {
+  createCity,
+  getCities,
+  GetCitiesFilter,
+} from "@/lib/services/location/city.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -11,7 +15,7 @@ import { toast } from "sonner";
 export const cityKeys = {
   all: ["cities"] as const,
   lists: () => [...cityKeys.all, "list"] as const,
-  list: () => [...cityKeys.lists()] as const,
+  list: (filters: string) => [...cityKeys.lists(), { filters }] as const,
   details: () => [...cityKeys.all, "detail"] as const,
   detail: (id: string) => [...cityKeys.details(), id] as const,
 };
@@ -46,10 +50,10 @@ export function useCreateCity() {
 }
 
 // Get Cities Hook
-export function useGetCities() {
+export function useGetCities(filters?: GetCitiesFilter) {
   return useQuery<GetCitiesRes>({
-    queryKey: cityKeys.list(),
-    queryFn: () => getCities(),
+    queryKey: cityKeys.list(JSON.stringify(filters) || ""),
+    queryFn: () => getCities(filters),
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (formerly cacheTime)
     retry: 3, // Retry failed requests 3 times

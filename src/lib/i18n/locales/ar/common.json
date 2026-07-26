@@ -83,6 +83,7 @@
     "appliedFilters": "التصفيات المطبقة",
     "filtersCleared": "تم مسح التصفيات",
     "noResultsFound": "لا توجد نتائج",
+    "noResultsForSearch": "لا توجد نتائج لـ \"{{term}}\"",
     "pointUsage": "استخدام النقطة",
     "date": "التاريخ",
     "client": "العميل",

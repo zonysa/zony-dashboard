@@ -16,10 +16,26 @@ export const createCity = async (data: CityDetails): Promise<CreateCityRes> => {
 };
 
 // Get Cities
-export const getCities = async (): Promise<GetCitiesRes> => {
+export interface GetCitiesFilter {
+  page?: number;
+  per_page?: number;
+  search?: string;
+}
+
+export const getCities = async (
+  filters?: GetCitiesFilter
+): Promise<GetCitiesRes> => {
+  const params = new URLSearchParams();
+
+  if (filters?.page) params.append("page", filters.page.toString());
+  if (filters?.per_page)
+    params.append("per_page", filters.per_page.toString());
+  if (filters?.search) params.append("search", filters.search);
+
+  const queryString = params.toString();
   return apiCall({
     method: "GET",
-    url: "/cities",
+    url: `/cities${queryString ? `?${queryString}` : ""}`,
   });
 };
 

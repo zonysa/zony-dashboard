@@ -82,6 +82,7 @@
     "appliedFilters": "Applied Filters",
     "filtersCleared": "Filters Cleared",
     "noResultsFound": "No results found",
+    "noResultsForSearch": "No results for \"{{term}}\"",
     "pointUsage": "Point Usage",
     "date": "Date",
     "client": "Client",

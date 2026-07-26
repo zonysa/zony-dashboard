@@ -6,6 +6,7 @@ import {
 import {
   createDistrict,
   getDistricts,
+  GetDistrictsFilter,
 } from "@/lib/services/location/district.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -35,10 +36,15 @@ export function useCreateDistrict() {
 }
 
 // Get Cities Hook
-export function useGetDistricts(cityId?: number) {
+export function useGetDistricts(
+  cityId?: number,
+  filters?: GetDistrictsFilter
+) {
   return useQuery<GetDistrictsRes>({
-    queryKey: districtKeys.list(cityId?.toString() || ""),
-    queryFn: () => getDistricts(cityId),
+    queryKey: districtKeys.list(
+      `${cityId?.toString() || ""}:${JSON.stringify(filters) || ""}`
+    ),
+    queryFn: () => getDistricts(cityId, filters),
     staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes (formerly cacheTime)
     retry: 3, // Retry failed requests 3 times
