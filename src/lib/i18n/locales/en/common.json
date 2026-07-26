@@ -352,7 +352,11 @@
     "passwordsDoNotMatch": "Passwords do not match",
     "clickToUpload": "Click to upload",
     "orDragAndDrop": "or drag and drop",
-    "removeFile": "Remove file"
+    "removeFile": "Remove file",
+    "noFileUploaded": "No file uploaded",
+    "upload": "Upload",
+    "view": "View",
+    "replace": "Replace"
   },
   "forms": {
     "actions": {
@@ -432,7 +436,7 @@
       "branchPhotos": "Branch Photos",
       "municipalLicense": "Municipal License",
       "branchName": "Branch Name",
-      "branchCoordinates": "Branch Coordinates",
+      "branchLocation": "Branch Location",
       "partner": "Partner",
       "responsible": "Responsible",
       "action": "Action",
@@ -513,7 +517,7 @@
       "municipalLicenseDescription": "Upload your municipal license (PDF or image format)",
       "commercialRegistrationDescription": "Upload your commercial registration document (PDF or image)",
       "uploadPhoto": "Upload Customer Service Personal Photo",
-      "coordinatesDescription": "Click the location icon to select coordinates",
+      "coordinatesDescription": "Click to select the branch location on the map",
       "coordinatesInputDescription": "Enter coordinates directly or paste a Google Maps link, or pick a location from the map",
       "nationalAddressDescription": "Enter your National Address short code to auto-fill the address, city and zone",
       "addressDescription": "Street name, building number and any landmarks that help the courier find this location",

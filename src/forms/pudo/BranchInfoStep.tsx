@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useWatch } from "react-hook-form";
-import { Eye, EyeOff, MapPin, Plus } from "lucide-react";
+import { Eye, EyeOff, Plus } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const CoordinatePickerDialog = dynamic(
@@ -98,34 +98,13 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
         <form onSubmit={onSubmit} className="space-y-8">
           <FormField
             control={control}
-            name="branchPhotos"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>{t("forms.fields.branchPhotos")}</FormLabel>
-                <FormControl>
-                  <FileInput
-                    value={field.value}
-                    onChange={field.onChange}
-                    accept="image/*"
-                    multiple
-                  />
-                </FormControl>
-                <FormDescription>
-                  {t("forms.descriptions.uploadPhoto")}
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={control}
             name="municipalLicense"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>{t("forms.fields.municipalLicense")}</FormLabel>
                 <FormControl>
                   <FileInput
+                    variant="row"
                     value={field.value}
                     onChange={field.onChange}
                     accept="image/*,application/pdf"
@@ -272,26 +251,29 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
               name="coordinates"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("forms.fields.branchCoordinates")}</FormLabel>
-                  <div className="flex gap-2">
-                    <FormControl className="flex-1">
+                  <FormLabel>{t("forms.fields.branchLocation")}</FormLabel>
+                  <FormControl>
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setShowCoordinatePicker(true)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setShowCoordinatePicker(true);
+                        }
+                      }}
+                      className="cursor-pointer"
+                    >
                       <Input
                         {...field}
                         placeholder={t("forms.placeholders.selectFromGPS")}
-                        disabled={coordinates !== null}
                         readOnly
+                        className="cursor-pointer"
                       />
-                    </FormControl>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => setShowCoordinatePicker(true)}
-                    >
-                      <MapPin className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <FormDescription>
+                    </div>
+                  </FormControl>
+                  <FormDescription className="text-xs truncate">
                     {t("forms.descriptions.coordinatesDescription")}
                   </FormDescription>
                   <FormMessage />

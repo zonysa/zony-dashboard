@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { FileIcon, Trash2, Upload } from "lucide-react";
+import { Eye, FileIcon, RefreshCw, Trash2, Upload } from "lucide-react";
 import * as React from "react";
 import { Button } from "./button";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -14,6 +14,12 @@ interface FileInputProps {
   accept?: string;
   multiple?: boolean;
   placeholder?: string;
+  /**
+   * "dropzone" (default) renders the full drag-and-drop area.
+   * "row" renders a single compact row with Upload/View/Replace CTAs,
+   * useful for single-document fields where vertical space is limited.
+   */
+  variant?: "dropzone" | "row";
 }
 
 const FileInput = ({
@@ -24,6 +30,7 @@ const FileInput = ({
   accept,
   multiple = false,
   placeholder,
+  variant = "dropzone",
 }: FileInputProps) => {
   const [isDragging, setIsDragging] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -79,6 +86,88 @@ const FileInput = ({
 
     if (inputRef.current) inputRef.current.value = "";
   };
+
+  const handleView = (e: React.MouseEvent<HTMLButtonElement>, file: File) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const url = URL.createObjectURL(file);
+    window.open(url, "_blank", "noopener,noreferrer");
+    // Revoke once the new tab has had time to load the file
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  };
+
+  if (variant === "row") {
+    const currentFile = Array.isArray(value) ? value[0] : value;
+
+    return (
+      <div className={cn("flex items-center gap-3 rounded-md border px-3 py-2", className)}>
+        <input
+          ref={inputRef}
+          type="file"
+          accept={accept}
+          disabled={disabled}
+          multiple={multiple}
+          onChange={handleChange}
+          className="hidden"
+        />
+        <div className="flex-none rounded-md bg-muted p-2">
+          <FileIcon className="size-4 text-muted-foreground" />
+        </div>
+        <div className="flex-1 min-w-0">
+          {currentFile ? (
+            <>
+              <p className="truncate text-sm font-medium">{currentFile.name}</p>
+              <p className="text-xs text-muted-foreground">
+                {(currentFile.size / 1024 / 1024).toFixed(2)} MB
+              </p>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {placeholder ?? t("form.noFileUploaded")}
+            </p>
+          )}
+        </div>
+        <div className="flex-none flex items-center gap-2">
+          {currentFile ? (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={disabled}
+                onClick={(e) => handleView(e, currentFile)}
+              >
+                <Eye className="size-4" />
+                {t("form.view")}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={disabled}
+                onClick={() => inputRef.current?.click()}
+              >
+                <RefreshCw className="size-4" />
+                {t("form.replace")}
+              </Button>
+            </>
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={disabled}
+              onClick={() => inputRef.current?.click()}
+            >
+              <Upload className="size-4" />
+              {t("form.upload")}
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Render files display
   const renderFiles = () => {

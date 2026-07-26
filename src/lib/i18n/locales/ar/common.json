@@ -353,7 +353,11 @@
     "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
     "clickToUpload": "انقر للتحميل",
     "orDragAndDrop": "أو السحب والإفلات",
-    "removeFile": "إزالة الملف"
+    "removeFile": "إزالة الملف",
+    "noFileUploaded": "لم يتم تحميل أي ملف",
+    "upload": "تحميل",
+    "view": "عرض",
+    "replace": "استبدال"
   },
   "forms": {
     "actions": {
@@ -434,7 +438,7 @@
       "branchPhotos": "صور الفرع",
       "municipalLicense": "الترخيص البلدي",
       "branchName": "اسم الفرع",
-      "branchCoordinates": "إحداثيات الفرع",
+      "branchLocation": "موقع الفرع",
       "partner": "الشريك",
       "responsible": "المسؤول",
       "action": "الإجراء",
@@ -515,7 +519,7 @@
       "municipalLicenseDescription": "قم بتحميل الترخيص البلدي (صيغة PDF أو صورة)",
       "commercialRegistrationDescription": "تحميل وثيقة السجل التجاري (بدف أو صورة)",
       "uploadPhoto": "قم بتحميل الصورة الشخصية لخدمة العملاء",
-      "coordinatesDescription": "انقر فوق رمز الموقع لتحديد الإحداثيات",
+      "coordinatesDescription": "انقر لتحديد موقع الفرع على الخريطة",
       "coordinatesInputDescription": "أدخل الإحداثيات مباشرة أو الصق رابط خرائط جوجل، أو اختر الموقع من الخريطة",
       "nationalAddressDescription": "أدخل رمز العنوان الوطني لتعبئة العنوان والمدينة والمنطقة تلقائيًا",
       "addressDescription": "اسم الشارع، رقم المبنى، وأي علامات مميزة تساعد المندوب في الوصول إلى الموقع",
