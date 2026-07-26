@@ -17,7 +17,12 @@ export default function Page() {
   const [filters, setFilters] = useState<BranchFilterOptions>({});
   const { data: branches, isLoading } = useGetBranches(filters);
   const { data: cities } = useGetCities();
-  const { data: zones } = useGetZones();
+  const selectedCityId = cities?.cities.find(
+    (city) => city.name === filters.city
+  )?.id;
+  const { data: zones } = useGetZones(
+    selectedCityId ? { cityId: selectedCityId } : undefined
+  );
   const { data: districts } = useGetDistricts();
   const columns = branchColumns();
   const { t } = useTranslation();
@@ -77,7 +82,15 @@ export default function Page() {
   };
 
   const handleFilterChange = (newFilters: Record<string, string>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
+    setFilters((prev) => {
+      const updated = { ...prev, ...newFilters };
+      // Zone options are scoped to the selected city, so a zone chosen
+      // under a previous city is no longer valid once the city changes.
+      if (newFilters.city !== undefined && newFilters.city !== prev.city) {
+        updated.zone = undefined;
+      }
+      return updated;
+    });
   };
 
   const handleSearchChange = (search: string) => {
