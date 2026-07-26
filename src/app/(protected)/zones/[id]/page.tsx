@@ -35,6 +35,7 @@ import { ZoneAssignmentDialog } from "@/components/zone/ZoneAssignmentDialog";
 import { ZoneUnassignDialog } from "@/components/zone/ZoneUnassignDialog";
 import { useGetUsers } from "@/lib/hooks/useUsers";
 import { useGetDistricts } from "@/lib/hooks/useDistrict";
+import { useGetCities } from "@/lib/hooks/useCity";
 import { ColumnDef } from "@tanstack/react-table";
 import { UserDetails } from "@/lib/schema/user.schema";
 import { DistrictDetails } from "@/lib/schema/district.schema";
@@ -83,7 +84,15 @@ function BranchDetails() {
   const { data: allSupervisors } = useGetUsers({ role_id: 4 });
   const { data: allCouriers } = useGetUsers({ role_id: 6 });
   const { data: allCustomerServices } = useGetUsers({ role_id: 5 });
-  const { data: allDistricts } = useGetDistricts();
+  // Resolve the zone's city via search rather than pulling the (paginated) full
+  // city list, since the target city may not be on the default page.
+  const { data: matchedCities } = useGetCities(
+    zone?.zone?.city_name ? { search: zone.zone.city_name } : undefined
+  );
+  const zoneCityId = matchedCities?.cities.find(
+    (city) => city.name === zone?.zone?.city_name
+  )?.id;
+  const { data: allDistricts } = useGetDistricts(zoneCityId);
 
   // Assignment mutations
   const assignDistrictsMutation = useAssignDistrictsToZone(zoneId);
@@ -116,20 +125,6 @@ function BranchDetails() {
       setPudoLocations(locations);
     }
   }, [branches]);
-
-  const filterConfigs = [
-    { key: "city", label: t("table.city"), placeholder: t("table.allCities") },
-    {
-      key: "district",
-      label: t("table.district"),
-      placeholder: t("table.allDistricts"),
-    },
-    {
-      key: "status",
-      label: t("table.status"),
-      placeholder: t("table.allStatus"),
-    },
-  ];
 
   // Simplified columns for assignment dialogs
   const userAssignmentColumns: ColumnDef<UserDetails>[] = [
@@ -356,8 +351,6 @@ function BranchDetails() {
           <DataTable
             columns={zoneDistrictsColumns}
             data={districts?.districts ?? []}
-            enableFiltering={true}
-            filterConfigs={filterConfigs}
             enableGlobalSearch={true}
             searchPlaceholder={t("zones.searchDistrictName")}
           />
@@ -379,8 +372,6 @@ function BranchDetails() {
           <DataTable
             columns={zoneSupervisorsColumns}
             data={supervisors?.supervisors ?? []}
-            enableFiltering={true}
-            filterConfigs={filterConfigs}
             enableGlobalSearch={true}
             searchPlaceholder={t("zones.searchSupervisorName")}
           />
@@ -390,8 +381,6 @@ function BranchDetails() {
           <DataTable
             columns={pudoColumns}
             data={branches?.pudos ?? []}
-            enableFiltering={true}
-            filterConfigs={filterConfigs}
             enableGlobalSearch={true}
             searchPlaceholder={t("zones.searchBranchName")}
           />
@@ -413,8 +402,6 @@ function BranchDetails() {
           <DataTable
             columns={zoneCouriersColumns}
             data={couriers?.couriers ?? []}
-            enableFiltering={true}
-            filterConfigs={filterConfigs}
             enableGlobalSearch={true}
             searchPlaceholder={t("zones.searchCourierName")}
           />
@@ -436,8 +423,6 @@ function BranchDetails() {
           <DataTable
             columns={zoneCustomerServiceColumns}
             data={customerServices?.customer_service ?? []}
-            enableFiltering={true}
-            filterConfigs={filterConfigs}
             enableGlobalSearch={true}
             searchPlaceholder={t("zones.searchCustomerServiceName")}
           />
@@ -455,7 +440,7 @@ function BranchDetails() {
         onAssign={handleAssignDistricts}
         getItemId={(item) => item.id ?? 0}
         searchPlaceholder={t("zones.searchDistricts")}
-        className="max-w-5xl"
+        className="sm:max-w-3xl"
       />
 
       <ZoneAssignmentDialog
@@ -468,7 +453,7 @@ function BranchDetails() {
         onAssign={handleAssignSupervisors}
         getItemId={(item) => item.id}
         searchPlaceholder={t("zones.searchSupervisors")}
-        className="max-w-6xl"
+        className="sm:max-w-6xl"
       />
 
       <ZoneAssignmentDialog
@@ -481,7 +466,7 @@ function BranchDetails() {
         onAssign={handleAssignCouriers}
         getItemId={(item) => item.id}
         searchPlaceholder={t("zones.searchCouriers")}
-        className="max-w-5xl"
+        className="sm:max-w-5xl"
       />
 
       <ZoneAssignmentDialog

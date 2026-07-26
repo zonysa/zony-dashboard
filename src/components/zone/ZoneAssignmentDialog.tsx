@@ -132,7 +132,7 @@ export function ZoneAssignmentDialog<TData>({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={`max-h-[80vh] overflow-hidden flex flex-col ${
-          className ?? "max-w-3xl"
+          className ?? "sm:max-w-4xl"
         }`}
       >
         <DialogHeader>

@@ -35,15 +35,6 @@ export const createZoneDistrictsColumns = ({
       filterFn: "includesString",
     },
     {
-      accessorKey: "city_name",
-      header: t("table.city") || "City",
-      cell: ({ row }) => {
-        const cityName = row.getValue("city_name") as string;
-        return <div className="text-sm">{cityName}</div>;
-      },
-      filterFn: "includesString",
-    },
-    {
       id: "actions",
       header: t("table.actions") || "Actions",
       cell: ({ row }) => {
