@@ -45,11 +45,14 @@ import { parseLocationInput } from "@/lib/validators/location";
 interface PartySectionProps {
   form: UseFormReturn<CreateParcelFormData>;
   prefix: "sender" | "receiver";
+  /** Customers don't manage operational zones, so hide the field for them. */
+  hideZone?: boolean;
 }
 
 export const PartySection: React.FC<PartySectionProps> = ({
   form,
   prefix,
+  hideZone = false,
 }) => {
   const { t } = useTranslation();
   const {
@@ -321,14 +324,13 @@ export const PartySection: React.FC<PartySectionProps> = ({
             </FormItem>
           )}
         />
+        {!hideZone && (
         <FormField
           control={control}
           name={`${prefix}.location.zone`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>
-                {t("forms.fields.zone")} <span className="text-destructive">*</span>
-              </FormLabel>
+              <FormLabel>{t("forms.fields.zone")}</FormLabel>
               <Select
                 onValueChange={(value) => {
                   const zone = zones?.zones?.find(
@@ -367,6 +369,7 @@ export const PartySection: React.FC<PartySectionProps> = ({
             </FormItem>
           )}
         />
+        )}
       </div>
 
       <FormItem>

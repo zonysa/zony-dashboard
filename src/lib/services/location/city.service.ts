@@ -31,6 +31,7 @@ export const getCities = async (
   if (filters?.per_page)
     params.append("per_page", filters.per_page.toString());
   if (filters?.search) params.append("search", filters.search);
+  params.append("capitals_only", "true");
 
   const queryString = params.toString();
   return apiCall({

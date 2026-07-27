@@ -182,13 +182,14 @@ export const partyPersonalSchema = z.object({
     .or(z.literal("")),
 });
 
-// City, zone and coordinates are required by the API. Address and the
-// National Address short code are optional — the short code is just a
+// City and coordinates are required by the API. Zone is operational
+// metadata that customers don't set, so it's optional; address and the
+// National Address short code are optional too — the short code is just a
 // convenience that auto-fills the other fields.
 export const partyLocationSchema = z.object({
   address: z.string().max(255).optional(),
   city: z.string().min(1, "City is required"),
-  zone: z.string().min(1, "Zone is required"),
+  zone: z.string().optional(),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),
   short_address: z

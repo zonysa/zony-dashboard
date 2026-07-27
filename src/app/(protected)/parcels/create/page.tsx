@@ -205,7 +205,7 @@ export default function Page() {
                     </FormItem>
                   )}
 
-                  <PartySection form={form} prefix="sender" />
+                  <PartySection form={form} prefix="sender" hideZone={isCustomer} />
                 </CardContent>
               </Card>
 
@@ -217,7 +217,7 @@ export default function Page() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4 px-4">
-                  <PartySection form={form} prefix="receiver" />
+                  <PartySection form={form} prefix="receiver" hideZone={isCustomer} />
                 </CardContent>
               </Card>
 

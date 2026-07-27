@@ -43,8 +43,8 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-const pudoIcon = L.divIcon({
-  html: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#f59e0b" stroke="#ffffff" stroke-width="1"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.8" fill="#ffffff"/></svg>`,
+const purpleMarkerIcon = L.divIcon({
+  html: `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="#49159B" stroke="#ffffff" stroke-width="1"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.8" fill="#ffffff"/></svg>`,
   className: "",
   iconSize: [30, 30],
   iconAnchor: [15, 30],
@@ -82,7 +82,9 @@ const LocationMarker: React.FC<LocationMarkerProps> = ({
     },
   });
 
-  return position === null ? null : <Marker position={position} />;
+  return position === null ? null : (
+    <Marker position={position} icon={purpleMarkerIcon} />
+  );
 };
 
 // Flies the map to a target set by search, PUDO selection, or geolocation
@@ -230,7 +232,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
           {/* Sidebar: search + pickup points + manual input */}
           <div className="flex flex-col gap-3 md:h-[460px]">
             <div className="relative">
-              <Search className="absolute start-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute start-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
               <Input
                 className="ps-8"
                 placeholder={t("dialogs.coordinatePicker.searchPlaceholder")}
@@ -260,7 +262,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
                         className="flex w-full items-start gap-2 px-3 py-2 text-start text-sm hover:bg-accent"
                         onClick={() => handleResultClick(result)}
                       >
-                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                        <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                         <span className="line-clamp-2">
                           {result.display_name}
                         </span>
@@ -282,7 +284,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
                       className="flex w-full items-start gap-2 px-3 py-2 text-start text-sm hover:bg-accent"
                       onClick={() => handlePudoClick(pudo)}
                     >
-                      <Store className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                      <Store className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <span>
                         <span className="block font-medium">{pudo.name}</span>
                         <span className="block text-xs text-muted-foreground line-clamp-1">
@@ -325,12 +327,12 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
                       pudo.coordinates.latitude,
                       pudo.coordinates.longitude,
                     ]}
-                    icon={pudoIcon}
+                    icon={purpleMarkerIcon}
                   >
                     <Popup maxWidth={320} minWidth={220}>
                       <div className="space-y-1">
                         <div className="flex items-center gap-1.5 text-sm font-semibold leading-snug text-foreground">
-                          <Store className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                          <Store className="h-3.5 w-3.5 shrink-0 text-primary" />
                           {pudo.name}
                         </div>
                         <div className="text-xs leading-snug text-muted-foreground">
@@ -354,7 +356,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
               {isLocating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <LocateFixed className="h-4 w-4" />
+                <LocateFixed className="h-4 w-4 text-primary" />
               )}
             </Button>
           </div>
