@@ -103,10 +103,11 @@ export const Columns = ({ t }: ColumnsProps) => {
       filterFn: "equalsString",
     },
     {
+      id: "customer_phone_number",
       accessorKey: "customer_data",
       header: t("table.phoneNumber") || "Phone number",
       cell: ({ row }) => {
-        const customer = row.getValue("customer_data") as CustomerData;
+        const customer = row.getValue("customer_phone_number") as CustomerData;
         return (
           <div className="font-mono text-sm">
             {customer?.phone_number ?? "NA"}
@@ -116,10 +117,11 @@ export const Columns = ({ t }: ColumnsProps) => {
       filterFn: "includesString",
     },
     {
+      id: "customer_name",
       accessorKey: "customer_data",
       header: t("table.customerName") || "Customer Name",
       cell: ({ row }) => {
-        const customer = row.getValue("customer_data") as CustomerData;
+        const customer = row.getValue("customer_name") as CustomerData;
         return <div className="font-mono text-sm">{customer?.first_name}</div>;
       },
       filterFn: "includesString",
