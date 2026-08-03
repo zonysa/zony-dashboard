@@ -1168,5 +1168,37 @@
       "submit": "Confirm",
       "submitting": "Recording..."
     }
+  },
+  "warehouseCourier": {
+    "title": "My Deliveries",
+    "slotPlaceholder": "Slot number",
+    "loadManifest": "Load",
+    "datePickerPlaceholder": "Pick a date",
+    "loadError": "Couldn't load the manifest. Check the slot number and try again.",
+    "pickSlot": "Enter your slot number to load today's manifest.",
+    "empty": "Nothing in this slot for the selected date.",
+    "bin": "Bin",
+    "attempt": "Attempt {{count}}",
+    "delivered": "Delivered — nothing more to do.",
+    "checkoutMissingCourier": "Couldn't identify you as the courier — please sign in again.",
+    "actions": {
+      "checkout": "Take custody",
+      "deliver": "Mark as delivered",
+      "reportFailed": "Report failed attempt",
+      "returnToWarehouse": "Return to warehouse",
+      "cancel": "Cancel"
+    },
+    "deliverDialog": {
+      "title": "Confirm delivery (E05)",
+      "askCustomer": "Ask the customer for their 4-digit delivery code.",
+      "attemptsRemaining": "{{count}} attempts left before a 15-minute lock.",
+      "lockedOut": "Too many wrong codes — locked for 15 minutes. Report a failed attempt instead.",
+      "submit": "Confirm delivery",
+      "submitting": "Confirming..."
+    },
+    "failDialog": {
+      "title": "Report failed attempt (E06)",
+      "loadingReasons": "Loading reasons..."
+    }
   }
 }
