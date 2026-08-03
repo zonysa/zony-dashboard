@@ -1042,5 +1042,58 @@
       "title": "Delivery Code",
       "receivedAt": "Received"
     }
+  },
+  "warehouseWall": {
+    "title": "Warehouse Wall",
+    "subtitle": "Zone × slot view of parcels on site, plus the daily cleanup list.",
+    "datePickerPlaceholder": "Pick a date",
+    "loadError": "Something went wrong loading the Wall.",
+    "grid": {
+      "title": "Zone × Slot Grid",
+      "zone": "Zone",
+      "empty": "No zones or slots are configured yet.",
+      "needsRebin": "Rebin ×{{count}}"
+    },
+    "cellDialog": {
+      "subtitle": "{{count}} parcel(s) in this slot"
+    },
+    "awaiting": {
+      "title": "Awaiting Scheduling",
+      "empty": "Nothing waiting on a slot right now."
+    },
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "zone": "Zone",
+      "status": "Status",
+      "bin": "Bin",
+      "actions": "Actions"
+    },
+    "status": {
+      "not_received": "Not received",
+      "awaiting_scheduling": "Awaiting scheduling",
+      "scheduled": "Scheduled",
+      "needs_rebin": "Needs rebin",
+      "ready_for_dispatch": "Ready for dispatch",
+      "out_for_delivery": "Out for delivery",
+      "attempt_failed": "Attempt failed",
+      "delivered": "Delivered"
+    },
+    "stale": "Stale",
+    "needsRebinHint": "Customer moved their slot after this box was binned — it's physically in the wrong bin.",
+    "binNotAllowed": "Binning isn't available for this parcel's current status.",
+    "actions": {
+      "bin": "Bin",
+      "cancel": "Cancel"
+    },
+    "binDialog": {
+      "title": "Bin parcel (E02)",
+      "slot": "Slot",
+      "slotPlaceholder": "Select a slot",
+      "binCode": "Bin code",
+      "notes": "Notes (optional)",
+      "submit": "Confirm bin",
+      "submitting": "Binning..."
+    }
   }
 }
