@@ -181,6 +181,12 @@
   "couriers": {
     "title": "المندوبون"
   },
+  "warehouse": {
+    "title": "المستودع"
+  },
+  "warehouseCourierNav": {
+    "title": "توصيل المستودع"
+  },
   "users": {
     "title": "المستخدمون",
     "loading": "جاري تحميل المستخدم...",

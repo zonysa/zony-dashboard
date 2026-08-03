@@ -180,6 +180,12 @@
   "couriers": {
     "title": "Courier"
   },
+  "warehouse": {
+    "title": "Warehouse"
+  },
+  "warehouseCourierNav": {
+    "title": "Warehouse Courier"
+  },
   "users": {
     "title": "Users",
     "loading": "Loading user...",

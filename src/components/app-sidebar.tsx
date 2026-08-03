@@ -16,6 +16,7 @@ import {
   UserRound,
   Headset,
   Truck,
+  Warehouse,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -109,6 +110,18 @@ function AppSidebarContent() {
       url: "/courier",
       icon: Truck,
       permission: Permission.VIEW_COURIER,
+    },
+    {
+      title: t("warehouse.title"),
+      url: "/warehouse/wall",
+      icon: Warehouse,
+      permission: Permission.VIEW_WAREHOUSE,
+    },
+    {
+      title: t("warehouseCourierNav.title"),
+      url: "/warehouse/courier",
+      icon: Truck,
+      permission: Permission.VIEW_WAREHOUSE_COURIER,
     },
   ];
 
