@@ -65,6 +65,21 @@ export enum Permission {
   VIEW_DELIVERIES = "view:deliveries",
   UPDATE_DELIVERY_STATUS = "update:delivery_status",
 
+  // Warehouse pilot — staff (/warehouse/*: admin, supervisor, responsible)
+  VIEW_WAREHOUSE = "view:warehouse",
+  MANAGE_WAREHOUSE = "manage:warehouse",
+
+  // Warehouse pilot — settings, reports, CSV export, void (admin, supervisor ONLY)
+  VIEW_WAREHOUSE_SETTINGS = "view:warehouse_settings",
+  EDIT_WAREHOUSE_SETTINGS = "edit:warehouse_settings",
+  VIEW_WAREHOUSE_REPORTS = "view:warehouse_reports",
+  EXPORT_WAREHOUSE_REPORTS = "export:warehouse_reports",
+  VOID_WAREHOUSE_EVENTS = "void:warehouse_events",
+
+  // Warehouse pilot — courier interface (/courier/*: courier role)
+  VIEW_WAREHOUSE_COURIER = "view:warehouse_courier",
+  MANAGE_WAREHOUSE_COURIER = "manage:warehouse_courier",
+
   // Profile
   VIEW_PROFILE = "view:profile",
   EDIT_PROFILE = "edit:profile",
@@ -113,6 +128,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.MANAGE_CUSTOMER_SERVICE,
     Permission.VIEW_COURIER,
     Permission.MANAGE_COURIER,
+    Permission.VIEW_WAREHOUSE,
+    Permission.MANAGE_WAREHOUSE,
+    Permission.VIEW_WAREHOUSE_SETTINGS,
+    Permission.EDIT_WAREHOUSE_SETTINGS,
+    Permission.VIEW_WAREHOUSE_REPORTS,
+    Permission.EXPORT_WAREHOUSE_REPORTS,
+    Permission.VOID_WAREHOUSE_EVENTS,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
   ],
@@ -135,6 +157,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_PARCELS,
     Permission.TRACK_PARCELS,
     Permission.VIEW_REPORTS,
+    Permission.VIEW_WAREHOUSE,
+    Permission.MANAGE_WAREHOUSE,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
   ],
@@ -163,6 +187,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.MANAGE_CUSTOMER_SERVICE,
     Permission.VIEW_COURIER,
     Permission.MANAGE_COURIER,
+    Permission.VIEW_WAREHOUSE,
+    Permission.MANAGE_WAREHOUSE,
+    Permission.VIEW_WAREHOUSE_SETTINGS,
+    Permission.EDIT_WAREHOUSE_SETTINGS,
+    Permission.VIEW_WAREHOUSE_REPORTS,
+    Permission.EXPORT_WAREHOUSE_REPORTS,
+    Permission.VOID_WAREHOUSE_EVENTS,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
   ],
@@ -188,6 +219,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.TRACK_PARCELS,
     Permission.VIEW_DELIVERIES,
     Permission.UPDATE_DELIVERY_STATUS,
+    Permission.VIEW_WAREHOUSE_COURIER,
+    Permission.MANAGE_WAREHOUSE_COURIER,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
   ],

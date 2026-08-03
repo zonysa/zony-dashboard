@@ -105,6 +105,32 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     permission: Permission.MANAGE_COURIER,
   },
 
+  // Warehouse pilot — staff (admin, supervisor, responsible)
+  {
+    path: "/warehouse",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/parcels/[id]",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  // Settings, reports, CSV export, void — admin, supervisor ONLY
+  {
+    path: "/warehouse/settings",
+    permission: Permission.VIEW_WAREHOUSE_SETTINGS,
+  },
+  {
+    path: "/warehouse/reports",
+    permission: Permission.VIEW_WAREHOUSE_REPORTS,
+  },
+  // Warehouse pilot — courier interface (courier role). Distinct from the
+  // existing /courier route, which is the admin-facing courier-personnel
+  // CRUD page and unrelated to this module.
+  {
+    path: "/warehouse/courier",
+    permission: Permission.VIEW_WAREHOUSE_COURIER,
+  },
+
   // Parcels - Most roles can view
   {
     path: "/parcels/create",
