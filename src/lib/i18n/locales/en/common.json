@@ -1000,5 +1000,47 @@
     "createdAt": "Created",
     "scanToTrack": "Scan to track your parcel",
     "notFound": "Waybill data unavailable"
+  },
+  "warehouseReceiving": {
+    "title": "Receiving",
+    "subtitle": "Scan a parcel, capture the recipient, and confirm intake.",
+    "fields": {
+      "barcode": "Barcode",
+      "barcodePlaceholder": "Scan or type barcode",
+      "trackingRef": "Tracking Reference (optional)",
+      "recipientName": "Recipient Name",
+      "recipientPhone": "Recipient Phone",
+      "addressLine1": "Address",
+      "district": "District",
+      "city": "City",
+      "notes": "Notes (optional)",
+      "zone": "Zone (optional)",
+      "noZone": "No zone",
+      "experimentArm": "Experiment Arm",
+      "treatment": "Treatment",
+      "control": "Control"
+    },
+    "actions": {
+      "submit": "Receive Parcel",
+      "submitting": "Receiving...",
+      "dismiss": "I've recorded the code — Continue",
+      "print": "Print slip"
+    },
+    "codeDialog": {
+      "title": "Delivery Code",
+      "warning": "This code is shown only once and cannot be retrieved — it's stored as a hash. If it's lost, the only recovery is rotating it.",
+      "recipient": "Recipient",
+      "barcode": "Barcode",
+      "customerMessage": "Customer message",
+      "channel": "Channel",
+      "sent": "Sent",
+      "notSent": "Not sent",
+      "codeUnavailable": "This parcel was already received — the delivery code was already shown once and can't be retrieved.",
+      "rotateAndResend": "Rotate & resend code"
+    },
+    "printSlip": {
+      "title": "Delivery Code",
+      "receivedAt": "Received"
+    }
   }
 }

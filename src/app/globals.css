@@ -226,11 +226,14 @@ html[dir="ltr"] body {
   }
 
   .waybill-print-area,
-  .waybill-print-area * {
+  .waybill-print-area *,
+  .wh-code-print-area,
+  .wh-code-print-area * {
     visibility: visible;
   }
 
-  .waybill-print-area {
+  .waybill-print-area,
+  .wh-code-print-area {
     position: absolute;
     inset-inline-start: 0;
     top: 0;
