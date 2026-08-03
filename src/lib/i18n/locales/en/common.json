@@ -1256,5 +1256,162 @@
     "chart": {
       "count": "Count"
     }
+  },
+  "warehouseSettings": {
+    "title": "Warehouse Settings",
+    "subtitle": "Runtime configuration for the warehouse pilot — changes apply immediately, no redeploy.",
+    "loadError": "Something went wrong loading settings.",
+    "safetyRailBadge": "Safety rail",
+    "sections": {
+      "safetyRails": {
+        "title": "Safety rails",
+        "description": "These aren't preferences — they're hard floors. Lowering them toward zero while the WhatsApp provider is stubbed is what would loop SMS against a customer's phone. That's a regulatory problem in Saudi Arabia, not just a cost one. You'll be asked to confirm before any decrease is saved."
+      },
+      "scheduling": {
+        "title": "Scheduling & capacity"
+      },
+      "reminders": {
+        "title": "Reminders"
+      },
+      "messageTemplates": {
+        "title": "Message templates",
+        "description": "Nested per channel and purpose. Unknown placeholders render empty rather than raising an error."
+      }
+    },
+    "fields": {
+      "slot_capacity": {
+        "label": "Slot capacity",
+        "description": "Advisory — reported to staff, never blocks a customer from choosing a slot."
+      },
+      "prebooking_ratio": {
+        "label": "Prebooking ratio",
+        "description": "Share of a slot's advisory capacity considered pre-booked."
+      },
+      "zone_count": {
+        "label": "Zone count",
+        "description": "Informational. Actual zones are managed as rows, not by this number."
+      },
+      "scheduling_horizon_days": {
+        "label": "Scheduling horizon (days)",
+        "description": "How many days ahead — today plus this many — a customer can pick a slot."
+      },
+      "slot_token_max_age_hours": {
+        "label": "Slot link lifetime (hours)",
+        "description": "How long a customer's slot-selection link stays valid before it expires."
+      },
+      "reminder_timeout_minutes": {
+        "label": "Reminder timeout (minutes)",
+        "description": "Silence before a non-responding customer is chased with a reminder."
+      },
+      "max_reminders": {
+        "label": "Max reminders",
+        "description": "Reminders sent per parcel, per delivery attempt."
+      },
+      "fallback_grace_minutes": {
+        "label": "Fallback grace period (minutes)",
+        "description": "Hard floor before any fallback channel fires for a parcel."
+      },
+      "daily_message_cap": {
+        "label": "Daily message cap",
+        "description": "Hard stop — maximum messages sent to one parcel's customer per day."
+      },
+      "message_templates": {
+        "invalidJson": "This isn't valid JSON — fix it before saving."
+      }
+    },
+    "placeholders": {
+      "title": "Placeholder reference",
+      "name": "Recipient name",
+      "slot": "Selected/proposed slot label",
+      "date": "Selected/proposed date",
+      "code": "Delivery code — slot proposal templates only",
+      "link": "Customer's slot-selection link",
+      "codeNote": "{code} only works in a slot proposal template — the delivery code is a bcrypt hash and physically can't be repeated in a reminder or any other message."
+    },
+    "actions": {
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "lowerConfirm": {
+      "title": "Lower a safety rail?",
+      "description": "You're decreasing a hard floor meant to stop message loops against a customer's phone. Only proceed if you understand the regulatory and cost implications.",
+      "confirm": "Lower it anyway",
+      "cancel": "Cancel"
+    }
+  },
+  "warehouseParcel": {
+    "loadError": "Something went wrong loading this parcel.",
+    "notFound": "Parcel not found.",
+    "derivedStatus": {
+      "label": "Status",
+      "explanation": "Derived by folding the event log below — never stored, never editable directly."
+    },
+    "details": {
+      "title": "Parcel details"
+    },
+    "fields": {
+      "epoch": "Epoch",
+      "attemptNumber": "Attempt",
+      "binCode": "Bin",
+      "customerInteracted": "Customer interacted",
+      "yes": "Yes",
+      "no": "No",
+      "recipientPhone": "Recipient phone",
+      "trackingRef": "Tracking reference",
+      "zone": "Zone",
+      "experimentArm": "Experiment arm",
+      "createdAt": "Received at",
+      "address": "Address"
+    },
+    "timeline": {
+      "title": "Audit log",
+      "subtitle": "Append-only. This log is the explanation of the status above — nothing here is ever edited or deleted, only voided.",
+      "empty": "No events recorded yet.",
+      "voided": "Voided",
+      "slot": "Slot",
+      "reasonCode": "Reason code",
+      "voidsEvent": "Voids event",
+      "voidReason": "Void reason",
+      "notes": "Notes"
+    },
+    "eventCodes": {
+      "E01": "Received at warehouse",
+      "T01": "Customer confirmed slot",
+      "E02": "Placed into bin",
+      "E04": "Checked out with courier",
+      "E05": "Delivered",
+      "E06": "Delivery attempt failed",
+      "E07": "Returned to warehouse",
+      "X01": "Event voided"
+    },
+    "eventDescriptions": {
+      "E01": "Staff scanned the parcel in at receiving.",
+      "T01": "Customer confirmed or changed their delivery slot via the public link.",
+      "E02": "Staff placed the parcel into its slot's bin.",
+      "E04": "A courier took custody of the parcel.",
+      "E05": "The parcel was handed to the customer.",
+      "E06": "The courier reported a failed delivery attempt.",
+      "E07": "The parcel came back to the warehouse.",
+      "X01": "An admin or supervisor voided a prior event as a correction."
+    },
+    "actions": {
+      "resendCode": "Resend delivery code",
+      "void": "Void",
+      "cancel": "Cancel"
+    },
+    "resendDialog": {
+      "title": "Resend delivery code",
+      "warning": "This rotates the code — it does not resend the old one. Any code the customer already has stops working immediately, and they'll need the new one from this message to confirm delivery.",
+      "submit": "Rotate & resend",
+      "submitting": "Sending..."
+    },
+    "voidDialog": {
+      "title": "Void this event",
+      "onlyCorrectionWarning": "This is the only correction mechanism in the entire warehouse module. Nothing in this system can ever be edited or deleted — voiding appends a new event that marks this one as struck-through in the log. It is permanent and it is logged under your account.",
+      "reasonLabel": "Reason for voiding (required)",
+      "reasonPlaceholder": "e.g. mis-scan at receiving",
+      "submit": "Void event",
+      "submitting": "Voiding..."
+    }
   }
 }
