@@ -119,6 +119,14 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     permission: Permission.VIEW_WAREHOUSE,
   },
   {
+    path: "/warehouse/loading",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/return",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
     path: "/warehouse/parcels/[id]",
     permission: Permission.VIEW_WAREHOUSE,
   },

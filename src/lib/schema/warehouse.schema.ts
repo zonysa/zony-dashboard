@@ -150,13 +150,24 @@ export interface GetLoadingManifestRes {
   parcels: WHWallEntry[];
 }
 
-// Count-out vs count-back reconciliation — exact shape beyond the summary
-// numbers isn't pinned down in the API doc, kept loose deliberately.
+// A parcel sitting in the return desk's outstanding queue. `needs` is the
+// server's human-readable statement of the next required action — render it
+// as-is, but gate which action button is enabled off `status` against the
+// LEGAL_PREDECESSORS table (docs/warehouse-api.md §2), same as the Wall's
+// bin action: out_for_delivery must take an E06 (with a reason code) before
+// an E07 return will be accepted; only attempt_failed may take the E07.
+export interface WHReturnEntry extends WHWallEntry {
+  needs: string | null;
+}
+
+// Count-out vs count-back reconciliation for one slot/date.
 export interface GetReturnReconciliationRes {
   status: "success";
   slot_id: number;
   date: string;
-  [key: string]: unknown;
+  counted_out: number;
+  delivered: number;
+  outstanding: WHReturnEntry[];
 }
 
 export interface GetParcelRes {

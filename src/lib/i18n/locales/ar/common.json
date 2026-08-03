@@ -1092,5 +1092,78 @@
       "submit": "تأكيد التخزين",
       "submitting": "جارٍ التخزين..."
     }
+  },
+  "warehouseLoading": {
+    "title": "التحميل",
+    "subtitle": "قائمة الشحن المرحّلة لفترة زمنية — تسليم الطرود لمندوب توصيل.",
+    "slotPlaceholder": "اختر فترة زمنية",
+    "datePickerPlaceholder": "اختر تاريخًا",
+    "loadError": "حدث خطأ أثناء تحميل قائمة الشحن.",
+    "checkoutNotAllowed": "لا يمكن تسليم هذا الطرد في حالته الحالية.",
+    "manifest": {
+      "title": "قائمة الشحن المرحّلة",
+      "pickSlot": "اختر فترة زمنية لعرض قائمة الشحن الخاصة بها.",
+      "empty": "لا يوجد شيء مُرحّل لهذه الفترة بعد."
+    },
+    "table": {
+      "barcode": "الرمز الشريطي",
+      "recipient": "المستلم",
+      "zone": "المنطقة",
+      "status": "الحالة",
+      "bin": "الصندوق",
+      "actions": "إجراءات"
+    },
+    "actions": {
+      "checkout": "تسليم",
+      "cancel": "إلغاء"
+    },
+    "checkoutDialog": {
+      "title": "تسليم الطرد لمندوب (E04)",
+      "courier": "المندوب",
+      "courierPlaceholder": "اختر مندوبًا",
+      "loadingCouriers": "جارٍ تحميل المندوبين...",
+      "notes": "ملاحظات (اختياري)",
+      "submit": "تأكيد التسليم",
+      "submitting": "جارٍ التسليم..."
+    }
+  },
+  "warehouseReturn": {
+    "title": "مكتب المرتجعات",
+    "subtitle": "مطابقة عدد الخارج مقابل العائد، وقائمة التنظيف للطرود المعلّقة.",
+    "slotPlaceholder": "اختر فترة زمنية",
+    "datePickerPlaceholder": "اختر تاريخًا",
+    "loadError": "حدث خطأ أثناء تحميل مطابقة المرتجعات.",
+    "pickSlot": "اختر فترة زمنية لمطابقة مرتجعاتها.",
+    "returnNotAllowed": "سجّل محاولة فاشلة (E06) أولًا — لا يمكن قبول الإرجاع بدون سبب مسجّل.",
+    "summary": {
+      "countedOut": "العدد الخارج",
+      "delivered": "تم التسليم",
+      "outstanding": "معلّق"
+    },
+    "outstanding": {
+      "title": "المعلّقة — قائمة التنظيف لمكتب المرتجعات",
+      "empty": "لا يوجد طرود معلّقة لهذه الفترة."
+    },
+    "table": {
+      "barcode": "الرمز الشريطي",
+      "recipient": "المستلم",
+      "status": "الحالة",
+      "needs": "الإجراء المطلوب",
+      "actions": "إجراءات"
+    },
+    "actions": {
+      "recordFailedAttempt": "تسجيل محاولة فاشلة",
+      "returnToWarehouse": "إرجاع إلى المستودع",
+      "cancel": "إلغاء"
+    },
+    "failDialog": {
+      "title": "تسجيل محاولة فاشلة (E06)",
+      "reason": "السبب",
+      "reasonPlaceholder": "اختر سببًا",
+      "loadingReasons": "جارٍ تحميل الأسباب...",
+      "notes": "ملاحظات (اختياري)",
+      "submit": "تأكيد",
+      "submitting": "جارٍ التسجيل..."
+    }
   }
 }

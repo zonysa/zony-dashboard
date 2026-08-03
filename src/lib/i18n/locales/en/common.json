@@ -1095,5 +1095,78 @@
       "submit": "Confirm bin",
       "submitting": "Binning..."
     }
+  },
+  "warehouseLoading": {
+    "title": "Loading",
+    "subtitle": "Staged manifest for a slot — checkout parcels to a courier.",
+    "slotPlaceholder": "Select a slot",
+    "datePickerPlaceholder": "Pick a date",
+    "loadError": "Something went wrong loading the manifest.",
+    "checkoutNotAllowed": "Checkout isn't available for this parcel's current status.",
+    "manifest": {
+      "title": "Staged Manifest",
+      "pickSlot": "Pick a slot to see its staged manifest.",
+      "empty": "Nothing staged for this slot yet."
+    },
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "zone": "Zone",
+      "status": "Status",
+      "bin": "Bin",
+      "actions": "Actions"
+    },
+    "actions": {
+      "checkout": "Checkout",
+      "cancel": "Cancel"
+    },
+    "checkoutDialog": {
+      "title": "Checkout parcel (E04)",
+      "courier": "Courier",
+      "courierPlaceholder": "Select a courier",
+      "loadingCouriers": "Loading couriers...",
+      "notes": "Notes (optional)",
+      "submit": "Confirm checkout",
+      "submitting": "Checking out..."
+    }
+  },
+  "warehouseReturn": {
+    "title": "Return Desk",
+    "subtitle": "Count-out vs count-back reconciliation, and the outstanding cleanup queue.",
+    "slotPlaceholder": "Select a slot",
+    "datePickerPlaceholder": "Pick a date",
+    "loadError": "Something went wrong loading the return reconciliation.",
+    "pickSlot": "Pick a slot to reconcile its returns.",
+    "returnNotAllowed": "Record a failed attempt (E06) first — a return can't be accepted until there's a reason on file.",
+    "summary": {
+      "countedOut": "Counted out",
+      "delivered": "Delivered",
+      "outstanding": "Outstanding"
+    },
+    "outstanding": {
+      "title": "Outstanding — the return desk's cleanup queue",
+      "empty": "Nothing outstanding for this slot."
+    },
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "status": "Status",
+      "needs": "Needs",
+      "actions": "Actions"
+    },
+    "actions": {
+      "recordFailedAttempt": "Record failed attempt",
+      "returnToWarehouse": "Return to warehouse",
+      "cancel": "Cancel"
+    },
+    "failDialog": {
+      "title": "Record failed attempt (E06)",
+      "reason": "Reason",
+      "reasonPlaceholder": "Select a reason",
+      "loadingReasons": "Loading reasons...",
+      "notes": "Notes (optional)",
+      "submit": "Confirm",
+      "submitting": "Recording..."
+    }
   }
 }
