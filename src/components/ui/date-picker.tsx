@@ -3,6 +3,7 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
+import type { Matcher } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,9 @@ interface DatePickerProps {
   onSelect?: (date: Date | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
+  // Days the underlying Calendar should refuse to select — e.g. capping a
+  // report range to N days apart rather than letting the server 400 on it.
+  disabledDates?: Matcher | Matcher[];
 }
 
 export function DatePicker({
@@ -25,6 +29,7 @@ export function DatePicker({
   onSelect,
   placeholder = "Pick a date",
   disabled = false,
+  disabledDates,
 }: DatePickerProps) {
   return (
     <Popover>
@@ -46,6 +51,7 @@ export function DatePicker({
           mode="single"
           selected={date}
           onSelect={onSelect}
+          disabled={disabledDates}
           initialFocus
         />
       </PopoverContent>

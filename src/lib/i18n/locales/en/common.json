@@ -1200,5 +1200,61 @@
       "title": "Report failed attempt (E06)",
       "loadingReasons": "Loading reasons..."
     }
+  },
+  "warehouseReport": {
+    "title": "Pilot Report",
+    "subtitle": "Volume, delivery success, and message health for the warehouse pilot.",
+    "loadError": "Something went wrong loading the report.",
+    "range": {
+      "start": "Start date",
+      "end": "End date",
+      "startPlaceholder": "Pick a start date",
+      "endPlaceholder": "Pick an end date",
+      "capNotice": "Range is capped at 92 days — the date pickers only allow a valid span."
+    },
+    "actions": {
+      "exportEvents": "Export events CSV",
+      "exportParcels": "Export parcels CSV",
+      "exporting": "Exporting..."
+    },
+    "volume": {
+      "title": "Volume & First-Attempt Success",
+      "received": "Parcels received",
+      "attempted": "Parcels attempted",
+      "attemptedHint": "The denominator for the rate below",
+      "success": "First-attempt successes",
+      "successRate": "First-attempt success rate"
+    },
+    "interaction": {
+      "title": "Customer Interaction Split",
+      "interacted": "Interacted",
+      "notInteracted": "Did not interact",
+      "attempted": "{{count}} parcels attempted"
+    },
+    "failureReasons": {
+      "title": "Failure Reason Distribution",
+      "empty": "No failed attempts in this range."
+    },
+    "dwell": {
+      "title": "Dwell Time",
+      "median": "Median",
+      "p90": "P90",
+      "mean": "Mean (skewed — reference only)",
+      "parcels": "Parcels measured",
+      "empty": "No delivered parcels in this range."
+    },
+    "messages": {
+      "title": "Message Delivery",
+      "channel": "Channel",
+      "total": "Total",
+      "failed": "Failed",
+      "fallbacks": "Fallbacks",
+      "responded": "Responded",
+      "stubNote": "The WhatsApp provider is a stub that always reports undelivered — read \"Failed\" alongside \"Fallbacks\", not on its own.",
+      "empty": "No messages sent in this range."
+    },
+    "chart": {
+      "count": "Count"
+    }
   }
 }

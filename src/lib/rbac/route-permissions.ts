@@ -136,7 +136,7 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     permission: Permission.VIEW_WAREHOUSE_SETTINGS,
   },
   {
-    path: "/warehouse/reports",
+    path: "/warehouse/report",
     permission: Permission.VIEW_WAREHOUSE_REPORTS,
   },
   // Warehouse pilot — courier interface (courier role). Distinct from the
