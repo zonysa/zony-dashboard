@@ -131,8 +131,9 @@ function AppSidebarContent() {
       icon: Warehouse,
       permission: Permission.VIEW_WAREHOUSE,
       // Sub-items carry their own permission: `responsible` holds
-      // VIEW_WAREHOUSE but neither reports nor settings, so gating the group
-      // as a whole would hand that role two links it can't open.
+      // VIEW_WAREHOUSE but not reports, so gating the group as a whole would
+      // hand that role a link it can't open. Warehouse settings aren't listed
+      // here — they live under /settings with the platform's other config.
       items: [
         {
           title: t("warehouse.nav.overview"),
@@ -163,11 +164,6 @@ function AppSidebarContent() {
           title: t("warehouse.nav.report"),
           url: "/warehouse/report",
           permission: Permission.VIEW_WAREHOUSE_REPORTS,
-        },
-        {
-          title: t("warehouse.nav.settings"),
-          url: "/warehouse/settings",
-          permission: Permission.VIEW_WAREHOUSE_SETTINGS,
         },
       ],
     },
@@ -210,7 +206,7 @@ function AppSidebarContent() {
 
   return (
     <>
-      <SidebarHeader className="relative z-10 ps-4 pe-3 pt-6 pb-4 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.12)]">
+      <SidebarHeader className="relative z-10 ps-4 pe-3 pt-3 pb-2 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.12)]">
         {state === "expanded" ? (
           <Image src="/icons/zony-logo.png" alt="Logo" width={74} height={36} />
         ) : (
