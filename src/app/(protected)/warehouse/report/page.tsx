@@ -88,7 +88,8 @@ function formatMinutes(minutes: number): string {
   return `${mins}m`;
 }
 
-function formatPercent(value: number): string {
+function formatPercent(value: number | null): string {
+  if (value === null) return "—";
   return `${value.toFixed(1)}%`;
 }
 

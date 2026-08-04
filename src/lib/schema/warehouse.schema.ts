@@ -233,12 +233,12 @@ export interface WHReport {
     parcels_received: number;
     parcels_attempted: number;
     first_attempt_success: number;
-    first_attempt_success_rate: number;
+    first_attempt_success_rate: number | null;
   };
   by_customer_interaction: Array<{
     customer_interacted: 0 | 1;
     parcels_attempted: number;
-    first_attempt_success_rate: number;
+    first_attempt_success_rate: number | null;
   }>;
   failure_reasons: Array<WHFailureReason & { count: number }>;
   dwell_time: {
