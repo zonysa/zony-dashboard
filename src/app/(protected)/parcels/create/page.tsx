@@ -42,6 +42,10 @@ export default function Page() {
   const { data: clients } = useGetClients();
   const parcelMutation = useCreateParcel();
 
+  // Dev-only convenience: prefill the form with fake-but-valid data so
+  // manual testing doesn't require retyping every field on each run.
+  const isDev = process.env.NODE_ENV === "development";
+
   const form = useForm<CreateParcelFormData>({
     resolver: zodResolver(createParcelSchema),
     defaultValues: {
@@ -50,14 +54,37 @@ export default function Page() {
       // personal profile server-side, but still needs the sender's
       // location, which is collected below regardless of role.
       sender: {
-        personal: { name: "", phone_number: "", email: "" },
-        location: { address: "", short_address: "" },
+        personal: {
+          name: isDev ? "Test Sender" : "",
+          phone_number: isDev ? "0501234567" : "",
+          email: isDev ? "sender@example.com" : "",
+        },
+        location: {
+          address: isDev ? "King Fahd Road, Building 12" : "",
+          city: isDev ? "Riyadh" : "",
+          latitude: isDev ? 24.7136 : undefined,
+          longitude: isDev ? 46.6753 : undefined,
+          short_address: "",
+        },
       },
       receiver: {
-        personal: { name: "", phone_number: "", email: "" },
-        location: { address: "", short_address: "" },
+        personal: {
+          name: isDev ? "Test Receiver" : "",
+          phone_number: isDev ? "0559876543" : "",
+          email: isDev ? "receiver@example.com" : "",
+        },
+        location: {
+          address: isDev ? "Olaya Street, Building 5" : "",
+          city: isDev ? "Riyadh" : "",
+          latitude: isDev ? 24.6877 : undefined,
+          longitude: isDev ? 46.7219 : undefined,
+          short_address: "",
+        },
       },
-      content: { description: "", quantity: 1 },
+      content: {
+        description: isDev ? "Test parcel - electronics" : "",
+        quantity: 1,
+      },
     },
     mode: "onChange",
   });
