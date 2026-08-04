@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { MapPin } from "lucide-react";
 import dynamic from "next/dynamic";
 import { UseFormReturn, useWatch } from "react-hook-form";
@@ -40,7 +40,7 @@ import { ZoneDetails } from "@/lib/schema/zones.schema";
 import { ResolvedNationalAddress } from "@/lib/schema/nationalAddress.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { CreateParcelFormData } from "@/lib/schema/parcel.schema";
-import { parseLocationInput } from "@/lib/validators/location";
+import { cn } from "@/lib/utils";
 
 interface PartySectionProps {
   form: UseFormReturn<CreateParcelFormData>;
@@ -63,8 +63,6 @@ export const PartySection: React.FC<PartySectionProps> = ({
 
   const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
   const [showCoordinatePicker, setShowCoordinatePicker] = useState(false);
-  const [coordinatesInput, setCoordinatesInput] = useState("");
-  const [coordinatesError, setCoordinatesError] = useState(false);
   const [nationalAddressError, setNationalAddressError] = useState<
     string | null
   >(null);
@@ -83,16 +81,6 @@ export const PartySection: React.FC<PartySectionProps> = ({
     control,
     name: `${prefix}.location.short_address`,
   });
-
-  // Keep the text field in sync with values set via the map picker.
-  useEffect(() => {
-    setCoordinatesInput(
-      latitude != null && longitude != null
-        ? `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`
-        : "",
-    );
-    setCoordinatesError(false);
-  }, [latitude, longitude]);
 
   // Fills in whatever the National Address API resolved — never clobbers
   // fields the resolution didn't return (e.g. it keeps zone untouched,
@@ -183,26 +171,8 @@ export const PartySection: React.FC<PartySectionProps> = ({
     );
   };
 
-  const handleCoordinatesInputBlur = () => {
-    if (!coordinatesInput.trim()) {
-      setCoordinatesError(false);
-      return;
-    }
-
-    const parsed = parseLocationInput(coordinatesInput);
-    if (!parsed) {
-      setCoordinatesError(true);
-      return;
-    }
-
-    setCoordinatesError(false);
-    setValue(`${prefix}.location.latitude`, parsed.lat, { shouldValidate: true });
-    setValue(`${prefix}.location.longitude`, parsed.lng, { shouldValidate: true });
-  };
-
   const coordinatesRequiredError =
-    !coordinatesError &&
-    (errors[prefix]?.location?.latitude || errors[prefix]?.location?.longitude);
+    errors[prefix]?.location?.latitude || errors[prefix]?.location?.longitude;
 
   return (
     <div className="space-y-4">
@@ -214,9 +184,6 @@ export const PartySection: React.FC<PartySectionProps> = ({
             <FormLabel>
               {t("forms.fields.nationalAddress")} {t("forms.fields.optional")}
             </FormLabel>
-            <p className="text-sm text-muted-foreground">
-              {t("forms.descriptions.nationalAddressDescription")}
-            </p>
             <div className="flex gap-2">
               <FormControl className="flex-1">
                 <Input
@@ -376,33 +343,20 @@ export const PartySection: React.FC<PartySectionProps> = ({
         <FormLabel>
           {t("forms.fields.coordinates")} <span className="text-destructive">*</span>
         </FormLabel>
-        <p className="text-sm text-muted-foreground">
-          {t("forms.descriptions.coordinatesInputDescription")}
-        </p>
-        <div className="flex gap-2">
-          <FormControl className="flex-1">
-            <Input
-              value={coordinatesInput}
-              onChange={(e) => setCoordinatesInput(e.target.value)}
-              onBlur={handleCoordinatesInputBlur}
-              placeholder={t("forms.placeholders.enterCoordinatesOrLink")}
-              aria-invalid={coordinatesError || !!coordinatesRequiredError}
-            />
-          </FormControl>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowCoordinatePicker(true)}
-          >
-            <MapPin className="h-4 w-4" />
-            {t("forms.actions.pickFromMap")}
-          </Button>
-        </div>
-        {coordinatesError && (
-          <p className="text-sm text-destructive">
-            {t("forms.errors.invalidCoordinates")}
-          </p>
-        )}
+        <Button
+          type="button"
+          variant="outline"
+          className={cn(
+            "w-full justify-start gap-2 font-normal",
+            coordinatesRequiredError && "border-destructive text-destructive",
+          )}
+          onClick={() => setShowCoordinatePicker(true)}
+        >
+          <MapPin className="h-4 w-4 shrink-0" />
+          {latitude != null && longitude != null
+            ? `${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)}`
+            : t("forms.actions.pickFromMap")}
+        </Button>
         {coordinatesRequiredError && (
           <p className="text-sm text-destructive">
             {t("forms.errors.coordinatesRequired")}

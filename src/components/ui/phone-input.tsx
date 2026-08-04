@@ -17,6 +17,8 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
   ({ className, value, onChange, disabled, ...props }, ref) => {
     return (
       <div
+        dir="ltr"
+        style={{ direction: "ltr" }}
         className={cn(
           "border-input flex h-9 w-full items-stretch rounded-md border bg-transparent shadow-xs transition-[color,box-shadow]",
           "focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]",
@@ -24,11 +26,13 @@ export const PhoneInput = React.forwardRef<HTMLInputElement, PhoneInputProps>(
           className,
         )}
       >
-        <span className="border-input text-muted-foreground flex items-center border-e px-3 text-base select-none md:text-sm">
+        <span className="border-input bg-muted text-muted-foreground flex items-center rounded-s-md border-e px-3 text-base select-none md:text-sm">
           {SAUDI_COUNTRY_CODE}
         </span>
         <input
           ref={ref}
+          dir="ltr"
+          style={{ direction: "ltr", textAlign: "left" }}
           type="tel"
           inputMode="numeric"
           autoComplete="tel-national"
