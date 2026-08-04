@@ -4,6 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parse } from "date-fns";
 import { AlertTriangle, RefreshCw } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -389,7 +390,14 @@ function WallEntryRow({
 
   return (
     <TableRow className={entry.stale_slot ? "bg-amber-50 dark:bg-amber-950/20" : undefined}>
-      <TableCell className="font-mono">{entry.barcode}</TableCell>
+      <TableCell className="font-mono">
+        <Link
+          href={`/warehouse/parcels/${entry.parcel_id}`}
+          className="underline-offset-4 hover:underline"
+        >
+          {entry.barcode}
+        </Link>
+      </TableCell>
       <TableCell>{entry.recipient_name}</TableCell>
       {showZone && <TableCell>{zoneName ?? "—"}</TableCell>}
       <TableCell>

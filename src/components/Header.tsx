@@ -12,7 +12,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useRouter, usePathname } from "next/navigation";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { BellDot, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LocationDropDown } from "./ui/LocatoinDropdown";
@@ -77,10 +76,6 @@ function Header() {
       .join(" ");
   };
 
-  const handleNavigateProfile = () => {
-    router.push("/profile");
-  };
-
   const handleAddUser = (roleName: string) => {
     if (roleName) {
       setUserRoleName(roleName);
@@ -141,14 +136,14 @@ function Header() {
   const breadcrumbSegments = getBreadcrumbSegments();
 
   return (
-    <header className="sticky w-full top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex h-16 shrink-0 items-center gap-2 px-4 sm:px-6 transition-[width,height] ease-linear border-b border-border">
-      <SidebarTrigger className="-ml-1" />
-      <Separator
-        orientation="vertical"
-        className="mr-2 data-[orientation=vertical]:h-4"
-      />
-      <div className="w-full flex flex-wrap justify-between items-center gap-2">
-        <Breadcrumb className="flex justify-start gap-2 items-start overflow-x-auto">
+    <header className="sticky w-full top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col sm:flex-row sm:h-16 shrink-0 sm:items-center gap-2 px-4 sm:px-6 py-2 sm:py-0 transition-[width,height] ease-linear border-b border-border">
+      <div className="flex items-center gap-2 min-w-0">
+        <SidebarTrigger className="-ml-1 shrink-0" />
+        <Separator
+          orientation="vertical"
+          className="mr-2 data-[orientation=vertical]:h-4 shrink-0"
+        />
+        <Breadcrumb className="flex justify-start gap-2 items-start overflow-x-auto min-w-0">
           <BreadcrumbList className="flex-nowrap whitespace-nowrap">
             {breadcrumbSegments.map((segment) => (
               <React.Fragment key={segment.href}>
@@ -169,31 +164,26 @@ function Header() {
             ))}
           </BreadcrumbList>
         </Breadcrumb>
-        <div className="w-auto flex justify-end items-center gap-2 sm:gap-3 shrink-0">
-          {getHeaderButton()}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleLanguage}
-            className="cursor-pointer gap-1.5 shrink-0"
-          >
-            <Globe className="h-4 w-4" />
+      </div>
+      <div className="w-full sm:w-auto flex flex-wrap sm:flex-nowrap justify-end items-center gap-2 sm:gap-3 sm:ms-auto">
+        {getHeaderButton()}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={toggleLanguage}
+          className="cursor-pointer gap-1.5 shrink-0"
+        >
+          <Globe className="h-4 w-4" />
+          <span className="hidden sm:inline">
             {language === "en" ? "العربية" : "English"}
-          </Button>
-          <BellDot
-            className="cursor-pointer shrink-0"
-            onClick={() => setNotificationsOpen(true)}
-            width={22}
-            height={22}
-          />
-          <Avatar
-            onClick={handleNavigateProfile}
-            className="circle border border-gray-800 w-[34px] h-[34px] cursor-pointer shrink-0"
-          >
-            <AvatarImage alt="@evilrabbit" />
-            <AvatarFallback className="text-[12px]">ER</AvatarFallback>
-          </Avatar>
-        </div>
+          </span>
+        </Button>
+        <BellDot
+          className="cursor-pointer shrink-0"
+          onClick={() => setNotificationsOpen(true)}
+          width={22}
+          height={22}
+        />
       </div>
       <NotificationsSheet
         open={notificationsOpen}

@@ -19,16 +19,22 @@ import {
   Warehouse,
 } from "lucide-react";
 
+import { useRouter } from "next/navigation";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuthStore } from "@/lib/stores/auth-store";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuthStore, useUser } from "@/lib/stores/auth-store";
 import { Permission } from "@/lib/rbac/permissions";
 import { LogoutDialog } from "./LogoutDialog";
 import { useState } from "react";
@@ -39,10 +45,18 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 // Inner component that uses useSidebar hook
 function AppSidebarContent() {
   const { t } = useTranslation();
+  const router = useRouter();
+  const user = useUser();
 
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { state } = useSidebar();
+
+  const userDisplayName =
+    `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.username;
+  const userInitials =
+    `${user?.first_name?.[0] || ""}${user?.last_name?.[0] || ""}`.toUpperCase() ||
+    userDisplayName?.[0]?.toUpperCase();
 
   const navItems = [
     {
@@ -113,9 +127,49 @@ function AppSidebarContent() {
     },
     {
       title: t("warehouse.title"),
-      url: "/warehouse/wall",
+      url: "/warehouse",
       icon: Warehouse,
       permission: Permission.VIEW_WAREHOUSE,
+      // Sub-items carry their own permission: `responsible` holds
+      // VIEW_WAREHOUSE but neither reports nor settings, so gating the group
+      // as a whole would hand that role two links it can't open.
+      items: [
+        {
+          title: t("warehouse.nav.overview"),
+          url: "/warehouse",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.receiving"),
+          url: "/warehouse/receiving",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.wall"),
+          url: "/warehouse/wall",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.loading"),
+          url: "/warehouse/loading",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.return"),
+          url: "/warehouse/return",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.report"),
+          url: "/warehouse/report",
+          permission: Permission.VIEW_WAREHOUSE_REPORTS,
+        },
+        {
+          title: t("warehouse.nav.settings"),
+          url: "/warehouse/settings",
+          permission: Permission.VIEW_WAREHOUSE_SETTINGS,
+        },
+      ],
     },
     {
       title: t("warehouseCourierNav.title"),
@@ -137,24 +191,66 @@ function AppSidebarContent() {
       onClick: () => setLogoutDialogOpen(true),
     },
   ];
-  // Filter navigation items based on user permissions
-  const filteredNavItems = React.useMemo(() => {
-    return navItems.filter((item) => hasPermission(item.permission));
-  }, [hasPermission, navItems]);
+  // Filter navigation items — and each group's children — by permission, then
+  // drop the `permission` field so what reaches NavMain is pure nav data.
+  // Not memoized: `navItems` is rebuilt every render (it closes over `t`), so a
+  // memo keyed on it would never hit.
+  const filteredNavItems = navItems
+    .filter((item) => hasPermission(item.permission))
+    .map((item) => ({
+      title: item.title,
+      url: item.url,
+      icon: item.icon,
+      items: item.items
+        ?.filter((sub) => hasPermission(sub.permission))
+        .map((sub) => ({ title: sub.title, url: sub.url })),
+    }))
+    // A group whose children all filtered out would render an empty drawer.
+    .filter((item) => !item.items || item.items.length > 0);
 
   return (
     <>
-      <SidebarHeader className="ps-4 pe-3 pt-6">
+      <SidebarHeader className="relative z-10 ps-4 pe-3 pt-6 pb-4 shadow-[0_4px_6px_-4px_rgba(0,0,0,0.12)]">
         {state === "expanded" ? (
           <Image src="/icons/zony-logo.png" alt="Logo" width={74} height={36} />
         ) : (
           <Image src="/icons/mini-logo.png" alt="Logo" width={46} height={46} />
         )}
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="sidebar-scroll">
         <NavMain items={filteredNavItems} />
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
+      <SidebarFooter className="relative z-10 shadow-[0_-4px_6px_-4px_rgba(0,0,0,0.12)]">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              size="lg"
+              className="cursor-pointer"
+              onClick={() => router.push("/profile")}
+            >
+              <Avatar className="w-[28px] h-[28px] border border-gray-800 shrink-0">
+                <AvatarImage alt={userDisplayName} />
+                <AvatarFallback className="text-[11px]">
+                  {userInitials || "U"}
+                </AvatarFallback>
+              </Avatar>
+              {state === "expanded" && (
+                <div className="flex flex-col items-start overflow-hidden">
+                  <span className="truncate text-sm font-medium leading-tight">
+                    {userDisplayName}
+                  </span>
+                  {user?.email && (
+                    <span className="truncate text-xs text-muted-foreground leading-tight">
+                      {user.email}
+                    </span>
+                  )}
+                </div>
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail />
       <LogoutDialog
         open={logoutDialogOpen}

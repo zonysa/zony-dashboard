@@ -181,7 +181,68 @@
     "title": "Courier"
   },
   "warehouse": {
-    "title": "Warehouse"
+    "title": "Warehouse",
+    "subtitle": "Pilot operations — receiving, slotting, dispatch and returns.",
+    "loadError": "Couldn't load today's warehouse board.",
+    "nav": {
+      "overview": "Overview",
+      "receiving": "Receiving",
+      "wall": "Wall",
+      "loading": "Loading",
+      "return": "Return desk",
+      "report": "Report",
+      "settings": "Settings"
+    },
+    "hub": {
+      "today": "Today · {{date}}",
+      "kpi": {
+        "awaiting": "Awaiting scheduling",
+        "awaitingHint": "Received, waiting on the customer to pick a slot",
+        "needsRebin": "Needs rebin",
+        "needsRebinHint": "Customer moved their slot after the box was binned",
+        "ready": "Ready for dispatch",
+        "readyHint": "Binned in the slot the customer confirmed",
+        "onWall": "On the wall",
+        "onWallHint": "Total boxes binned across every zone and slot"
+      },
+      "flow": {
+        "title": "How a box moves through the pilot",
+        "subtitle": "Status is derived from the event log — every step below appends an event, nothing is edited in place.",
+        "customerStep": "Customer",
+        "receive": "Receive",
+        "receiveDesc": "Scan the box in at the counter",
+        "confirm": "Customer confirms slot",
+        "confirmDesc": "Customer only, via the public slot link — no staff screen",
+        "bin": "Bin",
+        "binDesc": "Place it in the confirmed slot's bin",
+        "load": "Load",
+        "loadDesc": "Check it out with a courier",
+        "deliver": "Deliver",
+        "deliverDesc": "Courier confirms delivery with the customer's code",
+        "failed": "Failed attempt",
+        "return": "Return to warehouse",
+        "returnDesc": "Reconcile it back in, then it can go out again"
+      },
+      "cards": {
+        "title": "Screens",
+        "receiving": "Receiving",
+        "receivingDesc": "Scan a box in and issue the customer their delivery code.",
+        "wall": "Wall",
+        "wallDesc": "Zone × slot grid of everything binned today, plus what's still waiting on a slot.",
+        "loading": "Loading",
+        "loadingDesc": "Pull a slot's manifest and check boxes out with a courier.",
+        "return": "Return desk",
+        "returnDesc": "Reconcile failed attempts back into the warehouse.",
+        "report": "Report",
+        "reportDesc": "Pilot KPIs — slot response, first-attempt success, dwell time, messages.",
+        "settings": "Settings",
+        "settingsDesc": "Runtime config: grace period, daily message cap, message templates."
+      },
+      "note": {
+        "title": "This is a separate module from Parcels",
+        "body": "Warehouse parcels have no connection to the ones under Parcels — creating a parcel there will never make it appear here. A box enters the pilot only by being scanned in at Receiving."
+      }
+    }
   },
   "warehouseCourierNav": {
     "title": "Warehouse Courier"
