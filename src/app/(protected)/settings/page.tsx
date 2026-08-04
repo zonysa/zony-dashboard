@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DataItem from "@/components/ui/DataItem";
-import { Globe, BarChart3, Briefcase } from "lucide-react";
+import { Globe, BarChart3, Briefcase, Warehouse } from "lucide-react";
 import { toast } from "sonner";
 import {
   useLanguage,
@@ -14,6 +14,8 @@ import { languageNames } from "@/lib/i18n/config";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useRouter } from "next/navigation";
 import { RoleGuard } from "@/components/auth/RoleGuard";
+import { Can } from "@/components/auth/Can";
+import { Permission } from "@/lib/rbac/permissions";
 import { PageContainer } from "@/components/PageContainer";
 
 type Language = "en" | "ar";
@@ -188,6 +190,45 @@ const SettingsPage = () => {
           </div>
         </Card>
       </RoleGuard>
+
+      {/* Warehouse Settings Card — gated on the warehouse-specific permission
+          (admin/supervisor), which `responsible` does not hold even though it
+          can open the rest of the warehouse section. */}
+      <Can do={Permission.VIEW_WAREHOUSE_SETTINGS}>
+        <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
+          <DataItem
+            isHeading={true}
+            label={t("settings.warehouse.title", {
+              defaultValue: "Warehouse Settings",
+            })}
+            value={t("settings.warehouse.description", {
+              defaultValue: "Runtime configuration for the warehouse pilot",
+            })}
+            icon={Warehouse}
+            iconClassName="text-black"
+          />
+          <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+            <div className="grid grid-cols-1 gap-3">
+              <div className="text-sm text-gray-500">
+                <p>
+                  {t("settings.warehouse.settingsDescription", {
+                    defaultValue:
+                      "Slot capacity, scheduling horizon, reminder timings, message safety rails, and message templates.",
+                  })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => router.push("/settings/warehouse")}
+              variant="outline"
+            >
+              {t("settings.warehouse.configure", { defaultValue: "Configure" })}
+            </Button>
+          </div>
+        </Card>
+      </Can>
 
       {/* Future Settings Sections */}
       {/* Add more settings cards here following the same pattern */}

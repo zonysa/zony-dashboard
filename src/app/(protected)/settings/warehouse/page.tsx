@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShieldAlert } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, ShieldAlert } from "lucide-react";
 
 import {
   AlertDialog,
@@ -23,7 +24,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useGetSettings, useUpdateSetting } from "@/lib/hooks/useWarehouse";
-import { WHSettingEntry } from "@/lib/schema/warehouse.schema";
 
 // docs/warehouse-api.md §5. Order matches the table there. `key` is a
 // literal union (not `string`) so the template-literal translation keys
@@ -69,22 +69,34 @@ const SAFETY_RAIL_FIELDS: NumberFieldMeta[] = [
   { key: "daily_message_cap", min: 0, safetyRail: true },
 ];
 
-function findSetting(settings: WHSettingEntry[] | undefined, key: string) {
-  return settings?.find((s) => s.key === key);
-}
-
 export default function WarehouseSettingsPage() {
   const { t } = useTranslation();
+  const router = useRouter();
   const { data, isLoading, isError } = useGetSettings();
   const settings = data?.settings;
 
   return (
     <PageContainer size="lg" className="px-6 py-10">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-foreground">
-          {t("warehouseSettings.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">{t("warehouseSettings.subtitle")}</p>
+      {/* Back to the settings hub, same as the other /settings sub-pages.
+          The arrow is mirrored under RTL so it still points "back". */}
+      <div className="mb-6 flex items-start gap-3">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="mt-0.5 shrink-0"
+          aria-label={t("settings.title")}
+          onClick={() => router.push("/settings")}
+        >
+          <ArrowLeft className="h-5 w-5 rtl:-scale-x-100" />
+        </Button>
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">
+            {t("warehouseSettings.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t("warehouseSettings.subtitle")}
+          </p>
+        </div>
       </div>
 
       {isError && (
@@ -116,7 +128,7 @@ export default function WarehouseSettingsPage() {
                 <NumberSettingField
                   key={meta.key}
                   meta={meta}
-                  setting={findSetting(settings, meta.key)}
+                  value={settings?.[meta.key]}
                 />
               ))}
             </CardContent>
@@ -131,7 +143,7 @@ export default function WarehouseSettingsPage() {
                 <NumberSettingField
                   key={meta.key}
                   meta={meta}
-                  setting={findSetting(settings, meta.key)}
+                  value={settings?.[meta.key]}
                 />
               ))}
             </CardContent>
@@ -146,13 +158,13 @@ export default function WarehouseSettingsPage() {
                 <NumberSettingField
                   key={meta.key}
                   meta={meta}
-                  setting={findSetting(settings, meta.key)}
+                  value={settings?.[meta.key]}
                 />
               ))}
             </CardContent>
           </Card>
 
-          <MessageTemplatesCard setting={findSetting(settings, "message_templates")} />
+          <MessageTemplatesCard value={settings?.["message_templates"]} />
         </div>
       )}
     </PageContainer>
@@ -161,10 +173,10 @@ export default function WarehouseSettingsPage() {
 
 function NumberSettingField({
   meta,
-  setting,
+  value: settingValue,
 }: {
   meta: NumberFieldMeta;
-  setting: WHSettingEntry | undefined;
+  value: unknown;
 }) {
   const { t } = useTranslation();
   const update = useUpdateSetting();
@@ -174,20 +186,21 @@ function NumberSettingField({
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
-    if (!initialized && setting) {
-      setValue(String(setting.value ?? ""));
+    if (!initialized && settingValue !== undefined) {
+      setValue(String(settingValue ?? ""));
       setInitialized(true);
     }
-  }, [initialized, setting]);
+  }, [initialized, settingValue]);
 
   if (!initialized) {
     return <Skeleton className="h-16 w-full" />;
   }
 
-  const original = setting ? Number(setting.value) : undefined;
+  const original = settingValue !== undefined ? Number(settingValue) : undefined;
   const numeric = Number(value);
   const isValid = value.trim() !== "" && !Number.isNaN(numeric);
-  const isDirty = setting ? String(setting.value) !== value : false;
+  const isDirty =
+    settingValue !== undefined ? String(settingValue) !== value : false;
   const isLowering =
     meta.safetyRail && isValid && original !== undefined && numeric < original;
 
@@ -276,7 +289,7 @@ function NumberSettingField({
 
 const TEMPLATE_PLACEHOLDERS = ["name", "slot", "date", "code", "link"] as const;
 
-function MessageTemplatesCard({ setting }: { setting: WHSettingEntry | undefined }) {
+function MessageTemplatesCard({ value: settingValue }: { value: unknown }) {
   const { t } = useTranslation();
   const update = useUpdateSetting();
 
@@ -285,15 +298,16 @@ function MessageTemplatesCard({ setting }: { setting: WHSettingEntry | undefined
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!initialized && setting) {
-      setValue(JSON.stringify(setting.value ?? {}, null, 2));
+    if (!initialized && settingValue !== undefined) {
+      setValue(JSON.stringify(settingValue ?? {}, null, 2));
       setInitialized(true);
     }
-  }, [initialized, setting]);
+  }, [initialized, settingValue]);
 
-  const isDirty = setting
-    ? value !== JSON.stringify(setting.value ?? {}, null, 2)
-    : false;
+  const isDirty =
+    settingValue !== undefined
+      ? value !== JSON.stringify(settingValue ?? {}, null, 2)
+      : false;
 
   function handleSave() {
     let parsed: unknown;

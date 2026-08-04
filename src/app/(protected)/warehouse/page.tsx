@@ -151,7 +151,9 @@ export default function WarehouseHubPage() {
     },
     {
       key: "settings",
-      href: "/warehouse/settings",
+      // Lives under the platform's /settings section, not this one — the card
+      // stays here because it's still where an operator looks for it.
+      href: "/settings/warehouse",
       icon: Settings,
       title: t("warehouse.hub.cards.settings"),
       description: t("warehouse.hub.cards.settingsDesc"),

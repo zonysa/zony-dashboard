@@ -212,20 +212,19 @@ export interface WHResendCodeRes {
   message_status: string;
 }
 
-export interface WHSettingEntry {
-  key: string;
-  value: unknown;
-}
-
+// Backend returns settings as a flat `{key: value}` map (see
+// WarehouseSettingsService.get_all()), not a list of entries.
 export interface GetSettingsRes {
   status: "success";
-  settings: WHSettingEntry[];
+  message: string;
+  settings: Record<string, unknown>;
 }
 
 export interface UpdateSettingRes {
   status: "success";
   message: string;
-  setting: WHSettingEntry;
+  key: string;
+  value: unknown;
 }
 
 export interface WHReport {

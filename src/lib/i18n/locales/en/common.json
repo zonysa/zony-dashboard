@@ -190,8 +190,7 @@
       "wall": "Wall",
       "loading": "Loading",
       "return": "Return desk",
-      "report": "Report",
-      "settings": "Settings"
+      "report": "Report"
     },
     "hub": {
       "today": "Today · {{date}}",
@@ -315,6 +314,12 @@
       "descriptionPlaceholder": "Optional description",
       "deleteTitle": "Delete Business Type",
       "deleteDescription": "Are you sure you want to delete this business type? This action cannot be undone."
+    },
+    "warehouse": {
+      "title": "Warehouse Settings",
+      "description": "Runtime configuration for the warehouse pilot",
+      "settingsDescription": "Slot capacity, scheduling horizon, reminder timings, message safety rails, and message templates.",
+      "configure": "Configure"
     }
   },
   "logout": {

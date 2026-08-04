@@ -130,9 +130,12 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     path: "/warehouse/parcels/[id]",
     permission: Permission.VIEW_WAREHOUSE,
   },
-  // Settings, reports, CSV export, void — admin, supervisor ONLY
+  // Settings, reports, CSV export, void — admin, supervisor ONLY.
+  // Warehouse settings live under /settings alongside the platform's other
+  // configuration screens, not inside the warehouse section — but the
+  // permission is still the warehouse-specific one.
   {
-    path: "/warehouse/settings",
+    path: "/settings/warehouse",
     permission: Permission.VIEW_WAREHOUSE_SETTINGS,
   },
   {
