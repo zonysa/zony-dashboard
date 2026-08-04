@@ -27,9 +27,12 @@ import {
   GetStateDiffRes,
   GetWallRes,
   GetZonesRes,
+  ReceivingLookupMode,
+  ReceivingPrefill,
   ReturnParcelData,
   VoidEventData,
   WarehouseReportRange,
+  WHParcel,
   WHParcelStatus,
   WHScanEventRes,
 } from "@/lib/schema/warehouse.schema";
@@ -64,6 +67,10 @@ import {
   updateSetting,
   voidEvent,
 } from "@/lib/services/warehouse.service";
+import { ApiError } from "@/lib/services/apiClient";
+import { getParcels } from "@/lib/services/parcel.service";
+import { ParcelDetails } from "@/lib/schema/parcel.schema";
+import { normalizeSaudiPhone } from "@/lib/validators/phone";
 
 // Query keys factory for consistency (staff + courier — the public /slots
 // link is a separate unauthenticated page, not wired through here).
@@ -217,6 +224,80 @@ export function useScanBarcode(barcode: string, enabled = false) {
     staleTime: 0,
     gcTime: 0,
     retry: 1,
+  });
+}
+
+function prefillFromWarehouseParcel(parcel: WHParcel): ReceivingPrefill {
+  return {
+    source: "barcode",
+    barcode: parcel.barcode,
+    tracking_ref: parcel.tracking_ref ?? "",
+    recipient_name: parcel.recipient_name,
+    recipient_phone: normalizeSaudiPhone(parcel.recipient_phone ?? ""),
+    address: parcel.address ?? {},
+  };
+}
+
+function prefillFromMainParcel(parcel: ParcelDetails): ReceivingPrefill {
+  const receiver = parcel.receiver;
+  return {
+    source: "tracking_ref",
+    // The main system stamps its own barcode; reuse it so the clerk isn't
+    // asked to invent one. E01 still validates it server-side.
+    barcode: parcel.barcode ?? "",
+    tracking_ref: parcel.tracking_number ?? "",
+    recipient_name: receiver?.personal?.name ?? "",
+    recipient_phone: normalizeSaudiPhone(receiver?.personal?.phone_number ?? ""),
+    address: {
+      line1: receiver?.location?.address ?? "",
+      district: receiver?.location?.district ?? "",
+      city: receiver?.location?.city ?? "",
+    },
+  };
+}
+
+/**
+ * Resolve one typed identifier into receiver details for the receiving form.
+ *
+ * Resolves `null` — not an error — when nothing matches: an unrecognised
+ * barcode is the *normal* case at receiving (a box arriving for the first
+ * time), so the screen should say "fill it in by hand", not show a failure.
+ * Real transport/permission failures still reject.
+ *
+ * No toast here, unlike the mutations below: the two modes need different
+ * wording for the same outcome, and the copy lives in the screen's i18n
+ * namespace rather than in this hook.
+ */
+export function useReceivingLookup() {
+  return useMutation<
+    ReceivingPrefill | null,
+    Error,
+    { mode: ReceivingLookupMode; value: string }
+  >({
+    mutationFn: async ({ mode, value }) => {
+      const query = value.trim();
+
+      if (mode === "barcode") {
+        try {
+          const res = await scanBarcode(query);
+          return prefillFromWarehouseParcel(res.parcel);
+        } catch (error) {
+          if (error instanceof ApiError && error.status === 404) return null;
+          throw error;
+        }
+      }
+
+      // /parcels has no resolve-by-tracking-number endpoint, only a fuzzy
+      // `search`. Take the exact tracking_number match and nothing else — a
+      // near miss here would silently overwrite the receiver block with a
+      // different customer's details.
+      const res = await getParcels({ search: query, limit: 10 });
+      const match = res.parcels?.find(
+        (parcel) => parcel.tracking_number?.toLowerCase() === query.toLowerCase(),
+      );
+      return match ? prefillFromMainParcel(match) : null;
+    },
+    retry: false,
   });
 }
 

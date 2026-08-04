@@ -3,13 +3,20 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { AlertTriangle, Printer } from "lucide-react";
+import { AlertTriangle, Loader2, Printer, Search } from "lucide-react";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { PageContainer } from "@/components/PageContainer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -40,10 +47,13 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
   useGetZones,
+  useReceivingLookup,
   useReceivingScan,
   useResendCode,
 } from "@/lib/hooks/useWarehouse";
 import {
+  ReceivingLookupMode,
+  ReceivingPrefill,
   ReceivingScanData,
   receivingScanSchema,
   WHReceivingScanRes,
@@ -75,8 +85,18 @@ export default function ReceivingPage() {
   const { data: zonesData } = useGetZones();
   const receivingScan = useReceivingScan();
   const resendCode = useResendCode();
+  const lookup = useReceivingLookup();
 
   const [result, setResult] = useState<WHReceivingScanRes | null>(null);
+
+  // Which identifier the clerk is typing. One visible field, not two: the box
+  // in their hand carries one or the other, and asking for both up front is
+  // what made this screen feel like data entry rather than a scan.
+  const [lookupMode, setLookupMode] = useState<ReceivingLookupMode>("barcode");
+  const [lookupTried, setLookupTried] = useState(false);
+  const [prefillSource, setPrefillSource] = useState<ReceivingLookupMode | null>(
+    null,
+  );
 
   const form = useForm<ReceivingScanFormInput, unknown, ReceivingScanData>({
     resolver: zodResolver(receivingScanSchema),
@@ -88,22 +108,88 @@ export default function ReceivingPage() {
     control,
     handleSubmit,
     setFocus,
-    formState: { isSubmitting },
+    watch,
+    formState: { errors, isSubmitting },
   } = form;
 
-  // Autofocus the barcode field on load and after every reset so a clerk can
+  const resolvedBarcode = watch("barcode");
+  const resolvedTrackingRef = watch("tracking_ref");
+
+  // Autofocus the identifier field on load and after every reset so a clerk can
   // start scanning the next parcel without touching the mouse.
   useEffect(() => {
-    setFocus("barcode");
-  }, [setFocus]);
+    setFocus(lookupMode);
+  }, [setFocus, lookupMode]);
 
-  function handleBarcodeKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      // A scanner "types" the barcode then sends Enter — advance to the next
-      // field instead of attempting a submit with the rest of the form empty.
-      e.preventDefault();
-      setFocus("recipient_name");
+  function applyPrefill(prefill: ReceivingPrefill) {
+    const options = { shouldValidate: true, shouldDirty: true } as const;
+
+    if (prefill.barcode) form.setValue("barcode", prefill.barcode, options);
+    if (prefill.tracking_ref)
+      form.setValue("tracking_ref", prefill.tracking_ref, options);
+
+    // The receiver block is replaced wholesale — a half-applied lookup mixing
+    // one customer's name with another's address is worse than an empty form.
+    // `address.notes` is the clerk's own observation about the box, so it stays.
+    form.setValue("recipient_name", prefill.recipient_name, options);
+    form.setValue("recipient_phone", prefill.recipient_phone, options);
+    form.setValue("address.line1", prefill.address.line1 ?? "", options);
+    form.setValue("address.district", prefill.address.district ?? "", options);
+    form.setValue("address.city", prefill.address.city ?? "", options);
+
+    setPrefillSource(prefill.source);
+  }
+
+  function handleLookup() {
+    const value = (form.getValues(lookupMode) ?? "").trim();
+    if (!value || lookup.isPending) {
+      setFocus(lookupMode);
+      return;
     }
+
+    lookup.mutate(
+      { mode: lookupMode, value },
+      {
+        onSuccess: (prefill) => {
+          setLookupTried(true);
+          if (!prefill) {
+            // Not an error: at receiving, most boxes are genuinely new.
+            toast.info(
+              lookupMode === "barcode"
+                ? t("warehouseReceiving.lookup.notFoundBarcode")
+                : t("warehouseReceiving.lookup.notFoundTracking"),
+            );
+            setFocus("recipient_name");
+            return;
+          }
+          applyPrefill(prefill);
+          toast.success(t("warehouseReceiving.lookup.filled"));
+          setFocus("recipient_name");
+        },
+        onError: (error) => {
+          setLookupTried(true);
+          toast.error(error?.message || t("warehouseReceiving.lookup.failed"));
+        },
+      },
+    );
+  }
+
+  function handleIdentifierKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter") {
+      // A scanner "types" the value then sends Enter. Run the lookup rather
+      // than submitting a form whose recipient fields are still empty — on a
+      // miss the handler focuses the recipient field anyway, so the keyboard
+      // path is the same either way.
+      e.preventDefault();
+      handleLookup();
+    }
+  }
+
+  function handleModeChange(mode: ReceivingLookupMode) {
+    // Values already typed/resolved are kept — only the visible field swaps.
+    // Focus follows in the effect above, once the new field has mounted.
+    setLookupMode(mode);
+    setLookupTried(false);
   }
 
   async function onSubmit(data: ReceivingScanData) {
@@ -128,7 +214,10 @@ export default function ReceivingPage() {
   function handleDismissResult() {
     setResult(null);
     form.reset(buildDefaultValues());
-    setFocus("barcode");
+    setLookupTried(false);
+    setPrefillSource(null);
+    lookup.reset();
+    setFocus(lookupMode);
   }
 
   function handleResendCode() {
@@ -155,49 +244,163 @@ export default function ReceivingPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>{t("warehouseReceiving.fields.barcode")}</CardTitle>
+              <CardTitle>{t("warehouseReceiving.lookup.cardTitle")}</CardTitle>
+              {/* CardAction is the header's trailing-edge slot — it flips the
+                  header to a two-column grid and pins this to the far side of
+                  the title, mirroring correctly under RTL. */}
+              <CardAction>
+                <div
+                  role="group"
+                  aria-label={t("warehouseReceiving.lookup.modeLabel")}
+                  className="bg-muted flex items-center gap-1 rounded-lg p-1"
+                >
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={lookupMode === "barcode" ? "default" : "ghost"}
+                    aria-pressed={lookupMode === "barcode"}
+                    className="h-7"
+                    onClick={() => handleModeChange("barcode")}
+                  >
+                    {t("warehouseReceiving.lookup.barcode")}
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant={lookupMode === "tracking_ref" ? "default" : "ghost"}
+                    aria-pressed={lookupMode === "tracking_ref"}
+                    className="h-7"
+                    onClick={() => handleModeChange("tracking_ref")}
+                  >
+                    {t("warehouseReceiving.lookup.trackingRef")}
+                  </Button>
+                </div>
+              </CardAction>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
                 control={control}
-                name="barcode"
+                key={lookupMode}
+                name={lookupMode}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("warehouseReceiving.fields.barcode")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        autoFocus
-                        autoComplete="off"
-                        placeholder={t("warehouseReceiving.fields.barcodePlaceholder")}
-                        className="text-lg font-mono"
-                        onKeyDown={handleBarcodeKeyDown}
-                      />
-                    </FormControl>
+                    <FormLabel>
+                      {lookupMode === "barcode"
+                        ? t("warehouseReceiving.lookup.barcode")
+                        : t("warehouseReceiving.lookup.trackingRef")}
+                    </FormLabel>
+                    {/* Input flexes, Fetch stays flush to the trailing edge. */}
+                    <div className="flex items-center gap-2">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          value={field.value ?? ""}
+                          autoFocus
+                          autoComplete="off"
+                          placeholder={
+                            lookupMode === "barcode"
+                              ? t("warehouseReceiving.lookup.barcodePlaceholder")
+                              : t("warehouseReceiving.lookup.trackingPlaceholder")
+                          }
+                          className="min-w-0 flex-1 font-mono text-lg"
+                          onKeyDown={handleIdentifierKeyDown}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="shrink-0"
+                        disabled={lookup.isPending || !field.value?.trim()}
+                        onClick={handleLookup}
+                      >
+                        {lookup.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Search className="h-4 w-4" />
+                        )}
+                        {lookup.isPending
+                          ? t("warehouseReceiving.lookup.fetching")
+                          : t("warehouseReceiving.lookup.fetch")}
+                      </Button>
+                    </div>
+                    <p className="text-muted-foreground text-xs">
+                      {lookupMode === "barcode"
+                        ? t("warehouseReceiving.lookup.barcodeHint")
+                        : t("warehouseReceiving.lookup.trackingHint")}
+                    </p>
                     <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <FormField
-                control={control}
-                name="tracking_ref"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("warehouseReceiving.fields.trackingRef")}</FormLabel>
-                    <FormControl>
-                      <Input {...field} autoComplete="off" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {/* The other identifier, once something has resolved it. Shown
+                  read-only rather than as a second input: it came from the
+                  lookup, so editing it here would only desync the two. */}
+              {lookupMode === "barcode" && !!resolvedTrackingRef && (
+                <p className="text-muted-foreground text-xs">
+                  {t("warehouseReceiving.lookup.trackingRef")}:{" "}
+                  <span className="text-foreground font-mono">
+                    {resolvedTrackingRef}
+                  </span>
+                </p>
+              )}
+
+              {/* E01 requires a barcode, but in tracking mode it's not what the
+                  clerk typed — it normally arrives with the lookup. Only ask
+                  for it once a lookup has run without producing one, so the
+                  common path stays a single field. `errors.barcode` is in the
+                  condition because submitting without ever fetching fails
+                  validation on a field that would otherwise be invisible. */}
+              {lookupMode === "tracking_ref" &&
+                (resolvedBarcode ? (
+                  <p className="text-muted-foreground text-xs">
+                    {t("warehouseReceiving.fields.barcode")}:{" "}
+                    <span className="text-foreground font-mono">
+                      {resolvedBarcode}
+                    </span>
+                  </p>
+                ) : (
+                  (lookupTried || !!errors.barcode) && (
+                    <FormField
+                      control={control}
+                      name="barcode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {t("warehouseReceiving.fields.barcode")}
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              autoComplete="off"
+                              placeholder={t(
+                                "warehouseReceiving.lookup.barcodePlaceholder",
+                              )}
+                              className="font-mono"
+                            />
+                          </FormControl>
+                          <p className="text-muted-foreground text-xs">
+                            {t("warehouseReceiving.lookup.barcodeStillNeeded")}
+                          </p>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )
+                ))}
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
               <CardTitle>{t("forms.sections.receiverInfo")}</CardTitle>
+              {prefillSource && (
+                <p className="text-muted-foreground text-xs">
+                  {prefillSource === "barcode"
+                    ? t("warehouseReceiving.lookup.sourceWarehouse")
+                    : t("warehouseReceiving.lookup.sourceParcels")}
+                </p>
+              )}
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField

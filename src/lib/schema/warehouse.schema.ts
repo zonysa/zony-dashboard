@@ -325,6 +325,26 @@ export const receivingScanSchema = z.object({
 });
 export type ReceivingScanData = z.infer<typeof receivingScanSchema>;
 
+// ---- Receiving-screen lookup ----
+// The receiving form takes one identifier, and which module can answer for it
+// depends on what kind it is: a barcode belongs to this module (a box already
+// received once, e.g. one coming back after E07), while a tracking reference
+// belongs to the main /parcels system, which knows nothing about wh_parcels.
+// Both are normalized to the shape below so the form only has one thing to
+// apply. This copies text into a new E01 — it creates no link between the two
+// modules, and nothing here is persisted as a reference (docs/warehouse-api.md §1).
+export type ReceivingLookupMode = "barcode" | "tracking_ref";
+
+export interface ReceivingPrefill {
+  source: ReceivingLookupMode;
+  barcode: string;
+  tracking_ref: string;
+  recipient_name: string;
+  /** Local 9-digit form (no +966) — what PhoneInput and saudiPhoneSchema expect. */
+  recipient_phone: string;
+  address: WHAddress;
+}
+
 export const binParcelSchema = z.object({
   client_event_id: clientEventIdSchema,
   slot_id: z.number().int().positive(),

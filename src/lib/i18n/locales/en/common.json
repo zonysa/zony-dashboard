@@ -1093,6 +1093,25 @@
       "treatment": "Treatment",
       "control": "Control"
     },
+    "lookup": {
+      "cardTitle": "Parcel Identifier",
+      "modeLabel": "Search by",
+      "barcode": "Barcode",
+      "trackingRef": "Tracking Reference",
+      "barcodePlaceholder": "Scan or type barcode",
+      "trackingPlaceholder": "Type the tracking reference",
+      "barcodeHint": "Looks the box up in the warehouse — use this when re-receiving a parcel that came back.",
+      "trackingHint": "Looks the parcel up in the main parcels system and copies the receiver's details over.",
+      "fetch": "Fetch",
+      "fetching": "Fetching...",
+      "filled": "Receiver details filled from the lookup.",
+      "notFoundBarcode": "No warehouse parcel with that barcode — this is a new box, fill the details in below.",
+      "notFoundTracking": "No parcel with that tracking reference — fill the details in below.",
+      "failed": "Lookup failed. Try again, or fill the details in by hand.",
+      "barcodeStillNeeded": "The lookup didn't return a barcode — scan or type the one on the box.",
+      "sourceWarehouse": "Filled from a parcel already in the warehouse. Check it against the box before receiving.",
+      "sourceParcels": "Filled from the main parcels system. Check it against the box before receiving."
+    },
     "actions": {
       "submit": "Receive Parcel",
       "submitting": "Receiving...",
