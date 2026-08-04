@@ -965,7 +965,13 @@
     "create": "Create New",
     "edit": "Edit",
     "overview": "Overview",
-    "reports-analytics": "Reports Analytics"
+    "reports-analytics": "Reports Analytics",
+    "warehouse": "Warehouse",
+    "receiving": "Receiving",
+    "wall": "Wall",
+    "loading": "Loading",
+    "return": "Return Desk",
+    "report": "Report"
   },
   "profile": {
     "title": "Profile",

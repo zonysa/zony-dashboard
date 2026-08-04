@@ -962,7 +962,13 @@
     "create": "إنشاء جديد",
     "edit": "تعديل",
     "overview": "نظرة عامة",
-    "reports-analytics": "التقارير والتحليلات"
+    "reports-analytics": "التقارير والتحليلات",
+    "warehouse": "المستودع",
+    "receiving": "الاستلام",
+    "wall": "اللوحة",
+    "loading": "التحميل",
+    "return": "مكتب المرتجعات",
+    "report": "التقرير"
   },
   "profile": {
     "title": "الملف الشخصي",

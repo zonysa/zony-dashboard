@@ -136,14 +136,14 @@ function Header() {
   const breadcrumbSegments = getBreadcrumbSegments();
 
   return (
-    <header className="sticky w-full top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col sm:flex-row sm:h-16 shrink-0 sm:items-center gap-2 px-4 sm:px-6 py-2 sm:py-0 transition-[width,height] ease-linear border-b border-border">
-      <div className="flex items-center gap-2 min-w-0">
+    <header className="sticky w-full top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex flex-col sm:flex-row sm:h-16 shrink-0 sm:items-center justify-between gap-2 px-4 sm:px-6 py-2 sm:py-0 transition-[width,height] ease-linear border-b border-border">
+      <div className="flex flex-1 items-center gap-2 min-w-0">
         <SidebarTrigger className="-ml-1 shrink-0" />
         <Separator
           orientation="vertical"
           className="mr-2 data-[orientation=vertical]:h-4 shrink-0"
         />
-        <Breadcrumb className="flex justify-start gap-2 items-start overflow-x-auto min-w-0">
+        <Breadcrumb className="flex justify-start gap-2 items-start overflow-x-auto overflow-y-hidden min-w-0">
           <BreadcrumbList className="flex-nowrap whitespace-nowrap">
             {breadcrumbSegments.map((segment) => (
               <React.Fragment key={segment.href}>
@@ -165,7 +165,7 @@ function Header() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="w-full sm:w-auto flex flex-wrap sm:flex-nowrap justify-end items-center gap-2 sm:gap-3 sm:ms-auto">
+      <div className="w-full sm:w-auto shrink-0 flex flex-wrap sm:flex-nowrap justify-end items-center gap-2 sm:gap-3">
         {getHeaderButton()}
         <Button
           variant="outline"
