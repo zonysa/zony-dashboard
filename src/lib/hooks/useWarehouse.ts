@@ -68,7 +68,7 @@ import {
   voidEvent,
 } from "@/lib/services/warehouse.service";
 import { ApiError } from "@/lib/services/apiClient";
-import { getParcels } from "@/lib/services/parcel.service";
+import { getParcelById, getParcels } from "@/lib/services/parcel.service";
 import { ParcelDetails } from "@/lib/schema/parcel.schema";
 import { normalizeSaudiPhone } from "@/lib/validators/phone";
 
@@ -295,7 +295,13 @@ export function useReceivingLookup() {
       const match = res.parcels?.find(
         (parcel) => parcel.tracking_number?.toLowerCase() === query.toLowerCase(),
       );
-      return match ? prefillFromMainParcel(match) : null;
+      if (!match) return null;
+
+      // The search/list row is a restricted projection (no receiver block,
+      // no barcode) — only GET /parcels/:id returns the full record the
+      // prefill needs.
+      const { parcel } = await getParcelById(String(match.id));
+      return prefillFromMainParcel(parcel);
     },
     retry: false,
   });
