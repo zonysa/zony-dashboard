@@ -74,7 +74,7 @@ apiClient.interceptors.response.use(
             }
           );
 
-          const { token } = response.data;
+          const { access_token: token } = response.data;
           localStorage.setItem("authToken", token);
 
           originalRequest.headers.Authorization = `Bearer ${token}`;
