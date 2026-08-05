@@ -141,6 +141,8 @@ export interface parcelFilterOptions {
   search?: string;
   /** Exact-match filter — the backend compares Parcel.barcode with `==`. */
   barcode?: string;
+  /** Exact-match filter — the backend compares Parcel.tracking_number with `==`. */
+  tracking_number?: string;
   date?: Date;
   status?: string;
   client?: string;

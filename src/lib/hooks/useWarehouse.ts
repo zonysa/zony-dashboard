@@ -287,23 +287,18 @@ export function useReceivingLookup() {
           // box's barcode either way, so fall back to the main /parcels
           // system, which filters on exact barcode equality server-side.
           const res = await getParcels({ barcode: query, limit: 2 });
-          const match = res.parcels?.find(
-            (parcel) => parcel.parcel_barcode === query,
-          );
+          const match = res.parcels?.[0];
           if (!match) return null;
           const { parcel } = await getParcelById(String(match.id));
           return prefillFromMainParcel(parcel);
         }
       }
 
-      // /parcels has no resolve-by-tracking-number endpoint, only a fuzzy
-      // `search`. Take the exact tracking_number match and nothing else — a
-      // near miss here would silently overwrite the receiver block with a
-      // different customer's details.
-      const res = await getParcels({ search: query, limit: 10 });
-      const match = res.parcels?.find(
-        (parcel) => parcel.tracking_number?.toLowerCase() === query.toLowerCase(),
-      );
+      // Exact tracking_number equality server-side — a near miss here would
+      // silently overwrite the receiver block with a different customer's
+      // details.
+      const res = await getParcels({ tracking_number: query, limit: 2 });
+      const match = res.parcels?.[0];
       if (!match) return null;
 
       // The search/list row is a restricted projection (no receiver block,

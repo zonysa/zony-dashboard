@@ -32,6 +32,8 @@ export const getParcels = async (
   // Search
   if (filters?.search) params.append("search", filters.search);
   if (filters?.barcode) params.append("barcode", filters.barcode);
+  if (filters?.tracking_number)
+    params.append("tracking_number", filters.tracking_number);
 
   // Existing filters
   if (filters?.date) params.append("date", filters.date.toISOString());
