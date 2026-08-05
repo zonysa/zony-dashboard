@@ -27,7 +27,9 @@ export const getParcels = async (
 
   // Pagination
   if (filters?.page) params.append("page", filters.page.toString());
-  if (filters?.limit) params.append("limit", filters.limit.toString());
+  // Backend reads `per_page`, not `limit` — keep the option named `limit`
+  // (matches every other domain's filter shape) but send the right key.
+  if (filters?.limit) params.append("per_page", filters.limit.toString());
 
   // Search
   if (filters?.search) params.append("search", filters.search);
