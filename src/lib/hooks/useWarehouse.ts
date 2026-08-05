@@ -282,8 +282,17 @@ export function useReceivingLookup() {
           const res = await scanBarcode(query);
           return prefillFromWarehouseParcel(res.parcel);
         } catch (error) {
-          if (error instanceof ApiError && error.status === 404) return null;
-          throw error;
+          if (!(error instanceof ApiError && error.status === 404)) throw error;
+          // Not known to the warehouse yet — the clerk's scanner reads the
+          // box's barcode either way, so fall back to the main /parcels
+          // system, which filters on exact barcode equality server-side.
+          const res = await getParcels({ barcode: query, limit: 2 });
+          const match = res.parcels?.find(
+            (parcel) => parcel.parcel_barcode === query,
+          );
+          if (!match) return null;
+          const { parcel } = await getParcelById(String(match.id));
+          return prefillFromMainParcel(parcel);
         }
       }
 

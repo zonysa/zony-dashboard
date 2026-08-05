@@ -72,6 +72,8 @@ export interface ParcelContent {
 // Type for parcel details
 export type ParcelDetails = {
   barcode: string;
+  /** Same value as `barcode` — the list projection only returns this alias. */
+  parcel_barcode?: string;
   city_name: string | null;
   client_name: string | null;
   courier_id: string | null;
@@ -137,6 +139,8 @@ export interface parcelFilterOptions {
   page?: number;
   limit?: number;
   search?: string;
+  /** Exact-match filter — the backend compares Parcel.barcode with `==`. */
+  barcode?: string;
   date?: Date;
   status?: string;
   client?: string;
