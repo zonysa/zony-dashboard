@@ -76,21 +76,26 @@ export const Columns = ({ t }: ColumnsProps) => {
         const status = row.getValue("status") as string;
         const getStatusVariant = (status: string) => {
           switch (status) {
-            case "Delivered":
+            case "customer_received":
               return "success";
-            case "In Transit":
+            case "courier_received":
+            case "waiting_confirmation":
+            case "PUDO_received":
               return "outline";
-            case "Pending":
+            case "pending":
               return "secondary";
-            case "Failed":
+            case "expired":
+            case "expired_received":
               return "destructive";
-            case "Returned":
-              return "secondary";
             default:
               return "secondary";
           }
         };
-        return <Badge variant={getStatusVariant(status)}>{status}</Badge>;
+        return (
+          <Badge variant={getStatusVariant(status)}>
+            {t(`parcelTracking.eventCodes.${status}`, status.replace(/_/g, " "))}
+          </Badge>
+        );
       },
       filterFn: "equalsString",
     },

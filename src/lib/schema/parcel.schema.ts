@@ -2,16 +2,17 @@ import z from "zod";
 
 import { saudiPhoneSchema } from "@/lib/validators/phone";
 
-export interface ParcelTable {
-  tn: number;
-  pudo: string;
-  delivery: string;
-  city: string;
-  zone: string;
-  receivingDate: Date;
-  status: "Delivered" | "In Transit" | "Pending" | "Failed" | "Returned";
-  client: string;
-}
+// The statuses Parcel.status actually takes on the backend (see
+// ParcelUpdateSchema/ParcelPolicy) — not the same set of values as this
+// app's other domains, and used to double as codes on the tracking timeline.
+export type ParcelStatus =
+  | "pending"
+  | "courier_received"
+  | "waiting_confirmation"
+  | "PUDO_received"
+  | "customer_received"
+  | "expired"
+  | "expired_received";
 
 // Delivery address type
 export interface DeliveryAddress {
@@ -97,13 +98,7 @@ export type ParcelDetails = {
   sender: ParcelParty | null;
   receiver: ParcelParty | null;
   content: ParcelContent | null;
-  status:
-    | "waiting_confirmation"
-    | "pending"
-    | "in_transit"
-    | "delivered"
-    | "cancelled"
-    | "failed";
+  status: ParcelStatus;
   tracking_number: string;
   updated_at: string;
   zone_name: string | null;
@@ -178,7 +173,15 @@ export const parcelSchema = z.object({
     .int()
     .positive("Pickup period must be a positive integer"),
   status: z
-    .enum(["pending", "in_transit", "delivered", "cancelled", "failed"])
+    .enum([
+      "pending",
+      "courier_received",
+      "waiting_confirmation",
+      "PUDO_received",
+      "customer_received",
+      "expired",
+      "expired_received",
+    ])
     .optional(),
   receiving_date: z
     .string()
