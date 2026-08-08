@@ -921,6 +921,7 @@
       "zone": "Zone",
       "courierName": "Courier Name",
       "courierPhoneNumber": "Courier Phone Number",
+      "courierEmail": "Courier Email",
       "status": "Status",
       "municipalLicense": "Municipal License",
       "clickToView": "Click to view",

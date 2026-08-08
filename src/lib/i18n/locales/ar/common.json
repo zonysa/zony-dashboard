@@ -917,6 +917,7 @@
       "zone": "المنطقة",
       "courierName": "اسم المندوب",
       "courierPhoneNumber": "رقم هاتف المندوب",
+      "courierEmail": "البريد الإلكتروني للمندوب",
       "status": "الحالة",
       "municipalLicense": "الترخيص البلدي",
       "clickToView": "انقر للعرض",

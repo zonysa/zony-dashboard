@@ -79,6 +79,7 @@ export type ParcelDetails = {
   courier_id: string | null;
   courier_name: string | null;
   courier_phone_number: string | null;
+  courier_email: string | null;
   created_at: string;
   customer_id: string | null;
   customer_name: string | null;

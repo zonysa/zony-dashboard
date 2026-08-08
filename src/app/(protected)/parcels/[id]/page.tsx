@@ -309,7 +309,9 @@ export default function Page() {
                 icon={Truck}
               />
               <CardContent className="flex-1 space-y-3">
-                {parcelData?.courier_name || parcelData?.courier_phone_number ? (
+                {parcelData?.courier_name ||
+                parcelData?.courier_phone_number ||
+                parcelData?.courier_email ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <DataItem
                       label={t("detailPages.labels.courierName")}
@@ -318,6 +320,10 @@ export default function Page() {
                     <DataItem
                       label={t("detailPages.labels.courierPhoneNumber")}
                       value={parcelData?.courier_phone_number || "N/A"}
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.courierEmail")}
+                      value={parcelData?.courier_email || "N/A"}
                     />
                   </div>
                 ) : (
