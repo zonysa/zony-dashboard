@@ -1437,6 +1437,31 @@
       "cancel": "Cancel"
     }
   },
+  "parcelTracking": {
+    "title": "Tracking History",
+    "subtitle": "A record of status changes for this parcel.",
+    "empty": "No tracking events recorded yet.",
+    "loadError": "Something went wrong loading the tracking history.",
+    "notes": "Notes",
+    "eventCodes": {
+      "pending": "Pending",
+      "courier_received": "Picked Up by Courier",
+      "waiting_confirmation": "Awaiting Confirmation",
+      "PUDO_received": "Arrived at Pickup Point",
+      "customer_received": "Delivered",
+      "expired": "Pickup Window Expired",
+      "expired_received": "Expired Parcel Collected"
+    },
+    "eventDescriptions": {
+      "pending": "The parcel is registered and waiting to be picked up.",
+      "courier_received": "A courier picked up the parcel.",
+      "waiting_confirmation": "Waiting for the receiver to confirm delivery.",
+      "PUDO_received": "The parcel arrived at the pickup point.",
+      "customer_received": "The parcel was received by the customer.",
+      "expired": "The pickup window expired before the parcel was collected.",
+      "expired_received": "The expired parcel was collected back."
+    }
+  },
   "warehouseParcel": {
     "loadError": "Something went wrong loading this parcel.",
     "notFound": "Parcel not found.",

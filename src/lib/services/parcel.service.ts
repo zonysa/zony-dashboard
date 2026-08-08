@@ -1,6 +1,7 @@
 import {
   CreateParcelRes,
   GetParcelRes,
+  GetParcelTrackingRes,
   getParcelsRes,
   parcelFilterOptions,
   ParcelFormData,
@@ -55,6 +56,16 @@ export const getParcelById = async (id: string): Promise<GetParcelRes> => {
   return apiCall({
     method: "GET",
     url: `/parcels/${id}`,
+  });
+};
+
+// Get tracking history for a parcel
+export const getParcelTracking = async (
+  id: string
+): Promise<GetParcelTrackingRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/parcels/${id}/tracking`,
   });
 };
 

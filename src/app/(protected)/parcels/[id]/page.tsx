@@ -2,10 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ComingSoon } from "@/components/ui/coming-soon";
 import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetParcel } from "@/lib/hooks/useParcel";
+import { useGetParcel, useGetParcelTracking } from "@/lib/hooks/useParcel";
 import { ArrowRight, Box, Clock, Package, Printer, Store, Truck, User } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
@@ -13,6 +12,7 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Can } from "@/components/auth/Can";
 import { Permission } from "@/lib/rbac/permissions";
 import { PageContainer } from "@/components/PageContainer";
+import { ParcelTrackingTimeline } from "@/components/parcels/ParcelTrackingTimeline";
 
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
@@ -44,6 +44,11 @@ export default function Page() {
 
   const { t } = useTranslation();
   const { data: parcel } = useGetParcel(parcelId);
+  const {
+    data: tracking,
+    isLoading: isTrackingLoading,
+    isError: isTrackingError,
+  } = useGetParcelTracking(parcelId);
 
   // Handle missing ID after all hooks are called
   if (!parcelId) {
@@ -71,7 +76,9 @@ export default function Page() {
         <TabsList className="flex justify-start bg-transparent px-6 gap-2">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="info">{t("detailPages.tabs.parcelInfo")}</TabsTrigger>
-            <TabsTrigger value="pudos">{t("detailPages.tabs.parcelTracking")}</TabsTrigger>
+            <Can do={Permission.TRACK_PARCELS}>
+              <TabsTrigger value="tracking">{t("detailPages.tabs.parcelTracking")}</TabsTrigger>
+            </Can>
           </div>
         </TabsList>
         <TabsContent value="info" className=" py-10">
@@ -391,14 +398,25 @@ export default function Page() {
             </Card>
           </div>
         </TabsContent>
-        <TabsContent value="pudos" className="py-10 px-6">
-          <ComingSoon
-            variant="card"
-            title="Prcel Tracking"
-            description="Secure payment processing will be available soon"
-            icon="clock"
-          />
-        </TabsContent>
+        <Can do={Permission.TRACK_PARCELS}>
+          <TabsContent value="tracking" className="py-10 px-6">
+            <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
+              <DataItem
+                isHeading={true}
+                label={t("parcelTracking.title")}
+                value={t("parcelTracking.subtitle")}
+                icon={Clock}
+              />
+              <CardContent className="flex-1">
+                <ParcelTrackingTimeline
+                  events={tracking?.events ?? []}
+                  isLoading={isTrackingLoading}
+                  isError={isTrackingError}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Can>
       </Tabs>
     </PageContainer>
   );

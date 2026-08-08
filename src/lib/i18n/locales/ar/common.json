@@ -1433,6 +1433,31 @@
       "cancel": "إلغاء"
     }
   },
+  "parcelTracking": {
+    "title": "سجل التتبع",
+    "subtitle": "سجل بتغييرات حالة هذا الطرد.",
+    "empty": "لا توجد أحداث تتبع مسجلة بعد.",
+    "loadError": "حدث خطأ أثناء تحميل سجل التتبع.",
+    "notes": "ملاحظات",
+    "eventCodes": {
+      "pending": "قيد الانتظار",
+      "courier_received": "استلمها المندوب",
+      "waiting_confirmation": "في انتظار التأكيد",
+      "PUDO_received": "وصلت إلى نقطة الاستلام",
+      "customer_received": "تم التوصيل",
+      "expired": "انتهت مهلة الاستلام",
+      "expired_received": "تم استرجاع الطرد المنتهي"
+    },
+    "eventDescriptions": {
+      "pending": "تم تسجيل الطرد وهو بانتظار الاستلام.",
+      "courier_received": "قام المندوب باستلام الطرد.",
+      "waiting_confirmation": "بانتظار تأكيد المستلم للتوصيل.",
+      "PUDO_received": "وصل الطرد إلى نقطة الاستلام.",
+      "customer_received": "تم استلام الطرد من قبل العميل.",
+      "expired": "انتهت مهلة الاستلام قبل استلام الطرد.",
+      "expired_received": "تم استرجاع الطرد المنتهية صلاحيته."
+    }
+  },
   "warehouseParcel": {
     "loadError": "حدث خطأ أثناء تحميل هذا الطرد.",
     "notFound": "الطرد غير موجود.",

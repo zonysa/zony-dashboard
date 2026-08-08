@@ -123,6 +123,25 @@ export type CreateParcelRes = {
   status: "success" | "error";
 };
 
+// A single status change recorded for a parcel, returned by
+// GET /parcels/:id/tracking. `code` is typically one of ParcelDetails["status"]
+// but is left as `string` since the backend may add finer-grained tracking
+// codes without a matching parcel-level status.
+export interface ParcelTrackingEvent {
+  id: number;
+  code: string;
+  occurred_at: string;
+  location?: string | null;
+  notes?: string | null;
+}
+
+// Type for the getParcelTracking API response
+export type GetParcelTrackingRes = {
+  message: string;
+  events: ParcelTrackingEvent[];
+  status: "success" | "error";
+};
+
 // Type for the complete API response
 export type getParcelsRes = {
   current_page: number;

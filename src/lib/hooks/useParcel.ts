@@ -1,5 +1,6 @@
 import {
   GetParcelRes,
+  GetParcelTrackingRes,
   getParcelsRes,
   parcelFilterOptions,
   ParcelFormData,
@@ -11,6 +12,7 @@ import {
   deleteParcel,
   getParcelById,
   getParcels,
+  getParcelTracking,
   updateParcel,
 } from "../services/parcel.service";
 import Error from "next/error";
@@ -22,6 +24,7 @@ export const parcelKeys = {
   list: (filters: string) => [...parcelKeys.lists(), { filters }] as const,
   details: () => [...parcelKeys.all, "detail"] as const,
   detail: (id: string) => [...parcelKeys.details(), id] as const,
+  tracking: (id: string) => [...parcelKeys.detail(id), "tracking"] as const,
 };
 
 export function useCreateParcel() {
@@ -62,6 +65,19 @@ export function useGetParcel(id: string, enabled = true) {
     queryKey: parcelKeys.detail(id),
     queryFn: () => getParcelById(id),
     enabled: !!id && enabled, // Only run if ID exists and enabled
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// Get tracking history for a parcel
+export function useGetParcelTracking(id: string, enabled = true) {
+  return useQuery<GetParcelTrackingRes>({
+    queryKey: parcelKeys.tracking(id),
+    queryFn: () => getParcelTracking(id),
+    enabled: !!id && enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 3,
