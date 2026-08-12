@@ -54,8 +54,8 @@ export default function Page() {
   ];
 
   const handleRowClick = (row: Row<ParcelDetails>) => {
-    const parcelId = row.getValue("id") as string;
-    router.replace(`/parcels/${parcelId}`);
+    const trackingNumber = row.getValue("tracking_number") as string;
+    router.replace(`/parcels/${trackingNumber}`);
   };
 
   return (

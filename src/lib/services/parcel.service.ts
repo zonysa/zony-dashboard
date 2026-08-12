@@ -7,7 +7,7 @@ import {
   ParcelFormData,
   CreateParcelFormData,
 } from "../schema/parcel.schema";
-import { apiCall } from "./apiClient";
+import { apiCall, ApiError } from "./apiClient";
 
 // Create Parcel
 export const createParcel = async (
@@ -57,6 +57,20 @@ export const getParcelById = async (id: string): Promise<GetParcelRes> => {
     method: "GET",
     url: `/parcels/${id}`,
   });
+};
+
+// Resolve a parcel by tracking number. /parcels has no by-tracking-number
+// GET, only the list endpoint's exact `tracking_number` filter (see
+// useReceivingLookup) — find the row there, then fetch the full record by id.
+export const getParcelByTrackingNumber = async (
+  trackingNumber: string
+): Promise<GetParcelRes> => {
+  const res = await getParcels({ tracking_number: trackingNumber, limit: 1 });
+  const match = res.parcels?.[0];
+  if (!match) {
+    throw new ApiError("Parcel not found", 404);
+  }
+  return getParcelById(String(match.id));
 };
 
 // Get tracking history for a parcel

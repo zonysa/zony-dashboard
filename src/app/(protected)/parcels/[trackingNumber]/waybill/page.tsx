@@ -6,7 +6,7 @@ import { notFound, useParams, useSearchParams } from "next/navigation";
 import { ArrowLeft, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useGetParcel } from "@/lib/hooks/useParcel";
+import { useGetParcelByTrackingNumber } from "@/lib/hooks/useParcel";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { WaybillTemplate } from "@/components/parcels/waybill";
 
@@ -21,11 +21,11 @@ export default function WaybillPage() {
 function WaybillPageContent() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const parcelId = (params.id as string) || "";
+  const trackingNumber = (params.trackingNumber as string) || "";
   const autoprint = searchParams.get("autoprint") === "1";
 
   const { t } = useTranslation();
-  const { data, isLoading, isError } = useGetParcel(parcelId);
+  const { data, isLoading, isError } = useGetParcelByTrackingNumber(trackingNumber);
   const hasAutoPrinted = useRef(false);
 
   const parcel = data?.parcel;
@@ -37,7 +37,7 @@ function WaybillPageContent() {
     }
   }, [autoprint, parcel]);
 
-  if (!parcelId) {
+  if (!trackingNumber) {
     notFound();
   }
 
@@ -45,7 +45,7 @@ function WaybillPageContent() {
     <div className="mx-auto flex w-full max-w-3xl flex-col items-center gap-6 py-10">
       <div className="flex w-full max-w-[105mm] items-center justify-between print:hidden">
         <Button variant="ghost" asChild>
-          <Link href={`/parcels/${parcelId}`}>
+          <Link href={`/parcels/${trackingNumber}`}>
             <ArrowLeft className="h-4 w-4" />
             {t("waybill.backToParcel")}
           </Link>

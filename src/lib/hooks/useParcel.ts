@@ -11,6 +11,7 @@ import {
   createParcel,
   deleteParcel,
   getParcelById,
+  getParcelByTrackingNumber,
   getParcels,
   getParcelTracking,
   updateParcel,
@@ -24,6 +25,8 @@ export const parcelKeys = {
   list: (filters: string) => [...parcelKeys.lists(), { filters }] as const,
   details: () => [...parcelKeys.all, "detail"] as const,
   detail: (id: string) => [...parcelKeys.details(), id] as const,
+  detailByTrackingNumber: (trackingNumber: string) =>
+    [...parcelKeys.details(), "byTrackingNumber", trackingNumber] as const,
   tracking: (id: string) => [...parcelKeys.detail(id), "tracking"] as const,
 };
 
@@ -40,6 +43,12 @@ export function useCreateParcel() {
       if (data?.parcel?.id) {
         queryClient.setQueryData(
           parcelKeys.detail(String(data.parcel.id)),
+          data,
+        );
+      }
+      if (data?.parcel?.tracking_number) {
+        queryClient.setQueryData(
+          parcelKeys.detailByTrackingNumber(data.parcel.tracking_number),
           data,
         );
       }
@@ -65,6 +74,22 @@ export function useGetParcel(id: string, enabled = true) {
     queryKey: parcelKeys.detail(id),
     queryFn: () => getParcelById(id),
     enabled: !!id && enabled, // Only run if ID exists and enabled
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// Get single parcel by tracking number
+export function useGetParcelByTrackingNumber(
+  trackingNumber: string,
+  enabled = true,
+) {
+  return useQuery<GetParcelRes>({
+    queryKey: parcelKeys.detailByTrackingNumber(trackingNumber),
+    queryFn: () => getParcelByTrackingNumber(trackingNumber),
+    enabled: !!trackingNumber && enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 3,

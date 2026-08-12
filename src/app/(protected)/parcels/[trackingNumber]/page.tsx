@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useGetParcel, useGetParcelTracking } from "@/lib/hooks/useParcel";
+import {
+  useGetParcelByTrackingNumber,
+  useGetParcelTracking,
+} from "@/lib/hooks/useParcel";
 import { ArrowRight, Box, Clock, Package, Printer, Store, Truck, User } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
@@ -40,22 +43,22 @@ const formatDateTime = (dateString: string | null) => {
 
 export default function Page() {
   const params = useParams();
-  const parcelId = (params.id as string) || "";
+  const trackingNumber = (params.trackingNumber as string) || "";
 
   const { t } = useTranslation();
-  const { data: parcel } = useGetParcel(parcelId);
+  const { data: parcel } = useGetParcelByTrackingNumber(trackingNumber);
+  const parcelData = parcel?.parcel;
+  const parcelId = parcelData?.id ? String(parcelData.id) : "";
   const {
     data: tracking,
     isLoading: isTrackingLoading,
     isError: isTrackingError,
-  } = useGetParcelTracking(parcelId);
+  } = useGetParcelTracking(parcelId, !!parcelId);
 
-  // Handle missing ID after all hooks are called
-  if (!parcelId) {
+  // Handle missing tracking number after all hooks are called
+  if (!trackingNumber) {
     notFound();
   }
-
-  const parcelData = parcel?.parcel;
 
   return (
     <PageContainer size="xl" className="flex flex-col gap-6 py-10">
@@ -65,7 +68,7 @@ export default function Page() {
         </h1>
         <Can do={Permission.PRINT_PARCELS}>
           <Button asChild variant="outline">
-            <Link href={`/parcels/${parcelId}/waybill`}>
+            <Link href={`/parcels/${trackingNumber}/waybill`}>
               <Printer className="h-4 w-4" />
               {t("waybill.printWaybill")}
             </Link>

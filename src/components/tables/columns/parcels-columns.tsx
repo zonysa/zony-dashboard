@@ -12,16 +12,6 @@ interface ColumnsProps {
 export const Columns = ({ t }: ColumnsProps) => {
   const columns: ColumnDef<ParcelDetails>[] = [
     {
-      accessorKey: "id",
-      header: t("table.id") || "ID",
-      cell: ({ row }) => {
-        const parcelId = row.getValue("id") as string;
-        return <div className="font-mono text-sm">{parcelId}</div>;
-      },
-      filterFn: "includesString",
-      enableSorting: false,
-    },
-    {
       accessorKey: "tracking_number",
       header: t("table.trackingNumber") || "Tracking Number",
       cell: ({ row }) => {

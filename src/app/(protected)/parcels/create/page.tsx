@@ -155,8 +155,10 @@ export default function Page() {
       await parcelMutation.mutateAsync(payload, {
         onSuccess: (res) => {
           toast.success(t("dialogs.createParcel.success"));
-          const newParcelId = res?.parcel?.id;
-          router.push(newParcelId ? `/parcels/${newParcelId}` : "/parcels");
+          const newTrackingNumber = res?.parcel?.tracking_number;
+          router.push(
+            newTrackingNumber ? `/parcels/${newTrackingNumber}` : "/parcels",
+          );
         },
         onError: (err) => {
           toast.error(

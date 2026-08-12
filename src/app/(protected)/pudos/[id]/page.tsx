@@ -199,8 +199,8 @@ function BranchDetails() {
 
   const router = useRouter();
   const handleRowClick = (row: Row<ParcelDetails>) => {
-    const id = row.getValue("id");
-    router.replace(`/parcels/${id}`);
+    const trackingNumber = row.getValue("tracking_number");
+    router.replace(`/parcels/${trackingNumber}`);
   };
 
   return (
