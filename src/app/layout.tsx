@@ -73,6 +73,7 @@ export default function RootLayout({
     <HtmlWrapper>
       <body
         className={`${poppins.variable} ${poppins.className} ${cairo.variable} antialiased`}
+        suppressHydrationWarning
       >
         <AuthInitializer>
           <I18nProvider>
