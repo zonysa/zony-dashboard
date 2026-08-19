@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DataItem from "@/components/ui/DataItem";
-import { Globe, BarChart3, Briefcase, Warehouse } from "lucide-react";
+import { Globe, BarChart3, Briefcase, Warehouse, FileText } from "lucide-react";
 import { toast } from "sonner";
 import {
   useLanguage,
@@ -229,6 +229,44 @@ const SettingsPage = () => {
           </div>
         </Card>
       </Can>
+
+      {/* Site Content Settings Card */}
+      <RoleGuard allowedRoles={["admin"]} fallback={null}>
+        <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
+          <DataItem
+            isHeading={true}
+            label={t("settings.content.title", {
+              defaultValue: "Site Content",
+            })}
+            value={t("settings.content.description", {
+              defaultValue:
+                "Edit the zony-portfolio marketing site's copy, in Arabic and English",
+            })}
+            icon={FileText}
+            iconClassName="text-black"
+          />
+          <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+            <div className="grid grid-cols-1 gap-3">
+              <div className="text-sm text-gray-500">
+                <p>
+                  {t("settings.content.settingsDescription", {
+                    defaultValue:
+                      "Edit hero, about, solutions, FAQ, and every other section shown on zony.sa -- changes go live within a minute, no redeploy needed.",
+                  })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => router.push("/settings/content")}
+              variant="outline"
+            >
+              {t("settings.content.configure", { defaultValue: "Configure" })}
+            </Button>
+          </div>
+        </Card>
+      </RoleGuard>
 
       {/* Future Settings Sections */}
       {/* Add more settings cards here following the same pattern */}
