@@ -267,6 +267,22 @@ export const SITE_CONTENT_SECTIONS: SectionSpec[] = [
   },
 ];
 
+// i18n key for a field label: the English label slugged to camelCase, so
+// locale files can carry `settings.content.fields.<slug>` without every spec
+// having to spell out its own key. Falls back to the English label when the
+// key is missing.
+export function fieldLabelKey(label: string): string {
+  const words = label
+    .replace(/[^A-Za-z0-9]+/g, " ")
+    .trim()
+    .split(" ");
+  return words
+    .map((w, i) =>
+      i === 0 ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+    )
+    .join("");
+}
+
 export function getSectionSpec(sectionKey: string): SectionSpec | undefined {
   return SITE_CONTENT_SECTIONS.find((s) => s.key === sectionKey);
 }

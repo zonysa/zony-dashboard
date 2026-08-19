@@ -16,9 +16,11 @@ import {
 import { Plus, Trash2 } from "lucide-react";
 import {
   FieldSpec,
+  fieldLabelKey,
   ICON_OPTIONS,
   SectionSpec,
 } from "@/lib/config/siteContentFields";
+import { useTranslation } from "@/lib/hooks/useTranslation";
 
 type JsonValue = unknown;
 type JsonRecord = Record<string, unknown>;
@@ -51,6 +53,8 @@ function StringArrayField({
   values: string[];
   onChange: (v: string[]) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-2">
       {values.map((v, i) => (
@@ -81,7 +85,7 @@ function StringArrayField({
         onClick={() => onChange([...values, ""])}
       >
         <Plus className="h-4 w-4" />
-        Add item
+        {t("settings.content.addItem", { defaultValue: "Add item" })}
       </Button>
     </div>
   );
@@ -96,6 +100,8 @@ function RepeaterField({
   fields: FieldSpec[];
   onChange: (v: JsonRecord[]) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-3">
       {items.map((item, i) => (
@@ -132,7 +138,7 @@ function RepeaterField({
         onClick={() => onChange([...items, emptyObjectForFields(fields)])}
       >
         <Plus className="h-4 w-4" />
-        Add
+        {t("common.add", { defaultValue: "Add" })}
       </Button>
     </div>
   );
@@ -147,9 +153,15 @@ function FieldRenderer({
   value: JsonValue;
   onChange: (v: JsonValue) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-1.5">
-      <Label>{field.label}</Label>
+      <Label>
+        {t(`settings.content.fields.${fieldLabelKey(field.label)}`, {
+          defaultValue: field.label,
+        })}
+      </Label>
       {field.type === "text" && (
         <Input
           value={(value as string) ?? ""}
