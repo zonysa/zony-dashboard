@@ -78,6 +78,20 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     path: "/clients",
     permission: Permission.VIEW_CLIENTS,
   },
+  {
+    path: "/clients/create",
+    permission: Permission.CREATE_CLIENTS,
+  },
+
+  // Leads
+  {
+    path: "/leads",
+    permission: Permission.VIEW_LEADS,
+  },
+  {
+    path: "/leads/[id]",
+    permission: Permission.VIEW_LEADS,
+  },
 
   // Tickets
   {

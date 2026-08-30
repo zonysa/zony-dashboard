@@ -441,6 +441,32 @@
       "other": "Other"
     }
   },
+  "leads": {
+    "title": "Leads",
+    "phone": "Phone",
+    "interestedIn": "Interested in",
+    "allTypes": "All",
+    "submittedAt": "Submitted",
+    "details": "Lead details",
+    "actions": "Actions",
+    "message": "Message",
+    "storeName": "Store",
+    "company": "Company",
+    "parcelsVolume": "Monthly parcels",
+    "convertToPartner": "Convert to Partner",
+    "convertToClient": "Convert to Client",
+    "viewConverted": "View converted record",
+    "tabs": {
+      "store": "Become a Partner (store)",
+      "partner": "Ship with Zony (company)"
+    },
+    "statuses": {
+      "new": "New",
+      "contacted": "Contacted",
+      "converted": "Converted",
+      "rejected": "Rejected"
+    }
+  },
   "pudos": {
     "title": "PUDOs"
   },
@@ -921,7 +947,8 @@
       "parcelTracking": "Parcel Tracking",
       "partnerInfo": "Partner Info",
       "pudos": "PUDOs",
-      "clientInfo": "Client Info"
+      "clientInfo": "Client Info",
+      "responsible": "Responsible Person"
     },
     "sections": {
       "branchInfo": "Branch Info",
@@ -963,6 +990,14 @@
       "name": "Name",
       "location": "Location",
       "phoneNumber": "Phone Number",
+      "email": "Email",
+      "username": "Username",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "role": "Role",
+      "newPassword": "New Password",
+      "leaveBlankToKeepPassword": "Leave blank to keep the current password",
+      "pickOnMap": "Pick on map",
       "bankName": "Bank Name",
       "accountNumber": "Account Number",
       "iban": "IBAN",
@@ -1026,7 +1061,8 @@
       "needMoreTime": "Do you need more time to receive your package?",
       "extendReceiptTime": "To extend the receipt time, click below:",
       "noCourierAssigned": "No courier assigned yet",
-      "noDocuments": "No documents available"
+      "noDocuments": "No documents available",
+      "responsibleUpdated": "Responsible person updated successfully"
     }
   },
   "notFound": {

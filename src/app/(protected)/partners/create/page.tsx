@@ -5,18 +5,23 @@ import { BankAccountStep } from "@/forms/partners/BankAccountStep";
 import { PartnerStep } from "@/forms/partners/PartnerInfoStep";
 import { StepConfig, useMultiStepForm } from "@/lib/hooks/useMutliStepForm";
 import { useCreatePartner } from "@/lib/hooks/usePartner";
+import { useUpdateLead } from "@/lib/hooks/useLead";
 import {
   CreatePartnerRequest,
   PartnerFormData,
   bankSchema,
   partnerStepSchema,
 } from "@/lib/schema/partner.schema";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 export default function Page() {
   const partnerMutation = useCreatePartner();
+  const updateLead = useUpdateLead();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const leadId = searchParams.get("leadId");
+  const leadName = searchParams.get("name") || "";
 
   const formSteps: StepConfig<PartnerFormData>[] = [
     {
@@ -87,7 +92,7 @@ export default function Page() {
   const multiStep = useMultiStepForm<PartnerFormData>({
     steps: formSteps,
     defaultValues: {
-      partnerName: ``,
+      partnerName: leadName,
       currency: "SAR",
       payoutPerParcel: undefined,
       type: "",
@@ -129,10 +134,22 @@ export default function Page() {
 
         // console.log(partnerData);
         await partnerMutation.mutateAsync(partnerData, {
-          onSuccess: () => {
+          onSuccess: async (result: unknown) => {
             toast.success(
               `New Partner ${data.partnerName} Created Successfuly`,
             );
+
+            const newPartnerId = (
+              result as { partner?: { id?: number } } | undefined
+            )?.partner?.id;
+
+            if (leadId && newPartnerId) {
+              await updateLead.mutateAsync({
+                id: leadId,
+                data: { converted_partner_id: newPartnerId },
+              });
+            }
+
             router.push("/partners");
           },
         });

@@ -442,6 +442,32 @@
       "other": "أخرى"
     }
   },
+  "leads": {
+    "title": "العملاء المحتملون",
+    "phone": "رقم الجوال",
+    "interestedIn": "مهتم بـ",
+    "allTypes": "الكل",
+    "submittedAt": "تاريخ الإرسال",
+    "details": "تفاصيل الطلب",
+    "actions": "الإجراءات",
+    "message": "الرسالة",
+    "storeName": "المتجر",
+    "company": "الشركة",
+    "parcelsVolume": "عدد الطرود الشهري",
+    "convertToPartner": "تحويل إلى شريك",
+    "convertToClient": "تحويل إلى عميل",
+    "viewConverted": "عرض السجل المحوّل",
+    "tabs": {
+      "store": "الانضمام كنقطة استلام",
+      "partner": "الشحن مع زوني"
+    },
+    "statuses": {
+      "new": "جديد",
+      "contacted": "تم التواصل",
+      "converted": "تم التحويل",
+      "rejected": "مرفوض"
+    }
+  },
   "pudos": {
     "title": "نقاط الاستلام"
   },
@@ -920,7 +946,8 @@
       "parcelTracking": "تتبع الطرد",
       "partnerInfo": "معلومات الشريك",
       "pudos": "PUDOs",
-      "clientInfo": "معلومات العميل"
+      "clientInfo": "معلومات العميل",
+      "responsible": "الشخص المسؤول"
     },
     "sections": {
       "branchInfo": "معلومات الفرع",
@@ -959,6 +986,14 @@
       "name": "الاسم",
       "location": "الموقع",
       "phoneNumber": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "username": "اسم المستخدم",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "role": "الدور",
+      "newPassword": "كلمة المرور الجديدة",
+      "leaveBlankToKeepPassword": "اتركه فارغاً للاحتفاظ بكلمة المرور الحالية",
+      "pickOnMap": "تحديد الموقع على الخريطة",
       "bankName": "اسم البنك",
       "accountNumber": "رقم الحساب",
       "iban": "رقم الآيبان",
@@ -1022,7 +1057,8 @@
       "needMoreTime": "هل تحتاج إلى مزيد من الوقت لاستلام الطرد الخاص بك؟",
       "extendReceiptTime": "لتمديد وقت الاستلام، انقر أدناه:",
       "noCourierAssigned": "لم يتم تعيين موصل بعد",
-      "noDocuments": "لا توجد مستندات متاحة"
+      "noDocuments": "لا توجد مستندات متاحة",
+      "responsibleUpdated": "تم تحديث بيانات الشخص المسؤول بنجاح"
     }
   },
   "notFound": {

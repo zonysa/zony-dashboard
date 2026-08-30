@@ -48,6 +48,10 @@ export enum Permission {
   EDIT_CLIENTS = "edit:clients",
   DELETE_CLIENTS = "delete:clients",
 
+  // Leads (prospective Partners/Clients from the portfolio site)
+  VIEW_LEADS = "view:leads",
+  EDIT_LEADS = "edit:leads",
+
   // Tickets
   VIEW_TICKETS = "view:tickets",
   CREATE_TICKETS = "create:tickets",
@@ -83,6 +87,9 @@ export enum Permission {
   // Profile
   VIEW_PROFILE = "view:profile",
   EDIT_PROFILE = "edit:profile",
+
+  // PUDO responsible person (admin-only credential/detail editing)
+  EDIT_PUDO_RESPONSIBLE = "edit:pudo_responsible",
 }
 
 // Define permissions for each role
@@ -119,6 +126,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.CREATE_CLIENTS,
     Permission.EDIT_CLIENTS,
     Permission.DELETE_CLIENTS,
+    Permission.VIEW_LEADS,
+    Permission.EDIT_LEADS,
     Permission.VIEW_TICKETS,
     Permission.CREATE_TICKETS,
     Permission.EDIT_TICKETS,
@@ -137,6 +146,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VOID_WAREHOUSE_EVENTS,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
+    Permission.EDIT_PUDO_RESPONSIBLE,
   ],
 
   // Representative - Sales and partnerships
@@ -179,6 +189,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.ASSIGN_PARCELS,
     Permission.PRINT_PARCELS,
     Permission.VIEW_CLIENTS,
+    Permission.VIEW_LEADS,
+    Permission.EDIT_LEADS,
     Permission.VIEW_TICKETS,
     Permission.CREATE_TICKETS,
     Permission.EDIT_TICKETS,
@@ -205,6 +217,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_PUDOS,
     Permission.TRACK_PARCELS,
     // Permission.VIEW_CUSTOMER,
+    Permission.VIEW_LEADS,
     Permission.VIEW_TICKETS,
     Permission.CREATE_TICKETS,
     Permission.EDIT_TICKETS,

@@ -17,6 +17,7 @@ import {
   Headset,
   Truck,
   Warehouse,
+  Inbox,
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -106,6 +107,12 @@ function AppSidebarContent() {
       url: "/clients",
       icon: Handshake,
       permission: Permission.VIEW_CLIENTS,
+    },
+    {
+      title: t("leads.title"),
+      url: "/leads",
+      icon: Inbox,
+      permission: Permission.VIEW_LEADS,
     },
     {
       title: t("tickets.title"),
