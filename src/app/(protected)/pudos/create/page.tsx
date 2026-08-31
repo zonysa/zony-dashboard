@@ -114,7 +114,7 @@ export default function Page() {
       // Here you would typically send the data to your API
       const [lat, lng] = data.coordinates
         .split(",")
-        .map((coord: string) => coord.trim());
+        .map((coord: string) => Number(coord.trim()));
       try {
         const branchData: CreateBranchRequest = {
           // Branch info

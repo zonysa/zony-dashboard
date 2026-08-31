@@ -3,7 +3,7 @@ import { toast } from "sonner";
 
 import {
   BranchFilterOptions,
-  CreateBranch,
+  CreateBranchRequest,
   GetBranchesRes,
   GetBranchRes,
 } from "@/lib/schema/branch.schema";
@@ -100,8 +100,13 @@ export function useUpdateBranch() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<CreateBranch> }) =>
-      updaetBranch(id, data),
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Partial<CreateBranchRequest>;
+    }) => updaetBranch(id, data),
     onSuccess: (_, variables) => {
       toast.success("Branch updated successfully");
       // Invalidate both the list and the specific detail

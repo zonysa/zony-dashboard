@@ -65,7 +65,10 @@ export const getBranchKPIs = async (id: string) => {
 };
 
 // Update Parcel by ID
-export const updaetBranch = async (id: string, data: Partial<CreateBranch>) => {
+export const updaetBranch = async (
+  id: string,
+  data: Partial<CreateBranchRequest>,
+) => {
   return apiCall({
     method: "PATCH",
     url: `/branch/${id}`,
