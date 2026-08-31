@@ -54,7 +54,7 @@ const purpleMarkerIcon = L.divIcon({
 interface CoordinatePickerDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCoordinatesSelect: (lat: number, lng: number) => void;
+  onCoordinatesSelect: (lat: number, lng: number, pudoId?: number) => void;
   initialCoordinates?: { lat: number; lng: number };
   /** Show existing PUDO pickup points as markers on the map */
   showPudos?: boolean;
@@ -115,6 +115,10 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
     initialCoordinates || null
   );
+  // Set only when the current `position` came from picking a PUDO in the
+  // sidebar; any manual pin drop, search result, or geolocation pick clears
+  // it, since those no longer point at that PUDO's exact location.
+  const [selectedPudoId, setSelectedPudoId] = useState<number | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -168,8 +172,9 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
     return () => controller.abort();
   }, [debouncedQuery, currentLanguage]);
 
-  const flyAndSelect = useCallback((lat: number, lng: number) => {
+  const flyAndSelect = useCallback((lat: number, lng: number, pudoId?: number) => {
     setPosition({ lat, lng });
+    setSelectedPudoId(pudoId ?? null);
     flyIdRef.current += 1;
     setFlyTarget({ lat, lng, id: flyIdRef.current });
   }, []);
@@ -183,9 +188,17 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
 
   const handlePudoClick = useCallback(
     (pudo: Branch) => {
-      flyAndSelect(pudo.coordinates.latitude, pudo.coordinates.longitude);
+      flyAndSelect(pudo.coordinates.latitude, pudo.coordinates.longitude, pudo.id);
     },
     [flyAndSelect]
+  );
+
+  const handleManualPosition = useCallback(
+    (pos: { lat: number; lng: number }) => {
+      setPosition(pos);
+      setSelectedPudoId(null);
+    },
+    []
   );
 
   const handleCurrentLocation = useCallback(() => {
@@ -209,10 +222,10 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
 
   const handleSubmit = useCallback(() => {
     if (position) {
-      onCoordinatesSelect(position.lat, position.lng);
+      onCoordinatesSelect(position.lat, position.lng, selectedPudoId ?? undefined);
       onOpenChange(false);
     }
-  }, [position, onCoordinatesSelect, onOpenChange]);
+  }, [position, selectedPudoId, onCoordinatesSelect, onOpenChange]);
 
   const handleCancel = useCallback(() => {
     onOpenChange(false);
@@ -317,7 +330,7 @@ export const CoordinatePickerDialog: React.FC<CoordinatePickerDialogProps> = ({
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
-              <LocationMarker position={position} setPosition={setPosition} />
+              <LocationMarker position={position} setPosition={handleManualPosition} />
               <FlyTo target={flyTarget} />
               {showPudos &&
                 pudos.map((pudo: Branch) => (

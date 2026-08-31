@@ -152,9 +152,19 @@ export const PartySection: React.FC<PartySectionProps> = ({
     );
   };
 
-  const handleCoordinatesSelect = (lat: number, lng: number) => {
+  const handleCoordinatesSelect = (
+    lat: number,
+    lng: number,
+    pudoId?: number,
+  ) => {
     setValue(`${prefix}.location.latitude`, lat, { shouldValidate: true });
     setValue(`${prefix}.location.longitude`, lng, { shouldValidate: true });
+    // pudo_id is a single top-level field representing the receiver's
+    // pickup point — only the receiver's picker can set it. Picking a
+    // plain (non-PUDO) location for the receiver clears it back out.
+    if (prefix === "receiver") {
+      setValue("pudo_id", pudoId, { shouldValidate: true });
+    }
     setShowCoordinatePicker(false);
 
     // Map-pin fallback: reverse-geocode the picked point into a National

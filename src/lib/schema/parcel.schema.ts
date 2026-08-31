@@ -285,6 +285,9 @@ export const createParcelSchema = z.object({
     .int()
     .positive("Pickup period must be a positive integer"),
   client_id: z.number().int().positive().optional(),
+  // Set when the receiver's location was picked as an existing PUDO
+  // pickup point (via the map picker) rather than a plain address.
+  pudo_id: z.number().int().positive().optional(),
   // Optional: customers creating their own parcel don't submit a sender —
   // the backend snapshots the personal info from their profile instead,
   // but still needs the sender's location from this form.
