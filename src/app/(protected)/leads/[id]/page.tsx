@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/select";
 import { PageContainer } from "@/components/PageContainer";
 import { useGetLead, useUpdateLead } from "@/lib/hooks/useLead";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { Permission } from "@/lib/rbac/permissions";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Lead } from "@/lib/schema/lead.schema";
 
@@ -32,6 +34,10 @@ export default function LeadDetailsPage() {
 
   const { data, isLoading } = useGetLead(leadId);
   const updateLead = useUpdateLead();
+  const { hasPermission } = usePermissions();
+  // Mirrors the backend: PATCH /leads/<id> is admin/supervisor only, so
+  // customer_service gets a read-only view instead of controls that 403.
+  const canEditLead = hasPermission(Permission.EDIT_LEADS);
 
   const lead = data?.lead;
 
@@ -106,59 +112,65 @@ export default function LeadDetailsPage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("leads.actions", { defaultValue: "Actions" })}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col sm:flex-row gap-4 sm:items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">{t("table.status")}</span>
-            <Select value={lead.status} onValueChange={handleStatusChange}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="new">{t("leads.statuses.new", { defaultValue: "New" })}</SelectItem>
-                <SelectItem value="contacted">
-                  {t("leads.statuses.contacted", { defaultValue: "Contacted" })}
-                </SelectItem>
-                <SelectItem value="converted">
-                  {t("leads.statuses.converted", { defaultValue: "Converted" })}
-                </SelectItem>
-                <SelectItem value="rejected">
-                  {t("leads.statuses.rejected", { defaultValue: "Rejected" })}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+      {(canEditLead || lead.status === "converted") && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("leads.actions", { defaultValue: "Actions" })}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col sm:flex-row gap-4 sm:items-center">
+            {canEditLead && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">{t("table.status")}</span>
+                <Select value={lead.status} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="new">{t("leads.statuses.new", { defaultValue: "New" })}</SelectItem>
+                    <SelectItem value="contacted">
+                      {t("leads.statuses.contacted", { defaultValue: "Contacted" })}
+                    </SelectItem>
+                    <SelectItem value="converted">
+                      {t("leads.statuses.converted", { defaultValue: "Converted" })}
+                    </SelectItem>
+                    <SelectItem value="rejected">
+                      {t("leads.statuses.rejected", { defaultValue: "Rejected" })}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
-          <div className="flex-1" />
+            <div className="flex-1" />
 
-          {lead.status === "converted" ? (
-            <Button
-              variant="outline"
-              onClick={() =>
-                router.push(
-                  lead.converted_partner_id
-                    ? `/partners/${lead.converted_partner_id}`
-                    : `/clients/${lead.converted_client_id}`
-                )
-              }
-            >
-              {t("leads.viewConverted", {
-                defaultValue:
-                  lead.source_tab === "store" ? "View Partner" : "View Client",
-              })}
-            </Button>
-          ) : (
-            <Button onClick={() => router.push(convertHref)}>
-              {lead.source_tab === "store"
-                ? t("leads.convertToPartner", { defaultValue: "Convert to Partner" })
-                : t("leads.convertToClient", { defaultValue: "Convert to Client" })}
-            </Button>
-          )}
-        </CardContent>
-      </Card>
+            {lead.status === "converted" ? (
+              <Button
+                variant="outline"
+                onClick={() =>
+                  router.push(
+                    lead.converted_partner_id
+                      ? `/partners/${lead.converted_partner_id}`
+                      : `/clients/${lead.converted_client_id}`
+                  )
+                }
+              >
+                {t("leads.viewConverted", {
+                  defaultValue:
+                    lead.source_tab === "store" ? "View Partner" : "View Client",
+                })}
+              </Button>
+            ) : (
+              canEditLead && (
+                <Button onClick={() => router.push(convertHref)}>
+                  {lead.source_tab === "store"
+                    ? t("leads.convertToPartner", { defaultValue: "Convert to Partner" })
+                    : t("leads.convertToClient", { defaultValue: "Convert to Client" })}
+                </Button>
+              )
+            )}
+          </CardContent>
+        </Card>
+      )}
     </PageContainer>
   );
 }

@@ -16,7 +16,9 @@ export const getLeads = async (
   if (filters?.source_tab) params.append("source_tab", filters.source_tab);
   if (filters?.search) params.append("search", filters.search);
   if (filters?.page) params.append("page", filters.page.toString());
-  if (filters?.limit) params.append("limit", filters.limit.toString());
+  // Backend reads `per_page`, not `limit` — keep the option named `limit`
+  // for consistency with the other services and translate it here.
+  if (filters?.limit) params.append("per_page", filters.limit.toString());
 
   return apiCall({
     method: "GET",

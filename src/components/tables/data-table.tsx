@@ -61,6 +61,17 @@ interface DataTableProps<TData, TValue> {
   onFilterChange?: (filters: Record<string, string>) => void;
   onSearchChange?: (search: string) => void;
   isLoading?: boolean;
+
+  // Server-side pagination (optional). Pass all three to let the parent own
+  // paging: the footer buttons then request the next/previous page from the
+  // server instead of paging through the rows already in `data`. Omit them
+  // and pagination stays client-side, as every other table here does it.
+  pageCount?: number;
+  pageIndex?: number;
+  onPageChange?: (pageIndex: number) => void;
+  // Total row count across all pages, for the "showing X of Y" footer. Only
+  // meaningful alongside server-side pagination, where `data` holds one page.
+  totalResults?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -75,7 +86,15 @@ export function DataTable<TData, TValue>({
   onFilterChange,
   onSearchChange,
   isLoading = false,
+  pageCount,
+  pageIndex,
+  onPageChange,
+  totalResults,
 }: DataTableProps<TData, TValue>) {
+  const manualPagination =
+    pageCount !== undefined &&
+    pageIndex !== undefined &&
+    onPageChange !== undefined;
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -91,7 +110,19 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    ...(manualPagination
+      ? {
+          manualPagination: true,
+          pageCount: Math.max(pageCount, 1),
+          onPaginationChange: (updater) => {
+            const next =
+              typeof updater === "function"
+                ? updater({ pageIndex, pageSize: data.length || 1 })
+                : updater;
+            onPageChange(next.pageIndex);
+          },
+        }
+      : { getPaginationRowModel: getPaginationRowModel() }),
     ...(!serverSide && {
       getFilteredRowModel: getFilteredRowModel(),
       onColumnFiltersChange: setColumnFilters,
@@ -100,6 +131,9 @@ export function DataTable<TData, TValue>({
     globalFilterFn: "includesString",
     state: {
       ...(!serverSide && { columnFilters, globalFilter }),
+      ...(manualPagination && {
+        pagination: { pageIndex, pageSize: data.length || 1 },
+      }),
     },
   });
 
@@ -359,7 +393,7 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-sm text-gray-600">
           {t("table.showing")} {table.getRowModel().rows.length} {t("table.of")}{" "}
-          {data.length} {t("table.results")}
+          {totalResults ?? data.length} {t("table.results")}
           {hasActiveFilters && " (filtered)"}
         </div>
 

@@ -17,7 +17,7 @@ export default function Page() {
 
   const [filters, setFilters] = useState<LeadFilterOptions>({
     page: 1,
-    limit: 50,
+    limit: 20,
   });
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 400);
@@ -44,9 +44,12 @@ export default function Page() {
     router.push(`/leads/${row.original.id}`);
   };
 
+  // Any change to what is being queried has to send us back to page 1 —
+  // staying on page 4 of the old result set would show an empty table.
   const handleFilterChange = (newFilters: Record<string, string>) => {
     setFilters((prev) => ({
       ...prev,
+      page: 1,
       source_tab: newFilters.source_tab || undefined,
       status: newFilters.status || undefined,
     }));
@@ -54,6 +57,11 @@ export default function Page() {
 
   const handleSearchChange = (searchValue: string) => {
     setSearch(searchValue);
+    setFilters((prev) => ({ ...prev, page: 1 }));
+  };
+
+  const handlePageChange = (pageIndex: number) => {
+    setFilters((prev) => ({ ...prev, page: pageIndex + 1 }));
   };
 
   return (
@@ -69,6 +77,10 @@ export default function Page() {
         serverSide={true}
         onFilterChange={handleFilterChange}
         onSearchChange={handleSearchChange}
+        pageCount={leads?.total_pages ?? 0}
+        pageIndex={(filters.page ?? 1) - 1}
+        onPageChange={handlePageChange}
+        totalResults={leads?.total_leads}
         isLoading={isLoading}
       />
     </PageContainer>
