@@ -26,7 +26,7 @@ interface DataItemProps {
   labelClassName?: string;
   // Edit mode props
   isEditable?: boolean;
-  type?: "text" | "email" | "tel" | "number" | "select";
+  type?: "text" | "email" | "tel" | "number" | "select" | "password";
   selectOptions?: SelectOption[];
   placeholder?: string;
   onChange?: (value: string) => void;

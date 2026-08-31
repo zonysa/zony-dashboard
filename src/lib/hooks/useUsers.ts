@@ -70,10 +70,11 @@ export function useCreateUser() {
   });
 }
 
-// Update user
+// Update user. Navigation/toasts are left to the caller via the
+// onSuccess/onError passed to mutateAsync, since this hook is shared across
+// several different edit flows (see useCreateUser above).
 export function useUpdateUser(id: string) {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   return useMutation({
     mutationFn: (data: Partial<UserFormData>) => updateUser(id, data),
@@ -81,8 +82,6 @@ export function useUpdateUser(id: string) {
       // Invalidate the specific user and the list
       queryClient.invalidateQueries({ queryKey: userKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });
-      // Redirect to users list or detail page
-      router.push("/users");
     },
     onError: (error) => {
       console.error("Update user error:", error);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import { DataTable } from "@/components/tables/data-table";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,11 +9,14 @@ import { User, Store, FileStack, MapPin } from "lucide-react";
 import DataItem from "@/components/ui/DataItem";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
   useGetBranch,
   useGetBranchParcels,
   useGetBranchKPIs,
+  useUpdateBranch,
 } from "@/lib/hooks/useBranch";
+import { useGetUser, useUpdateUser } from "@/lib/hooks/useUsers";
 import { useParams, useRouter } from "next/navigation";
 import { SectionCards } from "@/components/ui/section-cards";
 import { Columns } from "@/components/tables/columns/parcels-columns";
@@ -23,6 +27,16 @@ import { StaticMap } from "@/components/ui/StaticMap";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { useGetZones, useGetZoneDistricts } from "@/lib/hooks/useZone";
 import { PageContainer } from "@/components/PageContainer";
+import { Can } from "@/components/auth/Can";
+import { Permission } from "@/lib/rbac/permissions";
+
+const CoordinatePickerDialog = dynamic(
+  () =>
+    import("@/components/CoordinatePickerDialog").then(
+      (mod) => mod.CoordinatePickerDialog,
+    ),
+  { ssr: false },
+);
 
 function BranchDetails() {
   const { t } = useTranslation();
@@ -62,7 +76,6 @@ function BranchDetails() {
   const [editStates, setEditStates] = useState({
     branchInfo: false,
     location: false,
-    responsiblePerson: false,
     operatingHours: false,
   });
 
@@ -72,12 +85,81 @@ function BranchDetails() {
     location: "",
     name: "",
     phoneNum: "",
-    responsibleName: "",
-    responsiblePhone: "",
     cityId: "",
     zoneId: "",
     districtId: "",
+    lat: 0,
+    lng: 0,
   });
+
+  const [showCoordinatePicker, setShowCoordinatePicker] = useState(false);
+  const updateBranchMutation = useUpdateBranch();
+
+  const responsibleId = branch?.pudo?.responsible?.id;
+  const { data: responsibleRes, isLoading: responsibleLoading } = useGetUser(
+    responsibleId ?? "",
+  );
+  const responsible = responsibleRes?.user;
+  const updateResponsibleMutation = useUpdateUser(responsibleId ?? "");
+
+  const [responsibleEditing, setResponsibleEditing] = useState(false);
+  const [responsibleFormData, setResponsibleFormData] = useState({
+    first_name: "",
+    last_name: "",
+    username: "",
+    email: "",
+    phone_number: "",
+    password: "",
+  });
+
+  useEffect(() => {
+    if (responsible) {
+      setResponsibleFormData({
+        first_name: responsible.first_name || "",
+        last_name: responsible.last_name || "",
+        username: responsible.username || "",
+        email: responsible.email || "",
+        phone_number: responsible.phone_number || "",
+        password: "",
+      });
+    }
+  }, [responsible]);
+
+  const handleResponsibleSave = () => {
+    if (!responsibleId) return;
+    const { password, ...rest } = responsibleFormData;
+    updateResponsibleMutation.mutate(
+      { ...rest, ...(password ? { password } : {}) },
+      {
+        onSuccess: () => {
+          toast.success(t("detailPages.messages.responsibleUpdated"));
+          setResponsibleEditing(false);
+        },
+        onError: (error) => {
+          toast.error(error?.message || "Failed to update responsible person");
+        },
+      },
+    );
+  };
+
+  const handleResponsibleCancel = () => {
+    if (responsible) {
+      setResponsibleFormData({
+        first_name: responsible.first_name || "",
+        last_name: responsible.last_name || "",
+        username: responsible.username || "",
+        email: responsible.email || "",
+        phone_number: responsible.phone_number || "",
+        password: "",
+      });
+    }
+    setResponsibleEditing(false);
+  };
+
+  const handleCoordinatesSelect = (lat: number, lng: number) => {
+    setFormData((prev) => ({ ...prev, lat, lng }));
+    setShowCoordinatePicker(false);
+  };
 
   // Conditional data fetching - only when edit mode is enabled
   const { data: citiesData } = useGetCities();
@@ -94,11 +176,11 @@ function BranchDetails() {
         location: branch.pudo.address || "",
         name: branch.pudo.name || "",
         phoneNum: "",
-        responsibleName: branch.pudo.responsible.name || "",
-        responsiblePhone: branch.pudo.responsible.phone_number || "",
         cityId: branch.pudo.city_name?.toString() || "",
         zoneId: branch.pudo.zone_id?.toString() || "",
         districtId: branch.pudo.district_name?.toString() || "",
+        lat: branch.pudo.coordinates?.latitude ?? 0,
+        lng: branch.pudo.coordinates?.longitude ?? 0,
       });
     }
   }, [branch]);
@@ -111,6 +193,27 @@ function BranchDetails() {
   };
 
   const handleSave = (section: keyof typeof editStates) => {
+    if (section === "location") {
+      updateBranchMutation.mutate(
+        {
+          id: branchId,
+          data: {
+            address: formData.location,
+            coordinates: {
+              latitude: formData.lat,
+              longitude: formData.lng,
+            },
+          },
+        },
+        {
+          onSuccess: () => {
+            setEditStates((prev) => ({ ...prev, location: false }));
+          },
+        },
+      );
+      return;
+    }
+
     // Here you would typically make an API call to save the data
     console.log(`Saving ${section}:`, formData);
     setEditStates((prev) => ({
@@ -127,11 +230,11 @@ function BranchDetails() {
         location: branch.pudo.address || "",
         name: branch.pudo.name || "",
         phoneNum: "",
-        responsibleName: branch.pudo.responsible.name || "",
-        responsiblePhone: branch.pudo.responsible.phone_number || "",
         cityId: branch.pudo.city_name?.toString() || "",
         zoneId: branch.pudo.zone_id?.toString() || "",
         districtId: branch.pudo.district_name?.toString() || "",
+        lat: branch.pudo.coordinates?.latitude ?? 0,
+        lng: branch.pudo.coordinates?.longitude ?? 0,
       });
     }
     setEditStates((prev) => ({
@@ -209,6 +312,9 @@ function BranchDetails() {
         <TabsList className="px-6 bg-transparent">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="info">{t("detailPages.tabs.info")}</TabsTrigger>
+            <TabsTrigger value="responsible">
+              {t("detailPages.tabs.responsible")}
+            </TabsTrigger>
             <TabsTrigger value="parcels">
               {t("detailPages.tabs.parcels")}
             </TabsTrigger>
@@ -358,8 +464,32 @@ function BranchDetails() {
                 />
               </div>
 
-              <div className="w-full">
-                {locationExist ? (
+              <div className="w-full space-y-3">
+                {editStates.location && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowCoordinatePicker(true)}
+                  >
+                    {t("detailPages.labels.pickOnMap")}
+                  </Button>
+                )}
+                {editStates.location ? (
+                  formData.lat && formData.lng ? (
+                    <StaticMap
+                      width="100"
+                      coordinates={[
+                        { lat: formData.lat, lng: formData.lng },
+                      ]}
+                    />
+                  ) : (
+                    <div className="w-full h-100 bg-gray-100 flex justify-center items-center rounded">
+                      <span className="text-gray-500">
+                        There is no location for this branch
+                      </span>
+                    </div>
+                  )
+                ) : locationExist ? (
                   <StaticMap width="100" coordinates={[location]} />
                 ) : (
                   <div className="w-full h-100 bg-gray-100 flex justify-center items-center rounded">
@@ -376,6 +506,7 @@ function BranchDetails() {
                   <Button
                     onClick={() => handleSave("location")}
                     variant="default"
+                    disabled={updateBranchMutation.isPending}
                   >
                     {t("detailPages.buttons.saveChanges")}
                   </Button>
@@ -397,60 +528,16 @@ function BranchDetails() {
             </div>
           </Card>
 
-          {/* Responsible Person */}
-          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
-            <DataItem
-              isHeading={true}
-              label={t("detailPages.sections.responsiblePerson")}
-              value={t("detailPages.sections.responsiblePersonDescription")}
-              icon={User}
-              iconClassName="text-black"
-            />
-            <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <DataItem
-                  label={t("detailPages.labels.name")}
-                  value={formData.responsibleName}
-                  isEditable={editStates.responsiblePerson}
-                  onChange={(value) => updateFormData("responsibleName", value)}
-                />
-                <DataItem
-                  label={t("detailPages.labels.phoneNumber")}
-                  value={formData.responsiblePhone}
-                  type="tel"
-                  isEditable={editStates.responsiblePerson}
-                  onChange={(value) =>
-                    updateFormData("responsiblePhone", value)
-                  }
-                />
-              </div>
-            </CardContent>
-            <div className="flex gap-2">
-              {editStates.responsiblePerson ? (
-                <>
-                  <Button
-                    onClick={() => handleSave("responsiblePerson")}
-                    variant="default"
-                  >
-                    {t("detailPages.buttons.saveChanges")}
-                  </Button>
-                  <Button
-                    onClick={() => handleCancel("responsiblePerson")}
-                    variant="outline"
-                  >
-                    {t("detailPages.buttons.cancel")}
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  onClick={() => toggleEdit("responsiblePerson")}
-                  variant="outline"
-                >
-                  {t("detailPages.buttons.edit")}
-                </Button>
-              )}
-            </div>
-          </Card>
+          <CoordinatePickerDialog
+            open={showCoordinatePicker}
+            onOpenChange={setShowCoordinatePicker}
+            onCoordinatesSelect={handleCoordinatesSelect}
+            initialCoordinates={
+              formData.lat && formData.lng
+                ? { lat: formData.lat, lng: formData.lng }
+                : undefined
+            }
+          />
 
           {/* Documents */}
           <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
@@ -504,6 +591,141 @@ function BranchDetails() {
                   </div>
                 )}
             </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent className="flex flex-col gap-6" value="responsible">
+          <Card className="flex flex-col sm:flex-row border-0 border-b rounded-none shadow-none px-6">
+            <DataItem
+              isHeading={true}
+              label={t("detailPages.sections.responsiblePerson")}
+              value={t("detailPages.sections.responsiblePersonDescription")}
+              icon={User}
+              iconClassName="text-black"
+            />
+            <CardContent className="w-full sm:w-2/4 flex-1 space-y-3">
+              {responsibleLoading ? (
+                <div className="text-sm text-muted-foreground py-4">
+                  Loading responsible person...
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("detailPages.labels.firstName")}
+                      value={responsibleFormData.first_name}
+                      isEditable={responsibleEditing}
+                      onChange={(value) =>
+                        setResponsibleFormData((prev) => ({
+                          ...prev,
+                          first_name: value,
+                        }))
+                      }
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.lastName")}
+                      value={responsibleFormData.last_name}
+                      isEditable={responsibleEditing}
+                      onChange={(value) =>
+                        setResponsibleFormData((prev) => ({
+                          ...prev,
+                          last_name: value,
+                        }))
+                      }
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.username")}
+                      value={responsibleFormData.username}
+                      isEditable={responsibleEditing}
+                      onChange={(value) =>
+                        setResponsibleFormData((prev) => ({
+                          ...prev,
+                          username: value,
+                        }))
+                      }
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.email")}
+                      type="email"
+                      value={responsibleFormData.email}
+                      isEditable={responsibleEditing}
+                      onChange={(value) =>
+                        setResponsibleFormData((prev) => ({
+                          ...prev,
+                          email: value,
+                        }))
+                      }
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.phoneNumber")}
+                      type="tel"
+                      value={responsibleFormData.phone_number}
+                      isEditable={responsibleEditing}
+                      onChange={(value) =>
+                        setResponsibleFormData((prev) => ({
+                          ...prev,
+                          phone_number: value,
+                        }))
+                      }
+                    />
+                    <DataItem
+                      label={t("detailPages.labels.role")}
+                      value={responsible?.role || "N/A"}
+                    />
+                  </div>
+
+                  <Can do={Permission.EDIT_PUDO_RESPONSIBLE}>
+                    {responsibleEditing && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <DataItem
+                          label={t("detailPages.labels.newPassword")}
+                          type="password"
+                          value={responsibleFormData.password}
+                          isEditable
+                          placeholder={t(
+                            "detailPages.labels.leaveBlankToKeepPassword",
+                          )}
+                          onChange={(value) =>
+                            setResponsibleFormData((prev) => ({
+                              ...prev,
+                              password: value,
+                            }))
+                          }
+                        />
+                      </div>
+                    )}
+                  </Can>
+                </>
+              )}
+            </CardContent>
+            <Can do={Permission.EDIT_PUDO_RESPONSIBLE}>
+              <div className="flex gap-2">
+                {responsibleEditing ? (
+                  <>
+                    <Button
+                      onClick={handleResponsibleSave}
+                      variant="default"
+                      disabled={updateResponsibleMutation.isPending}
+                    >
+                      {t("detailPages.buttons.saveChanges")}
+                    </Button>
+                    <Button
+                      onClick={handleResponsibleCancel}
+                      variant="outline"
+                    >
+                      {t("detailPages.buttons.cancel")}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => setResponsibleEditing(true)}
+                    variant="outline"
+                  >
+                    {t("detailPages.buttons.edit")}
+                  </Button>
+                )}
+              </div>
+            </Can>
           </Card>
         </TabsContent>
 
