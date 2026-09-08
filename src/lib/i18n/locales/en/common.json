@@ -190,7 +190,8 @@
       "wall": "Wall",
       "loading": "Loading",
       "return": "Return desk",
-      "report": "Report"
+      "report": "Report",
+      "warehouses": "Warehouses"
     },
     "hub": {
       "today": "Today · {{date}}",
@@ -235,7 +236,9 @@
         "report": "Report",
         "reportDesc": "Pilot KPIs — slot response, first-attempt success, dwell time, messages.",
         "settings": "Settings",
-        "settingsDesc": "Runtime config: grace period, daily message cap, message templates."
+        "settingsDesc": "Runtime config: grace period, daily message cap, message templates.",
+        "warehouses": "Warehouses",
+        "warehousesDesc": "Add buildings, edit their details and assign staff."
       },
       "note": {
         "title": "This is a separate module from Parcels",
@@ -1657,6 +1660,74 @@
       "reasonPlaceholder": "e.g. mis-scan at receiving",
       "submit": "Void event",
       "submitting": "Voiding..."
+    }
+  },
+  "warehouseSelect": {
+    "placeholder": "Select warehouse",
+    "none": "No warehouse available. Ask an admin to assign you to one."
+  },
+  "warehouseBuildings": {
+    "title": "Warehouses",
+    "subtitle": "The buildings Zony receives, stages and dispatches parcels from.",
+    "loadError": "Could not load warehouses.",
+    "empty": "No warehouses yet. Create the first one to get started.",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "suspended": "Suspended"
+    },
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "city": "City",
+      "zone": "Zone",
+      "address": "Address",
+      "status": "Status"
+    },
+    "actions": {
+      "create": "Add warehouse",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel"
+    },
+    "fields": {
+      "name": "Name",
+      "code": "Code",
+      "address": "Address",
+      "city": "City",
+      "cityPlaceholder": "Select a city",
+      "zone": "Zone",
+      "zonePlaceholder": "Select a zone",
+      "phone": "Phone number",
+      "status": "Status"
+    },
+    "createDialog": {
+      "title": "Add a warehouse",
+      "subtitle": "A building with an address, located in a city and optionally a delivery zone."
+    },
+    "detail": {
+      "title": "Warehouse",
+      "subtitle": "Building details and staff.",
+      "detailsTitle": "Details",
+      "detailsSubtitle": "Where this building is and how to reach it."
+    },
+    "staff": {
+      "title": "Staff",
+      "subtitle": "The clerks assigned to this building.",
+      "note": "A responsible clerk works at exactly one warehouse. Assigning someone who already works at another building moves them here. Removing someone locks them out of the warehouse screens until they are assigned again. Admins and supervisors run every site and are never listed here.",
+      "selectUser": "Select a staff member",
+      "assign": "Assign",
+      "remove": "Remove",
+      "empty": "Nobody is assigned to this building yet.",
+      "user": "Name",
+      "email": "Email",
+      "role": "Role",
+      "assignedAt": "Assigned",
+      "actions": "Actions",
+      "removeConfirm": {
+        "title": "Remove from this warehouse?",
+        "description": "{{name}} will be locked out of the warehouse screens until they are assigned to a building again."
+      }
     }
   }
 }

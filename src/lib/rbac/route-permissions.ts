@@ -152,6 +152,18 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     path: "/settings/warehouse",
     permission: Permission.VIEW_WAREHOUSE_SETTINGS,
   },
+  // The buildings and their staff rosters. An assignment is what grants a
+  // `responsible` clerk access to a site's floor at all, so a clerk editing
+  // one could grant themselves another building — same permission as settings.
+  // Listed before /warehouse/report only for readability; matching is by path.
+  {
+    path: "/warehouse/warehouses",
+    permission: Permission.VIEW_WAREHOUSE_SETTINGS,
+  },
+  {
+    path: "/warehouse/warehouses/[id]",
+    permission: Permission.VIEW_WAREHOUSE_SETTINGS,
+  },
   {
     path: "/warehouse/report",
     permission: Permission.VIEW_WAREHOUSE_REPORTS,

@@ -43,6 +43,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  useResolvedWarehouseId,
+  WarehouseSelect,
+} from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
@@ -67,8 +71,14 @@ import { toE164SaudiPhone } from "@/lib/validators/phone";
 // signature is what lets `onSubmit` receive the fully-defaulted output type.
 type ReceivingScanFormInput = z.input<typeof receivingScanSchema>;
 
-function buildDefaultValues(): ReceivingScanFormInput {
+function buildDefaultValues(
+  warehouseId: number | null,
+): ReceivingScanFormInput {
   return {
+    // Comes from the picker, never typed. The server refuses a value that
+    // isn't the clerk's own building, so this is a convenience for admin and
+    // supervisor (who must send one) rather than a security boundary.
+    warehouse_id: warehouseId ?? 0,
     barcode: "",
     tracking_ref: "",
     recipient_name: "",
@@ -82,7 +92,8 @@ function buildDefaultValues(): ReceivingScanFormInput {
 
 export default function ReceivingPage() {
   const { t } = useTranslation();
-  const { data: zonesData } = useGetZones();
+  const { warehouseId } = useResolvedWarehouseId();
+  const { data: zonesData } = useGetZones(warehouseId);
   const receivingScan = useReceivingScan();
   const resendCode = useResendCode();
   const lookup = useReceivingLookup();
@@ -100,7 +111,7 @@ export default function ReceivingPage() {
 
   const form = useForm<ReceivingScanFormInput, unknown, ReceivingScanData>({
     resolver: zodResolver(receivingScanSchema),
-    defaultValues: buildDefaultValues(),
+    defaultValues: buildDefaultValues(warehouseId),
     mode: "onChange",
   });
 
@@ -120,6 +131,13 @@ export default function ReceivingPage() {
   useEffect(() => {
     setFocus(lookupMode);
   }, [setFocus, lookupMode]);
+
+  // The building list resolves after the first render, and an operator may
+  // switch buildings mid-form, so the field follows the picker rather than
+  // being frozen at whatever was known when the form was constructed.
+  useEffect(() => {
+    if (warehouseId) form.setValue("warehouse_id", warehouseId);
+  }, [warehouseId, form]);
 
   function applyPrefill(prefill: ReceivingPrefill) {
     const options = { shouldValidate: true, shouldDirty: true } as const;
@@ -142,13 +160,13 @@ export default function ReceivingPage() {
 
   function handleLookup() {
     const value = (form.getValues(lookupMode) ?? "").trim();
-    if (!value || lookup.isPending) {
+    if (!value || lookup.isPending || !warehouseId) {
       setFocus(lookupMode);
       return;
     }
 
     lookup.mutate(
-      { mode: lookupMode, value },
+      { mode: lookupMode, value, warehouseId },
       {
         onSuccess: (prefill) => {
           setLookupTried(true);
@@ -213,7 +231,7 @@ export default function ReceivingPage() {
 
   function handleDismissResult() {
     setResult(null);
-    form.reset(buildDefaultValues());
+    form.reset(buildDefaultValues(warehouseId));
     setLookupTried(false);
     setPrefillSource(null);
     lookup.reset();
@@ -231,13 +249,18 @@ export default function ReceivingPage() {
 
   return (
     <PageContainer size="md" className="px-6 py-10">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-foreground">
-          {t("warehouseReceiving.title")}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("warehouseReceiving.subtitle")}
-        </p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">
+            {t("warehouseReceiving.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t("warehouseReceiving.subtitle")}
+          </p>
+        </div>
+        {/* Which building is taking the box in — it is stamped onto the E01
+            and cannot be changed afterwards, so it belongs on screen. */}
+        <WarehouseSelect />
       </div>
 
       <Form {...form}>

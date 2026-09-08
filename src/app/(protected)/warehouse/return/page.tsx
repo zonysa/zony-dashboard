@@ -46,6 +46,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  useResolvedWarehouseId,
+  WarehouseSelect,
+} from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
@@ -133,7 +137,12 @@ function ReturnPageContent() {
   const slots = slotsData?.slots ?? [];
   const slotId = slotIdParam && slots.some((s) => String(s.id) === slotIdParam) ? slotIdParam : "";
 
-  const { data, isLoading, isError } = useGetReturnReconciliation(slotId, date);
+  const { warehouseId } = useResolvedWarehouseId();
+  const { data, isLoading, isError } = useGetReturnReconciliation(
+    slotId,
+    date,
+    warehouseId,
+  );
 
   const [failTarget, setFailTarget] = useState<FailTarget | null>(null);
 
@@ -160,6 +169,7 @@ function ReturnPageContent() {
           <p className="text-sm text-muted-foreground">{t("warehouseReturn.subtitle")}</p>
         </div>
         <div className="flex flex-wrap items-end gap-3">
+          <WarehouseSelect />
           <div className="w-56">
             <Select value={slotId || undefined} onValueChange={handleSlotSelect}>
               <SelectTrigger className="w-full">

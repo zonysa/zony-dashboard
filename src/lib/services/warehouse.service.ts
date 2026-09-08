@@ -1,4 +1,5 @@
 import {
+  AssignWarehouseStaffRes,
   BinParcelData,
   CheckoutParcelData,
   CourierCheckoutData,
@@ -18,12 +19,17 @@ import {
   GetSlotsRes,
   GetStateDiffRes,
   GetWallRes,
+  GetWarehouseRes,
+  GetWarehousesRes,
+  GetWarehouseStaffRes,
   GetZonesRes,
   ReceivingScanData,
   ReturnParcelData,
   UpdateSettingRes,
   VoidEventData,
+  WarehouseCreateData,
   WarehouseReportRange,
+  WarehouseUpdateData,
   WHReceivingScanRes,
   WHResendCodeRes,
   WHScanEventRes,
@@ -38,21 +44,38 @@ export const receivingScan = async (
   return apiCall({ method: "POST", url: "/warehouse/receiving/scan", data });
 };
 
-export const scanBarcode = async (barcode: string): Promise<GetParcelRes> => {
-  return apiCall({ method: "GET", url: `/warehouse/scan/${barcode}` });
+// Every read below is scoped to one building. The server requires it for
+// admin/supervisor (who run every site and must say which one) and derives it
+// for a pinned `responsible` clerk — but sending it is always correct, and
+// omitting it is a 400 for the roles that operate the dashboard's screens.
+export const scanBarcode = async (
+  barcode: string,
+  warehouseId: number,
+): Promise<GetParcelRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/scan/${barcode}?warehouse_id=${warehouseId}`,
+  });
 };
 
-export const getWall = async (date: string): Promise<GetWallRes> => {
-  return apiCall({ method: "GET", url: `/warehouse/wall?date=${date}` });
+export const getWall = async (
+  date: string,
+  warehouseId: number,
+): Promise<GetWallRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/wall?date=${date}&warehouse_id=${warehouseId}`,
+  });
 };
 
 export const getLoadingManifest = async (
   slotId: string,
   date: string,
+  warehouseId: number,
 ): Promise<GetLoadingManifestRes> => {
   return apiCall({
     method: "GET",
-    url: `/warehouse/loading/${slotId}?date=${date}`,
+    url: `/warehouse/loading/${slotId}?date=${date}&warehouse_id=${warehouseId}`,
   });
 };
 
@@ -77,10 +100,11 @@ export const checkoutParcel = async (
 export const getReturnReconciliation = async (
   slotId: string,
   date: string,
+  warehouseId: number,
 ): Promise<GetReturnReconciliationRes> => {
   return apiCall({
     method: "GET",
-    url: `/warehouse/return/${slotId}?date=${date}`,
+    url: `/warehouse/return/${slotId}?date=${date}&warehouse_id=${warehouseId}`,
   });
 };
 
@@ -158,8 +182,15 @@ export const getSlots = async (
   });
 };
 
-export const getZones = async (): Promise<GetZonesRes> => {
-  return apiCall({ method: "GET", url: "/warehouse/zones" });
+// wh_zones are per-building — the same code may exist at two warehouses, so
+// this list is meaningless without one.
+export const getZones = async (
+  warehouseId: number,
+): Promise<GetZonesRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/zones?warehouse_id=${warehouseId}`,
+  });
 };
 
 export const getFailureReasons = async (): Promise<GetFailureReasonsRes> => {
@@ -215,15 +246,86 @@ export const getStateDiff = async (): Promise<GetStateDiffRes> => {
   return apiCall({ method: "GET", url: "/warehouse/state/diff" });
 };
 
+// ---- Warehouses (admin) ----
+// Reads are open to any warehouse role including couriers, who need the list
+// to pick a building to load from. Writes are admin/supervisor only, as is
+// the whole roster surface — an assignment is what grants a clerk access to a
+// building's floor, so a clerk editing it could grant themselves another site.
+
+export const listWarehouses = async (filters?: {
+  city_id?: number;
+  zone_id?: number;
+  status?: string;
+}): Promise<GetWarehousesRes> => {
+  const params = new URLSearchParams();
+  if (filters?.city_id) params.set("city_id", String(filters.city_id));
+  if (filters?.zone_id) params.set("zone_id", String(filters.zone_id));
+  if (filters?.status) params.set("status", filters.status);
+  const qs = params.toString();
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/warehouses${qs ? `?${qs}` : ""}`,
+  });
+};
+
+export const getWarehouse = async (id: number): Promise<GetWarehouseRes> => {
+  return apiCall({ method: "GET", url: `/warehouse/warehouses/${id}` });
+};
+
+export const createWarehouse = async (
+  data: WarehouseCreateData,
+): Promise<GetWarehouseRes> => {
+  return apiCall({ method: "POST", url: "/warehouse/warehouses", data });
+};
+
+export const updateWarehouse = async (
+  id: number,
+  data: WarehouseUpdateData,
+): Promise<GetWarehouseRes> => {
+  return apiCall({
+    method: "PATCH",
+    url: `/warehouse/warehouses/${id}`,
+    data,
+  });
+};
+
+export const getWarehouseStaff = async (
+  id: number,
+): Promise<GetWarehouseStaffRes> => {
+  return apiCall({ method: "GET", url: `/warehouse/warehouses/${id}/staff` });
+};
+
+export const assignWarehouseStaff = async (
+  id: number,
+  userId: string,
+): Promise<AssignWarehouseStaffRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/warehouses/${id}/staff`,
+    data: { user_id: userId },
+  });
+};
+
+export const unassignWarehouseStaff = async (
+  id: number,
+  userId: string,
+): Promise<{ status: "success"; message: string }> => {
+  return apiCall({
+    method: "DELETE",
+    url: `/warehouse/warehouses/${id}/staff/${userId}`,
+  });
+};
+
 // ---- Courier: /courier ----
 
 export const getCourierManifest = async (
   slotId: string,
   date: string,
+  warehouseId: number,
 ): Promise<GetCourierManifestRes> => {
   return apiCall({
     method: "GET",
-    url: `/courier/manifest/${slotId}?date=${date}`,
+    url: `/courier/manifest/${slotId}?date=${date}&warehouse_id=${warehouseId}`,
   });
 };
 

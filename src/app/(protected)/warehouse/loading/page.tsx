@@ -45,6 +45,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  useResolvedWarehouseId,
+  WarehouseSelect,
+} from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useGetUsers } from "@/lib/hooks/useUsers";
 import {
@@ -129,8 +133,9 @@ function LoadingPageContent() {
   const date = dateParam && DATE_RE.test(dateParam) ? dateParam : todayStr();
   const slotIdParam = searchParams.get("slot_id");
 
+  const { warehouseId } = useResolvedWarehouseId();
   const { data: slotsData } = useGetSlots();
-  const { data: zonesData } = useGetZones();
+  const { data: zonesData } = useGetZones(warehouseId);
   const slots = useMemo(() => slotsData?.slots ?? [], [slotsData?.slots]);
   const zoneNameById = useMemo(() => {
     const map = new Map<number, string>();
@@ -140,7 +145,11 @@ function LoadingPageContent() {
 
   const slotId = slotIdParam && slots.some((s) => String(s.id) === slotIdParam) ? slotIdParam : "";
 
-  const { data, isLoading, isError } = useGetLoadingManifest(slotId, date);
+  const { data, isLoading, isError } = useGetLoadingManifest(
+    slotId,
+    date,
+    warehouseId,
+  );
 
   const [checkoutTarget, setCheckoutTarget] = useState<CheckoutTarget | null>(null);
 
@@ -167,6 +176,7 @@ function LoadingPageContent() {
           <p className="text-sm text-muted-foreground">{t("warehouseLoading.subtitle")}</p>
         </div>
         <div className="flex flex-wrap items-end gap-3">
+          <WarehouseSelect />
           <div className="w-56">
             <Select value={slotId || undefined} onValueChange={handleSlotSelect}>
               <SelectTrigger className="w-full">

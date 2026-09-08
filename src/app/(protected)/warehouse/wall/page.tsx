@@ -48,6 +48,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  useResolvedWarehouseId,
+  WarehouseSelect,
+} from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
@@ -136,8 +140,9 @@ function WallPageContent() {
   const dateParam = searchParams.get("date");
   const date = dateParam && DATE_RE.test(dateParam) ? dateParam : todayStr();
 
-  const { data, isLoading, isError } = useGetWall(date);
-  const { data: zonesData } = useGetZones();
+  const { warehouseId } = useResolvedWarehouseId();
+  const { data, isLoading, isError } = useGetWall(date, warehouseId);
+  const { data: zonesData } = useGetZones(warehouseId);
   const { data: slotsData } = useGetSlots();
 
   const [cellSelection, setCellSelection] = useState<CellSelection | null>(null);
@@ -190,12 +195,15 @@ function WallPageContent() {
           <h1 className="text-xl font-semibold text-foreground">{t("warehouseWall.title")}</h1>
           <p className="text-sm text-muted-foreground">{t("warehouseWall.subtitle")}</p>
         </div>
-        <div className="w-56">
-          <DatePicker
-            date={parse(date, "yyyy-MM-dd", new Date())}
-            onSelect={handleDateSelect}
-            placeholder={t("warehouseWall.datePickerPlaceholder")}
-          />
+        <div className="flex flex-wrap items-end gap-3">
+          <WarehouseSelect />
+          <div className="w-56">
+            <DatePicker
+              date={parse(date, "yyyy-MM-dd", new Date())}
+              onSelect={handleDateSelect}
+              placeholder={t("warehouseWall.datePickerPlaceholder")}
+            />
+          </div>
         </div>
       </div>
 

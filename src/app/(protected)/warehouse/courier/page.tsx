@@ -31,6 +31,10 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "@/component
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useResolvedWarehouseId,
+  WarehouseSelect,
+} from "@/components/warehouse/WarehouseSelect";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
@@ -126,7 +130,14 @@ function CourierPageContent() {
   const slotId = searchParams.get("slot_id") ?? "";
   const [slotInput, setSlotInput] = useState(slotId);
 
-  const { data, isLoading, isError } = useGetCourierManifest(slotId, date);
+  // Couriers are not pinned to a building — they load from whichever one has
+  // their run — so this is a real choice for them, not a fixed label.
+  const { warehouseId } = useResolvedWarehouseId();
+  const { data, isLoading, isError } = useGetCourierManifest(
+    slotId,
+    date,
+    warehouseId,
+  );
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -156,6 +167,9 @@ function CourierPageContent() {
       </h1>
 
       <div className="mb-5 flex flex-col gap-2">
+        <div className="[&_button]:h-12 [&_button]:text-base">
+          <WarehouseSelect className="h-12 w-full text-base" />
+        </div>
         <form onSubmit={handleSlotSubmit} className="flex gap-2">
           <Input
             inputMode="numeric"

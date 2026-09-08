@@ -115,6 +115,73 @@ export interface GetZonesRes {
   zones: WHZone[];
 }
 
+// ---- Warehouses (the buildings themselves) ----
+// A `wh_warehouses` row: a real building, located in a main-flow `city` and
+// optionally a `zone`. Note the two unrelated "zone" concepts — `WHWarehouse.
+// zone_id` is a main-flow operations zone, while `WHZone` above is a delivery
+// -area label used to group the Wall. They are not interchangeable.
+
+export type WHWarehouseStatus = "active" | "inactive" | "suspended";
+
+export interface WHWarehouse {
+  id: number;
+  name: string;
+  code: string;
+  address: string;
+  coordinates: { latitude: number; longitude: number } | null;
+  phone_number: string | null;
+  status: WHWarehouseStatus;
+  city_id: number;
+  zone_id: number | null;
+  manager_id: string | null;
+  // Resolved server-side so a list doesn't need a second lookup per row.
+  city_name: string | null;
+  zone_name: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface GetWarehousesRes {
+  status: "success";
+  message: string;
+  warehouses: WHWarehouse[];
+}
+
+export interface GetWarehouseRes {
+  status: "success";
+  message: string;
+  warehouse: WHWarehouse;
+}
+
+// A roster row. `responsible` clerks are pinned to exactly one building;
+// admin/supervisor run every site and never appear here.
+export interface WHWarehouseStaffMember {
+  user_id: string;
+  username: string;
+  email: string;
+  phone_number: string;
+  role: string | null;
+  assigned_at: string;
+}
+
+export interface GetWarehouseStaffRes {
+  status: "success";
+  message: string;
+  warehouse_id: number;
+  staff: WHWarehouseStaffMember[];
+}
+
+export interface AssignWarehouseStaffRes {
+  status: "success";
+  message: string;
+  user_id: string;
+  warehouse_id: number;
+  previous_warehouse_id: number | null;
+  // True when the person already worked at another building. The API moves
+  // them rather than erroring — one warehouse per person is a DB constraint.
+  moved: boolean;
+}
+
 export interface WHSlotCatalogEntry {
   id: number;
   code: string;
@@ -313,6 +380,12 @@ const addressSchema = z.object({
 });
 
 export const receivingScanSchema = z.object({
+  // Which building took the box in. The server resolves this through its
+  // access policy rather than trusting it: a `responsible` clerk is pinned to
+  // one warehouse and a body naming a different one is refused, while an
+  // admin/supervisor has nothing to derive it from and must send it. The UI
+  // always sends the selected warehouse, which satisfies both.
+  warehouse_id: z.number().int().positive(),
   barcode: z.string().min(1, "Barcode is required"),
   tracking_ref: z.string().optional(),
   recipient_name: z.string().min(1, "Recipient name is required"),
@@ -389,6 +462,41 @@ export const voidEventSchema = z.object({
   void_reason: z.string().min(1, "Void reason is required"),
 });
 export type VoidEventData = z.infer<typeof voidEventSchema>;
+
+// ---- Warehouse admin ----
+
+const coordinatesSchema = z.object({
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+});
+
+export const warehouseCreateSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(60),
+  code: z.string().trim().min(1, "Code is required").max(20),
+  address: z.string().trim().min(1, "Address is required").max(255),
+  coordinates: coordinatesSchema.nullable().optional(),
+  phone_number: saudiPhoneSchema.optional().or(z.literal("")),
+  // No zod `.default()` here on purpose. A default makes the field optional on
+  // input but required on output, which splits the form's value type in two
+  // and forces the 3-generic `useForm` dance the receiving form needs. The
+  // forms always seed this from `defaultValues`, so the default bought nothing.
+  status: z.enum(["active", "inactive", "suspended"]),
+  city_id: z.number().int().positive("City is required"),
+  zone_id: z.number().int().positive().nullable().optional(),
+  manager_id: z.string().nullable().optional(),
+});
+export type WarehouseCreateData = z.infer<typeof warehouseCreateSchema>;
+
+// PATCH sends only what changed, so every field is optional.
+export const warehouseUpdateSchema = warehouseCreateSchema.partial();
+export type WarehouseUpdateData = z.infer<typeof warehouseUpdateSchema>;
+
+export const assignWarehouseStaffSchema = z.object({
+  user_id: z.string().min(1, "Select a staff member"),
+});
+export type AssignWarehouseStaffData = z.infer<
+  typeof assignWarehouseStaffSchema
+>;
 
 export const courierCheckoutSchema = checkoutParcelSchema;
 export type CourierCheckoutData = CheckoutParcelData;

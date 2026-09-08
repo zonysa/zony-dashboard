@@ -172,6 +172,11 @@ function AppSidebarContent() {
           url: "/warehouse/report",
           permission: Permission.VIEW_WAREHOUSE_REPORTS,
         },
+        {
+          title: t("warehouse.nav.warehouses"),
+          url: "/warehouse/warehouses",
+          permission: Permission.VIEW_WAREHOUSE_SETTINGS,
+        },
       ],
     },
     {

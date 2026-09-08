@@ -6,6 +6,7 @@ import {
   ArrowRight,
   BarChart3,
   Boxes,
+  Building2,
   ClipboardCheck,
   Grid3x3,
   Info,
@@ -24,6 +25,10 @@ import { PageContainer } from "@/components/PageContainer";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  useResolvedWarehouseId,
+  WarehouseSelect,
+} from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useGetWall } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
@@ -37,9 +42,11 @@ export default function WarehouseHubPage() {
   const { t, isRTL } = useTranslation();
   const date = todayStr();
 
+  const { warehouseId } = useResolvedWarehouseId();
+
   // The Wall query already polls every 15s, so the counters below stay live
   // without the hub owning any refresh logic of its own.
-  const { data, isLoading, isError } = useGetWall(date);
+  const { data, isLoading, isError } = useGetWall(date, warehouseId);
 
   // Every figure here is folded from the one Wall response — the module derives
   // status server-side and we never recompute one client-side
@@ -150,6 +157,16 @@ export default function WarehouseHubPage() {
       permission: Permission.VIEW_WAREHOUSE_REPORTS,
     },
     {
+      key: "warehouses",
+      href: "/warehouse/warehouses",
+      icon: Building2,
+      title: t("warehouse.hub.cards.warehouses"),
+      description: t("warehouse.hub.cards.warehousesDesc"),
+      // Buildings and their rosters are admin/supervisor territory: an
+      // assignment is what grants a clerk access to a site's floor.
+      permission: Permission.VIEW_WAREHOUSE_SETTINGS,
+    },
+    {
       key: "settings",
       // Lives under the platform's /settings section, not this one — the card
       // stays here because it's still where an operator looks for it.
@@ -163,9 +180,12 @@ export default function WarehouseHubPage() {
 
   return (
     <PageContainer size="xl" className="px-6 py-10">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-foreground">{t("warehouse.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("warehouse.subtitle")}</p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">{t("warehouse.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("warehouse.subtitle")}</p>
+        </div>
+        <WarehouseSelect />
       </div>
 
       {isError && (

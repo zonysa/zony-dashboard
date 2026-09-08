@@ -26,19 +26,25 @@ import {
   GetSlotsRes,
   GetStateDiffRes,
   GetWallRes,
+  GetWarehouseRes,
+  GetWarehousesRes,
+  GetWarehouseStaffRes,
   GetZonesRes,
   ReceivingLookupMode,
   ReceivingPrefill,
   ReturnParcelData,
   VoidEventData,
   WarehouseReportRange,
+  WarehouseUpdateData,
   WHParcel,
   WHParcelStatus,
   WHScanEventRes,
 } from "@/lib/schema/warehouse.schema";
 import {
+  assignWarehouseStaff,
   binParcel,
   checkoutParcel,
+  createWarehouse,
   courierCheckoutParcel,
   courierDeliverParcel,
   courierFailParcel,
@@ -59,12 +65,17 @@ import {
   getSlots,
   getStateDiff,
   getWall,
+  getWarehouse,
+  getWarehouseStaff,
   getZones,
+  listWarehouses,
   receivingScan,
   resendCode,
   returnParcel,
   scanBarcode,
+  unassignWarehouseStaff,
   updateSetting,
+  updateWarehouse,
   voidEvent,
 } from "@/lib/services/warehouse.service";
 import { ApiError } from "@/lib/services/apiClient";
@@ -84,33 +95,63 @@ export const warehouseKeys = {
   barcode: (barcode: string) =>
     [...warehouseKeys.all, "barcode", barcode] as const,
 
-  // date/slot are optional so callers can invalidate the whole family with
-  // just the prefix (e.g. `warehouseKeys.wall()`) without knowing every
-  // date/slot combination currently cached.
-  wall: (date?: string) =>
-    date
-      ? ([...warehouseKeys.all, "wall", date] as const)
+  // date/slot/warehouse are optional so callers can invalidate the whole
+  // family with just the prefix (e.g. `warehouseKeys.wall()`) without knowing
+  // every combination currently cached.
+  //
+  // `warehouseId` comes FIRST after the noun and is never omitted when the
+  // fuller key is built: two buildings' Walls are different boards, and a key
+  // that ignored the warehouse would serve Riyadh's grid for Jeddah after a
+  // switch — showing an operator boxes that are in another city.
+  wall: (warehouseId?: number, date?: string) =>
+    warehouseId && date
+      ? ([...warehouseKeys.all, "wall", warehouseId, date] as const)
       : ([...warehouseKeys.all, "wall"] as const),
-  loadingManifest: (slotId?: string, date?: string) =>
-    slotId && date
-      ? ([...warehouseKeys.all, "loading", slotId, date] as const)
+  loadingManifest: (warehouseId?: number, slotId?: string, date?: string) =>
+    warehouseId && slotId && date
+      ? ([...warehouseKeys.all, "loading", warehouseId, slotId, date] as const)
       : ([...warehouseKeys.all, "loading"] as const),
-  returnRecon: (slotId?: string, date?: string) =>
-    slotId && date
-      ? ([...warehouseKeys.all, "return", slotId, date] as const)
+  returnRecon: (warehouseId?: number, slotId?: string, date?: string) =>
+    warehouseId && slotId && date
+      ? ([...warehouseKeys.all, "return", warehouseId, slotId, date] as const)
       : ([...warehouseKeys.all, "return"] as const),
 
   slots: (includeInactive?: boolean) =>
     [...warehouseKeys.all, "slots", includeInactive ?? false] as const,
-  zones: () => [...warehouseKeys.all, "zones"] as const,
+  // wh_zones belong to one building and codes repeat across buildings, so
+  // this must be keyed per warehouse too.
+  zones: (warehouseId?: number) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "zones", warehouseId] as const)
+      : ([...warehouseKeys.all, "zones"] as const),
   failureReasons: () => [...warehouseKeys.all, "failure-reasons"] as const,
   settings: () => [...warehouseKeys.all, "settings"] as const,
   report: (range: string) => [...warehouseKeys.all, "report", range] as const,
   stateDiff: () => [...warehouseKeys.all, "state-diff"] as const,
 
-  courierManifest: (slotId?: string, date?: string) =>
-    slotId && date
-      ? ([...warehouseKeys.all, "courier-manifest", slotId, date] as const)
+  // The buildings themselves.
+  warehouses: (filters?: string) =>
+    filters
+      ? ([...warehouseKeys.all, "warehouses", filters] as const)
+      : ([...warehouseKeys.all, "warehouses"] as const),
+  warehouse: (id?: number) =>
+    id
+      ? ([...warehouseKeys.all, "warehouse", id] as const)
+      : ([...warehouseKeys.all, "warehouse"] as const),
+  warehouseStaff: (id?: number) =>
+    id
+      ? ([...warehouseKeys.all, "warehouse-staff", id] as const)
+      : ([...warehouseKeys.all, "warehouse-staff"] as const),
+
+  courierManifest: (warehouseId?: number, slotId?: string, date?: string) =>
+    warehouseId && slotId && date
+      ? ([
+          ...warehouseKeys.all,
+          "courier-manifest",
+          warehouseId,
+          slotId,
+          date,
+        ] as const)
       : ([...warehouseKeys.all, "courier-manifest"] as const),
   courierFailureReasons: () =>
     [...warehouseKeys.all, "courier-failure-reasons"] as const,
@@ -216,11 +257,15 @@ export function useReceivingScan() {
 // Barcode resolution is a point-in-time lookup performed mid-scan, not data
 // worth caching for reuse — staleTime/gcTime 0 so a second scan of the same
 // barcode always hits the server, never a stale local result.
-export function useScanBarcode(barcode: string, enabled = false) {
+export function useScanBarcode(
+  barcode: string,
+  warehouseId: number | null,
+  enabled = false,
+) {
   return useQuery<GetParcelRes>({
-    queryKey: warehouseKeys.barcode(barcode),
-    queryFn: () => scanBarcode(barcode),
-    enabled: !!barcode && enabled,
+    queryKey: [...warehouseKeys.barcode(barcode), warehouseId] as const,
+    queryFn: () => scanBarcode(barcode, warehouseId!),
+    enabled: !!barcode && !!warehouseId && enabled,
     staleTime: 0,
     gcTime: 0,
     retry: 1,
@@ -272,14 +317,17 @@ export function useReceivingLookup() {
   return useMutation<
     ReceivingPrefill | null,
     Error,
-    { mode: ReceivingLookupMode; value: string }
+    { mode: ReceivingLookupMode; value: string; warehouseId: number }
   >({
-    mutationFn: async ({ mode, value }) => {
+    mutationFn: async ({ mode, value, warehouseId }) => {
       const query = value.trim();
 
       if (mode === "barcode") {
         try {
-          const res = await scanBarcode(query);
+          // Scoped to the receiving building: barcodes are deliberately not
+          // unique across warehouses, so an unscoped lookup could prefill this
+          // form from another site's parcel.
+          const res = await scanBarcode(query, warehouseId);
           return prefillFromWarehouseParcel(res.parcel);
         } catch (error) {
           if (!(error instanceof ApiError && error.status === 404)) throw error;
@@ -326,11 +374,16 @@ export function useReceivingLookup() {
 // backend on every one of these screens; navigation/refocus additionally
 // forces a fresh read via staleTime: 0.
 
-export function useGetWall(date: string) {
+// `warehouseId` is null until the picker resolves one (a fetch of the
+// building list, or the persisted choice rehydrating). Every hook below stays
+// disabled until then rather than firing a request the server would answer
+// with a 400 — an error toast on first paint, every time.
+
+export function useGetWall(date: string, warehouseId: number | null) {
   return useQuery<GetWallRes>({
-    queryKey: warehouseKeys.wall(date),
-    queryFn: () => getWall(date),
-    enabled: !!date,
+    queryKey: warehouseKeys.wall(warehouseId ?? undefined, date),
+    queryFn: () => getWall(date, warehouseId!),
+    enabled: !!date && !!warehouseId,
     staleTime: 0,
     gcTime: 60 * 1000,
     refetchInterval: 15 * 1000,
@@ -339,11 +392,19 @@ export function useGetWall(date: string) {
   });
 }
 
-export function useGetLoadingManifest(slotId: string, date: string) {
+export function useGetLoadingManifest(
+  slotId: string,
+  date: string,
+  warehouseId: number | null,
+) {
   return useQuery<GetLoadingManifestRes>({
-    queryKey: warehouseKeys.loadingManifest(slotId, date),
-    queryFn: () => getLoadingManifest(slotId, date),
-    enabled: !!slotId && !!date,
+    queryKey: warehouseKeys.loadingManifest(
+      warehouseId ?? undefined,
+      slotId,
+      date,
+    ),
+    queryFn: () => getLoadingManifest(slotId, date, warehouseId!),
+    enabled: !!slotId && !!date && !!warehouseId,
     staleTime: 0,
     gcTime: 60 * 1000,
     refetchInterval: 15 * 1000,
@@ -352,11 +413,19 @@ export function useGetLoadingManifest(slotId: string, date: string) {
   });
 }
 
-export function useGetReturnReconciliation(slotId: string, date: string) {
+export function useGetReturnReconciliation(
+  slotId: string,
+  date: string,
+  warehouseId: number | null,
+) {
   return useQuery<GetReturnReconciliationRes>({
-    queryKey: warehouseKeys.returnRecon(slotId, date),
-    queryFn: () => getReturnReconciliation(slotId, date),
-    enabled: !!slotId && !!date,
+    queryKey: warehouseKeys.returnRecon(
+      warehouseId ?? undefined,
+      slotId,
+      date,
+    ),
+    queryFn: () => getReturnReconciliation(slotId, date, warehouseId!),
+    enabled: !!slotId && !!date && !!warehouseId,
     staleTime: 0,
     gcTime: 60 * 1000,
     refetchInterval: 15 * 1000,
@@ -528,10 +597,11 @@ export function useGetSlots(includeInactive?: boolean) {
   });
 }
 
-export function useGetZones() {
+export function useGetZones(warehouseId: number | null) {
   return useQuery<GetZonesRes>({
-    queryKey: warehouseKeys.zones(),
-    queryFn: getZones,
+    queryKey: warehouseKeys.zones(warehouseId ?? undefined),
+    queryFn: () => getZones(warehouseId!),
+    enabled: !!warehouseId,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 3,
@@ -572,6 +642,114 @@ export function useUpdateSetting() {
     },
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to update setting");
+    },
+  });
+}
+
+// ---- Warehouses (the buildings) ----
+// Ordinary catalog data — a building's address changes rarely — so the
+// standard 5-minute staleTime applies, unlike the fold-derived screens above.
+
+export function useGetWarehouses(filters?: {
+  city_id?: number;
+  zone_id?: number;
+  status?: string;
+}) {
+  return useQuery<GetWarehousesRes>({
+    queryKey: warehouseKeys.warehouses(
+      filters ? JSON.stringify(filters) : undefined,
+    ),
+    queryFn: () => listWarehouses(filters),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useGetWarehouse(id: number | null) {
+  return useQuery<GetWarehouseRes>({
+    queryKey: warehouseKeys.warehouse(id ?? undefined),
+    queryFn: () => getWarehouse(id!),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useCreateWarehouse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createWarehouse,
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.warehouses() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to create warehouse");
+    },
+  });
+}
+
+export function useUpdateWarehouse(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: WarehouseUpdateData) => updateWarehouse(id, data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.warehouses() });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.warehouse(id) });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to update warehouse");
+    },
+  });
+}
+
+export function useGetWarehouseStaff(id: number | null) {
+  return useQuery<GetWarehouseStaffRes>({
+    queryKey: warehouseKeys.warehouseStaff(id ?? undefined),
+    queryFn: () => getWarehouseStaff(id!),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useAssignWarehouseStaff(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => assignWarehouseStaff(id, userId),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      // A move empties the other building's roster too, and there is no way
+      // to know which from here — invalidate every roster, not just this one.
+      queryClient.invalidateQueries({
+        queryKey: warehouseKeys.warehouseStaff(),
+      });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to assign staff member");
+    },
+  });
+}
+
+export function useUnassignWarehouseStaff(id: number) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => unassignWarehouseStaff(id, userId),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({
+        queryKey: warehouseKeys.warehouseStaff(),
+      });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to remove staff member");
     },
   });
 }
@@ -639,11 +817,19 @@ export function useGetStateDiff(enabled = true) {
 
 // ---- Courier: /courier ----
 
-export function useGetCourierManifest(slotId: string, date: string) {
+export function useGetCourierManifest(
+  slotId: string,
+  date: string,
+  warehouseId: number | null,
+) {
   return useQuery<GetCourierManifestRes>({
-    queryKey: warehouseKeys.courierManifest(slotId, date),
-    queryFn: () => getCourierManifest(slotId, date),
-    enabled: !!slotId && !!date,
+    queryKey: warehouseKeys.courierManifest(
+      warehouseId ?? undefined,
+      slotId,
+      date,
+    ),
+    queryFn: () => getCourierManifest(slotId, date, warehouseId!),
+    enabled: !!slotId && !!date && !!warehouseId,
     staleTime: 0,
     gcTime: 60 * 1000,
     refetchInterval: 15 * 1000,
