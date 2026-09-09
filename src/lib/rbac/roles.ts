@@ -8,6 +8,7 @@ export type UserRole =
   | "supervisor"
   | "representative"
   | "responsible"
+  | "warehouse_clerk"
   | "customer_service"
   | "courier"
   | "customer";
@@ -17,6 +18,7 @@ export const ROLE_DISPLAY_NAMES: Record<UserRole, string> = {
   supervisor: "Supervisor",
   representative: "Representative",
   responsible: "Responsible",
+  warehouse_clerk: "Warehouse Clerk",
   customer_service: "Customer Service",
   courier: "Courier",
   customer: "Customer",
@@ -26,7 +28,11 @@ export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
   admin: "Full system access and administration",
   supervisor: "Operations supervisors and managers",
   representative: "Sales and partnership representatives",
-  responsible: "Account managers and responsible parties",
+  // A PARTNER's person: runs one PUDO for one partner. Not Zony staff, and
+  // deliberately holds no warehouse access.
+  responsible: "Partner staff running a PUDO point",
+  // Zony's own floor staff, pinned to exactly one warehouse.
+  warehouse_clerk: "Zony warehouse staff, assigned to one building",
   customer_service: "Customer support and service team",
   courier: "Delivery personnel and couriers",
   customer: "End customers and clients",
@@ -44,6 +50,9 @@ export function normalizeRole(role: string): UserRole {
     representative: "representative",
     rep: "representative",
     responsible: "responsible",
+    warehouse_clerk: "warehouse_clerk",
+    "warehouse clerk": "warehouse_clerk",
+    warehouseclerk: "warehouse_clerk",
     customer_service: "customer_service",
     "customer service": "customer_service",
     customerservice: "customer_service",
@@ -53,6 +62,10 @@ export function normalizeRole(role: string): UserRole {
     client: "customer",
   };
 
+  // Falling through here is silent and looks like a permissions bug rather
+  // than a missing map entry: a role the API knows about but this map does not
+  // logs in as a customer with none of its screens. Any new backend role must
+  // be added above.
   return roleMap[normalized] || "customer"; // Default to most restrictive
 }
 

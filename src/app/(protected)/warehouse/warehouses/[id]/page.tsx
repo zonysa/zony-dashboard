@@ -48,11 +48,11 @@ import {
 } from "@/components/ui/table";
 import { useGetCities } from "@/lib/hooks/useCity";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { useGetAvailableResponsibles } from "@/lib/hooks/useUsers";
 import {
   useAssignWarehouseStaff,
   useGetWarehouse,
   useGetWarehouseStaff,
+  useGetWarehouseStaffCandidates,
   useUnassignWarehouseStaff,
   useUpdateWarehouse,
 } from "@/lib/hooks/useWarehouse";
@@ -358,7 +358,7 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
 function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
   const { t } = useTranslation();
   const { data, isLoading } = useGetWarehouseStaff(warehouseId);
-  const { data: responsiblesData } = useGetAvailableResponsibles();
+  const { data: candidatesData } = useGetWarehouseStaffCandidates(warehouseId);
   const assign = useAssignWarehouseStaff(warehouseId);
   const unassign = useUnassignWarehouseStaff(warehouseId);
 
@@ -369,6 +369,7 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
   } | null>(null);
 
   const staff = data?.staff ?? [];
+  const candidates = candidatesData?.candidates ?? [];
 
   function handleAssign() {
     if (!selectedUser) return;
@@ -396,7 +397,7 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
 
         <Can do={Permission.EDIT_WAREHOUSE_SETTINGS}>
           <div className="flex flex-wrap items-end gap-3">
-            <div className="w-72">
+            <div className="w-80">
               <Select value={selectedUser} onValueChange={setSelectedUser}>
                 <SelectTrigger className="w-full">
                   <SelectValue
@@ -404,13 +405,24 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {(responsiblesData?.users ?? []).map((user) => (
-                    <SelectItem key={user.id} value={String(user.id)}>
-                      {`${user.first_name} ${user.last_name}`.trim() ||
+                  {candidates.map((user) => (
+                    <SelectItem key={user.user_id} value={user.user_id}>
+                      {`${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() ||
+                        user.username ||
                         user.email}
-                      <span className="ms-2 text-xs text-muted-foreground">
-                        {user.email}
-                      </span>
+                      {/* Assigning MOVES someone, so where they work now has
+                          to be visible before the click, not after. */}
+                      {user.current_warehouse_name ? (
+                        <span className="ms-2 text-xs text-amber-600 dark:text-amber-500">
+                          {t("warehouseBuildings.staff.currentlyAt", {
+                            warehouse: user.current_warehouse_name,
+                          })}
+                        </span>
+                      ) : (
+                        <span className="ms-2 text-xs text-muted-foreground">
+                          {user.email}
+                        </span>
+                      )}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -427,6 +439,13 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
                 : t("warehouseBuildings.staff.assign")}
             </Button>
           </div>
+          {/* An empty list is not an error and not a loading state — there is
+              simply nobody in the role yet. Say where they come from. */}
+          {!candidates.length && (
+            <p className="text-sm text-muted-foreground">
+              {t("warehouseBuildings.staff.noCandidates")}
+            </p>
+          )}
         </Can>
 
         {isLoading ? (

@@ -21,6 +21,7 @@ import {
   GetWallRes,
   GetWarehouseRes,
   GetWarehousesRes,
+  GetWarehouseStaffCandidatesRes,
   GetWarehouseStaffRes,
   GetZonesRes,
   ReceivingScanData,
@@ -293,6 +294,18 @@ export const getWarehouseStaff = async (
   id: number,
 ): Promise<GetWarehouseStaffRes> => {
   return apiCall({ method: "GET", url: `/warehouse/warehouses/${id}/staff` });
+};
+
+// Who may be assigned here, with the building each currently works at. Not
+// /users/available-responsibles — that lists partner PUDO staff, which is a
+// different question and returns nobody once every responsible has a shop.
+export const getWarehouseStaffCandidates = async (
+  id: number,
+): Promise<GetWarehouseStaffCandidatesRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/warehouses/${id}/staff/candidates`,
+  });
 };
 
 export const assignWarehouseStaff = async (

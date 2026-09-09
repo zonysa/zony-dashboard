@@ -753,7 +753,8 @@
     },
     "roles": {
       "representative": "Representative",
-      "responsible": "Responsible",
+      "responsible": "PUDO Responsible (partner)",
+      "warehouseClerk": "Warehouse Clerk (Zony)",
       "supervisor": "Supervisor",
       "customerService": "Customer Service",
       "courier": "Courier",
@@ -1714,8 +1715,10 @@
     "staff": {
       "title": "Staff",
       "subtitle": "The clerks assigned to this building.",
-      "note": "A responsible clerk works at exactly one warehouse. Assigning someone who already works at another building moves them here. Removing someone locks them out of the warehouse screens until they are assigned again. Admins and supervisors run every site and are never listed here.",
+      "note": "A warehouse clerk works at exactly one warehouse. Assigning someone who already works at another building moves them here. Removing someone locks them out of the warehouse screens until they are assigned again. Admins and supervisors run every site and are never listed here, and partner PUDO staff cannot be assigned at all.",
       "selectUser": "Select a staff member",
+      "currentlyAt": "currently at {{warehouse}}",
+      "noCandidates": "No warehouse clerks available. Create a user with the Warehouse Clerk role, or free one up from another building.",
       "assign": "Assign",
       "remove": "Remove",
       "empty": "Nobody is assigned to this building yet.",

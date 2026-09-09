@@ -159,7 +159,13 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EDIT_PROFILE,
   ],
 
-  // Responsible - Account managers
+  // Responsible - a PARTNER's person, running one PUDO point.
+  //
+  // No warehouse permissions. They held VIEW_WAREHOUSE/MANAGE_WAREHOUSE once,
+  // which put a partner's shop employee on Zony's own warehouse floor. Zony's
+  // floor staff are `warehouse_clerk` below; the backend enforces the same
+  // split (STAFF_ROLES in app/core/policies/warehouse.py), so re-adding either
+  // permission here would produce visible screens that 403 rather than access.
   responsible: [
     Permission.VIEW_DASHBOARD,
     Permission.VIEW_PUDOS,
@@ -167,6 +173,19 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_PARCELS,
     Permission.TRACK_PARCELS,
     Permission.VIEW_REPORTS,
+    Permission.VIEW_PROFILE,
+    Permission.EDIT_PROFILE,
+  ],
+
+  // Warehouse clerk - Zony floor staff, pinned to exactly one building.
+  //
+  // No *_WAREHOUSE_SETTINGS: those gate the buildings list, the edit form and
+  // the staff roster, and a clerk assigning themselves elsewhere would undo
+  // the pinning. No PUDO or parcel access either -- that is the partner side.
+  warehouse_clerk: [
+    // Every role holds this, courier and customer included -- it gates the
+    // dashboard shell and the landing page, not anything privileged.
+    Permission.VIEW_DASHBOARD,
     Permission.VIEW_WAREHOUSE,
     Permission.MANAGE_WAREHOUSE,
     Permission.VIEW_PROFILE,

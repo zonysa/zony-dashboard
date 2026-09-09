@@ -153,8 +153,9 @@ export interface GetWarehouseRes {
   warehouse: WHWarehouse;
 }
 
-// A roster row. `responsible` clerks are pinned to exactly one building;
-// admin/supervisor run every site and never appear here.
+// A roster row. `warehouse_clerk` is Zony's own floor staff, pinned to exactly
+// one building; admin/supervisor run every site and never appear here, and
+// `responsible` is a partner's PUDO person who is refused outright.
 export interface WHWarehouseStaffMember {
   user_id: string;
   username: string;
@@ -169,6 +170,28 @@ export interface GetWarehouseStaffRes {
   message: string;
   warehouse_id: number;
   staff: WHWarehouseStaffMember[];
+}
+
+// Someone who could be assigned here. `current_warehouse_*` is null for a
+// clerk with no building yet, and names another site for one who would be
+// MOVED — a person has exactly one warehouse, so assigning empties whichever
+// roster they are on now.
+export interface WHWarehouseStaffCandidate {
+  user_id: string;
+  username: string;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  role: string | null;
+  current_warehouse_id: number | null;
+  current_warehouse_name: string | null;
+}
+
+export interface GetWarehouseStaffCandidatesRes {
+  status: "success";
+  message: string;
+  warehouse_id: number;
+  candidates: WHWarehouseStaffCandidate[];
 }
 
 export interface AssignWarehouseStaffRes {

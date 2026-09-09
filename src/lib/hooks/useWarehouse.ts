@@ -28,6 +28,7 @@ import {
   GetWallRes,
   GetWarehouseRes,
   GetWarehousesRes,
+  GetWarehouseStaffCandidatesRes,
   GetWarehouseStaffRes,
   GetZonesRes,
   ReceivingLookupMode,
@@ -67,6 +68,7 @@ import {
   getWall,
   getWarehouse,
   getWarehouseStaff,
+  getWarehouseStaffCandidates,
   getZones,
   listWarehouses,
   receivingScan,
@@ -142,6 +144,10 @@ export const warehouseKeys = {
     id
       ? ([...warehouseKeys.all, "warehouse-staff", id] as const)
       : ([...warehouseKeys.all, "warehouse-staff"] as const),
+  warehouseStaffCandidates: (id?: number) =>
+    id
+      ? ([...warehouseKeys.all, "warehouse-staff-candidates", id] as const)
+      : ([...warehouseKeys.all, "warehouse-staff-candidates"] as const),
 
   courierManifest: (warehouseId?: number, slotId?: string, date?: string) =>
     warehouseId && slotId && date
@@ -720,6 +726,18 @@ export function useGetWarehouseStaff(id: number | null) {
   });
 }
 
+export function useGetWarehouseStaffCandidates(id: number | null) {
+  return useQuery<GetWarehouseStaffCandidatesRes>({
+    queryKey: warehouseKeys.warehouseStaffCandidates(id ?? undefined),
+    queryFn: () => getWarehouseStaffCandidates(id!),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
 export function useAssignWarehouseStaff(id: number) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -730,6 +748,12 @@ export function useAssignWarehouseStaff(id: number) {
       // to know which from here — invalidate every roster, not just this one.
       queryClient.invalidateQueries({
         queryKey: warehouseKeys.warehouseStaff(),
+      });
+      // Candidate lists shift for every building at once: the person just
+      // assigned leaves this one's list and their old site's "currently at"
+      // label is now wrong everywhere else.
+      queryClient.invalidateQueries({
+        queryKey: warehouseKeys.warehouseStaffCandidates(),
       });
     },
     onError: (error: Error) => {
@@ -746,6 +770,10 @@ export function useUnassignWarehouseStaff(id: number) {
       toast.success(data.message);
       queryClient.invalidateQueries({
         queryKey: warehouseKeys.warehouseStaff(),
+      });
+      // They are now unassigned, so they become a candidate everywhere.
+      queryClient.invalidateQueries({
+        queryKey: warehouseKeys.warehouseStaffCandidates(),
       });
     },
     onError: (error: Error) => {

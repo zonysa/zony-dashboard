@@ -56,6 +56,7 @@ function generateSecurePassword(length = 12) {
 const ROLE_TRANSLATION_KEYS: Record<string, string> = {
   representative: "forms.roles.representative",
   responsible: "forms.roles.responsible",
+  warehouse_clerk: "forms.roles.warehouseClerk",
   supervisor: "forms.roles.supervisor",
   customer_service: "forms.roles.customerService",
   courier: "forms.roles.courier",
