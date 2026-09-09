@@ -2,6 +2,8 @@ import {
   GetParcelRes,
   GetParcelTrackingRes,
   getParcelsRes,
+  GetParcelFeedRes,
+  parcelFeedFilterOptions,
   parcelFilterOptions,
   ParcelFormData,
 } from "@/lib/schema/parcel.schema";
@@ -12,6 +14,7 @@ import {
   deleteParcel,
   getParcelById,
   getParcelByTrackingNumber,
+  getParcelFeed,
   getParcels,
   getParcelTracking,
   updateParcel,
@@ -65,6 +68,20 @@ export function useGetParcels(filters?: parcelFilterOptions) {
     gcTime: 10 * 60 * 1000, // Cache for 10 minutes
     retry: 3, // Retry 3 times
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // exponential backoff
+  });
+}
+
+// Both flows in one list, for the Parcels page.
+export function useGetParcelFeed(filters?: parcelFeedFilterOptions) {
+  return useQuery<GetParcelFeedRes, Error>({
+    // Keyed separately from parcelKeys.list: same endpoint, different rows and
+    // a different row shape, so the two must never share a cache entry.
+    queryKey: [...parcelKeys.all, "feed", JSON.stringify(filters) || ""],
+    queryFn: () => getParcelFeed(filters || {}),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 

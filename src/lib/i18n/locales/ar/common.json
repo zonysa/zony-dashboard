@@ -44,6 +44,7 @@
   },
   "table": {
     "page": "الصفحة",
+    "barcode": "الباركود",
     "zone": "المنطقة",
     "name": "الاسم",
     "city": "المدينة",
@@ -101,6 +102,28 @@
     "title": "الطرود",
     "errorLoading": "خطأ في تحميل الطرود",
     "searchPlaceholder": "بحث عن طرد..."
+  },
+  "parcelFeed": {
+    "type": "النوع",
+    "allTypes": "كل الأنواع",
+    "flow": "المصدر",
+    "place": "المكان",
+    "recipient": "المستلم",
+    "searchPlaceholder": "بحث بالباركود...",
+    "flows": {
+      "pudo": "نقطة استلام",
+      "warehouse": "مستودع"
+    },
+    "routes": {
+      "customer_direct": "مباشر إلى العميل",
+      "pudo_customer": "عبر نقطة استلام",
+      "warehouse_customer": "عبر المستودع",
+      "unknown": "غير مسجل"
+    },
+    "routeSource": {
+      "observed": "تم مسحه",
+      "planned": "مخطط"
+    }
   },
   "clients": {
     "title": "العملاء",

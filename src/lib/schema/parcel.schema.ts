@@ -149,6 +149,83 @@ export type getParcelsRes = {
   total_parcels: number;
 };
 
+// --- the cross-flow list ---------------------------------------------------
+//
+// Zony runs two parcel flows that share no tables: the PUDO flow (`parcels`)
+// and the warehouse module (`wh_parcels`). The Parcels page shows both, so a
+// row here can come from either and several columns are null in one of them —
+// a warehouse parcel has no tracking number, client or PUDO; a PUDO parcel has
+// no warehouse. `flow` says which, and is what row-click routes on.
+
+export type ParcelFlow = "pudo" | "warehouse";
+
+/**
+ * How a parcel travels. Two distinct questions live in this one column:
+ *
+ * - `route` — the places it passes through.
+ * - `route_source` — whether that is a *planned* route (what was booked) or an
+ *   *observed* one (where staff actually scanned it). They disagree in
+ *   practice: a parcel booked straight to a customer still passes through a
+ *   warehouse if a clerk receives it there.
+ *
+ * `unknown` is a real, common value rather than a defensive fallback — every
+ * PUDO parcel created before this feature has neither a delivery method nor a
+ * PUDO, and guessing "direct" for those would invent a fact.
+ *
+ * Not yet representable: warehouse → PUDO. The warehouse module has no PUDO
+ * linkage at all, so such a parcel reports `warehouse_customer`.
+ */
+export type ParcelRoute =
+  | "customer_direct"
+  | "pudo_customer"
+  | "warehouse_customer"
+  | "unknown";
+
+export type ParcelRouteSource = "observed" | "planned" | "unknown";
+
+export interface ParcelFeedRow {
+  /** Stringified: an int for a PUDO parcel, a UUID for a warehouse one. */
+  id: string;
+  flow: ParcelFlow;
+  route: ParcelRoute;
+  route_source: ParcelRouteSource;
+  barcode: string | null;
+  /** Always null for a warehouse parcel — that flow has no tracking number. */
+  tracking_number: string | null;
+  /** Stored for a PUDO parcel; derived from the event log for a warehouse one. */
+  status: string | null;
+  recipient_name: string | null;
+  pudo_name: string | null;
+  warehouse_name: string | null;
+  city_name: string | null;
+  /** Null for warehouse rows: `wh_zones` is a different concept from `zones`. */
+  zone_name: string | null;
+  courier_id: string | null;
+  created_at: string | null;
+  received_at: string | null;
+}
+
+export type GetParcelFeedRes = {
+  current_page: number;
+  message: string;
+  next_page: number | null;
+  parcels: ParcelFeedRow[];
+  prev_page: number | null;
+  status: "success" | "error";
+  total_pages: number;
+  total_parcels: number;
+};
+
+export interface parcelFeedFilterOptions {
+  page?: number;
+  limit?: number;
+  /** Substring match on barcode, across both flows. */
+  barcode?: string;
+  /** "all" merges both flows; "warehouse" is the warehouse module alone. */
+  flow?: "all" | "warehouse";
+  route?: ParcelRoute;
+}
+
 // Filter
 export interface parcelFilterOptions {
   page?: number;

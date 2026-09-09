@@ -3,6 +3,8 @@ import {
   GetParcelRes,
   GetParcelTrackingRes,
   getParcelsRes,
+  GetParcelFeedRes,
+  parcelFeedFilterOptions,
   parcelFilterOptions,
   ParcelFormData,
   CreateParcelFormData,
@@ -48,6 +50,28 @@ export const getParcels = async (
   return apiCall({
     method: "GET",
     url: `/parcels${params.toString() ? `?${params.toString()}` : ""}`,
+  });
+};
+
+// Both flows in one list. A separate function rather than a `flow` option on
+// getParcels: that one's callers (getParcelByTrackingNumber, useReceivingLookup)
+// want PUDO parcels specifically and a different row shape, and the backend
+// keeps `/parcels` PUDO-only unless asked precisely because the customer web
+// app reads it too.
+export const getParcelFeed = async (
+  filters: parcelFeedFilterOptions
+): Promise<GetParcelFeedRes> => {
+  const params = new URLSearchParams();
+
+  params.append("flow", filters?.flow ?? "all");
+  if (filters?.page) params.append("page", filters.page.toString());
+  if (filters?.limit) params.append("per_page", filters.limit.toString());
+  if (filters?.barcode) params.append("barcode", filters.barcode);
+  if (filters?.route) params.append("route", filters.route);
+
+  return apiCall({
+    method: "GET",
+    url: `/parcels?${params.toString()}`,
   });
 };
 

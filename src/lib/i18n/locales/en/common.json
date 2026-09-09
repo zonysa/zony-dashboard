@@ -43,6 +43,7 @@
   },
   "table": {
     "page": "Page",
+    "barcode": "Barcode",
     "zone": "Zone",
     "name": "Name",
     "city": "City",
@@ -100,6 +101,28 @@
     "title": "Parcels",
     "errorLoading": "Error loading parcels",
     "searchPlaceholder": "Search parcels..."
+  },
+  "parcelFeed": {
+    "type": "Type",
+    "allTypes": "All types",
+    "flow": "Source",
+    "place": "Place",
+    "recipient": "Recipient",
+    "searchPlaceholder": "Search by barcode...",
+    "flows": {
+      "pudo": "PUDO",
+      "warehouse": "Warehouse"
+    },
+    "routes": {
+      "customer_direct": "Direct to customer",
+      "pudo_customer": "Via PUDO point",
+      "warehouse_customer": "Via warehouse",
+      "unknown": "Not recorded"
+    },
+    "routeSource": {
+      "observed": "scanned",
+      "planned": "planned"
+    }
   },
   "clients": {
     "title": "Client",
