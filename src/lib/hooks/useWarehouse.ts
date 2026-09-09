@@ -7,6 +7,7 @@ import {
 import { toast } from "sonner";
 
 import {
+  AcceptHandoverData,
   BinParcelData,
   CheckoutParcelData,
   CourierCheckoutData,
@@ -20,6 +21,7 @@ import {
   GetLoadingManifestRes,
   GetParcelEventsRes,
   GetParcelRes,
+  GetPendingHandoversRes,
   GetReportRes,
   GetReturnReconciliationRes,
   GetSettingsRes,
@@ -31,6 +33,7 @@ import {
   GetWarehouseStaffCandidatesRes,
   GetWarehouseStaffRes,
   GetZonesRes,
+  HandoverParcelData,
   ReceivingLookupMode,
   ReceivingPrefill,
   ReturnParcelData,
@@ -42,6 +45,7 @@ import {
   WHScanEventRes,
 } from "@/lib/schema/warehouse.schema";
 import {
+  acceptHandover,
   assignWarehouseStaff,
   binParcel,
   checkoutParcel,
@@ -60,6 +64,7 @@ import {
   getLoadingManifest,
   getParcel,
   getParcelEvents,
+  getPendingHandovers,
   getReport,
   getReturnReconciliation,
   getSettings,
@@ -70,6 +75,7 @@ import {
   getWarehouseStaff,
   getWarehouseStaffCandidates,
   getZones,
+  handoverParcel,
   listWarehouses,
   receivingScan,
   resendCode,
@@ -83,6 +89,7 @@ import {
 import { ApiError } from "@/lib/services/apiClient";
 import { getParcelById, getParcels } from "@/lib/services/parcel.service";
 import { ParcelDetails } from "@/lib/schema/parcel.schema";
+import { parcelKeys } from "@/lib/hooks/useParcel";
 import { normalizeSaudiPhone } from "@/lib/validators/phone";
 
 // Query keys factory for consistency (staff + courier — the public /slots
@@ -148,6 +155,13 @@ export const warehouseKeys = {
     id
       ? ([...warehouseKeys.all, "warehouse-staff-candidates", id] as const)
       : ([...warehouseKeys.all, "warehouse-staff-candidates"] as const),
+
+  // A shop's own inbox for admin/supervisor/responsible. `undefined` means
+  // "mine" for a responsible, or "everyone's" for a global role -- both valid
+  // states, so this key is never collapsed to a bare prefix the way wall/
+  // manifest keys are.
+  pendingHandovers: (pudoId?: number) =>
+    [...warehouseKeys.all, "pending-handovers", pudoId ?? "all"] as const,
 
   courierManifest: (warehouseId?: number, slotId?: string, date?: string) =>
     warehouseId && slotId && date
@@ -555,6 +569,27 @@ export function useReturnParcel() {
   });
 }
 
+export function useHandoverParcel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: HandoverParcelData }) =>
+      handoverParcel(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      // The shop's inbox now has one more entry, wherever it's cached.
+      queryClient.invalidateQueries({
+        queryKey: [...warehouseKeys.all, "pending-handovers"],
+      });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to hand parcel to PUDO point");
+    },
+  });
+}
+
 export function useVoidEvent() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -778,6 +813,50 @@ export function useUnassignWarehouseStaff(id: number) {
     },
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to remove staff member");
+    },
+  });
+}
+
+// ---- The warehouse -> PUDO handoff (staff + PUDO responsible) ----
+// Not warehouse-floor screens: gated on VIEW_PUDO_HANDOVERS/
+// MANAGE_PUDO_HANDOVERS in the dashboard's RBAC, held by admin, supervisor
+// and `responsible` -- not warehouse_clerk. See warehouse.service.ts.
+
+// staleTime: 0, like the Wall -- this is a live queue two different actors
+// (the courier who dropped a box, the shop signing for it) can change at any
+// moment, and a stale count here is a shop wondering where a box went.
+export function useGetPendingHandovers(pudoId?: number, enabled = true) {
+  return useQuery<GetPendingHandoversRes>({
+    queryKey: warehouseKeys.pendingHandovers(pudoId),
+    queryFn: () => getPendingHandovers(pudoId),
+    enabled,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useAcceptHandover() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AcceptHandoverData }) =>
+      acceptHandover(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toast.success(data.message);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({
+        queryKey: [...warehouseKeys.all, "pending-handovers"],
+      });
+      // Acceptance just created a `parcels` row -- the merged Parcels page
+      // (useGetParcelFeed, a different domain's cache) is stale the instant
+      // this resolves.
+      queryClient.invalidateQueries({ queryKey: [...parcelKeys.all, "feed"] });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to accept handover");
     },
   });
 }

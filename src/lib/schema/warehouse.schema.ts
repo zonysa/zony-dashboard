@@ -17,7 +17,14 @@ export type WHParcelStatus =
   | "ready_for_dispatch"
   | "out_for_delivery"
   | "attempt_failed"
-  | "delivered";
+  | "delivered"
+  // The courier says the box is at a PUDO point; the shop hasn't confirmed.
+  // Not terminal — a shop may refuse it, and E07 brings it back.
+  | "handed_to_pudo"
+  // The shop signed for it. Terminal HERE, not in the business: the PUDO
+  // flow owns the last mile from this point via the `parcels` row the
+  // handoff created.
+  | "at_pudo";
 
 export type WHEventCode =
   | "E01"
@@ -27,6 +34,8 @@ export type WHEventCode =
   | "E05"
   | "E06"
   | "E07"
+  | "E08"
+  | "E09"
   | "X01";
 
 export interface WHAddress {
@@ -44,6 +53,10 @@ export interface WHParcel {
   recipient_phone: string;
   address: WHAddress;
   zone_id: number | null;
+  // The PLANNED last mile, set at intake. Null means home delivery — what
+  // every parcel was before this existed. A courier may still divert to a
+  // different shop at handover; this is a default, not the outcome.
+  destination_pudo_id: number | null;
   experiment_arm: "treatment" | "control";
   created_at: string;
 
@@ -55,6 +68,10 @@ export interface WHParcel {
   binned_slot_id: number | null;
   bin_code: string | null;
   customer_interacted: boolean;
+  // The shop this box was ACTUALLY handed to, in the current epoch. Distinct
+  // from destination_pudo_id above — set only once an E08 has fired, and
+  // cleared by E01/E07 like the rest of the epoch-scoped fields.
+  pudo_id: number | null;
 }
 
 export interface WHEvent {
@@ -65,6 +82,8 @@ export interface WHEvent {
   reason_code?: string | null;
   notes?: string | null;
   voids_event_id?: number | null;
+  // Which shop an E08/E09 names. Null for every other code.
+  pudo_id?: number | null;
 }
 
 export interface WHWallSlot {
@@ -272,6 +291,56 @@ export interface GetParcelEventsRes {
   events: WHEvent[];
 }
 
+// ---- The warehouse -> PUDO handoff ----
+// See CLAUDE.md's "warehouse -> PUDO" section for the two-scan model this
+// mirrors: E08 (courier drops it, one-sided claim) then E09 (the shop signs,
+// which is what actually moves the box into the PUDO flow).
+
+// One row of a shop's own inbox — GET /warehouse/pudo-handovers. Scoped
+// server-side to the caller's own shop for a `responsible`; admin/supervisor
+// may see every pending handoff or filter with `?pudo_id=`.
+export interface WHPendingHandover {
+  parcel_id: string;
+  barcode: string;
+  recipient_name: string;
+  recipient_phone: string;
+  address: WHAddress;
+  pudo_id: number;
+  pudo_name: string | null;
+  courier_id: string | null;
+  handed_over_at: string | null;
+}
+
+export interface GetPendingHandoversRes {
+  status: "success";
+  message: string;
+  count: number;
+  handovers: WHPendingHandover[];
+}
+
+// The PUDO-flow parcel the acceptance created (or found, if this call is a
+// replay of an earlier acceptance). Deliberately does NOT carry
+// receiving_code — that goes to the customer by SMS, never to whoever is
+// holding the shop's screen.
+export interface AcceptedHandoverParcel {
+  id: number;
+  tracking_number: string;
+  status: string;
+  pudo_id: number | null;
+}
+
+export interface AcceptHandoverRes {
+  status: "success";
+  message: string;
+  created: boolean;
+  event: WHEvent;
+  parcel_status: WHParcelStatus;
+  // Null only if something upstream went wrong — a successful accept always
+  // has a bridged parcel to show.
+  parcel: AcceptedHandoverParcel | null;
+  customer_notified: boolean;
+}
+
 // The shared shape returned by every scan mutation (E02/E04/E05/E06/E07/X01).
 // `parcel_status` is the single value a mutation hook is allowed to write
 // into the cache — it's the just-recomputed fold result, not a guess.
@@ -415,6 +484,9 @@ export const receivingScanSchema = z.object({
   recipient_phone: saudiPhoneSchema,
   address: addressSchema,
   zone_id: z.number().int().positive().optional(),
+  // PLANNED last mile — a shop rather than the recipient's own door. Optional;
+  // omitting it means home delivery, same as every parcel before this existed.
+  destination_pudo_id: z.number().int().positive().optional(),
   experiment_arm: z.enum(["treatment", "control"]).default("treatment"),
   client_event_id: clientEventIdSchema,
 });
@@ -478,6 +550,30 @@ export const returnParcelSchema = z.object({
   notes: z.string().max(500).optional(),
 });
 export type ReturnParcelData = z.infer<typeof returnParcelSchema>;
+
+// E08 — courier hands the box to a PUDO point. `pudo_id` is optional: the
+// parcel's own destination_pudo_id is the default, and sending one overrides
+// it for a diversion (the planned shop was shut, the customer asked for a
+// different one).
+export const handoverParcelSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  pudo_id: z.number().int().positive().optional(),
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type HandoverParcelData = z.infer<typeof handoverParcelSchema>;
+
+// E09 — the shop signs for it. `pudo_id` here is a CHECK, not a choice: the
+// server compares it against the shop the courier actually named on the E08
+// and refuses a mismatch, so a signature can't be forged for a box that never
+// arrived. Leave it unset unless the caller has a specific id to verify.
+export const acceptHandoverSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  pudo_id: z.number().int().positive().optional(),
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type AcceptHandoverData = z.infer<typeof acceptHandoverSchema>;
 
 export const voidEventSchema = z.object({
   client_event_id: clientEventIdSchema,

@@ -53,6 +53,16 @@ const STATUS_INFO: Record<
     variant: "destructive",
   },
   delivered: { ar: "تم التوصيل", en: "Delivered", variant: "success" },
+  handed_to_pudo: {
+    ar: "تم تسليمه لنقطة استلام قريبة منك",
+    en: "Handed to a pickup point near you",
+    variant: "secondary",
+  },
+  at_pudo: {
+    ar: "جاهز للاستلام من نقطة الاستلام",
+    en: "Ready for collection at the pickup point",
+    variant: "success",
+  },
 };
 
 function describeError(error: unknown): { ar: string; en: string } {

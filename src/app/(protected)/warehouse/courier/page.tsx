@@ -87,6 +87,11 @@ const STATUS_PRIORITY: Record<WHParcelStatus, number> = {
   awaiting_scheduling: 3,
   not_received: 3,
   delivered: 4,
+  // Neither can actually reach this page's manifest (which lists
+  // ready_for_dispatch/out_for_delivery/attempt_failed only); grouped with
+  // the other terminal-ish statuses purely to satisfy the Record.
+  handed_to_pudo: 4,
+  at_pudo: 4,
 };
 
 const STATUS_BADGE: Partial<

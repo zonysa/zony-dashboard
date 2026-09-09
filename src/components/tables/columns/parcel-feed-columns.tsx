@@ -1,13 +1,15 @@
 "use client";
 
+import { Fragment } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Package, Store, Warehouse } from "lucide-react";
+import { ChevronRight, Package, Store, Warehouse } from "lucide-react";
 import { TFunction } from "i18next";
 
 import { Badge } from "@/components/ui/badge";
 import {
   ParcelFeedRow,
-  ParcelRoute,
+  ParcelLeg,
+  ParcelLegPlaceType,
   ParcelRouteSource,
 } from "@/lib/schema/parcel.schema";
 
@@ -15,16 +17,10 @@ interface ColumnsProps {
   t: TFunction<"common">;
 }
 
-/**
- * Icon per route. The icon is the *destination-defining* leg: a PUDO route is
- * marked by the shop, a warehouse route by the building, a direct one by the
- * parcel itself.
- */
-const ROUTE_ICON: Record<ParcelRoute, typeof Package> = {
-  customer_direct: Package,
-  pudo_customer: Store,
-  warehouse_customer: Warehouse,
-  unknown: Package,
+const LEG_ICON: Record<ParcelLegPlaceType, typeof Package> = {
+  warehouse: Warehouse,
+  pudo: Store,
+  customer: Package,
 };
 
 export const FeedColumns = ({ t }: ColumnsProps) => {
@@ -34,56 +30,30 @@ export const FeedColumns = ({ t }: ColumnsProps) => {
       // have. Warehouse parcels have no tracking number at all.
       accessorKey: "barcode",
       header: t("table.barcode"),
-      cell: ({ row }) => (
-        <div className="font-mono text-sm">{row.original.barcode ?? "—"}</div>
-      ),
+      cell: ({ row }) => {
+        const { barcode, tracking_number: trackingNumber, flow } = row.original;
+        // A bridged warehouse row gains a tracking number once a shop accepts
+        // it — show it as the second identifier the customer was actually
+        // texted, without pretending the warehouse barcode became it.
+        const showTracking = flow === "warehouse" && !!trackingNumber;
+        return (
+          <div className="flex flex-col leading-tight">
+            <span className="font-mono text-sm">{barcode ?? "—"}</span>
+            {showTracking && (
+              <span className="font-mono text-[11px] text-muted-foreground">
+                {trackingNumber}
+              </span>
+            )}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "route",
       header: t("parcelFeed.type"),
-      cell: ({ row }) => {
-        const { route, route_source: source } = row.original;
-        const Icon = ROUTE_ICON[route] ?? Package;
-
-        // A planned route is what someone booked; an observed one is where the
-        // parcel was actually scanned. They disagree often enough that showing
-        // a plan as though it were fact would be misleading, so the two are
-        // visually distinct rather than merged into one label.
-        const isObserved: boolean = source === "observed";
-        const unknown = route === "unknown";
-
-        return (
-          <div className="flex items-center gap-2">
-            <Icon
-              className={`h-4 w-4 shrink-0 ${
-                unknown ? "text-muted-foreground/50" : "text-muted-foreground"
-              }`}
-            />
-            <div className="flex flex-col leading-tight">
-              <span
-                className={`text-sm ${unknown ? "text-muted-foreground" : ""}`}
-              >
-                {t(`parcelFeed.routes.${route}`)}
-              </span>
-              {!unknown && (
-                <span
-                  className={`text-[11px] ${
-                    isObserved
-                      ? "text-muted-foreground"
-                      : "text-amber-600 dark:text-amber-500"
-                  }`}
-                >
-                  {t(
-                    isObserved
-                      ? "parcelFeed.routeSource.observed"
-                      : "parcelFeed.routeSource.planned",
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <RouteCell row={row.original} t={t} />
+      ),
     },
     {
       accessorKey: "flow",
@@ -136,8 +106,10 @@ export const FeedColumns = ({ t }: ColumnsProps) => {
       },
     },
     {
-      // One column for "which place is it associated with", since a row has
-      // either a PUDO or a warehouse and never both.
+      // One column for "which place is it associated with". A bridged
+      // warehouse row carries BOTH: the shop it was handed to (pudo_name) and
+      // the building it started at (warehouse_name) — the shop is the more
+      // useful of the two once it's set, since that's where the box is now.
       id: "place",
       header: t("parcelFeed.place"),
       cell: ({ row }) => {
@@ -184,5 +156,78 @@ export const FeedColumns = ({ t }: ColumnsProps) => {
 
   return columns;
 };
+
+/**
+ * The Type cell: the journey as a short chain of place icons, plus a one-line
+ * label underneath. A parcel's route is a SEQUENCE, not a category — legs is
+ * the ordered list ItineraryService derived server-side, each independently
+ * marked planned or observed, and this renders exactly that rather than
+ * collapsing it into one guess. `route`/`route_source` (also server-derived)
+ * drive the label and its colour; `legs` drives the chain of icons above it.
+ */
+function RouteCell({ row, t }: { row: ParcelFeedRow; t: TFunction<"common"> }) {
+  const { route, route_source: source, legs } = row;
+  const unknown = route === "unknown";
+  const isObserved = source === "observed";
+
+  return (
+    <div className="flex flex-col gap-1">
+      {legs.length > 0 ? (
+        <div className="flex items-center gap-0.5">
+          {legs.map((leg, index) => (
+            <Fragment key={leg.seq}>
+              {index > 0 && (
+                <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/40" />
+              )}
+              <LegChip leg={leg} />
+            </Fragment>
+          ))}
+        </div>
+      ) : (
+        <Package className="h-4 w-4 shrink-0 text-muted-foreground/50" />
+      )}
+      <div className="flex flex-col leading-tight">
+        <span className={`text-sm ${unknown ? "text-muted-foreground" : ""}`}>
+          {t(`parcelFeed.routes.${route}`)}
+        </span>
+        {!unknown && (
+          <span
+            className={`text-[11px] ${
+              isObserved
+                ? "text-muted-foreground"
+                : "text-amber-600 dark:text-amber-500"
+            }`}
+          >
+            {t(
+              isObserved
+                ? "parcelFeed.routeSource.observed"
+                : "parcelFeed.routeSource.planned",
+            )}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** One leg's icon, dimmed for a planned (not-yet-happened) leg. */
+function LegChip({ leg }: { leg: ParcelLeg }) {
+  const Icon = LEG_ICON[leg.place_type] ?? Package;
+  const isObserved = leg.source === "observed";
+  return (
+    <Icon
+      className={`h-3.5 w-3.5 shrink-0 ${
+        isObserved
+          ? "text-muted-foreground"
+          : "text-amber-600/70 dark:text-amber-500/70"
+      }`}
+      // Native title tooltip: cheap and accessible, no extra component needed
+      // for something this secondary.
+      aria-label={leg.place_name ?? leg.place_type}
+    >
+      <title>{leg.place_name ?? leg.place_type}</title>
+    </Icon>
+  );
+}
 
 export type { ParcelRouteSource };

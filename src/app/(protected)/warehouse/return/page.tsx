@@ -98,6 +98,15 @@ const STATUS_BADGE: Record<
   out_for_delivery: { variant: "default" },
   attempt_failed: { variant: "destructive" },
   delivered: { variant: "success" },
+  // Neither status can actually appear here: the return desk only ever lists
+  // attempt_failed boxes owed an E07 (see the outstanding-queue query). These
+  // entries exist only to satisfy the Record's exhaustiveness.
+  handed_to_pudo: {
+    variant: "outline",
+    className:
+      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+  },
+  at_pudo: { variant: "success" },
 };
 
 type FailTarget = {

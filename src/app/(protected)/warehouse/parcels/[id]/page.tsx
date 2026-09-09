@@ -9,7 +9,9 @@ import {
   Clock,
   MapPin,
   Package,
+  PackageCheck,
   RotateCcw,
+  Store,
   Truck,
   XCircle,
 } from "lucide-react";
@@ -29,19 +31,35 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { useGetBranches } from "@/lib/hooks/useBranch";
+import { Branch } from "@/lib/schema/branch.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
   useGetParcel,
   useGetParcelEvents,
+  useHandoverParcel,
   useResendCode,
   useVoidEvent,
 } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
 import { WHEvent, WHEventCode, WHParcelStatus } from "@/lib/schema/warehouse.schema";
+
+// A box may only be handed to a PUDO point while it is on a van — the same
+// rule the backend's transition guard enforces (E08 legal only from
+// out_for_delivery). Checked here purely to decide whether to SHOW the
+// button; the server is what actually refuses an illegal attempt.
+const CAN_HANDOVER_STATUSES = new Set<WHParcelStatus>(["out_for_delivery"]);
 
 // Same convention as the other warehouse screens (Wall, Return desk): each
 // page keeps its own copy of this map rather than sharing one.
@@ -61,6 +79,14 @@ const STATUS_BADGE: Record<
   out_for_delivery: { variant: "default" },
   attempt_failed: { variant: "destructive" },
   delivered: { variant: "success" },
+  // At a shop, not yet signed for — same visual register as attempt_failed:
+  // a resting state that still needs someone to act on it.
+  handed_to_pudo: {
+    variant: "outline",
+    className:
+      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+  },
+  at_pudo: { variant: "success" },
 };
 
 const EVENT_ICON: Record<WHEventCode, React.ElementType> = {
@@ -71,6 +97,8 @@ const EVENT_ICON: Record<WHEventCode, React.ElementType> = {
   E05: CheckCircle2,
   E06: XCircle,
   E07: RotateCcw,
+  E08: Store,
+  E09: PackageCheck,
   X01: Ban,
 };
 
@@ -83,8 +111,18 @@ export default function WarehouseParcelDetailPage() {
     useGetParcel(parcelId);
   const { data: eventsRes, isLoading: eventsLoading, isError: eventsError } =
     useGetParcelEvents(parcelId);
+  // Names for whichever PUDO ids this parcel's status/dialog need — its
+  // planned destination, and once handed over, the shop it actually went to.
+  // Fetched unconditionally rather than per-id: the list is small (a few
+  // hundred shops at most) and this page already needs it for the handover
+  // dialog's picker, so one fetch covers both.
+  const { data: branchesRes } = useGetBranches({ limit: 200 });
+  const pudoNameById = new Map(
+    (branchesRes?.pudos ?? []).map((pudo) => [pudo.id, pudo.name]),
+  );
 
   const [resendOpen, setResendOpen] = useState(false);
+  const [handoverOpen, setHandoverOpen] = useState(false);
   const [voidTarget, setVoidTarget] = useState<WHEvent | null>(null);
 
   if (!parcelId) {
@@ -127,9 +165,20 @@ export default function WarehouseParcelDetailPage() {
               <p className="text-sm text-muted-foreground">{parcel.recipient_name}</p>
             </div>
             <Can do={Permission.MANAGE_WAREHOUSE}>
-              <Button type="button" variant="outline" onClick={() => setResendOpen(true)}>
-                {t("warehouseParcel.actions.resendCode")}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {CAN_HANDOVER_STATUSES.has(parcel.status) && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setHandoverOpen(true)}
+                  >
+                    {t("warehouseParcel.actions.handover")}
+                  </Button>
+                )}
+                <Button type="button" variant="outline" onClick={() => setResendOpen(true)}>
+                  {t("warehouseParcel.actions.resendCode")}
+                </Button>
+              </div>
             </Can>
           </div>
 
@@ -173,6 +222,12 @@ export default function WarehouseParcelDetailPage() {
                       : t("warehouseParcel.fields.no")
                   }
                 />
+                {parcel.pudo_id != null && (
+                  <InfoStat
+                    label={t("warehouseParcel.fields.handedToPudo")}
+                    value={pudoNameById.get(parcel.pudo_id) ?? `#${parcel.pudo_id}`}
+                  />
+                )}
               </div>
             </CardContent>
           </Card>
@@ -237,6 +292,7 @@ export default function WarehouseParcelDetailPage() {
                       isLast={idx === events.length - 1}
                       isVoided={voidedEventIds.has(event.id)}
                       onVoid={() => setVoidTarget(event)}
+                      pudoNameById={pudoNameById}
                     />
                   ))}
                 </ol>
@@ -261,6 +317,16 @@ export default function WarehouseParcelDetailPage() {
           onClose={() => setVoidTarget(null)}
         />
       )}
+
+      {parcel && handoverOpen && (
+        <HandoverDialog
+          parcelId={parcel.id}
+          barcode={parcel.barcode}
+          destinationPudoId={parcel.destination_pudo_id}
+          branches={branchesRes?.pudos ?? []}
+          onClose={() => setHandoverOpen(false)}
+        />
+      )}
     </PageContainer>
   );
 }
@@ -279,11 +345,13 @@ function TimelineRow({
   isLast,
   isVoided,
   onVoid,
+  pudoNameById,
 }: {
   event: WHEvent;
   isLast: boolean;
   isVoided: boolean;
   onVoid: () => void;
+  pudoNameById: Map<number, string>;
 }) {
   const { t } = useTranslation();
   const Icon = EVENT_ICON[event.code];
@@ -335,6 +403,12 @@ function TimelineRow({
         {event.slot_id != null && (
           <p className="text-xs text-muted-foreground">
             {t("warehouseParcel.timeline.slot")}: {event.slot_id}
+          </p>
+        )}
+        {event.pudo_id != null && (
+          <p className="text-xs text-muted-foreground">
+            {t("warehouseParcel.timeline.pudo")}:{" "}
+            {pudoNameById.get(event.pudo_id) ?? `#${event.pudo_id}`}
           </p>
         )}
         {event.reason_code && (
@@ -505,6 +579,103 @@ function VoidEventDialog({
             {voidEvent.isPending
               ? t("warehouseParcel.voidDialog.submitting")
               : t("warehouseParcel.voidDialog.submit")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function HandoverDialog({
+  parcelId,
+  barcode,
+  destinationPudoId,
+  branches,
+  onClose,
+}: {
+  parcelId: string;
+  barcode: string;
+  destinationPudoId: number | null;
+  branches: Branch[];
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const handoverParcel = useHandoverParcel();
+  const [clientEventId] = useState(() => mintClientEventId());
+
+  // Active shops only — handing a box to a suspended or inactive one is
+  // refused server-side, so offering it here would just be a guaranteed 409.
+  const activeBranches = branches.filter(
+    (branch) => branch.status?.toLowerCase() === "active",
+  );
+
+  // Pre-select the parcel's own planned destination when the courier is
+  // taking it there as booked — this is the common case, and a diversion is
+  // still one click away by picking a different shop.
+  const [pudoId, setPudoId] = useState<string>(
+    destinationPudoId != null ? String(destinationPudoId) : "",
+  );
+
+  const isValid = pudoId !== "";
+
+  async function handleConfirm() {
+    if (!isValid) return;
+    try {
+      await handoverParcel.mutateAsync({
+        id: parcelId,
+        data: { client_event_id: clientEventId, pudo_id: Number(pudoId) },
+      });
+      onClose();
+    } catch (err) {
+      // useHandoverParcel's onError already toasts the server message.
+      console.error("Handover failed:", err);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("warehouseParcel.handoverDialog.title")}</DialogTitle>
+          <DialogDescription>
+            <span className="font-mono">{barcode}</span>
+          </DialogDescription>
+        </DialogHeader>
+
+        <p className="text-sm text-muted-foreground">
+          {t("warehouseParcel.handoverDialog.explanation")}
+        </p>
+
+        <div className="space-y-2">
+          <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
+          <Select value={pudoId} onValueChange={setPudoId}>
+            <SelectTrigger className="w-full">
+              <SelectValue
+                placeholder={t("warehouseParcel.handoverDialog.pudoPlaceholder")}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {activeBranches.map((branch) => (
+                <SelectItem key={branch.id} value={String(branch.id)}>
+                  {branch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
+            {t("warehouseParcel.actions.cancel")}
+          </Button>
+          <Button
+            type="button"
+            disabled={!isValid || handoverParcel.isPending}
+            onClick={handleConfirm}
+          >
+            {handoverParcel.isPending
+              ? t("warehouseParcel.handoverDialog.submitting")
+              : t("warehouseParcel.handoverDialog.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -84,6 +84,14 @@ export enum Permission {
   VIEW_WAREHOUSE_COURIER = "view:warehouse_courier",
   MANAGE_WAREHOUSE_COURIER = "manage:warehouse_courier",
 
+  // Warehouse -> PUDO handoff inbox (/warehouse/pudo-handovers). Deliberately
+  // separate from VIEW_WAREHOUSE/MANAGE_WAREHOUSE: this is a shop signing for
+  // a box, not warehouse floor access, so it is held by admin, supervisor AND
+  // `responsible` — the one warehouse-adjacent screen that role may open.
+  // Mirrors the backend's PUDO_HANDOFF route group, not STAFF.
+  VIEW_PUDO_HANDOVERS = "view:pudo_handovers",
+  MANAGE_PUDO_HANDOVERS = "manage:pudo_handovers",
+
   // Profile
   VIEW_PROFILE = "view:profile",
   EDIT_PROFILE = "edit:profile",
@@ -144,6 +152,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_WAREHOUSE_REPORTS,
     Permission.EXPORT_WAREHOUSE_REPORTS,
     Permission.VOID_WAREHOUSE_EVENTS,
+    Permission.VIEW_PUDO_HANDOVERS,
+    Permission.MANAGE_PUDO_HANDOVERS,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
     Permission.EDIT_PUDO_RESPONSIBLE,
@@ -173,6 +183,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_PARCELS,
     Permission.TRACK_PARCELS,
     Permission.VIEW_REPORTS,
+    // Signing for a box a courier dropped at THEIR shop. Not warehouse access
+    // -- see the permission's own comment -- and the backend scopes the list
+    // and the accept action to this shop alone regardless of what the UI sends.
+    Permission.VIEW_PUDO_HANDOVERS,
+    Permission.MANAGE_PUDO_HANDOVERS,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
   ],
@@ -225,6 +240,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_WAREHOUSE_REPORTS,
     Permission.EXPORT_WAREHOUSE_REPORTS,
     Permission.VOID_WAREHOUSE_EVENTS,
+    Permission.VIEW_PUDO_HANDOVERS,
+    Permission.MANAGE_PUDO_HANDOVERS,
     Permission.VIEW_PROFILE,
     Permission.EDIT_PROFILE,
   ],

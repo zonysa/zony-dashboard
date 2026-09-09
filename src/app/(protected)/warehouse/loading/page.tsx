@@ -98,6 +98,15 @@ const STATUS_BADGE: Record<
   out_for_delivery: { variant: "default" },
   attempt_failed: { variant: "destructive" },
   delivered: { variant: "success" },
+  // Neither status can actually appear here: a loading manifest only lists
+  // ready_for_dispatch/out_for_delivery/attempt_failed boxes. These entries
+  // exist only to satisfy the Record's exhaustiveness.
+  handed_to_pudo: {
+    variant: "outline",
+    className:
+      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+  },
+  at_pudo: { variant: "success" },
 };
 
 type CheckoutTarget = {

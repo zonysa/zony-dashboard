@@ -18,6 +18,7 @@ import {
   Truck,
   Warehouse,
   Inbox,
+  PackageCheck,
 } from "lucide-react";
 
 import { useRouter } from "next/navigation";
@@ -184,6 +185,16 @@ function AppSidebarContent() {
       url: "/warehouse/courier",
       icon: Truck,
       permission: Permission.VIEW_WAREHOUSE_COURIER,
+    },
+    {
+      // Top-level, not nested under "warehouse" above: a `responsible` holds
+      // this permission but not VIEW_WAREHOUSE, and nesting it would either
+      // hide it (group gated on the parent permission) or show that role an
+      // otherwise-empty warehouse drawer.
+      title: t("warehousePudoHandovers.navTitle"),
+      url: "/warehouse/pudo-handovers",
+      icon: PackageCheck,
+      permission: Permission.VIEW_PUDO_HANDOVERS,
     },
   ];
 

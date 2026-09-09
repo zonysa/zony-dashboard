@@ -99,6 +99,17 @@ const STATUS_BADGE: Record<
   out_for_delivery: { variant: "default" },
   attempt_failed: { variant: "destructive" },
   delivered: { variant: "success" },
+  // Still live here: a shop may refuse the box, and it comes back to the
+  // Wall via a return -- unlike delivered/at_pudo below, this is NOT terminal.
+  handed_to_pudo: {
+    variant: "outline",
+    className:
+      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
+  },
+  // Terminal: gone from the Wall's underlying query the moment this fires
+  // (`WHParcelState.status.notin_(TERMINAL_STATUSES)`), so this entry exists
+  // only to satisfy the Record's exhaustiveness -- it should never render.
+  at_pudo: { variant: "success" },
 };
 
 type BinTarget = {

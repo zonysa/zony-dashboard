@@ -117,6 +117,7 @@
       "customer_direct": "Direct to customer",
       "pudo_customer": "Via PUDO point",
       "warehouse_customer": "Via warehouse",
+      "warehouse_pudo_customer": "Via warehouse, then PUDO",
       "unknown": "Not recorded"
     },
     "routeSource": {
@@ -1324,7 +1325,9 @@
       "ready_for_dispatch": "Ready for dispatch",
       "out_for_delivery": "Out for delivery",
       "attempt_failed": "Attempt failed",
-      "delivered": "Delivered"
+      "delivered": "Delivered",
+      "handed_to_pudo": "Handed to PUDO point",
+      "at_pudo": "At PUDO point"
     },
     "stale": "Stale",
     "needsRebinHint": "Customer moved their slot after this box was binned — it's physically in the wrong bin.",
@@ -1633,7 +1636,8 @@
       "zone": "Zone",
       "experimentArm": "Experiment arm",
       "createdAt": "Received at",
-      "address": "Address"
+      "address": "Address",
+      "handedToPudo": "Handed to PUDO point"
     },
     "timeline": {
       "title": "Audit log",
@@ -1641,6 +1645,7 @@
       "empty": "No events recorded yet.",
       "voided": "Voided",
       "slot": "Slot",
+      "pudo": "PUDO point",
       "reasonCode": "Reason code",
       "voidsEvent": "Voids event",
       "voidReason": "Void reason",
@@ -1654,6 +1659,8 @@
       "E05": "Delivered",
       "E06": "Delivery attempt failed",
       "E07": "Returned to warehouse",
+      "E08": "Handed to PUDO point",
+      "E09": "PUDO point confirmed receipt",
       "X01": "Event voided"
     },
     "eventDescriptions": {
@@ -1664,10 +1671,13 @@
       "E05": "The parcel was handed to the customer.",
       "E06": "The courier reported a failed delivery attempt.",
       "E07": "The parcel came back to the warehouse.",
+      "E08": "A courier dropped the parcel at a PUDO point — not yet confirmed by the shop.",
+      "E09": "The PUDO point signed for the parcel. It now belongs to the PUDO flow, and the customer was texted a collection code.",
       "X01": "An admin or supervisor voided a prior event as a correction."
     },
     "actions": {
       "resendCode": "Resend delivery code",
+      "handover": "Hand to PUDO point",
       "void": "Void",
       "cancel": "Cancel"
     },
@@ -1676,6 +1686,14 @@
       "warning": "This rotates the code — it does not resend the old one. Any code the customer already has stops working immediately, and they'll need the new one from this message to confirm delivery.",
       "submit": "Rotate & resend",
       "submitting": "Sending..."
+    },
+    "handoverDialog": {
+      "title": "Hand to PUDO point",
+      "explanation": "Records that the courier dropped this box at a shop. It doesn't reach the customer yet — the shop still has to sign for it before a collection code goes out.",
+      "pudoLabel": "PUDO point",
+      "pudoPlaceholder": "Select a PUDO point",
+      "submit": "Record handover",
+      "submitting": "Recording..."
     },
     "voidDialog": {
       "title": "Void this event",
@@ -1754,6 +1772,38 @@
         "title": "Remove from this warehouse?",
         "description": "{{name}} will be locked out of the warehouse screens until they are assigned to a building again."
       }
+    }
+  },
+  "warehousePudoHandovers": {
+    "navTitle": "PUDO Handovers",
+    "title": "PUDO Handovers",
+    "subtitle": "Boxes a courier has dropped off, waiting for your shop to sign for them.",
+    "loadError": "Couldn't load pending handovers.",
+    "pudoFilterPlaceholder": "Filter by PUDO point",
+    "allPudos": "All PUDO points",
+    "pending": {
+      "title": "Pending ({{count}})",
+      "empty": "Nothing waiting on a signature right now."
+    },
+    "table": {
+      "recipient": "Recipient",
+      "phone": "Phone",
+      "pudo": "PUDO point",
+      "handedOverAt": "Handed over",
+      "actions": "Actions"
+    },
+    "actions": {
+      "accept": "Accept",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "acceptDialog": {
+      "title": "Confirm receipt",
+      "explanation": "This confirms your shop physically has this box. It creates a tracking record in the main parcels system and texts the customer a collection code — this cannot be undone from here.",
+      "submit": "Confirm receipt",
+      "submitting": "Confirming...",
+      "doneTitle": "Confirmed",
+      "doneExplanation": "The customer has been texted a collection code. Their tracking number:"
     }
   }
 }

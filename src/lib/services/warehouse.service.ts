@@ -1,4 +1,6 @@
 import {
+  AcceptHandoverData,
+  AcceptHandoverRes,
   AssignWarehouseStaffRes,
   BinParcelData,
   CheckoutParcelData,
@@ -13,6 +15,7 @@ import {
   GetLoadingManifestRes,
   GetParcelEventsRes,
   GetParcelRes,
+  GetPendingHandoversRes,
   GetReportRes,
   GetReturnReconciliationRes,
   GetSettingsRes,
@@ -24,6 +27,7 @@ import {
   GetWarehouseStaffCandidatesRes,
   GetWarehouseStaffRes,
   GetZonesRes,
+  HandoverParcelData,
   ReceivingScanData,
   ReturnParcelData,
   UpdateSettingRes,
@@ -142,6 +146,20 @@ export const deliverParcel = async (
   });
 };
 
+// E08 — staff-side record of a hand-off to a PUDO point. Legal only from
+// out_for_delivery (someone must be accountable for the box); the server
+// enforces that, not this call.
+export const handoverParcel = async (
+  id: string,
+  data: HandoverParcelData,
+): Promise<WHScanEventRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/parcels/${id}/handover`,
+    data,
+  });
+};
+
 export const getParcel = async (id: string): Promise<GetParcelRes> => {
   return apiCall({ method: "GET", url: `/warehouse/parcels/${id}` });
 };
@@ -245,6 +263,35 @@ export const exportParcelsCsv = async (
 
 export const getStateDiff = async (): Promise<GetStateDiffRes> => {
   return apiCall({ method: "GET", url: "/warehouse/state/diff" });
+};
+
+// ---- The warehouse -> PUDO handoff (staff + PUDO responsible) ----
+// Not warehouse-floor screens: PUDO_HANDOFF on the backend is
+// admin/supervisor/responsible, not the STAFF group everything above this
+// section is gated to. See warehouse.schema.ts's own section header.
+
+// `pudoId` is honoured only for admin/supervisor — the backend derives a
+// `responsible`'s own shop and ignores anything the client sends for that
+// role, so passing it here for every caller is harmless and simpler than
+// branching per role.
+export const getPendingHandovers = async (
+  pudoId?: number,
+): Promise<GetPendingHandoversRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/pudo-handovers${pudoId ? `?pudo_id=${pudoId}` : ""}`,
+  });
+};
+
+export const acceptHandover = async (
+  parcelId: string,
+  data: AcceptHandoverData,
+): Promise<AcceptHandoverRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/pudo-handovers/${parcelId}/accept`,
+    data,
+  });
 };
 
 // ---- Warehouses (admin) ----

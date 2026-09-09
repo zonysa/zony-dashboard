@@ -162,26 +162,46 @@ export type ParcelFlow = "pudo" | "warehouse";
 /**
  * How a parcel travels. Two distinct questions live in this one column:
  *
- * - `route` — the places it passes through.
+ * - `route` — the places it passes through, collapsed into one short code.
  * - `route_source` — whether that is a *planned* route (what was booked) or an
- *   *observed* one (where staff actually scanned it). They disagree in
- *   practice: a parcel booked straight to a customer still passes through a
- *   warehouse if a clerk receives it there.
+ *   *observed* one (where staff actually scanned it) — `observed` as soon as
+ *   ANY leg in `legs` below is a real scan. They disagree in practice: a
+ *   parcel booked straight to a customer still passes through a warehouse if a
+ *   clerk receives it there.
  *
  * `unknown` is a real, common value rather than a defensive fallback — every
  * PUDO parcel created before this feature has neither a delivery method nor a
  * PUDO, and guessing "direct" for those would invent a fact.
- *
- * Not yet representable: warehouse → PUDO. The warehouse module has no PUDO
- * linkage at all, so such a parcel reports `warehouse_customer`.
  */
 export type ParcelRoute =
   | "customer_direct"
   | "pudo_customer"
   | "warehouse_customer"
+  | "warehouse_pudo_customer"
   | "unknown";
 
 export type ParcelRouteSource = "observed" | "planned" | "unknown";
+
+/** A place a leg names. Matches the warehouse module's own vocabulary. */
+export type ParcelLegPlaceType = "warehouse" | "pudo" | "customer";
+export type ParcelLegSource = "planned" | "observed";
+
+/**
+ * One stop in a parcel's journey — the backend's ItineraryService derives
+ * these from the event log, never stores them. `source` is what makes this
+ * trustworthy to render as a timeline rather than a guess: `observed` is a
+ * scan that happened, `planned` is a booking or a not-yet-confirmed default
+ * (see `place_id`/`place_name` both null on an unassigned "will go via a
+ * shop" leg — real, not an error).
+ */
+export interface ParcelLeg {
+  seq: number;
+  place_type: ParcelLegPlaceType;
+  place_id: number | null;
+  place_name: string | null;
+  source: ParcelLegSource;
+  at: string | null;
+}
 
 export interface ParcelFeedRow {
   /** Stringified: an int for a PUDO parcel, a UUID for a warehouse one. */
@@ -189,9 +209,20 @@ export interface ParcelFeedRow {
   flow: ParcelFlow;
   route: ParcelRoute;
   route_source: ParcelRouteSource;
+  /** The full journey, in order. `route` above is a label collapsed from this. */
+  legs: ParcelLeg[];
   barcode: string | null;
-  /** Always null for a warehouse parcel — that flow has no tracking number. */
+  /**
+   * Null for a bare warehouse parcel — that flow has no tracking number of
+   * its own. Populated once a PUDO point has accepted the box: the row is
+   * still anchored on the warehouse id (`flow` stays "warehouse"), but this
+   * becomes the number the customer was actually texted.
+   */
   tracking_number: string | null;
+  /** Set only on a bridged PUDO-flow row: the warehouse parcel it came from. */
+  wh_parcel_id: string | null;
+  /** Set only on a bridged warehouse row: the PUDO-flow parcel it became. */
+  pudo_parcel_id: number | null;
   /** Stored for a PUDO parcel; derived from the event log for a warehouse one. */
   status: string | null;
   recipient_name: string | null;

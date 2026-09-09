@@ -64,6 +64,10 @@ export default function Page() {
           label: t("parcelFeed.routes.warehouse_customer"),
           value: "warehouse_customer",
         },
+        {
+          label: t("parcelFeed.routes.warehouse_pudo_customer"),
+          value: "warehouse_pudo_customer",
+        },
         { label: t("parcelFeed.routes.unknown"), value: "unknown" },
       ],
     },

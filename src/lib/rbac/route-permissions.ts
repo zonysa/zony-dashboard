@@ -175,6 +175,15 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     path: "/warehouse/courier",
     permission: Permission.VIEW_WAREHOUSE_COURIER,
   },
+  // The PUDO handoff inbox. Deliberately its own permission, not
+  // VIEW_WAREHOUSE: this is the one /warehouse/* screen a `responsible` may
+  // open, and without an explicit entry here an unlisted path falls through
+  // to "no permission required" (see canAccessRoute below) -- open to every
+  // logged-in role, which is the opposite of what this screen needs.
+  {
+    path: "/warehouse/pudo-handovers",
+    permission: Permission.VIEW_PUDO_HANDOVERS,
+  },
 
   // Parcels - Most roles can view
   {
