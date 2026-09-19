@@ -30,9 +30,10 @@ export type UserDetails = {
 export type CreateUserRequest = {
   first_name: string;
   last_name: string;
-  username: string;
+  // Optional on the backend; omit rather than send "".
+  username?: string;
   email: string;
-  phone_number: string;
+  phone_number?: string;
   password: string;
   role_id: number;
 };

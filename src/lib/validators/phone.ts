@@ -31,3 +31,23 @@ export const saudiPhoneSchema = z
   .string()
   .transform((value) => normalizeSaudiPhone(value))
   .pipe(z.string().regex(SAUDI_PHONE_LOCAL_REGEX, SAUDI_PHONE_INVALID_MESSAGE));
+
+// Same rules, but an empty value is allowed — for forms where the phone
+// number is optional (staff accounts created by an admin).
+export const optionalSaudiPhoneSchema = z
+  .string()
+  .transform((value) => normalizeSaudiPhone(value))
+  .pipe(
+    z.union([
+      z.literal(""),
+      z.string().regex(SAUDI_PHONE_LOCAL_REGEX, SAUDI_PHONE_INVALID_MESSAGE),
+    ]),
+  );
+
+/** Like toE164SaudiPhone, but undefined for an empty value ("" would become a bare "+966"). */
+export function toOptionalE164SaudiPhone(
+  localNumber: string | undefined,
+): string | undefined {
+  const normalized = normalizeSaudiPhone(localNumber ?? "");
+  return normalized ? toE164SaudiPhone(normalized) : undefined;
+}

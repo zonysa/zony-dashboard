@@ -23,7 +23,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { useCreateUser } from "@/lib/hooks/useUsers";
 import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
 import { useRouter } from "next/navigation";
-import { toE164SaudiPhone } from "@/lib/validators/phone";
+import { toOptionalE164SaudiPhone } from "@/lib/validators/phone";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 
 const Page: React.FC = () => {
@@ -59,10 +59,10 @@ const Page: React.FC = () => {
         {
           first_name: data.firstName,
           last_name: data.lastName,
-          phone_number: toE164SaudiPhone(data.phoneNumber),
+          phone_number: toOptionalE164SaudiPhone(data.phoneNumber),
           email: data.email,
           password: data.password,
-          username: data.username,
+          username: data.username || undefined,
           role_id: roleId,
         },
         {
@@ -182,7 +182,9 @@ const Page: React.FC = () => {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
+                        <FormLabel>
+                          {t("forms.fields.phoneNumber")} {t("forms.fields.optional")}
+                        </FormLabel>
                         <FormControl>
                           <PhoneInput {...field} />
                         </FormControl>
@@ -199,7 +201,9 @@ const Page: React.FC = () => {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("forms.fields.username")}</FormLabel>
+                        <FormLabel>
+                          {t("forms.fields.username")} {t("forms.fields.optional")}
+                        </FormLabel>
                         <FormControl>
                           <Input
                             dir="ltr"

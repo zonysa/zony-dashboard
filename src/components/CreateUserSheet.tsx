@@ -32,7 +32,7 @@ import { PhoneInput } from "./ui/phone-input";
 import { toast } from "sonner";
 import { CreateUserFormData, createUserSchema } from "@/lib/schema/auth.schema";
 import { UserDetails } from "@/lib/schema/user.schema";
-import { toE164SaudiPhone } from "@/lib/validators/phone";
+import { toOptionalE164SaudiPhone } from "@/lib/validators/phone";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useEffect, useState } from "react";
@@ -146,18 +146,18 @@ const CreateUserSheet = ({
         {
           first_name: firstName,
           last_name: lastName,
-          username: data.username,
+          username: data.username || undefined,
           role_id: data.roleId,
           email: data.email,
           password: data.password,
-          phone_number: toE164SaudiPhone(data.phoneNumber),
+          phone_number: toOptionalE164SaudiPhone(data.phoneNumber),
         },
         {
           onSuccess: (res) => {
             toast.success(
               t("dialogs.createUser.success").replace(
                 "{username}",
-                data.username
+                data.username || data.email
               )
             );
             form.reset();
@@ -236,7 +236,9 @@ const CreateUserSheet = ({
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("forms.fields.username")}</FormLabel>
+                    <FormLabel>
+                      {t("forms.fields.username")} {t("forms.fields.optional")}
+                    </FormLabel>
                     <FormControl>
                       <Input
                         dir="ltr"
@@ -344,7 +346,9 @@ const CreateUserSheet = ({
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("forms.fields.phoneNumber")}</FormLabel>
+                    <FormLabel>
+                      {t("forms.fields.phoneNumber")} {t("forms.fields.optional")}
+                    </FormLabel>
                     <FormControl>
                       <PhoneInput {...field} />
                     </FormControl>

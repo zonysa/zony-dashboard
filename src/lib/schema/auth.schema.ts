@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { saudiPhoneSchema } from "@/lib/validators/phone";
+import {
+  optionalSaudiPhoneSchema,
+  saudiPhoneSchema,
+} from "@/lib/validators/phone";
 
 export type User = {
   id?: string;
@@ -38,6 +41,20 @@ export interface login {
   password: string;
   remember_me: boolean;
 }
+// Optional (the backend stores NULL for an empty one), but when given it must
+// pass the backend's own rules.
+export const optionalUsernameSchema = z.union([
+  z.literal(""),
+  z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username must be less than 30 characters")
+    .regex(
+      /^[a-zA-Z0-9_]+$/,
+      "Only letters, numbers and underscores allowed",
+    ),
+]);
+
 // Login schema
 export const loginSchema = z.object({
   email: emailSchema,
@@ -49,13 +66,12 @@ export const loginSchema = z.object({
 export const registerSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(30, "Username must be less than 30 characters"),
+  username: optionalUsernameSchema,
   email: z.string().email("Please enter a valid email address"),
-  phoneNumber: saudiPhoneSchema,
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  phoneNumber: optionalSaudiPhoneSchema,
+  // Matches the backend minimum. customerSignupSchema tightens this to the
+  // full passwordSchema for self-registration.
+  password: z.string().min(8, "Password must be at least 8 characters"),
   roleId: z
     .number({
       error: "Role is required",
@@ -77,13 +93,11 @@ export const createUserSchema = z.object({
     .refine((val) => val.trim().split(/\s+/).length >= 2, {
       message: "Please enter both a first and last name",
     }),
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .max(30, "Username must be less than 30 characters"),
+  username: optionalUsernameSchema,
   email: z.string().email("Please enter a valid email address"),
-  phoneNumber: saudiPhoneSchema,
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  phoneNumber: optionalSaudiPhoneSchema,
+  // Matches the backend minimum.
+  password: z.string().min(8, "Password must be at least 8 characters"),
   roleId: z
     .number({
       error: "Role is required",

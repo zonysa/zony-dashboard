@@ -24,7 +24,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { useCreateUser } from "@/lib/hooks/useUsers";
 import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
 import { useRouter } from "next/navigation";
-import { toE164SaudiPhone } from "@/lib/validators/phone";
+import { toOptionalE164SaudiPhone } from "@/lib/validators/phone";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -59,10 +59,10 @@ const Page: React.FC = () => {
         {
           first_name: data.firstName,
           last_name: data.lastName,
-          phone_number: toE164SaudiPhone(data.phoneNumber),
+          phone_number: toOptionalE164SaudiPhone(data.phoneNumber),
           email: data.email,
           password: data.password,
-          username: data.username,
+          username: data.username || undefined,
           role_id: roleId,
         },
         {
@@ -186,7 +186,7 @@ const Page: React.FC = () => {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>Phone Number (Optional)</FormLabel>
                         <FormControl>
                           <PhoneInput {...field} />
                         </FormControl>
@@ -202,7 +202,7 @@ const Page: React.FC = () => {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>Username (Optional)</FormLabel>
                         <FormControl>
                           <Input
                             dir="ltr"

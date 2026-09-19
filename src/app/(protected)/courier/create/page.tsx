@@ -24,7 +24,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { useCreateUser } from "@/lib/hooks/useUsers";
 import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
 import { useRouter } from "next/navigation";
-import { toE164SaudiPhone } from "@/lib/validators/phone";
+import { toOptionalE164SaudiPhone } from "@/lib/validators/phone";
 
 const Page: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -57,10 +57,10 @@ const Page: React.FC = () => {
       const apiData = {
         first_name: formData.firstName,
         last_name: formData.lastName,
-        phone_number: toE164SaudiPhone(formData.phoneNumber),
+        phone_number: toOptionalE164SaudiPhone(formData.phoneNumber),
         email: formData.email,
         password: formData.password,
-        username: formData.username,
+        username: formData.username || undefined,
         role_id: roleId,
       };
       await registerMutation.mutateAsync(apiData, {
@@ -183,7 +183,7 @@ const Page: React.FC = () => {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>Phone Number (Optional)</FormLabel>
                         <FormControl>
                           <PhoneInput {...field} />
                         </FormControl>
@@ -199,7 +199,7 @@ const Page: React.FC = () => {
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Username</FormLabel>
+                        <FormLabel>Username (Optional)</FormLabel>
                         <FormControl>
                           <Input
                             dir="ltr"

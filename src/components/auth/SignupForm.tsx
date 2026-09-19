@@ -28,7 +28,7 @@ import {
   CustomerSignupFormData,
   customerSignupSchema,
 } from "@/lib/schema/auth.schema";
-import { toE164SaudiPhone } from "@/lib/validators/phone";
+import { toOptionalE164SaudiPhone } from "@/lib/validators/phone";
 import { readSignupDraft, saveSignupDraft } from "@/lib/auth/signupDraft";
 
 const CUSTOMER_ROLE_ID = 7;
@@ -136,9 +136,9 @@ export function SignupForm({
       {
         first_name: data.firstName,
         last_name: data.lastName,
-        username: data.username,
+        username: data.username || undefined,
         email: data.email,
-        phone_number: toE164SaudiPhone(data.phoneNumber),
+        phone_number: toOptionalE164SaudiPhone(data.phoneNumber),
         password: data.password,
         role_id: CUSTOMER_ROLE_ID,
       },
@@ -231,7 +231,7 @@ export function SignupForm({
                 render={({ field }) => (
                   <FormItem className="grid gap-3">
                     <FormLabel className="font-normal">
-                      {t("forms.fields.username")}
+                      {t("forms.fields.username")} {t("forms.fields.optional")}
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -285,7 +285,7 @@ export function SignupForm({
                 render={({ field }) => (
                   <FormItem className="grid gap-3">
                     <FormLabel className="font-normal">
-                      {t("forms.fields.phoneNumber")}
+                      {t("forms.fields.phoneNumber")} {t("forms.fields.optional")}
                     </FormLabel>
                     <FormControl>
                       <PhoneInput
