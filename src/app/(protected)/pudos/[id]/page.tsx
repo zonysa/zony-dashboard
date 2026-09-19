@@ -176,9 +176,9 @@ function BranchDetails() {
         location: branch.pudo.address || "",
         name: branch.pudo.name || "",
         phoneNum: "",
-        cityId: branch.pudo.city_name?.toString() || "",
+        cityId: branch.pudo.city_id?.toString() || "",
         zoneId: branch.pudo.zone_id?.toString() || "",
-        districtId: branch.pudo.district_name?.toString() || "",
+        districtId: branch.pudo.district_id?.toString() || "",
         lat: branch.pudo.coordinates?.latitude ?? 0,
         lng: branch.pudo.coordinates?.longitude ?? 0,
       });
@@ -199,6 +199,9 @@ function BranchDetails() {
           id: branchId,
           data: {
             address: formData.location,
+            city_id: Number(formData.cityId),
+            zone_id: formData.zoneId ? Number(formData.zoneId) : null,
+            district_id: Number(formData.districtId),
             coordinates: {
               latitude: formData.lat,
               longitude: formData.lng,
@@ -230,9 +233,9 @@ function BranchDetails() {
         location: branch.pudo.address || "",
         name: branch.pudo.name || "",
         phoneNum: "",
-        cityId: branch.pudo.city_name?.toString() || "",
+        cityId: branch.pudo.city_id?.toString() || "",
         zoneId: branch.pudo.zone_id?.toString() || "",
-        districtId: branch.pudo.district_name?.toString() || "",
+        districtId: branch.pudo.district_id?.toString() || "",
         lat: branch.pudo.coordinates?.latitude ?? 0,
         lng: branch.pudo.coordinates?.longitude ?? 0,
       });
@@ -243,12 +246,30 @@ function BranchDetails() {
     }));
   };
 
-  // Convert API data to select options
-  const cityOptions =
+  // Convert API data to select options. The saved city/district is added
+  // when the list leaves it out (cities are capitals only, districts are
+  // per-zone), so the current value still shows instead of a blank.
+  const withSaved = (
+    options: { value: string; label: string }[],
+    savedId: number | undefined,
+    savedLabel: string | undefined,
+    selected: string,
+  ) =>
+    savedId != null &&
+    selected === String(savedId) &&
+    !options.some((o) => o.value === selected)
+      ? [...options, { value: selected, label: savedLabel ?? `#${savedId}` }]
+      : options;
+
+  const cityOptions = withSaved(
     citiesData?.cities?.map((city) => ({
       value: city.id?.toString() || "",
       label: city.name,
-    })) || [];
+    })) || [],
+    branch?.pudo?.city_id,
+    branch?.pudo?.city_name,
+    formData.cityId,
+  );
 
   const zoneOptions =
     zonesData?.zones?.map((zone) => ({
@@ -256,11 +277,15 @@ function BranchDetails() {
       label: zone.name,
     })) || [];
 
-  const districtOptions =
+  const districtOptions = withSaved(
     districtsData?.districts?.map((district) => ({
       value: district.id?.toString() || "",
       label: district.name,
-    })) || [];
+    })) || [],
+    branch?.pudo?.district_id,
+    branch?.pudo?.district_name,
+    formData.districtId,
+  );
 
   const updateFormData = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => {
@@ -506,7 +531,13 @@ function BranchDetails() {
                   <Button
                     onClick={() => handleSave("location")}
                     variant="default"
-                    disabled={updateBranchMutation.isPending}
+                    // City and district are required on a PUDO; picking a
+                    // new city clears the district until one is chosen.
+                    disabled={
+                      updateBranchMutation.isPending ||
+                      !formData.cityId ||
+                      !formData.districtId
+                    }
                   >
                     {t("detailPages.buttons.saveChanges")}
                   </Button>

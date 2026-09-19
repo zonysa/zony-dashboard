@@ -70,10 +70,12 @@ const OperatingHoursSchema = z.object({
 export const branchSchema = z.object({
   activated_at: z.string().nullable(),
   address: z.string(),
+  city_id: z.number().int(),
   city_name: z.string(),
   coordinates: CoordinatesSchema,
   created_at: z.string(),
   cumulative_active_days: z.number().int(),
+  district_id: z.number().int(),
   district_name: z.string(),
   gallery: z.array(z.any()),
   id: z.number().int(),
@@ -213,7 +215,8 @@ export interface CreateBranchRequest {
   partner_id: number;
   city_id: number | string;
   district_id: number | string;
-  zone_id: number | string;
+  // null clears it — a PUDO's zone is optional.
+  zone_id: number | string | null;
   responsible_id: string;
 }
 

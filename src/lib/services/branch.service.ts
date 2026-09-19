@@ -71,7 +71,7 @@ export const updaetBranch = async (
 ) => {
   return apiCall({
     method: "PATCH",
-    url: `/branch/${id}`,
+    url: `/pudos/${id}`,
     data,
   });
 };
@@ -80,6 +80,6 @@ export const updaetBranch = async (
 export const deleteBranch = async (id: string) => {
   return apiCall({
     method: "DELETE",
-    url: `/branch/${id}`,
+    url: `/pudos/${id}`,
   });
 };
