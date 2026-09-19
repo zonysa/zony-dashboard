@@ -6,10 +6,24 @@ import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
+// Local change to the generated shadcn component: onValueChange never receives
+// "". Radix reports "" when `value` is set before its SelectItem has mounted
+// (a saved record loading ahead of its option list), which silently cleared
+// pre-filled fields on refresh. SelectItem can't have value="", so "" is never
+// a real choice and dropping it is always safe.
 function Select({
+  onValueChange,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {
-  return <SelectPrimitive.Root data-slot="select" {...props} />
+  return (
+    <SelectPrimitive.Root
+      data-slot="select"
+      onValueChange={
+        onValueChange && ((value) => value !== "" && onValueChange(value))
+      }
+      {...props}
+    />
+  )
 }
 
 function SelectGroup({

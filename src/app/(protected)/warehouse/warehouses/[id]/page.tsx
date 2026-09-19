@@ -134,13 +134,42 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
     defaultValues: {},
   });
 
-  const { control, handleSubmit, reset, watch } = form;
+  const { control, handleSubmit, reset, watch, setValue } = form;
   const cityId = watch("city_id");
 
   const { data: citiesData } = useGetCities();
   const { data: zonesData } = useGetZones(
     cityId ? { cityId: Number(cityId) } : undefined,
   );
+
+  // The picker lists capital cities only, but a warehouse may sit in any
+  // city. Keep the saved one selectable so it still shows instead of a blank.
+  const cities = citiesData?.cities ?? [];
+  const cityOptions =
+    warehouse && !cities.some((c) => c.id === warehouse.city_id)
+      ? [
+          ...cities,
+          {
+            id: warehouse.city_id,
+            name: warehouse.city_name ?? `#${warehouse.city_id}`,
+          },
+        ]
+      : cities;
+  // Same for the zone, while the saved city is still the selected one — the
+  // zone list is scoped by role and may leave it out.
+  const zones = zonesData?.zones ?? [];
+  const zoneOptions =
+    warehouse?.zone_id != null &&
+    cityId === warehouse.city_id &&
+    !zones.some((z) => z.id === warehouse.zone_id)
+      ? [
+          ...zones,
+          {
+            id: warehouse.zone_id,
+            name: warehouse.zone_name ?? `#${warehouse.zone_id}`,
+          },
+        ]
+      : zones;
 
   // Seeded once the record arrives — the form mounts before the fetch lands.
   useEffect(() => {
@@ -236,7 +265,12 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
                   <FormItem>
                     <FormLabel>{t("warehouseBuildings.fields.city")}</FormLabel>
                     <Select
-                      onValueChange={(v) => field.onChange(Number(v))}
+                      onValueChange={(v) => {
+                        if (Number(v) === field.value) return;
+                        field.onChange(Number(v));
+                        // A zone belongs to one city; a new city invalidates it.
+                        setValue("zone_id", null, { shouldDirty: true });
+                      }}
                       value={field.value ? String(field.value) : undefined}
                     >
                       <FormControl>
@@ -249,7 +283,7 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {(citiesData?.cities ?? []).map((city) => (
+                        {cityOptions.map((city) => (
                           <SelectItem key={city.id} value={String(city.id)}>
                             {city.name}
                           </SelectItem>
@@ -281,7 +315,7 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {(zonesData?.zones ?? []).map((zone) => (
+                        {zoneOptions.map((zone) => (
                           <SelectItem key={zone.id} value={String(zone.id)}>
                             {zone.name}
                           </SelectItem>
