@@ -37,6 +37,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useEffect, useState } from "react";
 import { useCreateUser } from "@/lib/hooks/useUsers";
+import { ApiError } from "@/lib/services/apiClient";
 import { useRoles, getRoleId } from "@/lib/hooks/useRoles";
 import { Eye, EyeOff, RefreshCw, Copy } from "lucide-react";
 
@@ -63,6 +64,14 @@ const ROLE_TRANSLATION_KEYS: Record<string, string> = {
   courier: "forms.roles.courier",
   customer: "forms.roles.customer",
 };
+
+// Matches the backend's uniqueness errors (UserSchema.validate_unique_fields)
+// to the form field they're about.
+const CONFLICT_FIELDS: [RegExp, "email" | "username" | "phoneNumber"][] = [
+  [/email/i, "email"],
+  [/username/i, "username"],
+  [/phone/i, "phoneNumber"],
+];
 
 interface CreateUserSheetProps {
   open?: boolean;
@@ -180,15 +189,22 @@ const CreateUserSheet = ({
             }
           },
           onError: (err) => {
-            toast.error(
-              t("dialogs.createUser.error").replace("{error}", err.message)
-            );
+            // The server's own message, as-is ("Email already registered").
+            toast.error(err.message || t("dialogs.createUser.unexpectedError"));
+            // A 409 names the field that clashed; point at it too.
+            const field = CONFLICT_FIELDS.find(([pattern]) =>
+              pattern.test(err.message),
+            )?.[1];
+            if (err instanceof ApiError && err.status === 409 && field) {
+              form.setError(field, { message: err.message });
+            }
           },
         }
       );
     } catch (err) {
+      // onError above has already toasted; this only keeps the rejection
+      // from surfacing as a second, generic toast or an unhandled error.
       console.error("Submission error:", err);
-      toast.error(t("dialogs.createUser.unexpectedError"));
     }
   }
 
