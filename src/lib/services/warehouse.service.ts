@@ -51,7 +51,7 @@ export const receivingScan = async (
 
 // Every read below is scoped to one building. The server requires it for
 // admin/supervisor (who run every site and must say which one) and derives it
-// for a pinned `responsible` clerk — but sending it is always correct, and
+// for a pinned `warehouse_clerk` — but sending it is always correct, and
 // omitting it is a 400 for the roles that operate the dashboard's screens.
 export const scanBarcode = async (
   barcode: string,
@@ -181,14 +181,12 @@ export const voidEvent = async (
   });
 };
 
-export const resendCode = async (
-  id: string,
-  clientEventId: string,
-): Promise<WHResendCodeRes> => {
+// Not an event and not idempotent: every call rotates the code (the old one
+// dies at once) and messages the customer again. No body, no client_event_id.
+export const resendCode = async (id: string): Promise<WHResendCodeRes> => {
   return apiCall({
     method: "POST",
     url: `/warehouse/parcels/${id}/resend-code`,
-    data: { client_event_id: clientEventId },
   });
 };
 
@@ -296,9 +294,10 @@ export const acceptHandover = async (
 
 // ---- Warehouses (admin) ----
 // Reads are open to any warehouse role including couriers, who need the list
-// to pick a building to load from. Writes are admin/supervisor only, as is
-// the whole roster surface — an assignment is what grants a clerk access to a
-// building's floor, so a clerk editing it could grant themselves another site.
+// to pick a building to load from; a `warehouse_clerk` gets only their own.
+// Writes are admin/supervisor only, as is the whole roster surface — an
+// assignment is what grants a clerk access to a building's floor, so a clerk
+// editing it could grant themselves another site.
 
 export const listWarehouses = async (filters?: {
   city_id?: number;

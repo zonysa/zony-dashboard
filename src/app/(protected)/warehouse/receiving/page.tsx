@@ -91,7 +91,7 @@ function buildDefaultValues(
 }
 
 export default function ReceivingPage() {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { warehouseId } = useResolvedWarehouseId();
   const { data: zonesData } = useGetZones(warehouseId);
   const receivingScan = useReceivingScan();
@@ -238,9 +238,18 @@ export default function ReceivingPage() {
     setFocus(lookupMode);
   }
 
+  // A replayed scan (200) carries no code — only its hash exists — so the
+  // clerk rotates one. The new code goes into the same dialog state, which is
+  // cleared on dismiss like the original.
   function handleResendCode() {
     if (!result) return;
-    resendCode.mutate({ id: result.parcel.id, clientEventId: mintClientEventId() });
+    resendCode.mutate(result.parcel.id, {
+      onSuccess: (data) => {
+        setResult((prev) =>
+          prev ? { ...prev, delivery_code: data.delivery_code } : prev,
+        );
+      },
+    });
   }
 
   function handlePrint() {
@@ -615,6 +624,23 @@ export default function ReceivingPage() {
                     {result.parcel.barcode}
                   </span>
                 </div>
+                {result.assigned_slot && (
+                  <div>
+                    {t("warehouseReceiving.codeDialog.assignedSlot")}:{" "}
+                    <span className="text-foreground">
+                      {isRTL
+                        ? result.assigned_slot.label_ar
+                        : result.assigned_slot.label_en}{" "}
+                      · {result.assigned_slot.date}{" "}
+                      {result.assigned_slot.starts_at}–
+                      {result.assigned_slot.ends_at}
+                    </span>{" "}
+                    <span className="text-foreground font-mono">
+                      ({t("warehouseReceiving.codeDialog.bin")}{" "}
+                      {result.assigned_slot.code})
+                    </span>
+                  </div>
+                )}
               </div>
 
               {result.delivery_code ? (

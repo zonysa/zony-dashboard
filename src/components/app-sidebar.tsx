@@ -138,7 +138,7 @@ function AppSidebarContent() {
       url: "/warehouse",
       icon: Warehouse,
       permission: Permission.VIEW_WAREHOUSE,
-      // Sub-items carry their own permission: `responsible` holds
+      // Sub-items carry their own permission: `warehouse_clerk` holds
       // VIEW_WAREHOUSE but not reports, so gating the group as a whole would
       // hand that role a link it can't open. Warehouse settings aren't listed
       // here — they live under /settings with the platform's other config.

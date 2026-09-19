@@ -4,6 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parse } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Home, Store } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { Can } from "@/components/auth/Can";
@@ -49,6 +50,7 @@ import {
   useResolvedWarehouseId,
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
+import { usePudoNames } from "@/lib/hooks/useBranch";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useGetUsers } from "@/lib/hooks/useUsers";
 import {
@@ -62,8 +64,8 @@ import { Permission } from "@/lib/rbac/permissions";
 import {
   checkoutParcelSchema,
   CheckoutParcelData,
+  WHLoadingEntry,
   WHParcelStatus,
-  WHWallEntry,
 } from "@/lib/schema/warehouse.schema";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -159,6 +161,19 @@ function LoadingPageContent() {
     date,
     warehouseId,
   );
+  const { nameById: pudoNameById } = usePudoNames();
+
+  // Grouped by van run — home deliveries first, then each shop together — so
+  // the boxes for one run are loaded side by side. Stable within a run.
+  const parcels = useMemo(
+    () =>
+      [...(data?.parcels ?? [])].sort(
+        (a, b) =>
+          Number(a.destination === "pudo") - Number(b.destination === "pudo") ||
+          (a.destination_pudo_id ?? 0) - (b.destination_pudo_id ?? 0),
+      ),
+    [data?.parcels],
+  );
 
   const [checkoutTarget, setCheckoutTarget] = useState<CheckoutTarget | null>(null);
 
@@ -228,7 +243,7 @@ function LoadingPageContent() {
             <p className="text-sm text-muted-foreground">{t("warehouseLoading.manifest.pickSlot")}</p>
           ) : isLoading ? (
             <Skeleton className="h-64 w-full" />
-          ) : !data?.parcels?.length ? (
+          ) : !parcels.length ? (
             <p className="text-sm text-muted-foreground">{t("warehouseLoading.manifest.empty")}</p>
           ) : (
             <Table>
@@ -236,6 +251,7 @@ function LoadingPageContent() {
                 <TableRow>
                   <TableHead>{t("warehouseLoading.table.barcode")}</TableHead>
                   <TableHead>{t("warehouseLoading.table.recipient")}</TableHead>
+                  <TableHead>{t("warehouseLoading.table.destination")}</TableHead>
                   <TableHead>{t("warehouseLoading.table.zone")}</TableHead>
                   <TableHead>{t("warehouseLoading.table.status")}</TableHead>
                   <TableHead>{t("warehouseLoading.table.bin")}</TableHead>
@@ -243,10 +259,15 @@ function LoadingPageContent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.parcels.map((entry) => (
+                {parcels.map((entry) => (
                   <ManifestRow
                     key={entry.parcel_id}
                     entry={entry}
+                    pudoName={
+                      entry.destination_pudo_id != null
+                        ? pudoNameById.get(entry.destination_pudo_id)
+                        : undefined
+                    }
                     zoneName={entry.zone_id ? zoneNameById.get(entry.zone_id) : undefined}
                     onCheckout={() =>
                       setCheckoutTarget({
@@ -272,10 +293,13 @@ function LoadingPageContent() {
 
 function ManifestRow({
   entry,
+  pudoName,
   zoneName,
   onCheckout,
 }: {
-  entry: WHWallEntry;
+  entry: WHLoadingEntry;
+  // Undefined for a role that can't list PUDOs; the bare id shows instead.
+  pudoName?: string;
   zoneName?: string;
   onCheckout: () => void;
 }) {
@@ -287,6 +311,19 @@ function ManifestRow({
     <TableRow>
       <TableCell className="font-mono">{entry.barcode}</TableCell>
       <TableCell>{entry.recipient_name}</TableCell>
+      <TableCell>
+        {entry.destination === "pudo" ? (
+          <Badge variant="outline" className="gap-1">
+            <Store className="h-3 w-3" />
+            {pudoName ?? `#${entry.destination_pudo_id}`}
+          </Badge>
+        ) : (
+          <Badge variant="muted" className="gap-1">
+            <Home className="h-3 w-3" />
+            {t("warehouseLoading.destination.customer")}
+          </Badge>
+        )}
+      </TableCell>
       <TableCell>{zoneName ?? "—"}</TableCell>
       <TableCell>
         <Badge variant={statusStyle.variant} className={statusStyle.className}>

@@ -69,7 +69,7 @@ export enum Permission {
   VIEW_DELIVERIES = "view:deliveries",
   UPDATE_DELIVERY_STATUS = "update:delivery_status",
 
-  // Warehouse pilot — staff (/warehouse/*: admin, supervisor, responsible)
+  // Warehouse pilot — staff (/warehouse/*: admin, supervisor, warehouse_clerk)
   VIEW_WAREHOUSE = "view:warehouse",
   MANAGE_WAREHOUSE = "manage:warehouse",
 

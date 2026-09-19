@@ -1284,7 +1284,9 @@
       "sent": "Sent",
       "notSent": "Not sent",
       "codeUnavailable": "This parcel was already received — the delivery code was already shown once and can't be retrieved.",
-      "rotateAndResend": "Rotate & resend code"
+      "rotateAndResend": "Rotate & resend code",
+      "assignedSlot": "Assigned slot",
+      "bin": "bin"
     },
     "printSlip": {
       "title": "Delivery Code",
@@ -1343,7 +1345,8 @@
       "binCode": "Bin code",
       "notes": "Notes (optional)",
       "submit": "Confirm bin",
-      "submitting": "Binning..."
+      "submitting": "Binning...",
+      "slotRequired": "Pick a slot. This parcel has no confirmed slot yet."
     }
   },
   "warehouseLoading": {
@@ -1364,7 +1367,8 @@
       "zone": "Zone",
       "status": "Status",
       "bin": "Bin",
-      "actions": "Actions"
+      "actions": "Actions",
+      "destination": "Destination"
     },
     "actions": {
       "checkout": "Checkout",
@@ -1378,6 +1382,9 @@
       "notes": "Notes (optional)",
       "submit": "Confirm checkout",
       "submitting": "Checking out..."
+    },
+    "destination": {
+      "customer": "Home"
     }
   },
   "warehouseReturn": {
@@ -1417,6 +1424,10 @@
       "notes": "Notes (optional)",
       "submit": "Confirm",
       "submitting": "Recording..."
+    },
+    "needs": {
+      "reason": "Record a failure reason",
+      "return_scan": "Return scan"
     }
   },
   "warehouseCourier": {
@@ -1685,7 +1696,9 @@
       "title": "Resend delivery code",
       "warning": "This rotates the code — it does not resend the old one. Any code the customer already has stops working immediately, and they'll need the new one from this message to confirm delivery.",
       "submit": "Rotate & resend",
-      "submitting": "Sending..."
+      "submitting": "Sending...",
+      "newCode": "New delivery code. Show it to the customer now; it won't be shown again.",
+      "done": "Done"
     },
     "handoverDialog": {
       "title": "Hand to PUDO point",
@@ -1693,7 +1706,8 @@
       "pudoLabel": "PUDO point",
       "pudoPlaceholder": "Select a PUDO point",
       "submit": "Record handover",
-      "submitting": "Recording..."
+      "submitting": "Recording...",
+      "noPlannedPudo": "This parcel has no planned shop. Ask a supervisor to record a drop at a different shop."
     },
     "voidDialog": {
       "title": "Void this event",

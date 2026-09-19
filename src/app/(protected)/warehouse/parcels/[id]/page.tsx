@@ -41,7 +41,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { useGetBranches } from "@/lib/hooks/useBranch";
+import { usePudoNames } from "@/lib/hooks/useBranch";
 import { Branch } from "@/lib/schema/branch.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
@@ -113,13 +113,12 @@ export default function WarehouseParcelDetailPage() {
     useGetParcelEvents(parcelId);
   // Names for whichever PUDO ids this parcel's status/dialog need — its
   // planned destination, and once handed over, the shop it actually went to.
-  // Fetched unconditionally rather than per-id: the list is small (a few
-  // hundred shops at most) and this page already needs it for the handover
-  // dialog's picker, so one fetch covers both.
-  const { data: branchesRes } = useGetBranches({ limit: 200 });
-  const pudoNameById = new Map(
-    (branchesRes?.pudos ?? []).map((pudo) => [pudo.id, pudo.name]),
-  );
+  // Empty for a warehouse clerk, who may not list PUDOs; ids show bare then.
+  const {
+    canList: canListPudos,
+    branches,
+    nameById: pudoNameById,
+  } = usePudoNames();
 
   const [resendOpen, setResendOpen] = useState(false);
   const [handoverOpen, setHandoverOpen] = useState(false);
@@ -323,7 +322,9 @@ export default function WarehouseParcelDetailPage() {
           parcelId={parcel.id}
           barcode={parcel.barcode}
           destinationPudoId={parcel.destination_pudo_id}
-          branches={branchesRes?.pudos ?? []}
+          branches={branches}
+          canListPudos={canListPudos}
+          pudoNameById={pudoNameById}
           onClose={() => setHandoverOpen(false)}
         />
       )}
@@ -460,11 +461,14 @@ function ResendCodeDialog({
 }) {
   const { t } = useTranslation();
   const resendCode = useResendCode();
+  // The new code lives only here, for as long as this dialog is open — the
+  // same show-once, never-store rule as the receiving screen.
+  const [newCode, setNewCode] = useState<string | null>(null);
 
   async function handleConfirm() {
     try {
-      await resendCode.mutateAsync({ id: parcelId, clientEventId: mintClientEventId() });
-      onClose();
+      const data = await resendCode.mutateAsync(parcelId);
+      setNewCode(data.delivery_code);
     } catch (err) {
       // useResendCode's onError already toasts the server message.
       console.error("Resend code failed:", err);
@@ -481,25 +485,46 @@ function ResendCodeDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-start gap-2 rounded-lg border border-amber-500/50 bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950/30 dark:text-amber-500">
-          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-          <p>{t("warehouseParcel.resendDialog.warning")}</p>
-        </div>
+        {newCode ? (
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              {t("warehouseParcel.resendDialog.newCode")}
+            </p>
+            <div className="rounded-lg border-2 border-amber-500 bg-amber-50 py-6 text-center dark:bg-amber-950/30">
+              <div className="font-mono text-5xl font-bold tracking-[0.3em] text-amber-700 dark:text-amber-400">
+                {newCode}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-500/50 bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950/30 dark:text-amber-500">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>{t("warehouseParcel.resendDialog.warning")}</p>
+          </div>
+        )}
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
-            {t("warehouseParcel.actions.cancel")}
-          </Button>
-          <Button
-            type="button"
-            variant="destructive"
-            disabled={resendCode.isPending}
-            onClick={handleConfirm}
-          >
-            {resendCode.isPending
-              ? t("warehouseParcel.resendDialog.submitting")
-              : t("warehouseParcel.resendDialog.submit")}
-          </Button>
+          {newCode ? (
+            <Button type="button" onClick={onClose}>
+              {t("warehouseParcel.resendDialog.done")}
+            </Button>
+          ) : (
+            <>
+              <Button type="button" variant="outline" onClick={onClose}>
+                {t("warehouseParcel.actions.cancel")}
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={resendCode.isPending}
+                onClick={handleConfirm}
+              >
+                {resendCode.isPending
+                  ? t("warehouseParcel.resendDialog.submitting")
+                  : t("warehouseParcel.resendDialog.submit")}
+              </Button>
+            </>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -591,12 +616,16 @@ function HandoverDialog({
   barcode,
   destinationPudoId,
   branches,
+  canListPudos,
+  pudoNameById,
   onClose,
 }: {
   parcelId: string;
   barcode: string;
   destinationPudoId: number | null;
   branches: Branch[];
+  canListPudos: boolean;
+  pudoNameById: Map<number, string>;
   onClose: () => void;
 }) {
   const { t } = useTranslation();
@@ -616,14 +645,20 @@ function HandoverDialog({
     destinationPudoId != null ? String(destinationPudoId) : "",
   );
 
-  const isValid = pudoId !== "";
+  // A role that can't list shops (warehouse_clerk) can't divert either, but
+  // can still record the drop at the PLANNED shop: omitting pudo_id makes the
+  // server default to destination_pudo_id. With no planned shop there is
+  // nothing to default to, so the action is unavailable to them.
+  const isValid = canListPudos ? pudoId !== "" : destinationPudoId != null;
 
   async function handleConfirm() {
     if (!isValid) return;
     try {
       await handoverParcel.mutateAsync({
         id: parcelId,
-        data: { client_event_id: clientEventId, pudo_id: Number(pudoId) },
+        data: canListPudos
+          ? { client_event_id: clientEventId, pudo_id: Number(pudoId) }
+          : { client_event_id: clientEventId },
       });
       onClose();
     } catch (err) {
@@ -646,23 +681,38 @@ function HandoverDialog({
           {t("warehouseParcel.handoverDialog.explanation")}
         </p>
 
-        <div className="space-y-2">
-          <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
-          <Select value={pudoId} onValueChange={setPudoId}>
-            <SelectTrigger className="w-full">
-              <SelectValue
-                placeholder={t("warehouseParcel.handoverDialog.pudoPlaceholder")}
-              />
-            </SelectTrigger>
-            <SelectContent>
-              {activeBranches.map((branch) => (
-                <SelectItem key={branch.id} value={String(branch.id)}>
-                  {branch.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {!canListPudos ? (
+          <div className="space-y-1">
+            <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
+            {destinationPudoId != null ? (
+              <p className="text-sm font-medium text-foreground">
+                {pudoNameById.get(destinationPudoId) ?? `#${destinationPudoId}`}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t("warehouseParcel.handoverDialog.noPlannedPudo")}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
+            <Select value={pudoId} onValueChange={setPudoId}>
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={t("warehouseParcel.handoverDialog.pudoPlaceholder")}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {activeBranches.map((branch) => (
+                  <SelectItem key={branch.id} value={String(branch.id)}>
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>

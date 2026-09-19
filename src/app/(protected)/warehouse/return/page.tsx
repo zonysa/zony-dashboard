@@ -99,8 +99,8 @@ const STATUS_BADGE: Record<
   attempt_failed: { variant: "destructive" },
   delivered: { variant: "success" },
   // Neither status can actually appear here: the return desk only ever lists
-  // attempt_failed boxes owed an E07 (see the outstanding-queue query). These
-  // entries exist only to satisfy the Record's exhaustiveness.
+  // out_for_delivery and attempt_failed boxes. These entries exist only to
+  // satisfy the Record's exhaustiveness.
   handed_to_pudo: {
     variant: "outline",
     className:
@@ -249,7 +249,7 @@ function ReturnPageContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-2xl font-semibold">
-                {data?.outstanding?.length ?? 0}
+                {data?.outstanding ?? 0}
               </CardContent>
             </Card>
           </div>
@@ -259,7 +259,7 @@ function ReturnPageContent() {
               <CardTitle>{t("warehouseReturn.outstanding.title")}</CardTitle>
             </CardHeader>
             <CardContent>
-              {!data?.outstanding?.length ? (
+              {!data?.parcels?.length ? (
                 <p className="text-sm text-muted-foreground">
                   {t("warehouseReturn.outstanding.empty")}
                 </p>
@@ -277,7 +277,7 @@ function ReturnPageContent() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {data.outstanding.map((entry) => (
+                    {data.parcels.map((entry) => (
                       <OutstandingRow
                         key={entry.parcel_id}
                         entry={entry}
@@ -338,7 +338,7 @@ function OutstandingRow({
         </Badge>
       </TableCell>
       <TableCell className="max-w-xs text-sm text-muted-foreground">
-        {entry.needs ?? "—"}
+        {t(`warehouseReturn.needs.${entry.needs}`)}
       </TableCell>
       <TableCell className="text-end">
         <Can do={Permission.MANAGE_WAREHOUSE}>

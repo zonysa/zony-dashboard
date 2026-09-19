@@ -607,12 +607,14 @@ export function useVoidEvent() {
   });
 }
 
+// No retry, unlike the scan mutations: resend-code has no client_event_id to
+// dedupe on, so an automatic retry would rotate the code again and send the
+// customer a second message. The caller shows `data.delivery_code` once and
+// must not store it.
 export function useResendCode() {
   return useMutation({
-    mutationFn: ({ id, clientEventId }: { id: string; clientEventId: string }) =>
-      resendCode(id, clientEventId),
-    retry: 2,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    mutationFn: resendCode,
+    retry: false,
     onSuccess: (data) => {
       toast.success(data.message);
     },

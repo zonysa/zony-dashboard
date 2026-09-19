@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { saudiPhoneSchema } from "@/lib/validators/phone";
 
-// Staff (admin/supervisor/responsible) and courier blueprints only.
+// Staff (admin/supervisor/warehouse_clerk) and courier blueprints only.
 // The public `/slots` link (no JWT, customer-facing) is a separate,
 // unauthenticated page and is out of scope for this service/hook pair.
 
@@ -251,32 +251,55 @@ export interface GetFailureReasonsRes {
   reasons: WHFailureReason[];
 }
 
+// One box staged for a slot. `destination` is the PLANNED last mile, which
+// is what splits the van runs: a shop drop vs the recipient's own door.
+export interface WHLoadingEntry {
+  parcel_id: string;
+  barcode: string;
+  destination: "customer" | "pudo";
+  destination_pudo_id: number | null;
+  recipient_name: string;
+  recipient_phone: string;
+  address: WHAddress;
+  zone_id: number | null;
+  status: WHParcelStatus;
+  bin_code: string | null;
+  attempt_number: number;
+}
+
 export interface GetLoadingManifestRes {
   status: "success";
   slot_id: number;
+  warehouse_id: number;
   date: string;
   count: number;
-  parcels: WHWallEntry[];
+  parcels: WHLoadingEntry[];
 }
 
 // A parcel sitting in the return desk's outstanding queue. `needs` is the
-// server's human-readable statement of the next required action — render it
-// as-is, but gate which action button is enabled off `status` against the
-// LEGAL_PREDECESSORS table (docs/warehouse-api.md §2), same as the Wall's
-// bin action: out_for_delivery must take an E06 (with a reason code) before
-// an E07 return will be accepted; only attempt_failed may take the E07.
-export interface WHReturnEntry extends WHWallEntry {
-  needs: string | null;
+// server's statement of the next required action, and gates which button is
+// live: out_for_delivery must take an E06 (with a reason code) before an E07
+// return will be accepted; only attempt_failed may take the E07.
+export interface WHReturnEntry {
+  parcel_id: string;
+  barcode: string;
+  recipient_name: string;
+  status: WHParcelStatus;
+  last_reason_code: string | null;
+  needs: "reason" | "return_scan";
 }
 
-// Count-out vs count-back reconciliation for one slot/date.
+// Count-out vs count-back reconciliation for one slot/date. `outstanding` is
+// the COUNT; the rows themselves are in `parcels`.
 export interface GetReturnReconciliationRes {
   status: "success";
   slot_id: number;
+  warehouse_id: number;
   date: string;
   counted_out: number;
   delivered: number;
-  outstanding: WHReturnEntry[];
+  outstanding: number;
+  parcels: WHReturnEntry[];
 }
 
 export interface GetParcelRes {
@@ -352,20 +375,42 @@ export interface WHScanEventRes {
   parcel_status: WHParcelStatus;
 }
 
+// The slot the server picked at intake when `auto_assign_slot` is on (the box
+// is binned into it in the same request). Null on a replay, or when no slot
+// had room.
+export interface WHAssignedSlot {
+  slot_id: number;
+  code: string;
+  label_ar: string;
+  label_en: string;
+  date: string;
+  starts_at: string;
+  ends_at: string;
+  booked: number;
+  capacity: number;
+  over_capacity: boolean;
+}
+
+// `delivery_code` is shown ONCE, from this response, and never stored. It is
+// null on a 200 replay — the code was already issued and only its hash exists.
 export interface WHReceivingScanRes {
   status: "success";
   message: string;
   created: boolean;
   parcel: WHParcel;
-  delivery_code?: string;
+  assigned_slot: WHAssignedSlot | null;
+  delivery_code: string | null;
   message_sent: boolean;
   message_channel: string;
   message_status: string;
 }
 
+// A rotation: the old code is dead the moment this returns. Same show-once,
+// never-store rule as the receiving response.
 export interface WHResendCodeRes {
   status: "success";
   message: string;
+  delivery_code: string;
   message_sent: boolean;
   message_channel: string;
   message_status: string;
@@ -473,7 +518,7 @@ const addressSchema = z.object({
 
 export const receivingScanSchema = z.object({
   // Which building took the box in. The server resolves this through its
-  // access policy rather than trusting it: a `responsible` clerk is pinned to
+  // access policy rather than trusting it: a `warehouse_clerk` is pinned to
   // one warehouse and a body naming a different one is refused, while an
   // admin/supervisor has nothing to derive it from and must send it. The UI
   // always sends the selected warehouse, which satisfies both.
@@ -512,10 +557,12 @@ export interface ReceivingPrefill {
   address: WHAddress;
 }
 
+// Both optional server-side: they default to the confirmed slot and that
+// slot's code. Binning with no confirmed slot at all is a 409.
 export const binParcelSchema = z.object({
   client_event_id: clientEventIdSchema,
-  slot_id: z.number().int().positive(),
-  bin_code: z.string().min(1, "Bin code is required"),
+  slot_id: z.number().int().positive().optional(),
+  bin_code: z.string().max(20).optional(),
   notes: z.string().max(500).optional(),
 });
 export type BinParcelData = z.infer<typeof binParcelSchema>;

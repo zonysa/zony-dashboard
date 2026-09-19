@@ -119,7 +119,7 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     permission: Permission.MANAGE_COURIER,
   },
 
-  // Warehouse pilot — staff (admin, supervisor, responsible)
+  // Warehouse pilot — staff (admin, supervisor, warehouse_clerk)
   {
     path: "/warehouse",
     permission: Permission.VIEW_WAREHOUSE,
@@ -153,7 +153,7 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     permission: Permission.VIEW_WAREHOUSE_SETTINGS,
   },
   // The buildings and their staff rosters. An assignment is what grants a
-  // `responsible` clerk access to a site's floor at all, so a clerk editing
+  // `warehouse_clerk` access to a site's floor at all, so a clerk editing
   // one could grant themselves another building — same permission as settings.
   // Listed before /warehouse/report only for readability; matching is by path.
   {

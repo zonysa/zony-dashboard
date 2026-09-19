@@ -1,5 +1,9 @@
+import { useMemo } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+
+import { Permission } from "@/lib/rbac/permissions";
+import { useAuthStore } from "@/lib/stores/auth-store";
 
 import {
   BranchFilterOptions,
@@ -51,6 +55,22 @@ export function useGetBranches(filters?: BranchFilterOptions, enabled = true) {
     retry: 3, // Retry 3 times
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // exponential backoff
   });
+}
+
+// PUDO names for screens that only have ids (warehouse parcel detail,
+// loading manifest). Not every role that opens those screens may list PUDOs —
+// `GET /pudos` refuses `warehouse_clerk` — so the fetch is gated on
+// VIEW_PUDOS and callers fall back to showing the bare id.
+export function usePudoNames() {
+  const hasPermission = useAuthStore((state) => state.hasPermission);
+  const canList = hasPermission(Permission.VIEW_PUDOS);
+  const { data } = useGetBranches({ limit: 200 }, canList);
+  const branches = useMemo(() => data?.pudos ?? [], [data?.pudos]);
+  const nameById = useMemo(
+    () => new Map(branches.map((pudo) => [pudo.id, pudo.name])),
+    [branches],
+  );
+  return { canList, branches, nameById };
 }
 
 // Get single branch by ID

@@ -10,7 +10,7 @@ import { devtools, persist } from "zustand/middleware";
  * should survive a refresh and follow them from the Wall to Loading to Return
  * without being re-picked each time.
  *
- * The server has the final say either way. A `responsible` clerk is pinned to
+ * The server has the final say either way. A `warehouse_clerk` is pinned to
  * one warehouse by `wh_warehouse_staff`, so `GET /warehouse/warehouses`
  * returns them exactly one row and this store just records it; naming another
  * building is refused server-side, not merely hidden here. For admin and

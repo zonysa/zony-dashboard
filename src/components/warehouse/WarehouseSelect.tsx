@@ -23,7 +23,7 @@ import {
  *
  * The list is already scoped server-side by role, which is what makes this
  * component the same code for everyone: `admin`/`supervisor` get every
- * warehouse and a real choice, while a `responsible` clerk is pinned to one
+ * warehouse and a real choice, while a `warehouse_clerk` is pinned to one
  * building by `wh_warehouse_staff` and gets a single-row list. So "only one
  * warehouse" and "pinned to this warehouse" are indistinguishable here, and
  * deliberately so — in both cases there is nothing to choose, and the control

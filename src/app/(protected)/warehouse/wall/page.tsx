@@ -476,12 +476,18 @@ function BinDialog({
   // useWarehouse.ts.
   const [clientEventId] = useState(() => mintClientEventId());
 
+  const lockedSlot = slots.find((s) => s.id === target.lockedSlotId);
+
+  // bin_code is optional in the API, but the server stores null rather than
+  // defaulting it, so it's pre-filled with the slot's own code — the same
+  // value auto-assign stamps at receiving. The clerk only types when the
+  // physical bin is labelled differently.
   const form = useForm<BinParcelData>({
     resolver: zodResolver(binParcelSchema),
     defaultValues: {
       client_event_id: clientEventId,
       slot_id: target.lockedSlotId,
-      bin_code: "",
+      bin_code: lockedSlot?.code ?? "",
       notes: "",
     },
   });
@@ -493,16 +499,25 @@ function BinDialog({
   } = form;
 
   async function onSubmit(data: BinParcelData) {
+    // The API's slot default is the confirmed slot, and a box awaiting
+    // scheduling has none — binning it slotless lands it in needs_rebin.
+    if (!data.slot_id) {
+      form.setError("slot_id", {
+        message: t("warehouseWall.binDialog.slotRequired"),
+      });
+      return;
+    }
     try {
-      await binParcel.mutateAsync({ id: target.parcelId, data });
+      await binParcel.mutateAsync({
+        id: target.parcelId,
+        data: { ...data, bin_code: data.bin_code?.trim() || undefined },
+      });
       onClose();
     } catch (err) {
       // useBinParcel's onError already toasts the server message.
       console.error("Bin action failed:", err);
     }
   }
-
-  const lockedSlot = slots.find((s) => s.id === target.lockedSlotId);
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
@@ -531,7 +546,15 @@ function BinDialog({
                   <FormItem>
                     <FormLabel>{t("warehouseWall.binDialog.slot")}</FormLabel>
                     <Select
-                      onValueChange={(value) => field.onChange(Number(value))}
+                      onValueChange={(value) => {
+                        const slot = slots.find((s) => s.id === Number(value));
+                        field.onChange(Number(value));
+                        // Follow the picked slot unless the clerk already
+                        // typed a bin of their own.
+                        if (slot && !form.getFieldState("bin_code").isDirty) {
+                          form.setValue("bin_code", slot.code);
+                        }
+                      }}
                       value={field.value ? String(field.value) : undefined}
                     >
                       <FormControl>
