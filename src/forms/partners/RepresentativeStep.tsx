@@ -82,6 +82,7 @@ export const RepresentativeStep: React.FC<
                   <FormLabel>Email Address</FormLabel>
                   <FormControl>
                     <Input
+                      dir="ltr"
                       {...field}
                       type="email"
                       placeholder="Enter email address"
@@ -120,6 +121,7 @@ export const RepresentativeStep: React.FC<
                   <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
+                      dir="ltr"
                       {...field}
                       placeholder="Enter first name"
                       autoComplete="given-name"
@@ -141,6 +143,7 @@ export const RepresentativeStep: React.FC<
                   <FormControl>
                     <div className="relative">
                       <Input
+                        dir="ltr"
                         {...field}
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter Password"

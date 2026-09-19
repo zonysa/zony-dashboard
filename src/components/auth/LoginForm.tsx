@@ -26,7 +26,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -70,6 +70,7 @@ export function LoginForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        dir="ltr"
                         {...field}
                         id="email"
                         type="email"
@@ -93,6 +94,7 @@ export function LoginForm({
                     <FormControl>
                       <div className="relative">
                         <Input
+                          dir="ltr"
                           {...field}
                           type={showPassword ? "text" : "password"}
                           placeholder={t("auth.login.passwordPlaceholder")}
@@ -102,9 +104,7 @@ export function LoginForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className={`absolute ${
-                            isRTL ? "left" : "right"
-                          }-0 top-0 h-full px-3 py-2 hover:bg-transparent`}
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={loginMutation.isPending}
                         >

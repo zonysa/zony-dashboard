@@ -81,6 +81,7 @@ export function RequestPasswordForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        dir="ltr"
                         {...field}
                         id="email"
                         type="email"

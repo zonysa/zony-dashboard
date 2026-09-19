@@ -31,7 +31,7 @@ const Page: React.FC = () => {
   const router = useRouter();
   const customerServiceMutation = useCreateUser();
   const { data: rolesData } = useRoles();
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
 
   const form = useForm<CustomerServiceFormData>({
     defaultValues: {
@@ -164,6 +164,7 @@ const Page: React.FC = () => {
                         <FormLabel>{t("forms.fields.email")}</FormLabel>
                         <FormControl>
                           <Input
+                            dir="ltr"
                             {...field}
                             type="email"
                             placeholder={t("forms.placeholders.enterEmail")}
@@ -201,6 +202,7 @@ const Page: React.FC = () => {
                         <FormLabel>{t("forms.fields.username")}</FormLabel>
                         <FormControl>
                           <Input
+                            dir="ltr"
                             {...field}
                             placeholder={t("forms.placeholders.enterUsername")}
                             autoComplete="given-name"
@@ -222,6 +224,7 @@ const Page: React.FC = () => {
                         <FormControl>
                           <div className="relative">
                             <Input
+                              dir="ltr"
                               {...field}
                               type={showPassword ? "text" : "password"}
                               placeholder={t(
@@ -233,9 +236,7 @@ const Page: React.FC = () => {
                               type="button"
                               variant="ghost"
                               size="sm"
-                              className={`absolute ${
-                                isRTL ? "left-0" : "right-0"
-                              } top-0 h-full px-3 py-2 hover:bg-transparent`}
+                              className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                               onClick={() => setShowPassword(!showPassword)}
                             >
                               {showPassword ? (

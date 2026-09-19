@@ -188,6 +188,7 @@ const ProfilePage = () => {
             <DataItem
               label={t("profile.fields.username")}
               value={formData.username || ""}
+              ltr
               isEditable={editStates.personalInfo}
               onChange={(value) => updateFormData("username", value)}
             />

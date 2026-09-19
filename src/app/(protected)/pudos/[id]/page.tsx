@@ -636,6 +636,7 @@ function BranchDetails() {
                     <DataItem
                       label={t("detailPages.labels.username")}
                       value={responsibleFormData.username}
+                      ltr
                       isEditable={responsibleEditing}
                       onChange={(value) =>
                         setResponsibleFormData((prev) => ({

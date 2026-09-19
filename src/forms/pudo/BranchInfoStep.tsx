@@ -72,7 +72,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
     name: "zone",
   });
 
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
 
   const watchedValues = useWatch({ control });
   const isStepValid = useMemo(
@@ -391,6 +391,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
                   <FormControl>
                     <div className="relative">
                       <Input
+                        dir="ltr"
                         {...field}
                         type={showPassword ? "text" : "password"}
                         placeholder={t("forms.placeholders.enterPassword")}
@@ -399,9 +400,7 @@ export const BranchInfoStep: React.FC<StepComponentProps<CreateBranch>> = ({
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className={`absolute ${
-                          isRTL ? "left" : "right"
-                        }-0 top-0 h-full px-3 py-2 hover:bg-transparent`}
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                         // disabled={loginMutation.isPending}
                       >

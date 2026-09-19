@@ -33,7 +33,7 @@ export function ResetPasswordForm({
   const searchParams = useSearchParams();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
 
   const token = searchParams.get("token") || "";
 
@@ -112,6 +112,7 @@ export function ResetPasswordForm({
                     <FormControl>
                       <div className="relative">
                         <Input
+                          dir="ltr"
                           {...field}
                           id="newPassword"
                           type={showNewPassword ? "text" : "password"}
@@ -124,9 +125,7 @@ export function ResetPasswordForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className={`absolute ${
-                            isRTL ? "left-0" : "right-0"
-                          } top-0 h-full px-3 py-2 hover:bg-transparent`}
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           disabled={resetPasswordMutation.isPending}
                         >
@@ -183,6 +182,7 @@ export function ResetPasswordForm({
                     <FormControl>
                       <div className="relative">
                         <Input
+                          dir="ltr"
                           {...field}
                           id="confirmPassword"
                           type={showConfirmPassword ? "text" : "password"}
@@ -195,9 +195,7 @@ export function ResetPasswordForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className={`absolute ${
-                            isRTL ? "left-0" : "right-0"
-                          } top-0 h-full px-3 py-2 hover:bg-transparent`}
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }

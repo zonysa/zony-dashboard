@@ -78,6 +78,7 @@ export const ResponsiblePersonStep: React.FC<StepComponentProps> = ({
                 <FormLabel>Email Address</FormLabel>
                 <FormControl>
                   <Input
+                    dir="ltr"
                     {...field}
                     type="email"
                     placeholder="Enter email address"
@@ -116,6 +117,7 @@ export const ResponsiblePersonStep: React.FC<StepComponentProps> = ({
                 <FormLabel>Username</FormLabel>
                 <FormControl>
                   <Input
+                    dir="ltr"
                     {...field}
                     placeholder="Enter first name"
                     autoComplete="given-name"
@@ -137,6 +139,7 @@ export const ResponsiblePersonStep: React.FC<StepComponentProps> = ({
                 <FormControl>
                   <div className="relative">
                     <Input
+                      dir="ltr"
                       {...field}
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter Password"

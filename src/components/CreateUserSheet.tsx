@@ -239,6 +239,7 @@ const CreateUserSheet = ({
                     <FormLabel>{t("forms.fields.username")}</FormLabel>
                     <FormControl>
                       <Input
+                        dir="ltr"
                         placeholder={t("forms.placeholders.enterUsername")}
                         {...field}
                       />
@@ -256,6 +257,7 @@ const CreateUserSheet = ({
                     <FormLabel>{t("forms.fields.email")}</FormLabel>
                     <FormControl>
                       <Input
+                        dir="ltr"
                         type="email"
                         placeholder={t("forms.placeholders.enterEmail")}
                         {...field}
@@ -275,15 +277,14 @@ const CreateUserSheet = ({
                     <FormControl>
                       <div className="relative">
                         <Input
+                          dir="ltr"
                           type={showPassword ? "text" : "password"}
                           placeholder={t("forms.placeholders.enterPassword")}
-                          className={isRTL ? "pl-28" : "pr-28"}
+                          className="pr-28"
                           {...field}
                         />
                         <div
-                          className={`absolute ${
-                            isRTL ? "left-0" : "right-0"
-                          } top-0 flex h-full items-center`}
+                          className="absolute right-0 top-0 flex h-full items-center"
                         >
                           <Button
                             type="button"

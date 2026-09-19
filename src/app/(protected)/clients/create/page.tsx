@@ -117,7 +117,7 @@ export default function CreateClientPage() {
               <FormItem>
                 <FormLabel>{t("table.email", { defaultValue: "Email" })}</FormLabel>
                 <FormControl>
-                  <Input {...field} type="email" required />
+                  <Input dir="ltr" {...field} type="email" required />
                 </FormControl>
                 <FormMessage />
               </FormItem>

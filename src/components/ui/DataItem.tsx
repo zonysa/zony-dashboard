@@ -31,6 +31,9 @@ interface DataItemProps {
   placeholder?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  // Force left-to-right input even in Arabic. Automatic for email, password
+  // and tel; set it for other Latin-only values such as a username.
+  ltr?: boolean;
 }
 
 export default function DataItem({
@@ -47,7 +50,11 @@ export default function DataItem({
   placeholder,
   onChange,
   disabled = false,
+  ltr = false,
 }: DataItemProps) {
+  const forceLtr =
+    ltr || type === "email" || type === "password" || type === "tel";
+
   if (isHeading) {
     return (
       <CardHeader className="w-1/4 flex flex-col items-start justify-start pe-0 px-2">
@@ -80,6 +87,7 @@ export default function DataItem({
 
     return (
       <Input
+        dir={forceLtr ? "ltr" : undefined}
         type={type}
         value={value}
         onChange={(e) => onChange?.(e.target.value)}

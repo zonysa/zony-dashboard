@@ -37,7 +37,7 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { t, isRTL } = useTranslation();
+  const { t } = useTranslation();
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -235,6 +235,7 @@ export function SignupForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        dir="ltr"
                         {...field}
                         placeholder={t("forms.placeholders.enterUsername")}
                         disabled={registerMutation.isPending}
@@ -255,6 +256,7 @@ export function SignupForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        dir="ltr"
                         {...field}
                         type="email"
                         placeholder={t("forms.placeholders.enterEmail")}
@@ -307,6 +309,7 @@ export function SignupForm({
                     <FormControl>
                       <div className="relative">
                         <Input
+                          dir="ltr"
                           {...field}
                           type={showPassword ? "text" : "password"}
                           placeholder={t("forms.placeholders.enterPassword")}
@@ -316,9 +319,7 @@ export function SignupForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className={`absolute ${
-                            isRTL ? "left" : "right"
-                          }-0 top-0 h-full px-3 py-2 hover:bg-transparent`}
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={registerMutation.isPending}
                         >
@@ -372,6 +373,7 @@ export function SignupForm({
                     <FormControl>
                       <div className="relative">
                         <Input
+                          dir="ltr"
                           {...field}
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder={t("forms.placeholders.enterPassword")}
@@ -381,9 +383,7 @@ export function SignupForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className={`absolute ${
-                            isRTL ? "left" : "right"
-                          }-0 top-0 h-full px-3 py-2 hover:bg-transparent`}
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
