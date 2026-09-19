@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Info, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, Info, Plus, Trash2, UserPlus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { Can } from "@/components/auth/Can";
+import { RoleGuard } from "@/components/auth/RoleGuard";
+import CreateUserSheet from "@/components/CreateUserSheet";
 import { PageContainer } from "@/components/PageContainer";
 import {
   AlertDialog,
@@ -363,6 +365,7 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
   const unassign = useUnassignWarehouseStaff(warehouseId);
 
   const [selectedUser, setSelectedUser] = useState<string>("");
+  const [createOpen, setCreateOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<{
     userId: string;
     username: string;
@@ -438,6 +441,18 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
                 ? t("warehouseBuildings.actions.saving")
                 : t("warehouseBuildings.staff.assign")}
             </Button>
+            {/* Admin only, unlike the rest of this block: POST /users is
+                admin-only on the backend, and supervisors can open this card. */}
+            <RoleGuard allowedRoles={["admin"]} fallback={null}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setCreateOpen(true)}
+              >
+                <Plus className="h-4 w-4" />
+                {t("warehouseBuildings.staff.createClerk")}
+              </Button>
+            </RoleGuard>
           </div>
           {/* An empty list is not an error and not a loading state — there is
               simply nobody in the role yet. Say where they come from. */}
@@ -447,6 +462,15 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
             </p>
           )}
         </Can>
+
+        {/* A clerk created here is assigned here straight away — creating one
+            for this building is the only reason to open the sheet from it. */}
+        <CreateUserSheet
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+          userRoleName="warehouse_clerk"
+          onCreated={(user) => assign.mutate(user.id)}
+        />
 
         {isLoading ? (
           <Skeleton className="h-40 w-full" />

@@ -1773,7 +1773,7 @@
       "note": "A warehouse clerk works at exactly one warehouse. Assigning someone who already works at another building moves them here. Removing someone locks them out of the warehouse screens until they are assigned again. Admins and supervisors run every site and are never listed here, and partner PUDO staff cannot be assigned at all.",
       "selectUser": "Select a staff member",
       "currentlyAt": "currently at {{warehouse}}",
-      "noCandidates": "No warehouse clerks available. Create a user with the Warehouse Clerk role, or free one up from another building.",
+      "noCandidates": "No warehouse clerks available. An admin can create one here, or free one up from another building.",
       "assign": "Assign",
       "remove": "Remove",
       "empty": "Nobody is assigned to this building yet.",
@@ -1785,7 +1785,8 @@
       "removeConfirm": {
         "title": "Remove from this warehouse?",
         "description": "{{name}} will be locked out of the warehouse screens until they are assigned to a building again."
-      }
+      },
+      "createClerk": "Create warehouse clerk"
     }
   },
   "warehousePudoHandovers": {

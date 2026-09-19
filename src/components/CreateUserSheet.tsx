@@ -31,6 +31,7 @@ import { Input } from "./ui/input";
 import { PhoneInput } from "./ui/phone-input";
 import { toast } from "sonner";
 import { CreateUserFormData, createUserSchema } from "@/lib/schema/auth.schema";
+import { UserDetails } from "@/lib/schema/user.schema";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -70,12 +71,15 @@ interface CreateUserSheetProps {
   // are resolved dynamically via useRoles() since they aren't stable across
   // environments.
   userRoleName?: string;
+  // Called with the new account once it exists, e.g. to assign it somewhere.
+  onCreated?: (user: UserDetails) => void;
 }
 
 const CreateUserSheet = ({
   open,
   onOpenChange,
   userRoleName,
+  onCreated,
 }: CreateUserSheetProps) => {
   const queryClient = useQueryClient();
   const { t, isRTL } = useTranslation();
@@ -149,7 +153,7 @@ const CreateUserSheet = ({
           phone_number: toE164SaudiPhone(data.phoneNumber),
         },
         {
-          onSuccess: () => {
+          onSuccess: (res) => {
             toast.success(
               t("dialogs.createUser.success").replace(
                 "{username}",
@@ -157,6 +161,14 @@ const CreateUserSheet = ({
               )
             );
             form.reset();
+            // reset() clears roleId too, and the lock effect above won't
+            // re-run for the same role, so a locked sheet opened again would
+            // submit with no role.
+            if (userRoleName) {
+              const roleId = getRoleId(roles, userRoleName);
+              if (roleId) form.setValue("roleId", roleId);
+            }
+            if (res?.user) onCreated?.(res.user);
             // Invalidate users query to refetch the list
             queryClient.invalidateQueries({ queryKey: ["users"] });
             // Invalidate available responsibles and representatives

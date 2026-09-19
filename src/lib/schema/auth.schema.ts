@@ -61,8 +61,9 @@ export const registerSchema = z.object({
       error: "Role is required",
     })
     .int()
-    .min(1, "Invalid role")
-    .max(7, "Invalid role"),
+    // No upper bound: ids come from GET /roles and aren't stable across
+    // environments (warehouse_clerk is 8); the backend validates the set.
+    .positive("Invalid role"),
 });
 
 // Internal "create user" sheet schema (admin-created users, e.g.
@@ -88,8 +89,9 @@ export const createUserSchema = z.object({
       error: "Role is required",
     })
     .int()
-    .min(1, "Invalid role")
-    .max(7, "Invalid role"),
+    // No upper bound: ids come from GET /roles and aren't stable across
+    // environments (warehouse_clerk is 8); the backend validates the set.
+    .positive("Invalid role"),
 });
 
 // Customer signup schema (public self-service registration)
