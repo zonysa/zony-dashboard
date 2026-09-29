@@ -18,6 +18,7 @@ import {
   GetFailureReasonsRes,
   GetLoadingManifestRes,
   GetParcelEventsRes,
+  GetParcelListRes,
   GetParcelRes,
   GetPendingHandoversRes,
   GetReportRes,
@@ -33,13 +34,16 @@ import {
   GetZonesRes,
   HandoverParcelData,
   ReceivingScanData,
+  ReturnedToOriginData,
   ReturnParcelData,
+  SendToRtoData,
   UnassignParcelData,
   UpdateSettingRes,
   VoidEventData,
   WarehouseCreateData,
   WarehouseReportRange,
   WarehouseUpdateData,
+  WHParcelListFilters,
   WHReceivingScanRes,
   WHResendCodeRes,
   WHScanEventRes,
@@ -148,6 +152,45 @@ export const bulkAssign = async (
   return apiCall({
     method: "POST",
     url: `/warehouse/assignments/bulk`,
+    data,
+  });
+};
+
+// ---- Retry / RTO queues ----
+
+export const listParcels = async (
+  warehouseId: number,
+  filters: WHParcelListFilters = {},
+): Promise<GetParcelListRes> => {
+  const params = new URLSearchParams({ warehouse_id: String(warehouseId) });
+  if (filters.bucket) params.set("bucket", filters.bucket);
+  filters.status?.forEach((s) => params.append("status", s));
+  if (filters.batch_id != null)
+    params.set("batch_id", String(filters.batch_id));
+  if (filters.assigned_courier_id)
+    params.set("assigned_courier_id", filters.assigned_courier_id);
+  if (filters.flow_type) params.set("flow_type", filters.flow_type);
+  if (filters.page) params.set("page", String(filters.page));
+  if (filters.per_page) params.set("per_page", String(filters.per_page));
+  return apiCall({ method: "GET", url: `/warehouse/parcels?${params}` });
+};
+
+// R01 — send a parcel back to its merchant.
+export const sendToRto = async (
+  id: string,
+  data: SendToRtoData,
+): Promise<WHScanEventRes> => {
+  return apiCall({ method: "POST", url: `/warehouse/parcels/${id}/rto`, data });
+};
+
+// R02 — the box is back with the merchant (terminal).
+export const markReturnedToOrigin = async (
+  id: string,
+  data: ReturnedToOriginData,
+): Promise<WHScanEventRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/parcels/${id}/returned-to-origin`,
     data,
   });
 };

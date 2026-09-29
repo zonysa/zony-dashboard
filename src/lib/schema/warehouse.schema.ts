@@ -496,6 +496,32 @@ export interface WHCourier {
   assigned_count: number;
 }
 
+// GET /warehouse/parcels — a filtered, paged list of parcels in one building.
+export type WHUccBucket =
+  | "ready_for_delivery"
+  | "retry_delivery"
+  | "rto"
+  | "ready_to_dispatch";
+
+export interface WHParcelListFilters {
+  bucket?: WHUccBucket;
+  status?: WHParcelStatus[];
+  batch_id?: number;
+  assigned_courier_id?: string;
+  flow_type?: "delivery" | "dispatch" | "return";
+  page?: number;
+  per_page?: number;
+}
+
+export interface GetParcelListRes {
+  status: "success";
+  message: string;
+  parcels: WHParcel[];
+  total: number;
+  page: number;
+  per_page: number;
+}
+
 export interface GetCouriersRes {
   status: "success";
   couriers: WHCourier[];

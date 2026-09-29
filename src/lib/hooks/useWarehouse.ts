@@ -23,6 +23,7 @@ import {
   GetFailureReasonsRes,
   GetLoadingManifestRes,
   GetParcelEventsRes,
+  GetParcelListRes,
   GetParcelRes,
   GetPendingHandoversRes,
   GetReportRes,
@@ -39,12 +40,15 @@ import {
   HandoverParcelData,
   ReceivingLookupMode,
   ReceivingPrefill,
+  ReturnedToOriginData,
   ReturnParcelData,
+  SendToRtoData,
   UnassignParcelData,
   VoidEventData,
   WarehouseReportRange,
   WarehouseUpdateData,
   WHParcel,
+  WHParcelListFilters,
   WHParcelStatus,
   WHScanEventRes,
 } from "@/lib/schema/warehouse.schema";
@@ -83,11 +87,14 @@ import {
   getWarehouseStaffCandidates,
   getZones,
   handoverParcel,
+  listParcels,
   listWarehouses,
+  markReturnedToOrigin,
   receivingScan,
   resendCode,
   returnParcel,
   scanBarcode,
+  sendToRto,
   unassignParcel,
   unassignWarehouseStaff,
   updateSetting,
@@ -132,6 +139,12 @@ export const warehouseKeys = {
     warehouseId && slotId && date
       ? ([...warehouseKeys.all, "return", warehouseId, slotId, date] as const)
       : ([...warehouseKeys.all, "return"] as const),
+
+  // Bucket/batch lists. Prefix `queue()` invalidates every filter combination.
+  queue: (warehouseId?: number, filters?: WHParcelListFilters) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "queue", warehouseId, filters ?? {}] as const)
+      : ([...warehouseKeys.all, "queue"] as const),
 
   slots: (includeInactive?: boolean) =>
     [...warehouseKeys.all, "slots", includeInactive ?? false] as const,
@@ -248,6 +261,7 @@ function applyScanEventResult(
   queryClient.invalidateQueries({ queryKey: warehouseKeys.detail(id) });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.events(id) });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.wall() });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.queue() });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.loadingManifest() });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.returnRecon() });
   queryClient.invalidateQueries({
@@ -445,6 +459,60 @@ export function useGetLoadingManifest(
     refetchInterval: 15 * 1000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// Live list of parcels in an operational bucket (retry / rto / …). Polls like
+// the Wall: the retry release cron and other clerks move parcels underneath us.
+export function useListParcels(
+  warehouseId: number | null,
+  filters: WHParcelListFilters,
+) {
+  return useQuery<GetParcelListRes>({
+    queryKey: warehouseKeys.queue(warehouseId ?? undefined, filters),
+    queryFn: () => listParcels(warehouseId!, filters),
+    enabled: !!warehouseId,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    refetchInterval: 15 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// R01 manual RTO.
+export function useSendToRto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: SendToRtoData }) =>
+      sendToRto(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to send parcel to RTO");
+    },
+  });
+}
+
+// R02 — terminal: the merchant has the box back.
+export function useMarkReturnedToOrigin() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ReturnedToOriginData }) =>
+      markReturnedToOrigin(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to mark parcel returned");
+    },
   });
 }
 
@@ -663,7 +731,14 @@ export function useReturnParcel() {
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     onSuccess: (data, variables) => {
-      toastScanEventSuccess(data);
+      // E07 is where the server decides retry vs RTO. The Return desk words
+      // those two outcomes itself (translated), so don't double-toast them.
+      if (
+        data.parcel_status !== "retry_scheduled" &&
+        data.parcel_status !== "rto_pending"
+      ) {
+        toastScanEventSuccess(data);
+      }
       applyScanEventResult(queryClient, variables.id, data.parcel_status);
     },
     onError: (error: Error) => {

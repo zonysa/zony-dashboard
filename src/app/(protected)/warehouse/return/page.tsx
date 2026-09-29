@@ -6,6 +6,7 @@ import { format, parse } from "date-fns";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
@@ -114,7 +115,10 @@ function ReturnPageContent() {
 
   const { data: slotsData } = useGetSlots();
   const slots = slotsData?.slots ?? [];
-  const slotId = slotIdParam && slots.some((s) => String(s.id) === slotIdParam) ? slotIdParam : "";
+  const slotId =
+    slotIdParam && slots.some((s) => String(s.id) === slotIdParam)
+      ? slotIdParam
+      : "";
 
   const { warehouseId } = useResolvedWarehouseId();
   const { data, isLoading, isError } = useGetReturnReconciliation(
@@ -144,15 +148,24 @@ function ReturnPageContent() {
     <PageContainer size="xl" className="px-6 py-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">{t("warehouseReturn.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("warehouseReturn.subtitle")}</p>
+          <h1 className="text-xl font-semibold text-foreground">
+            {t("warehouseReturn.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t("warehouseReturn.subtitle")}
+          </p>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <WarehouseSelect />
           <div className="w-56">
-            <Select value={slotId || undefined} onValueChange={handleSlotSelect}>
+            <Select
+              value={slotId || undefined}
+              onValueChange={handleSlotSelect}
+            >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={t("warehouseReturn.slotPlaceholder")} />
+                <SelectValue
+                  placeholder={t("warehouseReturn.slotPlaceholder")}
+                />
               </SelectTrigger>
               <SelectContent>
                 {slots
@@ -184,7 +197,9 @@ function ReturnPageContent() {
       {!slotId ? (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-sm text-muted-foreground">{t("warehouseReturn.pickSlot")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("warehouseReturn.pickSlot")}
+            </p>
           </CardContent>
         </Card>
       ) : isLoading ? (
@@ -237,8 +252,12 @@ function ReturnPageContent() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>{t("warehouseReturn.table.barcode")}</TableHead>
-                      <TableHead>{t("warehouseReturn.table.recipient")}</TableHead>
+                      <TableHead>
+                        {t("warehouseReturn.table.barcode")}
+                      </TableHead>
+                      <TableHead>
+                        {t("warehouseReturn.table.recipient")}
+                      </TableHead>
                       <TableHead>{t("warehouseReturn.table.status")}</TableHead>
                       <TableHead>{t("warehouseReturn.table.needs")}</TableHead>
                       <TableHead className="text-end">
@@ -268,7 +287,9 @@ function ReturnPageContent() {
         </>
       )}
 
-      {failTarget && <FailDialog target={failTarget} onClose={() => setFailTarget(null)} />}
+      {failTarget && (
+        <FailDialog target={failTarget} onClose={() => setFailTarget(null)} />
+      )}
     </PageContainer>
   );
 }
@@ -291,10 +312,17 @@ function OutstandingRow({
   const canReturn = canEmit(entry.status, "E07");
 
   function handleReturn() {
-    returnParcel.mutate({
-      id: entry.parcel_id,
-      data: { client_event_id: returnEventId },
-    });
+    returnParcel.mutate(
+      { id: entry.parcel_id, data: { client_event_id: returnEventId } },
+      {
+        onSuccess: (res) => {
+          if (res.parcel_status === "retry_scheduled")
+            toast.success(t("warehouseReturn.outcome.retryScheduled"));
+          else if (res.parcel_status === "rto_pending")
+            toast.success(t("warehouseReturn.outcome.rtoPending"));
+        },
+      },
+    );
   }
 
   return (
@@ -311,7 +339,12 @@ function OutstandingRow({
         <Can do={Permission.MANAGE_WAREHOUSE}>
           <div className="flex justify-end gap-2">
             {canFail && (
-              <Button type="button" size="sm" variant="outline" onClick={onFail}>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={onFail}
+              >
                 <AlertTriangle className="h-3.5 w-3.5" />
                 {t("warehouseReturn.actions.recordFailedAttempt")}
               </Button>
@@ -321,7 +354,9 @@ function OutstandingRow({
               size="sm"
               variant={canReturn ? "default" : "outline"}
               disabled={!canReturn || returnParcel.isPending}
-              title={canReturn ? undefined : t("warehouseReturn.returnNotAllowed")}
+              title={
+                canReturn ? undefined : t("warehouseReturn.returnNotAllowed")
+              }
               onClick={handleReturn}
             >
               <ArrowRight className="h-3.5 w-3.5" />
@@ -343,7 +378,8 @@ function FailDialog({
 }) {
   const { t, isRTL } = useTranslation();
   const failParcel = useFailParcel();
-  const { data: reasonsData, isLoading: isLoadingReasons } = useGetFailureReasons();
+  const { data: reasonsData, isLoading: isLoadingReasons } =
+    useGetFailureReasons();
   // Minted once, when this dialog opens for this parcel — reused across any
   // retry of the same fail attempt, per the client_event_id contract in
   // useWarehouse.ts.
@@ -380,7 +416,8 @@ function FailDialog({
         <DialogHeader>
           <DialogTitle>{t("warehouseReturn.failDialog.title")}</DialogTitle>
           <DialogDescription>
-            {target.recipientName} · <span className="font-mono">{target.barcode}</span>
+            {target.recipientName} ·{" "}
+            <span className="font-mono">{target.barcode}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -391,22 +428,32 @@ function FailDialog({
               name="reason_code"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("warehouseReturn.failDialog.reason")}</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <FormLabel>
+                    {t("warehouseReturn.failDialog.reason")}
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <FormControl>
                       <SelectTrigger className="w-full">
                         <SelectValue
                           placeholder={
                             isLoadingReasons
                               ? t("warehouseReturn.failDialog.loadingReasons")
-                              : t("warehouseReturn.failDialog.reasonPlaceholder")
+                              : t(
+                                  "warehouseReturn.failDialog.reasonPlaceholder",
+                                )
                           }
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       {reasonsData?.reasons?.map((reason) => (
-                        <SelectItem key={reason.reason_code} value={reason.reason_code}>
+                        <SelectItem
+                          key={reason.reason_code}
+                          value={reason.reason_code}
+                        >
                           {isRTL ? reason.name_ar : reason.name_en}
                         </SelectItem>
                       ))}

@@ -215,7 +215,8 @@
       "loading": "Loading",
       "return": "Return desk",
       "report": "Report",
-      "warehouses": "Warehouses"
+      "warehouses": "Warehouses",
+      "returnsQueue": "Returns queue"
     },
     "hub": {
       "today": "Today · {{date}}",
@@ -1356,6 +1357,12 @@
       "submit": "Confirm bin",
       "submitting": "Binning...",
       "slotRequired": "Pick a slot. This parcel has no confirmed slot yet."
+    },
+    "offWall": {
+      "notOnWall": "Not on the wall",
+      "retry": "Retry",
+      "rto": "Return to merchant",
+      "dispatch": "Ready to dispatch"
     }
   },
   "warehouseLoading": {
@@ -1417,6 +1424,66 @@
       "customer": "Home"
     }
   },
+  "warehouseQueue": {
+    "title": "Returns queue",
+    "subtitle": "Parcels waiting for a retry, or on their way back to the merchant.",
+    "loadError": "Something went wrong loading the queue.",
+    "held": "Held",
+    "noSlot": "Not booked",
+    "unassigned": "Unassigned",
+    "prev": "Previous",
+    "next": "Next",
+    "tabs": {
+      "retry": "Retry",
+      "rto": "Return to merchant"
+    },
+    "retry": {
+      "title": "Retry delivery",
+      "hint": "Released automatically shortly before the booked slot — nothing to do here.",
+      "empty": "No parcels waiting for a retry."
+    },
+    "rto": {
+      "title": "Return to merchant",
+      "hint": "Assign a courier, check the box out, then mark it returned. A counter pickup can be marked returned directly.",
+      "empty": "No parcels waiting to go back."
+    },
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "status": "Status",
+      "attempts": "Failed attempts",
+      "nextSlot": "Next slot",
+      "reason": "Reason",
+      "merchant": "Merchant",
+      "returnAddress": "Return address",
+      "courier": "Courier",
+      "actions": "Actions"
+    },
+    "returnTypes": {
+      "max_attempts": "Max attempts reached",
+      "window_expired": "Retry window expired",
+      "pudo_return": "Uncollected at PUDO",
+      "customer_return": "Customer return",
+      "merchant_recall": "Merchant recall"
+    },
+    "actions": {
+      "returned": "Returned to merchant"
+    },
+    "returnedDialog": {
+      "title": "Returned to merchant (R02)",
+      "body": "Confirm the box is back with the merchant. This closes the parcel and can't be undone except by voiding the event.",
+      "notes": "Notes (optional)",
+      "submit": "Confirm returned",
+      "submitting": "Saving..."
+    },
+    "rtoDialog": {
+      "title": "Send to return (R01)",
+      "reason": "Reason",
+      "reasonPlaceholder": "Select a reason",
+      "submit": "Send to return",
+      "submitting": "Sending..."
+    }
+  },
   "warehouseReturn": {
     "title": "Return Desk",
     "subtitle": "Count-out vs count-back reconciliation, and the outstanding cleanup queue.",
@@ -1458,6 +1525,10 @@
     "needs": {
       "reason": "Record a failure reason",
       "return_scan": "Return scan"
+    },
+    "outcome": {
+      "retryScheduled": "Retry booked — the parcel goes back out on its next slot.",
+      "rtoPending": "Going back to the merchant — see the Returns queue."
     }
   },
   "warehouseCourier": {
@@ -1759,7 +1830,10 @@
       "resendCode": "Resend delivery code",
       "handover": "Hand to PUDO point",
       "void": "Void",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "assign": "Assign courier",
+      "sendToRto": "Send to return",
+      "returned": "Returned to merchant"
     },
     "resendDialog": {
       "title": "Resend delivery code",
@@ -1785,6 +1859,32 @@
       "reasonPlaceholder": "e.g. mis-scan at receiving",
       "submit": "Void event",
       "submitting": "Voiding..."
+    },
+    "routing": {
+      "flowCard": "Routing",
+      "flow": "Flow",
+      "bucket": "Queue",
+      "failedAttempts": "Failed attempts",
+      "returnType": "Return reason",
+      "retryHold": "Retry hold",
+      "assignedCourier": "Assigned courier",
+      "merchant": "Merchant",
+      "carrier": "Carrier",
+      "batch": "Batch",
+      "returnAddress": "Return address",
+      "none": "—",
+      "flows": {
+        "delivery": "Delivery",
+        "dispatch": "3PL dispatch",
+        "return": "Return"
+      },
+      "buckets": {
+        "ready_for_delivery": "Ready for delivery",
+        "retry_delivery": "Retry",
+        "rto": "Return to merchant",
+        "ready_to_dispatch": "Ready to dispatch"
+      },
+      "held": "Held until release"
     }
   },
   "warehouseSelect": {

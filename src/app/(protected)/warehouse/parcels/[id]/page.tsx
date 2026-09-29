@@ -44,6 +44,13 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AssignDialog,
+  courierLabel,
+  ReturnedDialog,
+  SendToRtoDialog,
+} from "@/components/warehouse/WarehouseDialogs";
+import { useResolvedWarehouseId } from "@/components/warehouse/WarehouseSelect";
 import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { cn } from "@/lib/utils";
 import { usePudoNames } from "@/lib/hooks/useBranch";
@@ -51,6 +58,7 @@ import { Branch } from "@/lib/schema/branch.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
+  useGetCouriers,
   useGetParcel,
   useGetParcelEvents,
   useHandoverParcel,
@@ -60,6 +68,7 @@ import {
 import { Permission } from "@/lib/rbac/permissions";
 import {
   canEmit,
+  SendToRtoData,
   WHEvent,
   WHEventCode,
 } from "@/lib/schema/warehouse.schema";
@@ -105,6 +114,12 @@ export default function WarehouseParcelDetailPage() {
   const [resendOpen, setResendOpen] = useState(false);
   const [handoverOpen, setHandoverOpen] = useState(false);
   const [voidTarget, setVoidTarget] = useState<WHEvent | null>(null);
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [rtoOpen, setRtoOpen] = useState(false);
+  const [returnedOpen, setReturnedOpen] = useState(false);
+  const { warehouseId } = useResolvedWarehouseId();
+  const { data: couriersData } = useGetCouriers(warehouseId);
+  const couriers = couriersData?.couriers ?? [];
 
   if (!parcelId) {
     notFound();
@@ -154,6 +169,29 @@ export default function WarehouseParcelDetailPage() {
                     onClick={() => setHandoverOpen(true)}
                   >
                     {t("warehouseParcel.actions.handover")}
+                  </Button>
+                )}
+                {canEmit(parcel.status, "E03") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setAssignOpen(true)}
+                  >
+                    {t("warehouseParcel.actions.assign")}
+                  </Button>
+                )}
+                {canEmit(parcel.status, "R01") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setRtoOpen(true)}
+                  >
+                    {t("warehouseParcel.actions.sendToRto")}
+                  </Button>
+                )}
+                {canEmit(parcel.status, "R02") && (
+                  <Button type="button" onClick={() => setReturnedOpen(true)}>
+                    {t("warehouseParcel.actions.returned")}
                   </Button>
                 )}
                 <Button type="button" variant="outline" onClick={() => setResendOpen(true)}>
@@ -208,6 +246,93 @@ export default function WarehouseParcelDetailPage() {
                   />
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("warehouseParcel.routing.flowCard")}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <InfoStat
+                label={t("warehouseParcel.routing.flow")}
+                value={
+                  parcel.flow_type
+                    ? t(`warehouseParcel.routing.flows.${parcel.flow_type}`)
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.bucket")}
+                value={
+                  parcel.ucc_bucket
+                    ? t(`warehouseParcel.routing.buckets.${parcel.ucc_bucket}`)
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.failedAttempts")}
+                value={String(parcel.failed_attempts)}
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.retryHold")}
+                value={
+                  parcel.retry_hold
+                    ? t("warehouseParcel.routing.held")
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.returnType")}
+                value={
+                  parcel.return_type
+                    ? t(
+                        `warehouseQueue.returnTypes.${parcel.return_type as SendToRtoData["return_type"]}`,
+                      )
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.assignedCourier")}
+                value={
+                  parcel.assigned_courier_id
+                    ? (() => {
+                        const c = couriers.find(
+                          (x) => x.user_id === parcel.assigned_courier_id,
+                        );
+                        return c ? courierLabel(c) : parcel.assigned_courier_id;
+                      })()
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.merchant")}
+                value={parcel.merchant_id != null ? `#${parcel.merchant_id}` : "—"}
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.carrier")}
+                value={parcel.carrier_id != null ? `#${parcel.carrier_id}` : "—"}
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.batch")}
+                value={parcel.batch_id != null ? `#${parcel.batch_id}` : "—"}
+              />
+              {parcel.return_address && (
+                <div className="col-span-2 sm:col-span-3">
+                  <InfoStat
+                    label={t("warehouseParcel.routing.returnAddress")}
+                    value={
+                      [
+                        parcel.return_address.line1,
+                        parcel.return_address.district,
+                        parcel.return_address.city,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "—"
+                    }
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -286,6 +411,43 @@ export default function WarehouseParcelDetailPage() {
           parcelId={parcel.id}
           barcode={parcel.barcode}
           onClose={() => setResendOpen(false)}
+        />
+      )}
+
+      {parcel && assignOpen && (
+        <AssignDialog
+          target={{
+            parcelId: parcel.id,
+            barcode: parcel.barcode,
+            recipientName: parcel.recipient_name,
+            assignedCourierId: parcel.assigned_courier_id,
+          }}
+          couriers={couriers}
+          onClose={() => setAssignOpen(false)}
+        />
+      )}
+
+      {parcel && rtoOpen && (
+        <SendToRtoDialog
+          target={{
+            parcelId: parcel.id,
+            barcode: parcel.barcode,
+            recipientName: parcel.recipient_name,
+            assignedCourierId: parcel.assigned_courier_id,
+          }}
+          onClose={() => setRtoOpen(false)}
+        />
+      )}
+
+      {parcel && returnedOpen && (
+        <ReturnedDialog
+          target={{
+            parcelId: parcel.id,
+            barcode: parcel.barcode,
+            recipientName: parcel.recipient_name,
+            assignedCourierId: parcel.assigned_courier_id,
+          }}
+          onClose={() => setReturnedOpen(false)}
         />
       )}
 
