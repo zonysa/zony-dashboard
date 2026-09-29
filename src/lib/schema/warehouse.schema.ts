@@ -496,6 +496,23 @@ export interface WHCourier {
   assigned_count: number;
 }
 
+// GET /warehouse/pudo-returns — boxes uncollected at a PUDO shop, oldest first.
+export interface WHPudoReturnEntry {
+  parcel_id: string;
+  barcode: string;
+  recipient_name: string;
+  pudo_id: number | null;
+  pudo_name: string | null;
+  at_pudo_at: string | null;
+}
+
+export interface GetPudoReturnsRes {
+  status: "success";
+  message: string;
+  count: number;
+  parcels: WHPudoReturnEntry[];
+}
+
 // GET /warehouse/parcels — a filtered, paged list of parcels in one building.
 export type WHUccBucket =
   | "ready_for_delivery"
@@ -806,6 +823,15 @@ export const returnedToOriginSchema = z.object({
   notes: z.string().max(500).optional(),
 });
 export type ReturnedToOriginData = z.infer<typeof returnedToOriginSchema>;
+
+// R00 — an uncollected PUDO box is physically back at the warehouse. No
+// return_type: the server stamps pudo_return itself.
+export const returnReceivedSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type ReturnReceivedData = z.infer<typeof returnReceivedSchema>;
 
 export const deliverParcelSchema = z.object({
   client_event_id: clientEventIdSchema,

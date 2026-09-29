@@ -217,7 +217,8 @@
       "return": "مكتب المرتجعات",
       "report": "التقرير",
       "warehouses": "المستودعات",
-      "returnsQueue": "قائمة المرتجعات"
+      "returnsQueue": "قائمة المرتجعات",
+      "pudoReturns": "مرتجعات PUDO"
     },
     "hub": {
       "today": "اليوم · {{date}}",
@@ -1478,6 +1479,31 @@
       "reasonPlaceholder": "اختر السبب",
       "submit": "إرسال للإرجاع",
       "submitting": "جارٍ الإرسال..."
+    }
+  },
+  "warehousePudoReturns": {
+    "title": "مرتجعات نقاط PUDO",
+    "subtitle": "صناديق لم تُستلم من نقطة PUDO، الأقدم أولاً. أكّد كل صندوق عند عودته فعلياً.",
+    "loadError": "حدث خطأ أثناء تحميل القائمة.",
+    "empty": "لا يوجد ما ينتظر العودة من نقاط PUDO.",
+    "table": {
+      "barcode": "الباركود",
+      "recipient": "المستلم",
+      "pudo": "نقطة PUDO",
+      "daysAt": "الأيام في النقطة",
+      "actions": "الإجراءات"
+    },
+    "days": "{count} يوم",
+    "unknownPudo": "غير معروفة",
+    "actions": {
+      "received": "استُلم في المستودع"
+    },
+    "dialog": {
+      "title": "استُلم مجدداً (R00)",
+      "body": "أكّد أن الصندوق عاد فعلياً إلى المستودع. ثم ينضم إلى قائمة الإرجاع إلى التاجر.",
+      "notes": "ملاحظات (اختياري)",
+      "submit": "تأكيد الاستلام",
+      "submitting": "جارٍ الحفظ..."
     }
   },
   "warehouseReturn": {

@@ -19,6 +19,7 @@ import {
   GetLoadingManifestRes,
   GetParcelEventsRes,
   GetParcelListRes,
+  GetPudoReturnsRes,
   GetParcelRes,
   GetPendingHandoversRes,
   GetReportRes,
@@ -35,6 +36,7 @@ import {
   HandoverParcelData,
   ReceivingScanData,
   ReturnedToOriginData,
+  ReturnReceivedData,
   ReturnParcelData,
   SendToRtoData,
   UnassignParcelData,
@@ -191,6 +193,28 @@ export const markReturnedToOrigin = async (
   return apiCall({
     method: "POST",
     url: `/warehouse/parcels/${id}/returned-to-origin`,
+    data,
+  });
+};
+
+// ---- R00: uncollected PUDO boxes ----
+
+export const getPudoReturns = async (
+  warehouseId: number,
+): Promise<GetPudoReturnsRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/pudo-returns?warehouse_id=${warehouseId}`,
+  });
+};
+
+export const returnReceived = async (
+  id: string,
+  data: ReturnReceivedData,
+): Promise<WHScanEventRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/parcels/${id}/return-received`,
     data,
   });
 };

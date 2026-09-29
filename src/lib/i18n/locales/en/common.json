@@ -216,7 +216,8 @@
       "return": "Return desk",
       "report": "Report",
       "warehouses": "Warehouses",
-      "returnsQueue": "Returns queue"
+      "returnsQueue": "Returns queue",
+      "pudoReturns": "PUDO returns"
     },
     "hub": {
       "today": "Today · {{date}}",
@@ -1482,6 +1483,31 @@
       "reasonPlaceholder": "Select a reason",
       "submit": "Send to return",
       "submitting": "Sending..."
+    }
+  },
+  "warehousePudoReturns": {
+    "title": "PUDO returns",
+    "subtitle": "Boxes left uncollected at a PUDO shop, oldest first. Confirm each one when it is physically back.",
+    "loadError": "Something went wrong loading the list.",
+    "empty": "Nothing is waiting to come back from a PUDO shop.",
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "pudo": "PUDO point",
+      "daysAt": "Days at PUDO",
+      "actions": "Actions"
+    },
+    "days": "{count} d",
+    "unknownPudo": "Unknown",
+    "actions": {
+      "received": "Received back at warehouse"
+    },
+    "dialog": {
+      "title": "Received back (R00)",
+      "body": "Confirm this box is physically back at the warehouse. It then joins the return-to-merchant queue.",
+      "notes": "Notes (optional)",
+      "submit": "Confirm received",
+      "submitting": "Saving..."
     }
   },
   "warehouseReturn": {

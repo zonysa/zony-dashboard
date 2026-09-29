@@ -24,6 +24,7 @@ import {
   GetLoadingManifestRes,
   GetParcelEventsRes,
   GetParcelListRes,
+  GetPudoReturnsRes,
   GetParcelRes,
   GetPendingHandoversRes,
   GetReportRes,
@@ -41,6 +42,7 @@ import {
   ReceivingLookupMode,
   ReceivingPrefill,
   ReturnedToOriginData,
+  ReturnReceivedData,
   ReturnParcelData,
   SendToRtoData,
   UnassignParcelData,
@@ -76,6 +78,7 @@ import {
   getParcel,
   getParcelEvents,
   getPendingHandovers,
+  getPudoReturns,
   getReport,
   getReturnReconciliation,
   getSettings,
@@ -93,6 +96,7 @@ import {
   receivingScan,
   resendCode,
   returnParcel,
+  returnReceived,
   scanBarcode,
   sendToRto,
   unassignParcel,
@@ -145,6 +149,11 @@ export const warehouseKeys = {
     warehouseId
       ? ([...warehouseKeys.all, "queue", warehouseId, filters ?? {}] as const)
       : ([...warehouseKeys.all, "queue"] as const),
+
+  pudoReturns: (warehouseId?: number) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "pudo-returns", warehouseId] as const)
+      : ([...warehouseKeys.all, "pudo-returns"] as const),
 
   slots: (includeInactive?: boolean) =>
     [...warehouseKeys.all, "slots", includeInactive ?? false] as const,
@@ -262,6 +271,7 @@ function applyScanEventResult(
   queryClient.invalidateQueries({ queryKey: warehouseKeys.events(id) });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.wall() });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.queue() });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.pudoReturns() });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.loadingManifest() });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.returnRecon() });
   queryClient.invalidateQueries({
@@ -477,6 +487,37 @@ export function useListParcels(
     refetchInterval: 15 * 1000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useGetPudoReturns(warehouseId: number | null) {
+  return useQuery<GetPudoReturnsRes>({
+    queryKey: warehouseKeys.pudoReturns(warehouseId ?? undefined),
+    queryFn: () => getPudoReturns(warehouseId!),
+    enabled: !!warehouseId,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// R00 — the parcel moves into the RTO queue once this lands.
+export function useReturnReceived() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ReturnReceivedData }) =>
+      returnReceived(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to receive parcel back");
+    },
   });
 }
 

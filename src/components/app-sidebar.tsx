@@ -174,6 +174,11 @@ function AppSidebarContent() {
           permission: Permission.VIEW_WAREHOUSE,
         },
         {
+          title: t("warehouse.nav.pudoReturns"),
+          url: "/warehouse/pudo-returns",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
           title: t("warehouse.nav.report"),
           url: "/warehouse/report",
           permission: Permission.VIEW_WAREHOUSE_REPORTS,
