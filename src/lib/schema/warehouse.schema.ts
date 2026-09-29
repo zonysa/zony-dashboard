@@ -14,7 +14,14 @@ export type WHParcelStatus =
   | "awaiting_scheduling"
   | "scheduled"
   | "needs_rebin"
-  | "ready_for_dispatch"
+  // Renamed from the old `ready_for_dispatch` in the UCC model — the box is
+  // binned and confirmed, waiting for a courier to be assigned/checked out.
+  | "ready_for_delivery"
+  // A courier has been assigned (E03) but hasn't checked the box out yet.
+  | "assigned"
+  // A failed attempt was auto-rebooked into a future slot; the system holds
+  // it (retry_hold) until S01 releases it back to ready_for_delivery.
+  | "retry_scheduled"
   | "out_for_delivery"
   | "attempt_failed"
   | "delivered"
@@ -24,25 +31,86 @@ export type WHParcelStatus =
   // The shop signed for it. Terminal HERE, not in the business: the PUDO
   // flow owns the last mile from this point via the `parcels` row the
   // handoff created.
-  | "at_pudo";
+  | "at_pudo"
+  // ---- Return-to-origin (RTO) leg ----
+  // Bound for the merchant. rto_pending awaits an assignment; rto_assigned has
+  // a courier; rto_out is on the van; returned_to_origin is terminal.
+  | "rto_pending"
+  | "rto_assigned"
+  | "rto_out"
+  | "returned_to_origin"
+  // ---- 3PL dispatch flow ----
+  // ready_to_dispatch is a fresh dispatch intake; batched is in an open batch;
+  // dispatched is handed to the carrier (terminal).
+  | "ready_to_dispatch"
+  | "batched"
+  | "dispatched";
 
 export type WHEventCode =
   | "E01"
   | "T01"
   | "E02"
+  // Courier assigned (or unassigned, when courier_id is null). Planning only.
+  | "E03"
   | "E04"
   | "E05"
   | "E06"
   | "E07"
   | "E08"
   | "E09"
+  // System releases a held retry back to ready_for_delivery.
+  | "S01"
+  // Return received from a PUDO/customer — starts a new epoch, flow_type=return.
+  | "R00"
+  // Staff manually sends the parcel to RTO.
+  | "R01"
+  // Handed back to the merchant (terminal).
+  | "R02"
+  // Added to a batch (or removed, when batch_id is null).
+  | "D01"
+  // Handed to the 3PL carrier (terminal).
+  | "D02"
   | "X01";
+
+// ---- Legal transition table (mirrors backend transitions.py) ----
+// The server is the enforcer; this only drives which buttons the UI enables.
+// A status maps to the event codes legal from it. X01 (void) is a meta-event
+// and is intentionally not listed for any status.
+export const WH_ALLOWED_EVENTS: Record<WHParcelStatus, WHEventCode[]> = {
+  not_received: ["E01"],
+  awaiting_scheduling: ["T01", "R01"],
+  scheduled: ["T01", "E02", "R01"],
+  needs_rebin: ["T01", "E02", "R01"],
+  ready_for_delivery: ["T01", "E03", "E04", "R01"],
+  assigned: ["E03", "E04", "R01"],
+  retry_scheduled: ["S01", "R01"],
+  out_for_delivery: ["E05", "E06", "E08"],
+  attempt_failed: ["E07"],
+  handed_to_pudo: ["E07", "E09"],
+  delivered: ["R00"],
+  at_pudo: ["R00"],
+  rto_pending: ["E03", "R02"],
+  rto_assigned: ["E03", "E04"],
+  rto_out: ["E06", "R02"],
+  ready_to_dispatch: ["D01"],
+  batched: ["D01", "D02"],
+  returned_to_origin: [],
+  dispatched: [],
+};
+
+/** Whether `code` is a legal next event from `status` (server still enforces). */
+export function canEmit(status: WHParcelStatus, code: WHEventCode): boolean {
+  return WH_ALLOWED_EVENTS[status]?.includes(code) ?? false;
+}
 
 export interface WHAddress {
   line1?: string;
   district?: string;
   city?: string;
   notes?: string;
+  // Intake pin — sent as a pair or not at all (the backend 400s on one alone).
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface WHParcel {
@@ -72,6 +140,37 @@ export interface WHParcel {
   // from destination_pudo_id above — set only once an E08 has fired, and
   // cleared by E01/E07 like the rest of the epoch-scoped fields.
   pudo_id: number | null;
+
+  // ---- UCC / 3PL fold fields (added with the 2026-09 backend epic) ----
+  // Which flow this epoch is running: normal delivery, 3PL dispatch, or a
+  // return-to-origin leg. Derived from events, so an R00 parcel reads "return".
+  flow_type: "delivery" | "dispatch" | "return" | null;
+  // 3PL dispatch: the merchant that sent the box and the carrier it ships with.
+  merchant_id: number | null;
+  carrier_id: number | null;
+  // Where an RTO/dispatch box goes back to (the merchant's address).
+  return_address: WHAddress | null;
+  // Courier assignment (E03) — planning, distinct from the E04 checkout courier.
+  assigned_courier_id: string | null;
+  assigned_at: string | null;
+  assigned_by: string | null;
+  // Failed attempts in this epoch, checked against max_delivery_attempts.
+  failed_attempts: number;
+  // The operational queue this parcel sits in, or null if it's not in one.
+  ucc_bucket:
+    | "ready_for_delivery"
+    | "retry_delivery"
+    | "rto"
+    | "ready_to_dispatch"
+    | null;
+  // Why it's on the RTO leg (max_attempts, window_expired, pudo_return, …).
+  return_type: string | null;
+  is_rto: boolean;
+  // True while a rebooked retry is held before its release window (S01).
+  retry_hold: boolean;
+  // 3PL: the batch it belongs to, and when it was handed to the carrier.
+  batch_id: number | null;
+  dispatched_at: string | null;
 }
 
 export interface WHEvent {
@@ -84,6 +183,14 @@ export interface WHEvent {
   voids_event_id?: number | null;
   // Which shop an E08/E09 names. Null for every other code.
   pudo_id?: number | null;
+  // ---- Added with the UCC / 3PL epic ----
+  scheduled_date?: string | null; // T01
+  return_type?: string | null; // E07/R00/R01
+  flow_type?: "delivery" | "dispatch" | "return" | null; // E01
+  batch_id?: number | null; // D01/D02
+  courier_id?: string | null; // E03/E04
+  // Free-form server payload (e.g. R02 photo_url). Shape varies by code.
+  payload?: Record<string, unknown> | null;
 }
 
 export interface WHWallSlot {
@@ -265,6 +372,9 @@ export interface WHLoadingEntry {
   status: WHParcelStatus;
   bin_code: string | null;
   attempt_number: number;
+  // Courier assigned via E03. Null until an assignment exists; checkout (E04)
+  // is refused server-side while this is null and assignment_required is on.
+  assigned_courier_id: string | null;
 }
 
 export interface GetLoadingManifestRes {
@@ -373,6 +483,40 @@ export interface WHScanEventRes {
   created: boolean;
   event: WHEvent;
   parcel_status: WHParcelStatus;
+}
+
+// GET /warehouse/couriers — every active courier, with a per-warehouse count
+// of parcels currently assigned to them (assigned + rto_assigned).
+export interface WHCourier {
+  user_id: string;
+  username: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone_number: string | null;
+  assigned_count: number;
+}
+
+export interface GetCouriersRes {
+  status: "success";
+  couriers: WHCourier[];
+  count: number;
+}
+
+// POST /warehouse/assignments/bulk — partial success is normal: each parcel
+// lands in `assigned` or `failed`, and the call is 200 even if some fail.
+export interface BulkAssignRes {
+  status: "success";
+  courier_id: string;
+  assigned: Array<{
+    parcel_id: string;
+    event_id: number;
+    created: boolean;
+    assigned_courier_id: string;
+    status: WHParcelStatus;
+  }>;
+  failed: Array<{ parcel_id: string; error: string; code?: string }>;
+  assigned_count: number;
+  failed_count: number;
 }
 
 // The slot the server picked at intake when `auto_assign_slot` is on (the box
@@ -567,13 +711,75 @@ export const binParcelSchema = z.object({
 });
 export type BinParcelData = z.infer<typeof binParcelSchema>;
 
+// Checkout (E04). `courier_id` is OPTIONAL as of the UCC epic: when the parcel
+// was already assigned (E03), the server takes the courier from the assignment
+// and REFUSES a different one (409). It's only used when assignment_required is
+// off, and the courier screen must not send it at all (the server 400s).
 export const checkoutParcelSchema = z.object({
   client_event_id: clientEventIdSchema,
-  courier_id: z.string().uuid("Invalid courier ID"),
+  courier_id: z.string().uuid("Invalid courier ID").optional(),
   occurred_at: z.string().datetime().optional(),
   notes: z.string().max(500).optional(),
 });
 export type CheckoutParcelData = z.infer<typeof checkoutParcelSchema>;
+
+// E03 — assign a courier before pickup. Required whenever assignment_required
+// is on (the default). courier_id is the user id of an active courier.
+export const assignParcelSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  courier_id: z.string().min(1, "Select a courier").max(50),
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type AssignParcelData = z.infer<typeof assignParcelSchema>;
+
+// Unassign — DELETE /parcels/:id/assign. A JSON body is required, and it must
+// NOT carry courier_id (the server 400s). Status returns to ready_for_delivery
+// (or rto_pending on an RTO leg).
+export const unassignParcelSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type UnassignParcelData = z.infer<typeof unassignParcelSchema>;
+
+// Bulk assign — one courier to many parcels. client_event_id is a PREFIX; the
+// server derives each parcel's key as `<prefix>:<parcel_id>`, so one mint per
+// user action still dedupes correctly across a retry.
+export const bulkAssignSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  courier_id: z.string().min(1, "Select a courier").max(50),
+  parcel_ids: z
+    .array(z.string().min(1))
+    .min(1, "Select at least one parcel")
+    .max(100, "At most 100 parcels at a time"),
+});
+export type BulkAssignData = z.infer<typeof bulkAssignSchema>;
+
+// R01 — staff manually send a parcel to the RTO leg with an explicit reason.
+export const sendToRtoSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  return_type: z.enum([
+    "max_attempts",
+    "window_expired",
+    "pudo_return",
+    "customer_return",
+    "merchant_recall",
+  ]),
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type SendToRtoData = z.infer<typeof sendToRtoSchema>;
+
+// R02 — the box is back with the merchant (terminal). photo_url is optional
+// proof, stored in the event payload only.
+export const returnedToOriginSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  photo_url: z.string().max(500).optional(),
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type ReturnedToOriginData = z.infer<typeof returnedToOriginSchema>;
 
 export const deliverParcelSchema = z.object({
   client_event_id: clientEventIdSchema,

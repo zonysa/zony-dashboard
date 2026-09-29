@@ -9,7 +9,6 @@ import { useForm } from "react-hook-form";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
-import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -50,6 +49,7 @@ import {
   useResolvedWarehouseId,
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
+import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
@@ -61,9 +61,9 @@ import {
 } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
 import {
+  canEmit,
   failParcelSchema,
   FailParcelData,
-  WHParcelStatus,
   WHReturnEntry,
 } from "@/lib/schema/warehouse.schema";
 
@@ -79,36 +79,6 @@ function todayStr() {
 // server rejects an E07 until an E06 supplies a reason code — that ordering
 // is the entire reason this screen exists, and it's why the fail action must
 // come first and the return button stays disabled until it does.
-const CAN_FAIL_STATUSES = new Set<WHParcelStatus>(["out_for_delivery"]);
-const CAN_RETURN_STATUSES = new Set<WHParcelStatus>(["attempt_failed"]);
-
-const STATUS_BADGE: Record<
-  WHParcelStatus,
-  { variant: NonNullable<Parameters<typeof badgeVariants>[0]>["variant"]; className?: string }
-> = {
-  not_received: { variant: "outline" },
-  awaiting_scheduling: { variant: "secondary" },
-  scheduled: { variant: "default" },
-  needs_rebin: {
-    variant: "outline",
-    className:
-      "border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400",
-  },
-  ready_for_dispatch: { variant: "success" },
-  out_for_delivery: { variant: "default" },
-  attempt_failed: { variant: "destructive" },
-  delivered: { variant: "success" },
-  // Neither status can actually appear here: the return desk only ever lists
-  // out_for_delivery and attempt_failed boxes. These entries exist only to
-  // satisfy the Record's exhaustiveness.
-  handed_to_pudo: {
-    variant: "outline",
-    className:
-      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
-  },
-  at_pudo: { variant: "success" },
-};
-
 type FailTarget = {
   parcelId: string;
   barcode: string;
@@ -317,9 +287,8 @@ function OutstandingRow({
   // the client_event_id contract in useWarehouse.ts.
   const [returnEventId] = useState(() => mintClientEventId());
 
-  const canFail = CAN_FAIL_STATUSES.has(entry.status);
-  const canReturn = CAN_RETURN_STATUSES.has(entry.status);
-  const statusStyle = STATUS_BADGE[entry.status];
+  const canFail = canEmit(entry.status, "E06");
+  const canReturn = canEmit(entry.status, "E07");
 
   function handleReturn() {
     returnParcel.mutate({
@@ -333,9 +302,7 @@ function OutstandingRow({
       <TableCell className="font-mono">{entry.barcode}</TableCell>
       <TableCell>{entry.recipient_name}</TableCell>
       <TableCell>
-        <Badge variant={statusStyle.variant} className={statusStyle.className}>
-          {t(`warehouseWall.status.${entry.status}`)}
-        </Badge>
+        <WarehouseStatusBadge status={entry.status} />
       </TableCell>
       <TableCell className="max-w-xs text-sm text-muted-foreground">
         {t(`warehouseReturn.needs.${entry.needs}`)}

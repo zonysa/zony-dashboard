@@ -15,7 +15,6 @@ import { useForm } from "react-hook-form";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
-import { Badge, badgeVariants } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -35,6 +34,7 @@ import {
   useResolvedWarehouseId,
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
+import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
@@ -49,6 +49,7 @@ import {
 import { Permission } from "@/lib/rbac/permissions";
 import { ApiError } from "@/lib/services/apiClient";
 import {
+  canEmit,
   deliverParcelSchema,
   DeliverParcelData,
   WHCourierManifestEntry,
@@ -72,38 +73,17 @@ function todayStr() {
 // Transition table (docs/warehouse-api.md §2), restricted to the four
 // statuses a courier's own manifest can show and the actions legal from
 // each — disable a button rather than let it 409.
-const CAN_CHECKOUT = new Set<WHParcelStatus>(["ready_for_dispatch"]);
-const CAN_ACT_ON_DELIVERY = new Set<WHParcelStatus>(["out_for_delivery"]);
-const CAN_RETURN = new Set<WHParcelStatus>(["attempt_failed"]);
-
 // Surfaces the parcels that still need a courier's attention before the
-// ones already resolved — the manifest isn't sorted server-side.
-const STATUS_PRIORITY: Record<WHParcelStatus, number> = {
+// ones already resolved — the manifest isn't sorted server-side. Anything not
+// listed sorts last (see `?? 3` at the sort call).
+const STATUS_PRIORITY: Partial<Record<WHParcelStatus, number>> = {
   out_for_delivery: 0,
   attempt_failed: 1,
-  ready_for_dispatch: 2,
-  needs_rebin: 3,
-  scheduled: 3,
-  awaiting_scheduling: 3,
-  not_received: 3,
+  ready_for_delivery: 2,
+  assigned: 2,
   delivered: 4,
-  // Neither can actually reach this page's manifest (which lists
-  // ready_for_dispatch/out_for_delivery/attempt_failed only); grouped with
-  // the other terminal-ish statuses purely to satisfy the Record.
   handed_to_pudo: 4,
   at_pudo: 4,
-};
-
-const STATUS_BADGE: Partial<
-  Record<
-    WHParcelStatus,
-    { variant: NonNullable<Parameters<typeof badgeVariants>[0]>["variant"] }
-  >
-> = {
-  ready_for_dispatch: { variant: "success" },
-  out_for_delivery: { variant: "default" },
-  attempt_failed: { variant: "destructive" },
-  delivered: { variant: "success" },
 };
 
 export default function CourierPage() {
@@ -162,7 +142,8 @@ function CourierPageContent() {
   }
 
   const parcels = [...(data?.parcels ?? [])].sort(
-    (a, b) => STATUS_PRIORITY[a.status] - STATUS_PRIORITY[b.status]
+    (a, b) =>
+      (STATUS_PRIORITY[a.status] ?? 3) - (STATUS_PRIORITY[b.status] ?? 3)
   );
 
   return (
@@ -246,16 +227,17 @@ function ParcelCard({
   const [checkoutEventId] = useState(() => mintClientEventId());
   const [returnEventId] = useState(() => mintClientEventId());
 
-  const canCheckout = CAN_CHECKOUT.has(entry.status);
-  const canActOnDelivery = CAN_ACT_ON_DELIVERY.has(entry.status);
-  const canReturn = CAN_RETURN.has(entry.status);
-  const badgeStyle = STATUS_BADGE[entry.status];
+  const canCheckout = canEmit(entry.status, "E04");
+  const canActOnDelivery = canEmit(entry.status, "E05");
+  const canReturn = canEmit(entry.status, "E07");
 
   function handleCheckout() {
     if (!courierId) return;
+    // The courier checkout endpoint derives the courier from the JWT and
+    // REFUSES a courier_id in the body (400) — send only the event id.
     checkoutParcel.mutate({
       id: entry.parcel_id,
-      data: { client_event_id: checkoutEventId, courier_id: courierId },
+      data: { client_event_id: checkoutEventId },
     });
   }
 
@@ -283,11 +265,7 @@ function ParcelCard({
               <p className="mt-0.5 truncate text-xs text-muted-foreground">{addressLine}</p>
             )}
           </div>
-          {badgeStyle && (
-            <Badge variant={badgeStyle.variant} className="shrink-0">
-              {t(`warehouseWall.status.${entry.status}`)}
-            </Badge>
-          )}
+          <WarehouseStatusBadge status={entry.status} className="shrink-0" />
         </div>
 
         <a

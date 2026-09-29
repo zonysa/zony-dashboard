@@ -57,7 +57,7 @@ export default function WarehouseHubPage() {
     return {
       awaiting: data?.awaiting_count ?? 0,
       needsRebin: binned.filter((p) => p.status === "needs_rebin").length,
-      ready: binned.filter((p) => p.status === "ready_for_dispatch").length,
+      ready: binned.filter((p) => p.status === "ready_for_delivery").length,
       onWall: cells.reduce((sum, cell) => sum + cell.count, 0),
     };
   }, [data]);

@@ -45,7 +45,13 @@ const STATUS_INFO: Record<
     en: "Rescheduled — being re-sorted",
     variant: "secondary",
   },
-  ready_for_dispatch: { ar: "جاهز للتوصيل", en: "Ready for dispatch", variant: "success" },
+  ready_for_delivery: { ar: "جاهز للتوصيل", en: "Ready for delivery", variant: "success" },
+  assigned: { ar: "جاهز للتوصيل", en: "Ready for delivery", variant: "success" },
+  retry_scheduled: {
+    ar: "تمت إعادة جدولة التوصيل",
+    en: "Delivery rescheduled",
+    variant: "secondary",
+  },
   out_for_delivery: { ar: "في الطريق إليك الآن", en: "Out for delivery now", variant: "success" },
   attempt_failed: {
     ar: "تعذّر التوصيل في آخر محاولة",
@@ -63,6 +69,29 @@ const STATUS_INFO: Record<
     en: "Ready for collection at the pickup point",
     variant: "success",
   },
+  rto_pending: {
+    ar: "جارٍ إرجاع الطرد",
+    en: "Being returned",
+    variant: "secondary",
+  },
+  rto_assigned: {
+    ar: "جارٍ إرجاع الطرد",
+    en: "Being returned",
+    variant: "secondary",
+  },
+  rto_out: {
+    ar: "جارٍ إرجاع الطرد",
+    en: "Being returned",
+    variant: "secondary",
+  },
+  returned_to_origin: {
+    ar: "أُعيد الطرد للمتجر",
+    en: "Returned to sender",
+    variant: "muted",
+  },
+  ready_to_dispatch: { ar: "قيد التجهيز", en: "Being prepared", variant: "secondary" },
+  batched: { ar: "قيد التجهيز", en: "Being prepared", variant: "secondary" },
+  dispatched: { ar: "تم الشحن", en: "Shipped", variant: "success" },
 };
 
 function describeError(error: unknown): { ar: string; en: string } {

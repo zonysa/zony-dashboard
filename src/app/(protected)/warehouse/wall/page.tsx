@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -52,6 +52,7 @@ import {
   useResolvedWarehouseId,
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
+import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
@@ -64,7 +65,7 @@ import { Permission } from "@/lib/rbac/permissions";
 import {
   BinParcelData,
   binParcelSchema,
-  WHParcelStatus,
+  canEmit,
   WHSlotCatalogEntry,
   WHWallCell,
   WHWallEntry,
@@ -77,40 +78,6 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function todayStr() {
   return format(new Date(), "yyyy-MM-dd");
 }
-
-// E02 (bin) is legal only from these two statuses — see docs/warehouse-api.md
-// §2's transition table. Disable the action everywhere else rather than
-// letting the server 409.
-const BINNABLE_STATUSES = new Set<WHParcelStatus>(["scheduled", "needs_rebin"]);
-
-const STATUS_BADGE: Record<
-  WHParcelStatus,
-  { variant: NonNullable<Parameters<typeof badgeVariants>[0]>["variant"]; className?: string }
-> = {
-  not_received: { variant: "outline" },
-  awaiting_scheduling: { variant: "secondary" },
-  scheduled: { variant: "default" },
-  needs_rebin: {
-    variant: "outline",
-    className:
-      "border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400",
-  },
-  ready_for_dispatch: { variant: "success" },
-  out_for_delivery: { variant: "default" },
-  attempt_failed: { variant: "destructive" },
-  delivered: { variant: "success" },
-  // Still live here: a shop may refuse the box, and it comes back to the
-  // Wall via a return -- unlike delivered/at_pudo below, this is NOT terminal.
-  handed_to_pudo: {
-    variant: "outline",
-    className:
-      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
-  },
-  // Terminal: gone from the Wall's underlying query the moment this fires
-  // (`WHParcelState.status.notin_(TERMINAL_STATUSES)`), so this entry exists
-  // only to satisfy the Record's exhaustiveness -- it should never render.
-  at_pudo: { variant: "success" },
-};
 
 type BinTarget = {
   parcelId: string;
@@ -404,8 +371,7 @@ function WallEntryRow({
   onBin: () => void;
 }) {
   const { t } = useTranslation();
-  const binnable = BINNABLE_STATUSES.has(entry.status);
-  const statusStyle = STATUS_BADGE[entry.status];
+  const binnable = canEmit(entry.status, "E02");
 
   return (
     <TableRow className={entry.stale_slot ? "bg-amber-50 dark:bg-amber-950/20" : undefined}>
@@ -421,9 +387,7 @@ function WallEntryRow({
       {showZone && <TableCell>{zoneName ?? "—"}</TableCell>}
       <TableCell>
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant={statusStyle.variant} className={statusStyle.className}>
-            {t(`warehouseWall.status.${entry.status}`)}
-          </Badge>
+          <WarehouseStatusBadge status={entry.status} />
           {entry.status === "needs_rebin" && (
             <RefreshCw
               className="h-3.5 w-3.5 shrink-0 text-purple-600 dark:text-purple-400"

@@ -8,7 +8,9 @@ import { toast } from "sonner";
 
 import {
   AcceptHandoverData,
+  AssignParcelData,
   BinParcelData,
+  BulkAssignData,
   CheckoutParcelData,
   CourierCheckoutData,
   CourierDeliverData,
@@ -17,6 +19,7 @@ import {
   DeliverParcelData,
   FailParcelData,
   GetCourierManifestRes,
+  GetCouriersRes,
   GetFailureReasonsRes,
   GetLoadingManifestRes,
   GetParcelEventsRes,
@@ -37,6 +40,7 @@ import {
   ReceivingLookupMode,
   ReceivingPrefill,
   ReturnParcelData,
+  UnassignParcelData,
   VoidEventData,
   WarehouseReportRange,
   WarehouseUpdateData,
@@ -46,8 +50,10 @@ import {
 } from "@/lib/schema/warehouse.schema";
 import {
   acceptHandover,
+  assignParcel,
   assignWarehouseStaff,
   binParcel,
+  bulkAssign,
   checkoutParcel,
   createWarehouse,
   courierCheckoutParcel,
@@ -60,6 +66,7 @@ import {
   failParcel,
   getCourierFailureReasons,
   getCourierManifest,
+  getCouriers,
   getFailureReasons,
   getLoadingManifest,
   getParcel,
@@ -81,6 +88,7 @@ import {
   resendCode,
   returnParcel,
   scanBarcode,
+  unassignParcel,
   unassignWarehouseStaff,
   updateSetting,
   updateWarehouse,
@@ -175,6 +183,13 @@ export const warehouseKeys = {
       : ([...warehouseKeys.all, "courier-manifest"] as const),
   courierFailureReasons: () =>
     [...warehouseKeys.all, "courier-failure-reasons"] as const,
+
+  // The active-courier roster for a building, with per-warehouse assigned
+  // counts. Keyed per warehouse — the counts differ site to site.
+  couriers: (warehouseId?: number) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "couriers", warehouseId] as const)
+      : ([...warehouseKeys.all, "couriers"] as const),
 };
 
 // Mint an idempotency key once per USER ACTION — e.g. in a `useRef(() =>
@@ -514,6 +529,94 @@ export function useCheckoutParcel() {
     },
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to check out parcel");
+    },
+  });
+}
+
+// ---- Staff: courier assignment (E03) ----
+
+// The active-courier roster for a building. Catalog-like data (an operator's
+// courier list doesn't change mid-shift), so it uses the 5min/10min settings
+// the other lookup lists share rather than the live-board polling.
+export function useGetCouriers(warehouseId: number | null) {
+  return useQuery<GetCouriersRes>({
+    queryKey: warehouseKeys.couriers(warehouseId ?? undefined),
+    queryFn: () => getCouriers(warehouseId!),
+    enabled: !!warehouseId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// E03 assign/reassign. Same scan-event response and idempotency contract as
+// bin/checkout — the assigned count per courier also shifts, so refresh the
+// roster.
+export function useAssignParcel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AssignParcelData }) =>
+      assignParcel(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to assign courier");
+    },
+  });
+}
+
+// E03 with a null courier — DELETE with a JSON body.
+export function useUnassignParcel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UnassignParcelData }) =>
+      unassignParcel(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to unassign courier");
+    },
+  });
+}
+
+// Assign one courier to many parcels. Partial success is normal (each parcel
+// is in `assigned` or `failed`, HTTP 200 either way), so the toast reports
+// both counts rather than treating any failure as an error. The single
+// client_event_id is a PREFIX the server expands per parcel, so one mint per
+// user action stays idempotent under retry.
+export function useBulkAssign() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: BulkAssignData) => bulkAssign(data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data) => {
+      if (data.failed_count > 0) {
+        toast.warning(
+          `Assigned ${data.assigned_count}, ${data.failed_count} failed`,
+        );
+      } else {
+        toast.success(`Assigned ${data.assigned_count} parcels`);
+      }
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+      queryClient.invalidateQueries({
+        queryKey: warehouseKeys.loadingManifest(),
+      });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.wall() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to assign parcels");
     },
   });
 }

@@ -1,8 +1,11 @@
 import {
   AcceptHandoverData,
   AcceptHandoverRes,
+  AssignParcelData,
   AssignWarehouseStaffRes,
   BinParcelData,
+  BulkAssignData,
+  BulkAssignRes,
   CheckoutParcelData,
   CourierCheckoutData,
   CourierDeliverData,
@@ -11,6 +14,7 @@ import {
   DeliverParcelData,
   FailParcelData,
   GetCourierManifestRes,
+  GetCouriersRes,
   GetFailureReasonsRes,
   GetLoadingManifestRes,
   GetParcelEventsRes,
@@ -30,6 +34,7 @@ import {
   HandoverParcelData,
   ReceivingScanData,
   ReturnParcelData,
+  UnassignParcelData,
   UpdateSettingRes,
   VoidEventData,
   WarehouseCreateData,
@@ -98,6 +103,51 @@ export const checkoutParcel = async (
   return apiCall({
     method: "POST",
     url: `/warehouse/parcels/${id}/checkout`,
+    data,
+  });
+};
+
+// ---- Courier assignment (E03) ----
+
+export const getCouriers = async (
+  warehouseId: number,
+): Promise<GetCouriersRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/couriers?warehouse_id=${warehouseId}`,
+  });
+};
+
+export const assignParcel = async (
+  id: string,
+  data: AssignParcelData,
+): Promise<WHScanEventRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/parcels/${id}/assign`,
+    data,
+  });
+};
+
+// DELETE with a JSON body — the server requires client_event_id and refuses a
+// courier_id here (400).
+export const unassignParcel = async (
+  id: string,
+  data: UnassignParcelData,
+): Promise<WHScanEventRes> => {
+  return apiCall({
+    method: "DELETE",
+    url: `/warehouse/parcels/${id}/assign`,
+    data,
+  });
+};
+
+export const bulkAssign = async (
+  data: BulkAssignData,
+): Promise<BulkAssignRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/assignments/bulk`,
     data,
   });
 };
