@@ -217,7 +217,11 @@
       "report": "Report",
       "warehouses": "Warehouses",
       "returnsQueue": "Returns queue",
-      "pudoReturns": "PUDO returns"
+      "pudoReturns": "PUDO returns",
+      "dispatch": "Dispatch intake",
+      "batches": "Batches",
+      "merchants": "Merchants",
+      "carriers": "Carriers"
     },
     "hub": {
       "today": "Today · {{date}}",
@@ -1508,6 +1512,149 @@
       "notes": "Notes (optional)",
       "submit": "Confirm received",
       "submitting": "Saving..."
+    }
+  },
+  "warehouseMerchants": {
+    "title": "Merchants",
+    "subtitle": "Shippers whose boxes come in for 3PL dispatch. The return address is where their returns go back to.",
+    "loadError": "Something went wrong loading merchants.",
+    "empty": "No merchants yet.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "table": {
+      "name": "Name",
+      "contact": "Contact",
+      "phone": "Phone",
+      "city": "City",
+      "returnAddress": "Return address",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "New merchant",
+      "edit": "Edit"
+    },
+    "dialog": {
+      "createTitle": "New merchant",
+      "editTitle": "Edit merchant",
+      "subtitle": "The return address is the default for every return of this merchant's parcels.",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "fields": {
+      "name": "Name",
+      "contact": "Contact name",
+      "phone": "Phone (5XXXXXXXX)",
+      "city": "City",
+      "cityPlaceholder": "Select a city",
+      "returnAddress": "Return address",
+      "returnAddressHint": "Optional. Where returned boxes go.",
+      "line1": "Street / building",
+      "district": "District",
+      "addressCity": "City",
+      "active": "Active"
+    }
+  },
+  "warehouseCarriers": {
+    "title": "Carriers",
+    "subtitle": "Third-party carriers that take batches from the warehouse.",
+    "loadError": "Something went wrong loading carriers.",
+    "empty": "No carriers yet.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "phone": "Phone",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "New carrier",
+      "edit": "Edit"
+    },
+    "dialog": {
+      "createTitle": "New carrier",
+      "editTitle": "Edit carrier",
+      "subtitle": "The code is the short handle printed on labels.",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "phone": "Phone (5XXXXXXXX)",
+      "active": "Active"
+    }
+  },
+  "warehouseDispatch": {
+    "title": "Dispatch intake",
+    "subtitle": "Scan merchant boxes in for a carrier. Merchant and carrier stay set between scans.",
+    "merchant": "Merchant",
+    "merchantPlaceholder": "Select a merchant",
+    "carrier": "Carrier",
+    "carrierPlaceholder": "Select a carrier",
+    "barcodePlaceholder": "Scan or type a barcode",
+    "receive": "Receive",
+    "receiving": "Receiving...",
+    "pickFirst": "Pick a merchant and a carrier first.",
+    "recent": "Received this session",
+    "recentEmpty": "Nothing scanned yet."
+  },
+  "warehouseBatches": {
+    "title": "Batches",
+    "subtitle": "Pallets of dispatch boxes going to one carrier.",
+    "loadError": "Something went wrong loading batches.",
+    "empty": "No batches match.",
+    "back": "All batches",
+    "allCarriers": "All carriers",
+    "allStates": "All states",
+    "state": {
+      "open": "Open",
+      "sealed": "Sealed",
+      "handed_over": "Handed over"
+    },
+    "actions": {
+      "create": "New batch"
+    },
+    "table": {
+      "batch": "Batch",
+      "carrier": "Carrier",
+      "state": "State",
+      "created": "Created",
+      "handedOverTo": "Handed over to"
+    },
+    "createDialog": {
+      "title": "New batch",
+      "subtitle": "Open a batch for one carrier, then scan boxes into it.",
+      "carrierPlaceholder": "Select a carrier",
+      "codePlaceholder": "Pallet code (optional)",
+      "submit": "Create batch",
+      "creating": "Creating..."
+    },
+    "detail": {
+      "loadError": "Something went wrong loading this batch.",
+      "handedTo": "handed over to {name}",
+      "handover": "Hand over",
+      "parcels": "Parcels",
+      "empty": "No parcels in this batch.",
+      "barcode": "Barcode",
+      "merchant": "Merchant",
+      "status": "Status",
+      "actions": "Actions",
+      "scanPlaceholder": "Scan a barcode to add it",
+      "add": "Add",
+      "remove": "Remove"
+    },
+    "handoverDialog": {
+      "title": "Hand over batch (D02)",
+      "body": "Hand {count} parcels to the carrier and seal the batch.",
+      "resultSubtitle": "The batch is sealed, but some parcels did not go.",
+      "summary": "{ok} handed over, {failed} failed.",
+      "toPlaceholder": "Handed over to (name, optional)",
+      "submit": "Hand over",
+      "submitting": "Handing over...",
+      "close": "Close"
     }
   },
   "warehouseReturn": {

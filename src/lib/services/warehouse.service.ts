@@ -5,7 +5,23 @@ import {
   AssignWarehouseStaffRes,
   BinParcelData,
   BulkAssignData,
+  BatchHandoverData,
+  BatchMembershipData,
   BulkAssignRes,
+  CarrierWriteData,
+  CreateBatchRes,
+  DispatchScanData,
+  DispatchScanRes,
+  GetBatchesRes,
+  GetBatchRes,
+  GetCarriersRes,
+  GetMerchantsRes,
+  HandoverBatchRes,
+  MerchantWriteData,
+  WHBatchState,
+  WHCarrierRes,
+  WHMerchantRes,
+  BatchCreateData,
   CheckoutParcelData,
   CourierCheckoutData,
   CourierDeliverData,
@@ -197,6 +213,101 @@ export const markReturnedToOrigin = async (
   });
 };
 
+// ---- 3PL dispatch ----
+
+export const dispatchScan = async (
+  data: DispatchScanData,
+): Promise<DispatchScanRes> => {
+  return apiCall({
+    method: "POST",
+    url: "/warehouse/receiving/dispatch-scan",
+    data,
+  });
+};
+
+export const getMerchants = async (): Promise<GetMerchantsRes> => {
+  return apiCall({ method: "GET", url: "/warehouse/merchants" });
+};
+
+export const createMerchant = async (
+  data: MerchantWriteData,
+): Promise<WHMerchantRes> => {
+  return apiCall({ method: "POST", url: "/warehouse/merchants", data });
+};
+
+export const updateMerchant = async (
+  id: number,
+  data: MerchantWriteData,
+): Promise<WHMerchantRes> => {
+  return apiCall({ method: "PATCH", url: `/warehouse/merchants/${id}`, data });
+};
+
+export const getCarriers = async (): Promise<GetCarriersRes> => {
+  return apiCall({ method: "GET", url: "/warehouse/carriers" });
+};
+
+export const createCarrier = async (
+  data: CarrierWriteData,
+): Promise<WHCarrierRes> => {
+  return apiCall({ method: "POST", url: "/warehouse/carriers", data });
+};
+
+export const updateCarrier = async (
+  id: number,
+  data: CarrierWriteData,
+): Promise<WHCarrierRes> => {
+  return apiCall({ method: "PATCH", url: `/warehouse/carriers/${id}`, data });
+};
+
+export const getBatches = async (
+  warehouseId: number,
+  filters: { carrier_id?: number; state?: WHBatchState } = {},
+): Promise<GetBatchesRes> => {
+  const params = new URLSearchParams({ warehouse_id: String(warehouseId) });
+  if (filters.carrier_id != null)
+    params.set("carrier_id", String(filters.carrier_id));
+  if (filters.state) params.set("state", filters.state);
+  return apiCall({ method: "GET", url: `/warehouse/batches?${params}` });
+};
+
+export const createBatch = async (
+  warehouseId: number,
+  data: BatchCreateData,
+): Promise<CreateBatchRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/batches?warehouse_id=${warehouseId}`,
+    data,
+  });
+};
+
+export const getBatch = async (id: number): Promise<GetBatchRes> => {
+  return apiCall({ method: "GET", url: `/warehouse/batches/${id}` });
+};
+
+// D01 — join, move, or (batch_id: null) leave a batch.
+export const setParcelBatch = async (
+  id: string,
+  data: BatchMembershipData,
+): Promise<WHScanEventRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/parcels/${id}/batch`,
+    data,
+  });
+};
+
+export const handoverBatch = async (
+  id: number,
+  data: BatchHandoverData,
+): Promise<HandoverBatchRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/batches/${id}/handover`,
+    data,
+  });
+};
+
 // ---- R00: uncollected PUDO boxes ----
 
 export const getPudoReturns = async (
@@ -318,9 +429,7 @@ export const getSlots = async (
 
 // wh_zones are per-building — the same code may exist at two warehouses, so
 // this list is meaningless without one.
-export const getZones = async (
-  warehouseId: number,
-): Promise<GetZonesRes> => {
+export const getZones = async (warehouseId: number): Promise<GetZonesRes> => {
   return apiCall({
     method: "GET",
     url: `/warehouse/zones?warehouse_id=${warehouseId}`,

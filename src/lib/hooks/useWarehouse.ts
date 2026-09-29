@@ -10,7 +10,18 @@ import {
   AcceptHandoverData,
   AssignParcelData,
   BinParcelData,
+  BatchCreateData,
+  BatchHandoverData,
+  BatchMembershipData,
   BulkAssignData,
+  CarrierWriteData,
+  DispatchScanData,
+  GetBatchesRes,
+  GetBatchRes,
+  GetCarriersRes,
+  GetMerchantsRes,
+  MerchantWriteData,
+  WHBatchState,
   CheckoutParcelData,
   CourierCheckoutData,
   CourierDeliverData,
@@ -59,6 +70,18 @@ import {
   assignParcel,
   assignWarehouseStaff,
   binParcel,
+  createBatch,
+  createCarrier,
+  createMerchant,
+  dispatchScan,
+  getBatch,
+  getBatches,
+  getCarriers,
+  getMerchants,
+  handoverBatch,
+  setParcelBatch,
+  updateCarrier,
+  updateMerchant,
   bulkAssign,
   checkoutParcel,
   createWarehouse,
@@ -149,6 +172,15 @@ export const warehouseKeys = {
     warehouseId
       ? ([...warehouseKeys.all, "queue", warehouseId, filters ?? {}] as const)
       : ([...warehouseKeys.all, "queue"] as const),
+
+  merchants: () => [...warehouseKeys.all, "merchants"] as const,
+  carriers: () => [...warehouseKeys.all, "carriers"] as const,
+  // `batches()` alone is the prefix for every list; `batch(id)` is one detail.
+  batches: (warehouseId?: number, filters?: string) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "batches", warehouseId, filters ?? ""] as const)
+      : ([...warehouseKeys.all, "batches"] as const),
+  batch: (id: number) => [...warehouseKeys.all, "batch", id] as const,
 
   pudoReturns: (warehouseId?: number) =>
     warehouseId
@@ -351,7 +383,9 @@ function prefillFromMainParcel(parcel: ParcelDetails): ReceivingPrefill {
     barcode: parcel.barcode ?? "",
     tracking_ref: parcel.tracking_number ?? "",
     recipient_name: receiver?.personal?.name ?? "",
-    recipient_phone: normalizeSaudiPhone(receiver?.personal?.phone_number ?? ""),
+    recipient_phone: normalizeSaudiPhone(
+      receiver?.personal?.phone_number ?? "",
+    ),
     address: {
       line1: receiver?.location?.address ?? "",
       district: receiver?.location?.district ?? "",
@@ -490,6 +524,179 @@ export function useListParcels(
   });
 }
 
+// One-shot barcode resolve for scan-to-act screens (the query variant above
+// is for a screen that displays the parcel). The server's 409 for an
+// ambiguous barcode surfaces as this mutation's error.
+export function useResolveBarcode() {
+  return useMutation({
+    mutationFn: ({
+      barcode,
+      warehouseId,
+    }: {
+      barcode: string;
+      warehouseId: number;
+    }) => scanBarcode(barcode, warehouseId),
+    onError: (error: Error) => {
+      toast.error(error?.message || "Barcode not found");
+    },
+  });
+}
+
+// ---- 3PL dispatch ----
+
+export function useGetMerchants() {
+  return useQuery<GetMerchantsRes>({
+    queryKey: warehouseKeys.merchants(),
+    queryFn: getMerchants,
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
+}
+
+export function useGetCarriers() {
+  return useQuery<GetCarriersRes>({
+    queryKey: warehouseKeys.carriers(),
+    queryFn: getCarriers,
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
+}
+
+export function useSaveMerchant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id?: number; data: MerchantWriteData }) =>
+      id ? updateMerchant(id, data) : createMerchant(data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.merchants() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to save merchant");
+    },
+  });
+}
+
+export function useSaveCarrier() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id?: number; data: CarrierWriteData }) =>
+      id ? updateCarrier(id, data) : createCarrier(data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.carriers() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to save carrier");
+    },
+  });
+}
+
+// 3PL intake (E01, flow_type=dispatch). Same idempotency contract as the
+// receiving scan: created:false is a replay and still a success.
+export function useDispatchScan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: DispatchScanData) => dispatchScan(data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.queue() });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.wall() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to receive parcel");
+    },
+  });
+}
+
+export function useGetBatches(
+  warehouseId: number | null,
+  filters: { carrier_id?: number; state?: WHBatchState } = {},
+) {
+  return useQuery<GetBatchesRes>({
+    queryKey: warehouseKeys.batches(
+      warehouseId ?? undefined,
+      JSON.stringify(filters),
+    ),
+    queryFn: () => getBatches(warehouseId!, filters),
+    enabled: !!warehouseId,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useCreateBatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      warehouseId,
+      data,
+    }: {
+      warehouseId: number;
+      data: BatchCreateData;
+    }) => createBatch(warehouseId, data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.batches() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to create batch");
+    },
+  });
+}
+
+export function useGetBatch(id: number | null) {
+  return useQuery<GetBatchRes>({
+    queryKey: warehouseKeys.batch(id ?? 0),
+    queryFn: () => getBatch(id!),
+    enabled: id != null && !Number.isNaN(id),
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    retry: 2,
+  });
+}
+
+// D01 — add to / remove from a batch. Refreshes the open batch, the batch
+// lists and the ready_to_dispatch queue.
+export function useSetParcelBatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: BatchMembershipData }) =>
+      setParcelBatch(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.all });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to update batch");
+    },
+  });
+}
+
+// D02 for the whole batch. HTTP 200 even when some parcels fail, so the caller
+// gets the breakdown back and must show `failed` — no error toast for that.
+export function useHandoverBatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: BatchHandoverData }) =>
+      handoverBatch(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.all });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to hand over batch");
+    },
+  });
+}
+
 export function useGetPudoReturns(warehouseId: number | null) {
   return useQuery<GetPudoReturnsRes>({
     queryKey: warehouseKeys.pudoReturns(warehouseId ?? undefined),
@@ -563,11 +770,7 @@ export function useGetReturnReconciliation(
   warehouseId: number | null,
 ) {
   return useQuery<GetReturnReconciliationRes>({
-    queryKey: warehouseKeys.returnRecon(
-      warehouseId ?? undefined,
-      slotId,
-      date,
-    ),
+    queryKey: warehouseKeys.returnRecon(warehouseId ?? undefined, slotId, date),
     queryFn: () => getReturnReconciliation(slotId, date, warehouseId!),
     enabled: !!slotId && !!date && !!warehouseId,
     staleTime: 0,

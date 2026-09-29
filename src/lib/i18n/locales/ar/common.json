@@ -218,7 +218,11 @@
       "report": "التقرير",
       "warehouses": "المستودعات",
       "returnsQueue": "قائمة المرتجعات",
-      "pudoReturns": "مرتجعات PUDO"
+      "pudoReturns": "مرتجعات PUDO",
+      "dispatch": "استلام الشحن",
+      "batches": "الدفعات",
+      "merchants": "التجار",
+      "carriers": "شركات الشحن"
     },
     "hub": {
       "today": "اليوم · {{date}}",
@@ -1504,6 +1508,149 @@
       "notes": "ملاحظات (اختياري)",
       "submit": "تأكيد الاستلام",
       "submitting": "جارٍ الحفظ..."
+    }
+  },
+  "warehouseMerchants": {
+    "title": "التجار",
+    "subtitle": "الشاحنون الذين تصل صناديقهم للشحن عبر طرف ثالث. عنوان الإرجاع هو وجهة مرتجعاتهم.",
+    "loadError": "حدث خطأ أثناء تحميل التجار.",
+    "empty": "لا يوجد تجار بعد.",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "table": {
+      "name": "الاسم",
+      "contact": "جهة الاتصال",
+      "phone": "الجوال",
+      "city": "المدينة",
+      "returnAddress": "عنوان الإرجاع",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "actions": {
+      "create": "تاجر جديد",
+      "edit": "تعديل"
+    },
+    "dialog": {
+      "createTitle": "تاجر جديد",
+      "editTitle": "تعديل التاجر",
+      "subtitle": "عنوان الإرجاع هو الافتراضي لكل مرتجعات طرود هذا التاجر.",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ..."
+    },
+    "fields": {
+      "name": "الاسم",
+      "contact": "اسم جهة الاتصال",
+      "phone": "الجوال (5XXXXXXXX)",
+      "city": "المدينة",
+      "cityPlaceholder": "اختر المدينة",
+      "returnAddress": "عنوان الإرجاع",
+      "returnAddressHint": "اختياري. وجهة الصناديق المرتجعة.",
+      "line1": "الشارع / المبنى",
+      "district": "الحي",
+      "addressCity": "المدينة",
+      "active": "نشط"
+    }
+  },
+  "warehouseCarriers": {
+    "title": "شركات الشحن",
+    "subtitle": "شركات الشحن الخارجية التي تستلم الدفعات من المستودع.",
+    "loadError": "حدث خطأ أثناء تحميل شركات الشحن.",
+    "empty": "لا توجد شركات شحن بعد.",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "table": {
+      "code": "الرمز",
+      "name": "الاسم",
+      "phone": "الجوال",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "actions": {
+      "create": "شركة شحن جديدة",
+      "edit": "تعديل"
+    },
+    "dialog": {
+      "createTitle": "شركة شحن جديدة",
+      "editTitle": "تعديل شركة الشحن",
+      "subtitle": "الرمز هو الاسم المختصر المطبوع على الملصقات.",
+      "save": "حفظ",
+      "saving": "جارٍ الحفظ..."
+    },
+    "fields": {
+      "code": "الرمز",
+      "name": "الاسم",
+      "phone": "الجوال (5XXXXXXXX)",
+      "active": "نشط"
+    }
+  },
+  "warehouseDispatch": {
+    "title": "استلام الشحن",
+    "subtitle": "امسح صناديق التجار لشركة شحن. يبقى التاجر وشركة الشحن ثابتين بين عمليات المسح.",
+    "merchant": "التاجر",
+    "merchantPlaceholder": "اختر التاجر",
+    "carrier": "شركة الشحن",
+    "carrierPlaceholder": "اختر شركة الشحن",
+    "barcodePlaceholder": "امسح أو اكتب الباركود",
+    "receive": "استلام",
+    "receiving": "جارٍ الاستلام...",
+    "pickFirst": "اختر التاجر وشركة الشحن أولاً.",
+    "recent": "المستلم في هذه الجلسة",
+    "recentEmpty": "لم يُمسح شيء بعد."
+  },
+  "warehouseBatches": {
+    "title": "الدفعات",
+    "subtitle": "منصّات صناديق الشحن المتجهة إلى شركة شحن واحدة.",
+    "loadError": "حدث خطأ أثناء تحميل الدفعات.",
+    "empty": "لا توجد دفعات مطابقة.",
+    "back": "كل الدفعات",
+    "allCarriers": "كل الشركات",
+    "allStates": "كل الحالات",
+    "state": {
+      "open": "مفتوحة",
+      "sealed": "مغلقة",
+      "handed_over": "مُسلَّمة"
+    },
+    "actions": {
+      "create": "دفعة جديدة"
+    },
+    "table": {
+      "batch": "الدفعة",
+      "carrier": "شركة الشحن",
+      "state": "الحالة",
+      "created": "تاريخ الإنشاء",
+      "handedOverTo": "سُلّمت إلى"
+    },
+    "createDialog": {
+      "title": "دفعة جديدة",
+      "subtitle": "افتح دفعة لشركة شحن واحدة ثم امسح الصناديق داخلها.",
+      "carrierPlaceholder": "اختر شركة الشحن",
+      "codePlaceholder": "رمز المنصّة (اختياري)",
+      "submit": "إنشاء الدفعة",
+      "creating": "جارٍ الإنشاء..."
+    },
+    "detail": {
+      "loadError": "حدث خطأ أثناء تحميل هذه الدفعة.",
+      "handedTo": "سُلّمت إلى {name}",
+      "handover": "تسليم",
+      "parcels": "الطرود",
+      "empty": "لا توجد طرود في هذه الدفعة.",
+      "barcode": "الباركود",
+      "merchant": "التاجر",
+      "status": "الحالة",
+      "actions": "الإجراءات",
+      "scanPlaceholder": "امسح باركود لإضافته",
+      "add": "إضافة",
+      "remove": "إزالة"
+    },
+    "handoverDialog": {
+      "title": "تسليم الدفعة (D02)",
+      "body": "تسليم {count} طرد إلى شركة الشحن وإغلاق الدفعة.",
+      "resultSubtitle": "أُغلقت الدفعة لكن بعض الطرود لم تُسلَّم.",
+      "summary": "سُلّم {ok}، وفشل {failed}.",
+      "toPlaceholder": "سُلّمت إلى (الاسم، اختياري)",
+      "submit": "تسليم",
+      "submitting": "جارٍ التسليم...",
+      "close": "إغلاق"
     }
   },
   "warehouseReturn": {

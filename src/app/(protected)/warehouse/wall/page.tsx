@@ -230,10 +230,13 @@ function WallPageContent() {
           {t("warehouseWall.offWall.rto")}
           <Badge variant="secondary">{rtoQueue.data?.total ?? 0}</Badge>
         </Link>
-        <span className="flex items-center gap-2">
+        <Link
+          href="/warehouse/batches"
+          className="flex items-center gap-2 hover:underline"
+        >
           {t("warehouseWall.offWall.dispatch")}
           <Badge variant="secondary">{dispatchQueue.data?.total ?? 0}</Badge>
-        </span>
+        </Link>
       </div>
 
       <Card className="mb-6">

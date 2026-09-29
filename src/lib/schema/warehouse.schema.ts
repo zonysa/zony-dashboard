@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { saudiPhoneSchema } from "@/lib/validators/phone";
+import {
+  optionalSaudiPhoneSchema,
+  saudiPhoneSchema,
+} from "@/lib/validators/phone";
 
 // Staff (admin/supervisor/warehouse_clerk) and courier blueprints only.
 // The public `/slots` link (no JWT, customer-facing) is a separate,
@@ -496,6 +499,111 @@ export interface WHCourier {
   assigned_count: number;
 }
 
+// ---- 3PL dispatch: merchants, carriers, batches ----
+
+export interface WHMerchant {
+  id: number;
+  name: string;
+  phone_number: string | null;
+  contact_name: string | null;
+  // Defaults every RTO parcel of this merchant.
+  return_address: WHAddress | null;
+  city_id: number | null;
+  is_active: boolean;
+}
+
+export interface GetMerchantsRes {
+  status: "success";
+  message: string;
+  merchants: WHMerchant[];
+}
+
+export interface WHCarrier {
+  id: number;
+  // Short operational handle printed on labels.
+  code: string;
+  name: string;
+  contact_phone: string | null;
+  is_active: boolean;
+}
+
+export interface GetCarriersRes {
+  status: "success";
+  message: string;
+  carriers: WHCarrier[];
+}
+
+export type WHBatchState = "open" | "sealed" | "handed_over";
+
+export interface WHBatch {
+  id: number;
+  warehouse_id: number;
+  carrier_id: number;
+  code: string | null;
+  state: WHBatchState;
+  created_by: string | null;
+  sealed_at: string | null;
+  handed_over_at: string | null;
+  handed_over_to: string | null;
+  created_at: string;
+}
+
+export interface GetBatchesRes {
+  status: "success";
+  message: string;
+  batches: WHBatch[];
+}
+
+export interface GetBatchRes {
+  status: "success";
+  message: string;
+  batch: WHBatch;
+  parcels: WHParcel[];
+}
+
+export interface CreateBatchRes {
+  status: "success";
+  message: string;
+  batch: WHBatch;
+}
+
+// POST /batches/:id/handover — partial success is normal; the batch is sealed
+// even when some parcels fail, so `failed` must be shown to the operator.
+export interface WHBatchHandoverFailure {
+  parcel_id: string;
+  error: string;
+  code: number;
+}
+
+export interface HandoverBatchRes {
+  status: "success";
+  message: string;
+  batch: WHBatch;
+  handed_over: { parcel_id: string; created: boolean; event_id: number }[];
+  failed: WHBatchHandoverFailure[];
+  handed_over_count: number;
+  failed_count: number;
+}
+
+export interface DispatchScanRes {
+  status: "success";
+  message: string;
+  created: boolean;
+  parcel: WHParcel;
+}
+
+export interface WHMerchantRes {
+  status: "success";
+  message: string;
+  merchant: WHMerchant;
+}
+
+export interface WHCarrierRes {
+  status: "success";
+  message: string;
+  carrier: WHCarrier;
+}
+
 // GET /warehouse/pudo-returns — boxes uncollected at a PUDO shop, oldest first.
 export interface WHPudoReturnEntry {
   parcel_id: string;
@@ -515,10 +623,7 @@ export interface GetPudoReturnsRes {
 
 // GET /warehouse/parcels — a filtered, paged list of parcels in one building.
 export type WHUccBucket =
-  | "ready_for_delivery"
-  | "retry_delivery"
-  | "rto"
-  | "ready_to_dispatch";
+  "ready_for_delivery" | "retry_delivery" | "rto" | "ready_to_dispatch";
 
 export interface WHParcelListFilters {
   bucket?: WHUccBucket;
@@ -823,6 +928,73 @@ export const returnedToOriginSchema = z.object({
   notes: z.string().max(500).optional(),
 });
 export type ReturnedToOriginData = z.infer<typeof returnedToOriginSchema>;
+
+export const merchantFormSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  contact_name: z.string().max(120).optional(),
+  phone_number: optionalSaudiPhoneSchema.optional(),
+  city_id: z.number().int().positive().optional(),
+  return_line1: z.string().max(200).optional(),
+  return_district: z.string().max(100).optional(),
+  return_city: z.string().max(100).optional(),
+  is_active: z.boolean(),
+});
+export type MerchantFormData = z.infer<typeof merchantFormSchema>;
+
+export const carrierFormSchema = z.object({
+  code: z.string().trim().min(1, "Code is required").max(20),
+  name: z.string().trim().min(1, "Name is required").max(120),
+  contact_phone: optionalSaudiPhoneSchema.optional(),
+  is_active: z.boolean(),
+});
+export type CarrierFormData = z.infer<typeof carrierFormSchema>;
+
+// Wire shapes (what the API takes).
+export interface MerchantWriteData {
+  name?: string;
+  contact_name?: string | null;
+  phone_number?: string | null;
+  city_id?: number | null;
+  return_address?: WHAddress | null;
+  is_active?: boolean;
+}
+export interface CarrierWriteData {
+  code?: string;
+  name?: string;
+  contact_phone?: string | null;
+  is_active?: boolean;
+}
+
+// 3PL intake: no recipient, zone or slot — just who sent it and who ships it.
+export const dispatchScanSchema = z.object({
+  warehouse_id: z.number().int().positive(),
+  client_event_id: clientEventIdSchema,
+  barcode: z.string().trim().min(1, "Barcode is required").max(64),
+  tracking_ref: z.string().max(64).optional(),
+  merchant_id: z.number().int().positive(),
+  carrier_id: z.number().int().positive(),
+});
+export type DispatchScanData = z.infer<typeof dispatchScanSchema>;
+
+export const batchCreateSchema = z.object({
+  carrier_id: z.number().int().positive("Select a carrier"),
+  code: z.string().max(30).optional(),
+});
+export type BatchCreateData = z.infer<typeof batchCreateSchema>;
+
+// D01 — batch_id joins/moves the parcel; null takes it out.
+export const batchMembershipSchema = z.object({
+  client_event_id: clientEventIdSchema,
+  batch_id: z.number().int().positive().nullable(),
+  occurred_at: z.string().datetime().optional(),
+  notes: z.string().max(500).optional(),
+});
+export type BatchMembershipData = z.infer<typeof batchMembershipSchema>;
+
+export const batchHandoverSchema = z.object({
+  handed_over_to: z.string().max(120).optional(),
+});
+export type BatchHandoverData = z.infer<typeof batchHandoverSchema>;
 
 // R00 — an uncollected PUDO box is physically back at the warehouse. No
 // return_type: the server stamps pudo_return itself.
