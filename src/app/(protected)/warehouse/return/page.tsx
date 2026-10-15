@@ -1,11 +1,9 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { format, parse } from "date-fns";
 import { AlertTriangle, ArrowRight } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Can } from "@/components/auth/Can";
@@ -13,22 +11,6 @@ import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -45,7 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
+import { FailDialog } from "@/components/warehouse/WarehouseDialogs";
 import {
   useResolvedWarehouseId,
   WarehouseSelect,
@@ -54,19 +36,12 @@ import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadg
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
-  useFailParcel,
-  useGetFailureReasons,
   useGetSlots,
   useGetReturnReconciliation,
   useReturnParcel,
 } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
-import {
-  canEmit,
-  failParcelSchema,
-  FailParcelData,
-  WHReturnEntry,
-} from "@/lib/schema/warehouse.schema";
+import { canEmit, WHReturnEntry } from "@/lib/schema/warehouse.schema";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -366,131 +341,5 @@ function OutstandingRow({
         </Can>
       </TableCell>
     </TableRow>
-  );
-}
-
-function FailDialog({
-  target,
-  onClose,
-}: {
-  target: FailTarget;
-  onClose: () => void;
-}) {
-  const { t, isRTL } = useTranslation();
-  const failParcel = useFailParcel();
-  const { data: reasonsData, isLoading: isLoadingReasons } =
-    useGetFailureReasons();
-  // Minted once, when this dialog opens for this parcel — reused across any
-  // retry of the same fail attempt, per the client_event_id contract in
-  // useWarehouse.ts.
-  const [clientEventId] = useState(() => mintClientEventId());
-
-  const form = useForm<FailParcelData>({
-    resolver: zodResolver(failParcelSchema),
-    defaultValues: {
-      client_event_id: clientEventId,
-      reason_code: "",
-      notes: "",
-    },
-  });
-
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = form;
-
-  async function onSubmit(data: FailParcelData) {
-    try {
-      await failParcel.mutateAsync({ id: target.parcelId, data });
-      onClose();
-    } catch (err) {
-      // useFailParcel's onError already toasts the server message.
-      console.error("Fail action failed:", err);
-    }
-  }
-
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t("warehouseReturn.failDialog.title")}</DialogTitle>
-          <DialogDescription>
-            {target.recipientName} ·{" "}
-            <span className="font-mono">{target.barcode}</span>
-          </DialogDescription>
-        </DialogHeader>
-
-        <Form {...form}>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={control}
-              name="reason_code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t("warehouseReturn.failDialog.reason")}
-                  </FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || undefined}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={
-                            isLoadingReasons
-                              ? t("warehouseReturn.failDialog.loadingReasons")
-                              : t(
-                                  "warehouseReturn.failDialog.reasonPlaceholder",
-                                )
-                          }
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {reasonsData?.reasons?.map((reason) => (
-                        <SelectItem
-                          key={reason.reason_code}
-                          value={reason.reason_code}
-                        >
-                          {isRTL ? reason.name_ar : reason.name_en}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("warehouseReturn.failDialog.notes")}</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} rows={2} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
-                {t("warehouseReturn.actions.cancel")}
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? t("warehouseReturn.failDialog.submitting")
-                  : t("warehouseReturn.failDialog.submit")}
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
   );
 }

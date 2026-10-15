@@ -196,6 +196,12 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     path: "/warehouse/report",
     permission: Permission.VIEW_WAREHOUSE_REPORTS,
   },
+  // Admin acting for a courier. Distinct from /warehouse/courier below, which
+  // is the courier's own screen and calls the courier-only /courier/* API.
+  {
+    path: "/warehouse/courier-actions",
+    permission: Permission.ACT_FOR_COURIERS,
+  },
   // Warehouse pilot — courier interface (courier role). Distinct from the
   // existing /courier route, which is the admin-facing courier-personnel
   // CRUD page and unrelated to this module.

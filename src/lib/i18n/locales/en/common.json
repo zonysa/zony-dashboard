@@ -221,7 +221,8 @@
       "dispatch": "Dispatch intake",
       "batches": "Batches",
       "merchants": "Merchants",
-      "carriers": "Carriers"
+      "carriers": "Carriers",
+      "courierActions": "Courier actions"
     },
     "hub": {
       "today": "Today · {{date}}",
@@ -1487,6 +1488,41 @@
       "reasonPlaceholder": "Select a reason",
       "submit": "Send to return",
       "submitting": "Sending..."
+    }
+  },
+  "warehouseCourierActions": {
+    "title": "Courier actions",
+    "subtitle": "Record a courier's steps on their behalf — take custody, deliver, hand to a PUDO, fail, return.",
+    "onBehalfNotice": "Everything you record here is logged under your account, not the courier's. The courier's app picks up the new status on its next refresh.",
+    "courier": "Courier",
+    "courierPlaceholder": "Select a courier",
+    "pickCourier": "Pick a courier to see the parcels they hold or are planned for at this warehouse.",
+    "loadError": "Something went wrong loading this courier's parcels.",
+    "empty": "This courier has nothing to act on right now.",
+    "home": "Home",
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "destination": "Destination",
+      "status": "Status",
+      "attempts": "Failed attempts",
+      "actions": "Actions"
+    },
+    "actions": {
+      "checkout": "Take custody",
+      "deliver": "Deliver to customer",
+      "handover": "Hand to PUDO",
+      "fail": "Failed attempt",
+      "returnToWarehouse": "Return to warehouse",
+      "returned": "Returned to merchant"
+    },
+    "deliverDialog": {
+      "title": "Deliver to customer (E05)",
+      "body": "Enter the customer's delivery code — get it from the courier or the customer. Wrong codes count toward the same lockout the courier app hits.",
+      "code": "Delivery code",
+      "notes": "Notes (optional)",
+      "submit": "Confirm delivery",
+      "submitting": "Confirming..."
     }
   },
   "warehousePudoReturns": {
