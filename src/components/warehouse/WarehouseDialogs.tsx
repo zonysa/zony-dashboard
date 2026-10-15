@@ -21,6 +21,8 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -29,11 +31,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Branch } from "@/lib/schema/branch.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
   useAssignParcel,
   useCheckoutParcel,
+  useDeliverParcel,
+  useFailParcel,
+  useGetFailureReasons,
+  useHandoverParcel,
   useMarkReturnedToOrigin,
   useSendToRto,
   useUnassignParcel,
@@ -43,6 +50,10 @@ import {
   AssignParcelData,
   checkoutParcelSchema,
   CheckoutParcelData,
+  deliverParcelSchema,
+  DeliverParcelData,
+  failParcelSchema,
+  FailParcelData,
   SendToRtoData,
   WHCourier,
 } from "@/lib/schema/warehouse.schema";
@@ -64,6 +75,12 @@ export type AssignTarget = {
   barcode: string;
   recipientName: string;
   assignedCourierId: string | null;
+};
+
+export type ParcelTarget = {
+  parcelId: string;
+  barcode: string;
+  recipientName: string;
 };
 
 // Checkout (E04) no longer picks a courier: the server takes it from the E03
@@ -482,6 +499,378 @@ export function SendToRtoDialog({
               : t("warehouseQueue.rtoDialog.submit")}
           </Button>
         </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// E06 — a failed delivery attempt, with a reason from the approved list. Shared
+// by the Return desk and the admin courier-actions screen.
+export function FailDialog({
+  target,
+  onClose,
+}: {
+  target: ParcelTarget;
+  onClose: () => void;
+}) {
+  const { t, isRTL } = useTranslation();
+  const failParcel = useFailParcel();
+  const { data: reasonsData, isLoading: isLoadingReasons } =
+    useGetFailureReasons();
+  // Minted once, when this dialog opens for this parcel — reused across any
+  // retry of the same fail attempt, per the client_event_id contract in
+  // useWarehouse.ts.
+  const [clientEventId] = useState(() => mintClientEventId());
+
+  const form = useForm<FailParcelData>({
+    resolver: zodResolver(failParcelSchema),
+    defaultValues: {
+      client_event_id: clientEventId,
+      reason_code: "",
+      notes: "",
+    },
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
+
+  async function onSubmit(data: FailParcelData) {
+    try {
+      await failParcel.mutateAsync({ id: target.parcelId, data });
+      onClose();
+    } catch (err) {
+      // useFailParcel's onError already toasts the server message.
+      console.error("Fail action failed:", err);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("warehouseReturn.failDialog.title")}</DialogTitle>
+          <DialogDescription>
+            {target.recipientName} ·{" "}
+            <span className="font-mono">{target.barcode}</span>
+          </DialogDescription>
+        </DialogHeader>
+
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={control}
+              name="reason_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("warehouseReturn.failDialog.reason")}
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={
+                            isLoadingReasons
+                              ? t("warehouseReturn.failDialog.loadingReasons")
+                              : t(
+                                  "warehouseReturn.failDialog.reasonPlaceholder",
+                                )
+                          }
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {reasonsData?.reasons?.map((reason) => (
+                        <SelectItem
+                          key={reason.reason_code}
+                          value={reason.reason_code}
+                        >
+                          {isRTL ? reason.name_ar : reason.name_en}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t("warehouseReturn.failDialog.notes")}</FormLabel>
+                  <FormControl>
+                    <Textarea {...field} rows={2} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                {t("warehouseReturn.actions.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? t("warehouseReturn.failDialog.submitting")
+                  : t("warehouseReturn.failDialog.submit")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// E08 — staff-side record of a hand-off to a PUDO point. Shared by the parcel
+// detail page and the admin courier-actions screen.
+export function HandoverDialog({
+  parcelId,
+  barcode,
+  destinationPudoId,
+  branches,
+  canListPudos,
+  pudoNameById,
+  onClose,
+}: {
+  parcelId: string;
+  barcode: string;
+  destinationPudoId: number | null;
+  branches: Branch[];
+  canListPudos: boolean;
+  pudoNameById: Map<number, string>;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const handoverParcel = useHandoverParcel();
+  const [clientEventId] = useState(() => mintClientEventId());
+
+  // Active shops only — handing a box to a suspended or inactive one is
+  // refused server-side, so offering it here would just be a guaranteed 409.
+  const activeBranches = branches.filter(
+    (branch) => branch.status?.toLowerCase() === "active",
+  );
+
+  // Pre-select the parcel's own planned destination when the courier is
+  // taking it there as booked — this is the common case, and a diversion is
+  // still one click away by picking a different shop.
+  const [pudoId, setPudoId] = useState<string>(
+    destinationPudoId != null ? String(destinationPudoId) : "",
+  );
+
+  // A role that can't list shops (warehouse_clerk) can't divert either, but
+  // can still record the drop at the PLANNED shop: omitting pudo_id makes the
+  // server default to destination_pudo_id. With no planned shop there is
+  // nothing to default to, so the action is unavailable to them.
+  const isValid = canListPudos ? pudoId !== "" : destinationPudoId != null;
+
+  async function handleConfirm() {
+    if (!isValid) return;
+    try {
+      await handoverParcel.mutateAsync({
+        id: parcelId,
+        data: canListPudos
+          ? { client_event_id: clientEventId, pudo_id: Number(pudoId) }
+          : { client_event_id: clientEventId },
+      });
+      onClose();
+    } catch (err) {
+      // useHandoverParcel's onError already toasts the server message.
+      console.error("Handover failed:", err);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t("warehouseParcel.handoverDialog.title")}</DialogTitle>
+          <DialogDescription>
+            <span className="font-mono">{barcode}</span>
+          </DialogDescription>
+        </DialogHeader>
+
+        <p className="text-sm text-muted-foreground">
+          {t("warehouseParcel.handoverDialog.explanation")}
+        </p>
+
+        {!canListPudos ? (
+          <div className="space-y-1">
+            <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
+            {destinationPudoId != null ? (
+              <p className="text-sm font-medium text-foreground">
+                {pudoNameById.get(destinationPudoId) ?? `#${destinationPudoId}`}
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {t("warehouseParcel.handoverDialog.noPlannedPudo")}
+              </p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
+            <Select value={pudoId} onValueChange={setPudoId}>
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={t("warehouseParcel.handoverDialog.pudoPlaceholder")}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {activeBranches.map((branch) => (
+                  <SelectItem key={branch.id} value={String(branch.id)}>
+                    {branch.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
+            {t("warehouseParcel.actions.cancel")}
+          </Button>
+          <Button
+            type="button"
+            disabled={!isValid || handoverParcel.isPending}
+            onClick={handleConfirm}
+          >
+            {handoverParcel.isPending
+              ? t("warehouseParcel.handoverDialog.submitting")
+              : t("warehouseParcel.handoverDialog.submit")}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// E05 — staff-side delivery to the customer. The delivery code is still
+// required and checked server-side (wrong codes count toward the same lockout
+// the courier app hits); staff get it from the courier or the customer.
+export function DeliverDialog({
+  target,
+  onClose,
+}: {
+  target: ParcelTarget;
+  onClose: () => void;
+}) {
+  const { t } = useTranslation();
+  const deliverParcel = useDeliverParcel();
+  const [clientEventId] = useState(() => mintClientEventId());
+
+  const form = useForm<DeliverParcelData>({
+    resolver: zodResolver(deliverParcelSchema),
+    defaultValues: {
+      client_event_id: clientEventId,
+      delivery_code: "",
+      notes: "",
+    },
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
+
+  async function onSubmit(data: DeliverParcelData) {
+    try {
+      await deliverParcel.mutateAsync({
+        id: target.parcelId,
+        data: {
+          client_event_id: data.client_event_id,
+          delivery_code: data.delivery_code.trim(),
+          notes: data.notes?.trim() || undefined,
+        },
+      });
+      onClose();
+    } catch (err) {
+      // useDeliverParcel's onError already toasts the server message.
+      console.error("Deliver failed:", err);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {t("warehouseCourierActions.deliverDialog.title")}
+          </DialogTitle>
+          <DialogDescription>
+            {target.recipientName} ·{" "}
+            <span className="font-mono">{target.barcode}</span>
+          </DialogDescription>
+        </DialogHeader>
+
+        <p className="text-sm text-muted-foreground">
+          {t("warehouseCourierActions.deliverDialog.body")}
+        </p>
+
+        <Form {...form}>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={control}
+              name="delivery_code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("warehouseCourierActions.deliverDialog.code")}
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      inputMode="numeric"
+                      autoComplete="off"
+                      maxLength={12}
+                      className="font-mono tracking-widest"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={control}
+              name="notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("warehouseCourierActions.deliverDialog.notes")}
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea {...field} rows={2} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={onClose}>
+                {t("warehouseLoading.actions.cancel")}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
+                  ? t("warehouseCourierActions.deliverDialog.submitting")
+                  : t("warehouseCourierActions.deliverDialog.submit")}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

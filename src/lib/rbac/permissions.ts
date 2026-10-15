@@ -80,6 +80,12 @@ export enum Permission {
   EXPORT_WAREHOUSE_REPORTS = "export:warehouse_reports",
   VOID_WAREHOUSE_EVENTS = "void:warehouse_events",
 
+  // Warehouse pilot — record a courier's actions (checkout, deliver, fail,
+  // return, PUDO drop, RTO handback) on their behalf from the dashboard, via
+  // the staff /warehouse/* endpoints. Admin ONLY by product decision; the
+  // backend would also accept supervisor and warehouse_clerk.
+  ACT_FOR_COURIERS = "act:warehouse_courier",
+
   // Warehouse pilot — courier interface (/courier/*: courier role)
   VIEW_WAREHOUSE_COURIER = "view:warehouse_courier",
   MANAGE_WAREHOUSE_COURIER = "manage:warehouse_courier",
@@ -152,6 +158,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.VIEW_WAREHOUSE_REPORTS,
     Permission.EXPORT_WAREHOUSE_REPORTS,
     Permission.VOID_WAREHOUSE_EVENTS,
+    Permission.ACT_FOR_COURIERS,
     Permission.VIEW_PUDO_HANDOVERS,
     Permission.MANAGE_PUDO_HANDOVERS,
     Permission.VIEW_PROFILE,

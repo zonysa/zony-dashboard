@@ -35,18 +35,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AssignDialog,
   courierLabel,
+  HandoverDialog,
   ReturnedDialog,
   SendToRtoDialog,
 } from "@/components/warehouse/WarehouseDialogs";
@@ -54,14 +48,12 @@ import { useResolvedWarehouseId } from "@/components/warehouse/WarehouseSelect";
 import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { cn } from "@/lib/utils";
 import { usePudoNames } from "@/lib/hooks/useBranch";
-import { Branch } from "@/lib/schema/branch.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
   useGetCouriers,
   useGetParcel,
   useGetParcelEvents,
-  useHandoverParcel,
   useResendCode,
   useVoidEvent,
 } from "@/lib/hooks/useWarehouse";
@@ -746,128 +738,6 @@ function VoidEventDialog({
             {voidEvent.isPending
               ? t("warehouseParcel.voidDialog.submitting")
               : t("warehouseParcel.voidDialog.submit")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function HandoverDialog({
-  parcelId,
-  barcode,
-  destinationPudoId,
-  branches,
-  canListPudos,
-  pudoNameById,
-  onClose,
-}: {
-  parcelId: string;
-  barcode: string;
-  destinationPudoId: number | null;
-  branches: Branch[];
-  canListPudos: boolean;
-  pudoNameById: Map<number, string>;
-  onClose: () => void;
-}) {
-  const { t } = useTranslation();
-  const handoverParcel = useHandoverParcel();
-  const [clientEventId] = useState(() => mintClientEventId());
-
-  // Active shops only — handing a box to a suspended or inactive one is
-  // refused server-side, so offering it here would just be a guaranteed 409.
-  const activeBranches = branches.filter(
-    (branch) => branch.status?.toLowerCase() === "active",
-  );
-
-  // Pre-select the parcel's own planned destination when the courier is
-  // taking it there as booked — this is the common case, and a diversion is
-  // still one click away by picking a different shop.
-  const [pudoId, setPudoId] = useState<string>(
-    destinationPudoId != null ? String(destinationPudoId) : "",
-  );
-
-  // A role that can't list shops (warehouse_clerk) can't divert either, but
-  // can still record the drop at the PLANNED shop: omitting pudo_id makes the
-  // server default to destination_pudo_id. With no planned shop there is
-  // nothing to default to, so the action is unavailable to them.
-  const isValid = canListPudos ? pudoId !== "" : destinationPudoId != null;
-
-  async function handleConfirm() {
-    if (!isValid) return;
-    try {
-      await handoverParcel.mutateAsync({
-        id: parcelId,
-        data: canListPudos
-          ? { client_event_id: clientEventId, pudo_id: Number(pudoId) }
-          : { client_event_id: clientEventId },
-      });
-      onClose();
-    } catch (err) {
-      // useHandoverParcel's onError already toasts the server message.
-      console.error("Handover failed:", err);
-    }
-  }
-
-  return (
-    <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t("warehouseParcel.handoverDialog.title")}</DialogTitle>
-          <DialogDescription>
-            <span className="font-mono">{barcode}</span>
-          </DialogDescription>
-        </DialogHeader>
-
-        <p className="text-sm text-muted-foreground">
-          {t("warehouseParcel.handoverDialog.explanation")}
-        </p>
-
-        {!canListPudos ? (
-          <div className="space-y-1">
-            <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
-            {destinationPudoId != null ? (
-              <p className="text-sm font-medium text-foreground">
-                {pudoNameById.get(destinationPudoId) ?? `#${destinationPudoId}`}
-              </p>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                {t("warehouseParcel.handoverDialog.noPlannedPudo")}
-              </p>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Label>{t("warehouseParcel.handoverDialog.pudoLabel")}</Label>
-            <Select value={pudoId} onValueChange={setPudoId}>
-              <SelectTrigger className="w-full">
-                <SelectValue
-                  placeholder={t("warehouseParcel.handoverDialog.pudoPlaceholder")}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {activeBranches.map((branch) => (
-                  <SelectItem key={branch.id} value={String(branch.id)}>
-                    {branch.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>
-            {t("warehouseParcel.actions.cancel")}
-          </Button>
-          <Button
-            type="button"
-            disabled={!isValid || handoverParcel.isPending}
-            onClick={handleConfirm}
-          >
-            {handoverParcel.isPending
-              ? t("warehouseParcel.handoverDialog.submitting")
-              : t("warehouseParcel.handoverDialog.submit")}
           </Button>
         </DialogFooter>
       </DialogContent>
