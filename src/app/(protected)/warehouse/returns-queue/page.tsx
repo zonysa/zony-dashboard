@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
@@ -60,9 +61,30 @@ function addressLine(p: WHParcel["return_address"]): string {
 }
 
 export default function ReturnsQueuePage() {
+  return (
+    <Suspense fallback={<ReturnsQueueSkeleton />}>
+      <ReturnsQueueContent />
+    </Suspense>
+  );
+}
+
+function ReturnsQueueSkeleton() {
+  return (
+    <PageContainer size="xl" className="px-6 py-10">
+      <Skeleton className="mb-6 h-16 w-full" />
+      <Skeleton className="h-96 w-full" />
+    </PageContainer>
+  );
+}
+
+function ReturnsQueueContent() {
   const { t, isRTL } = useTranslation();
   const { warehouseId } = useResolvedWarehouseId();
-  const [tab, setTab] = useState<Tab>("retry");
+  // ?tab=rto opens straight onto the RTO queue (the hub's RTO card links here).
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<Tab>(
+    searchParams.get("tab") === "rto" ? "rto" : "retry",
+  );
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isError } = useListParcels(warehouseId, {

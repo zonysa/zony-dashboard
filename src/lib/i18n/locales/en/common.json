@@ -225,16 +225,16 @@
       "courierActions": "Courier actions"
     },
     "hub": {
-      "today": "Today · {{date}}",
-      "kpi": {
-        "awaiting": "Awaiting scheduling",
-        "awaitingHint": "Received, waiting on the customer to pick a slot",
-        "needsRebin": "Needs rebin",
-        "needsRebinHint": "Customer moved their slot after the box was binned",
-        "ready": "Ready for dispatch",
-        "readyHint": "Binned in the slot the customer confirmed",
-        "onWall": "On the wall",
-        "onWallHint": "Total boxes binned across every zone and slot"
+      "buckets": {
+        "title": "Parcels in the UCC",
+        "readyForDelivery": "Ready for delivery",
+        "readyForDeliveryHint": "For the end customer or a PUDO point — on the slot shelves and the PUDO shelf. Assign each one to a courier.",
+        "readyToDispatch": "Ready to dispatch",
+        "readyToDispatchHint": "Collected from local merchants, to hand to carriers or marketplaces like Noon and Amazon.",
+        "retry": "Retry",
+        "retryHint": "Failed deliveries with time left for another attempt.",
+        "rto": "Returns (RTO)",
+        "rtoHint": "Every kind of return — from PUDO points, from customers, or out of attempts. Assign each one to a courier."
       },
       "flow": {
         "title": "How a box moves through the pilot",

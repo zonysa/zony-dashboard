@@ -1,7 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-import { format } from "date-fns";
 import {
   ArrowRight,
   BarChart3,
@@ -30,78 +28,52 @@ import {
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { useGetWall } from "@/lib/hooks/useWarehouse";
+import { useListParcels } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
+import { WHUccBucket } from "@/lib/schema/warehouse.schema";
 import { cn } from "@/lib/utils";
 
-function todayStr() {
-  return format(new Date(), "yyyy-MM-dd");
-}
+// The four UCC work queues, in the order operations reads them. Membership is
+// the server's `ucc_bucket` (status.py), never recomputed here:
+//   ready_for_delivery  ready_for_delivery + assigned, home- and PUDO-bound
+//   ready_to_dispatch   ready_to_dispatch + batched (3PL / marketplaces)
+//   retry_delivery      failed, rebooked for another attempt
+//   rto                 rto_pending / rto_assigned / rto_out, every return kind
+const BUCKETS: {
+  bucket: WHUccBucket;
+  key: "readyForDelivery" | "readyToDispatch" | "retry" | "rto";
+  href: string;
+  accent: string;
+}[] = [
+  {
+    bucket: "ready_for_delivery",
+    key: "readyForDelivery",
+    href: "/warehouse/loading",
+    accent: "text-emerald-700 dark:text-emerald-400",
+  },
+  {
+    bucket: "ready_to_dispatch",
+    key: "readyToDispatch",
+    href: "/warehouse/batches",
+    accent: "text-sky-700 dark:text-sky-400",
+  },
+  {
+    bucket: "retry_delivery",
+    key: "retry",
+    href: "/warehouse/returns-queue?tab=retry",
+    accent: "text-amber-700 dark:text-amber-400",
+  },
+  {
+    bucket: "rto",
+    key: "rto",
+    href: "/warehouse/returns-queue?tab=rto",
+    accent: "text-rose-700 dark:text-rose-400",
+  },
+];
 
 export default function WarehouseHubPage() {
   const { t, isRTL } = useTranslation();
-  const date = todayStr();
-
   const { warehouseId } = useResolvedWarehouseId();
-
-  // The Wall query already polls every 15s, so the counters below stay live
-  // without the hub owning any refresh logic of its own.
-  const { data, isLoading, isError } = useGetWall(date, warehouseId);
-
-  // Every figure here is folded from the one Wall response — the module derives
-  // status server-side and we never recompute one client-side
-  // (docs/warehouse-api.md §1).
-  const counts = useMemo(() => {
-    const cells = data?.cells ?? [];
-    const binned = cells.flatMap((cell) => cell.parcels);
-    return {
-      awaiting: data?.awaiting_count ?? 0,
-      needsRebin: binned.filter((p) => p.status === "needs_rebin").length,
-      ready: binned.filter((p) => p.status === "ready_for_delivery").length,
-      onWall: cells.reduce((sum, cell) => sum + cell.count, 0),
-    };
-  }, [data]);
-
-  const kpis: {
-    key: string;
-    value: number;
-    label: string;
-    hint: string;
-    href: string;
-    accent?: string;
-  }[] = [
-    {
-      key: "awaiting",
-      value: counts.awaiting,
-      label: t("warehouse.hub.kpi.awaiting"),
-      hint: t("warehouse.hub.kpi.awaitingHint"),
-      href: "/warehouse/wall",
-    },
-    {
-      key: "needsRebin",
-      value: counts.needsRebin,
-      label: t("warehouse.hub.kpi.needsRebin"),
-      hint: t("warehouse.hub.kpi.needsRebinHint"),
-      href: "/warehouse/wall",
-      // Same purple the Wall uses for needs_rebin, so the two screens agree.
-      accent: "text-purple-700 dark:text-purple-400",
-    },
-    {
-      key: "ready",
-      value: counts.ready,
-      label: t("warehouse.hub.kpi.ready"),
-      hint: t("warehouse.hub.kpi.readyHint"),
-      href: "/warehouse/loading",
-      accent: "text-emerald-700 dark:text-emerald-400",
-    },
-    {
-      key: "onWall",
-      value: counts.onWall,
-      label: t("warehouse.hub.kpi.onWall"),
-      hint: t("warehouse.hub.kpi.onWallHint"),
-      href: "/warehouse/wall",
-    },
-  ];
 
   const destinations: {
     key: string;
@@ -188,34 +160,22 @@ export default function WarehouseHubPage() {
         <WarehouseSelect />
       </div>
 
-      {isError && (
-        <div className="mb-6 rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm text-destructive">
-          {t("warehouse.loadError")}
-        </div>
-      )}
-
       <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        {t("warehouse.hub.today", { date: format(new Date(), "d MMM yyyy") })}
+        {t("warehouse.hub.buckets.title")}
       </p>
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {kpis.map((kpi) =>
-          isLoading ? (
-            <Skeleton key={kpi.key} className="h-28 w-full rounded-xl" />
-          ) : (
-            <Link
-              key={kpi.key}
-              href={kpi.href}
-              className="group rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
-            >
-              <div className={cn("text-3xl font-semibold tabular-nums", kpi.accent)}>
-                {kpi.value}
-              </div>
-              <div className="mt-1 text-sm font-medium text-foreground">{kpi.label}</div>
-              <p className="mt-1 text-xs leading-snug text-muted-foreground">{kpi.hint}</p>
-            </Link>
-          ),
-        )}
+        {BUCKETS.map((b) => (
+          <BucketCard
+            key={b.bucket}
+            warehouseId={warehouseId}
+            bucket={b.bucket}
+            href={b.href}
+            accent={b.accent}
+            label={t(`warehouse.hub.buckets.${b.key}`)}
+            hint={t(`warehouse.hub.buckets.${b.key}Hint`)}
+          />
+        ))}
       </div>
 
       <LifecycleStrip />
@@ -264,6 +224,45 @@ export default function WarehouseHubPage() {
         </div>
       </div>
     </PageContainer>
+  );
+}
+
+// One queue's live count. The list endpoint returns a `total` for any filter,
+// so a one-row page is the count; it shares the queue cache key, so every scan
+// mutation that invalidates the queues refreshes these too, and it polls 15s.
+function BucketCard({
+  warehouseId,
+  bucket,
+  href,
+  accent,
+  label,
+  hint,
+}: {
+  warehouseId: number | null;
+  bucket: WHUccBucket;
+  href: string;
+  accent: string;
+  label: string;
+  hint: string;
+}) {
+  const { data, isLoading, isError } = useListParcels(warehouseId, {
+    bucket,
+    per_page: 1,
+  });
+
+  if (isLoading) return <Skeleton className="h-28 w-full rounded-xl" />;
+
+  return (
+    <Link
+      href={href}
+      className="group rounded-xl border bg-card p-4 transition-colors hover:bg-accent"
+    >
+      <div className={cn("text-3xl font-semibold tabular-nums", accent)}>
+        {!warehouseId || isError ? "—" : (data?.total ?? 0)}
+      </div>
+      <div className="mt-1 text-sm font-medium text-foreground">{label}</div>
+      <p className="mt-1 text-xs leading-snug text-muted-foreground">{hint}</p>
+    </Link>
   );
 }
 
