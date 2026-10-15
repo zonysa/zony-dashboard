@@ -5,21 +5,25 @@ import {
   AlertTriangle,
   Ban,
   Box,
+  Boxes,
   CheckCircle2,
   Clock,
   MapPin,
   Package,
   PackageCheck,
   RotateCcw,
+  Send,
   Store,
   Truck,
+  Undo2,
+  UserCheck,
   XCircle,
 } from "lucide-react";
 import { notFound, useParams } from "next/navigation";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -40,12 +44,21 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AssignDialog,
+  courierLabel,
+  ReturnedDialog,
+  SendToRtoDialog,
+} from "@/components/warehouse/WarehouseDialogs";
+import { useResolvedWarehouseId } from "@/components/warehouse/WarehouseSelect";
+import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { cn } from "@/lib/utils";
 import { usePudoNames } from "@/lib/hooks/useBranch";
 import { Branch } from "@/lib/schema/branch.schema";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
+  useGetCouriers,
   useGetParcel,
   useGetParcelEvents,
   useHandoverParcel,
@@ -53,52 +66,30 @@ import {
   useVoidEvent,
 } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
-import { WHEvent, WHEventCode, WHParcelStatus } from "@/lib/schema/warehouse.schema";
-
-// A box may only be handed to a PUDO point while it is on a van — the same
-// rule the backend's transition guard enforces (E08 legal only from
-// out_for_delivery). Checked here purely to decide whether to SHOW the
-// button; the server is what actually refuses an illegal attempt.
-const CAN_HANDOVER_STATUSES = new Set<WHParcelStatus>(["out_for_delivery"]);
-
-// Same convention as the other warehouse screens (Wall, Return desk): each
-// page keeps its own copy of this map rather than sharing one.
-const STATUS_BADGE: Record<
-  WHParcelStatus,
-  { variant: NonNullable<Parameters<typeof badgeVariants>[0]>["variant"]; className?: string }
-> = {
-  not_received: { variant: "outline" },
-  awaiting_scheduling: { variant: "secondary" },
-  scheduled: { variant: "default" },
-  needs_rebin: {
-    variant: "outline",
-    className:
-      "border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400",
-  },
-  ready_for_dispatch: { variant: "success" },
-  out_for_delivery: { variant: "default" },
-  attempt_failed: { variant: "destructive" },
-  delivered: { variant: "success" },
-  // At a shop, not yet signed for — same visual register as attempt_failed:
-  // a resting state that still needs someone to act on it.
-  handed_to_pudo: {
-    variant: "outline",
-    className:
-      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
-  },
-  at_pudo: { variant: "success" },
-};
+import {
+  canEmit,
+  SendToRtoData,
+  WHEvent,
+  WHEventCode,
+} from "@/lib/schema/warehouse.schema";
 
 const EVENT_ICON: Record<WHEventCode, React.ElementType> = {
   E01: Package,
   T01: Clock,
   E02: Box,
+  E03: UserCheck,
   E04: Truck,
   E05: CheckCircle2,
   E06: XCircle,
   E07: RotateCcw,
   E08: Store,
   E09: PackageCheck,
+  S01: Clock,
+  R00: Undo2,
+  R01: Undo2,
+  R02: Undo2,
+  D01: Boxes,
+  D02: Send,
   X01: Ban,
 };
 
@@ -123,6 +114,12 @@ export default function WarehouseParcelDetailPage() {
   const [resendOpen, setResendOpen] = useState(false);
   const [handoverOpen, setHandoverOpen] = useState(false);
   const [voidTarget, setVoidTarget] = useState<WHEvent | null>(null);
+  const [assignOpen, setAssignOpen] = useState(false);
+  const [rtoOpen, setRtoOpen] = useState(false);
+  const [returnedOpen, setReturnedOpen] = useState(false);
+  const { warehouseId } = useResolvedWarehouseId();
+  const { data: couriersData } = useGetCouriers(warehouseId);
+  const couriers = couriersData?.couriers ?? [];
 
   if (!parcelId) {
     notFound();
@@ -165,13 +162,36 @@ export default function WarehouseParcelDetailPage() {
             </div>
             <Can do={Permission.MANAGE_WAREHOUSE}>
               <div className="flex flex-wrap gap-2">
-                {CAN_HANDOVER_STATUSES.has(parcel.status) && (
+                {canEmit(parcel.status, "E08") && (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setHandoverOpen(true)}
                   >
                     {t("warehouseParcel.actions.handover")}
+                  </Button>
+                )}
+                {canEmit(parcel.status, "E03") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setAssignOpen(true)}
+                  >
+                    {t("warehouseParcel.actions.assign")}
+                  </Button>
+                )}
+                {canEmit(parcel.status, "R01") && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setRtoOpen(true)}
+                  >
+                    {t("warehouseParcel.actions.sendToRto")}
+                  </Button>
+                )}
+                {canEmit(parcel.status, "R02") && (
+                  <Button type="button" onClick={() => setReturnedOpen(true)}>
+                    {t("warehouseParcel.actions.returned")}
                   </Button>
                 )}
                 <Button type="button" variant="outline" onClick={() => setResendOpen(true)}>
@@ -192,12 +212,10 @@ export default function WarehouseParcelDetailPage() {
                   {t("warehouseParcel.derivedStatus.label")}
                 </p>
                 <div className="mt-1">
-                  <Badge
-                    className={cn("px-3 py-1 text-sm", STATUS_BADGE[parcel.status].className)}
-                    variant={STATUS_BADGE[parcel.status].variant}
-                  >
-                    {t(`warehouseWall.status.${parcel.status}`)}
-                  </Badge>
+                  <WarehouseStatusBadge
+                    status={parcel.status}
+                    className="px-3 py-1 text-sm"
+                  />
                 </div>
               </div>
               <p className="max-w-sm text-xs text-muted-foreground">
@@ -228,6 +246,93 @@ export default function WarehouseParcelDetailPage() {
                   />
                 )}
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("warehouseParcel.routing.flowCard")}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <InfoStat
+                label={t("warehouseParcel.routing.flow")}
+                value={
+                  parcel.flow_type
+                    ? t(`warehouseParcel.routing.flows.${parcel.flow_type}`)
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.bucket")}
+                value={
+                  parcel.ucc_bucket
+                    ? t(`warehouseParcel.routing.buckets.${parcel.ucc_bucket}`)
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.failedAttempts")}
+                value={String(parcel.failed_attempts)}
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.retryHold")}
+                value={
+                  parcel.retry_hold
+                    ? t("warehouseParcel.routing.held")
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.returnType")}
+                value={
+                  parcel.return_type
+                    ? t(
+                        `warehouseQueue.returnTypes.${parcel.return_type as SendToRtoData["return_type"]}`,
+                      )
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.assignedCourier")}
+                value={
+                  parcel.assigned_courier_id
+                    ? (() => {
+                        const c = couriers.find(
+                          (x) => x.user_id === parcel.assigned_courier_id,
+                        );
+                        return c ? courierLabel(c) : parcel.assigned_courier_id;
+                      })()
+                    : "—"
+                }
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.merchant")}
+                value={parcel.merchant_id != null ? `#${parcel.merchant_id}` : "—"}
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.carrier")}
+                value={parcel.carrier_id != null ? `#${parcel.carrier_id}` : "—"}
+              />
+              <InfoStat
+                label={t("warehouseParcel.routing.batch")}
+                value={parcel.batch_id != null ? `#${parcel.batch_id}` : "—"}
+              />
+              {parcel.return_address && (
+                <div className="col-span-2 sm:col-span-3">
+                  <InfoStat
+                    label={t("warehouseParcel.routing.returnAddress")}
+                    value={
+                      [
+                        parcel.return_address.line1,
+                        parcel.return_address.district,
+                        parcel.return_address.city,
+                      ]
+                        .filter(Boolean)
+                        .join(", ") || "—"
+                    }
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -306,6 +411,43 @@ export default function WarehouseParcelDetailPage() {
           parcelId={parcel.id}
           barcode={parcel.barcode}
           onClose={() => setResendOpen(false)}
+        />
+      )}
+
+      {parcel && assignOpen && (
+        <AssignDialog
+          target={{
+            parcelId: parcel.id,
+            barcode: parcel.barcode,
+            recipientName: parcel.recipient_name,
+            assignedCourierId: parcel.assigned_courier_id,
+          }}
+          couriers={couriers}
+          onClose={() => setAssignOpen(false)}
+        />
+      )}
+
+      {parcel && rtoOpen && (
+        <SendToRtoDialog
+          target={{
+            parcelId: parcel.id,
+            barcode: parcel.barcode,
+            recipientName: parcel.recipient_name,
+            assignedCourierId: parcel.assigned_courier_id,
+          }}
+          onClose={() => setRtoOpen(false)}
+        />
+      )}
+
+      {parcel && returnedOpen && (
+        <ReturnedDialog
+          target={{
+            parcelId: parcel.id,
+            barcode: parcel.barcode,
+            recipientName: parcel.recipient_name,
+            assignedCourierId: parcel.assigned_courier_id,
+          }}
+          onClose={() => setReturnedOpen(false)}
         />
       )}
 

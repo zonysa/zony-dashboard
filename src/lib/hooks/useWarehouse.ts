@@ -8,7 +8,20 @@ import { toast } from "sonner";
 
 import {
   AcceptHandoverData,
+  AssignParcelData,
   BinParcelData,
+  BatchCreateData,
+  BatchHandoverData,
+  BatchMembershipData,
+  BulkAssignData,
+  CarrierWriteData,
+  DispatchScanData,
+  GetBatchesRes,
+  GetBatchRes,
+  GetCarriersRes,
+  GetMerchantsRes,
+  MerchantWriteData,
+  WHBatchState,
   CheckoutParcelData,
   CourierCheckoutData,
   CourierDeliverData,
@@ -17,9 +30,12 @@ import {
   DeliverParcelData,
   FailParcelData,
   GetCourierManifestRes,
+  GetCouriersRes,
   GetFailureReasonsRes,
   GetLoadingManifestRes,
   GetParcelEventsRes,
+  GetParcelListRes,
+  GetPudoReturnsRes,
   GetParcelRes,
   GetPendingHandoversRes,
   GetReportRes,
@@ -36,18 +52,37 @@ import {
   HandoverParcelData,
   ReceivingLookupMode,
   ReceivingPrefill,
+  ReturnedToOriginData,
+  ReturnReceivedData,
   ReturnParcelData,
+  SendToRtoData,
+  UnassignParcelData,
   VoidEventData,
   WarehouseReportRange,
   WarehouseUpdateData,
   WHParcel,
+  WHParcelListFilters,
   WHParcelStatus,
   WHScanEventRes,
 } from "@/lib/schema/warehouse.schema";
 import {
   acceptHandover,
+  assignParcel,
   assignWarehouseStaff,
   binParcel,
+  createBatch,
+  createCarrier,
+  createMerchant,
+  dispatchScan,
+  getBatch,
+  getBatches,
+  getCarriers,
+  getMerchants,
+  handoverBatch,
+  setParcelBatch,
+  updateCarrier,
+  updateMerchant,
+  bulkAssign,
   checkoutParcel,
   createWarehouse,
   courierCheckoutParcel,
@@ -60,11 +95,13 @@ import {
   failParcel,
   getCourierFailureReasons,
   getCourierManifest,
+  getCouriers,
   getFailureReasons,
   getLoadingManifest,
   getParcel,
   getParcelEvents,
   getPendingHandovers,
+  getPudoReturns,
   getReport,
   getReturnReconciliation,
   getSettings,
@@ -76,11 +113,16 @@ import {
   getWarehouseStaffCandidates,
   getZones,
   handoverParcel,
+  listParcels,
   listWarehouses,
+  markReturnedToOrigin,
   receivingScan,
   resendCode,
   returnParcel,
+  returnReceived,
   scanBarcode,
+  sendToRto,
+  unassignParcel,
   unassignWarehouseStaff,
   updateSetting,
   updateWarehouse,
@@ -124,6 +166,26 @@ export const warehouseKeys = {
     warehouseId && slotId && date
       ? ([...warehouseKeys.all, "return", warehouseId, slotId, date] as const)
       : ([...warehouseKeys.all, "return"] as const),
+
+  // Bucket/batch lists. Prefix `queue()` invalidates every filter combination.
+  queue: (warehouseId?: number, filters?: WHParcelListFilters) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "queue", warehouseId, filters ?? {}] as const)
+      : ([...warehouseKeys.all, "queue"] as const),
+
+  merchants: () => [...warehouseKeys.all, "merchants"] as const,
+  carriers: () => [...warehouseKeys.all, "carriers"] as const,
+  // `batches()` alone is the prefix for every list; `batch(id)` is one detail.
+  batches: (warehouseId?: number, filters?: string) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "batches", warehouseId, filters ?? ""] as const)
+      : ([...warehouseKeys.all, "batches"] as const),
+  batch: (id: number) => [...warehouseKeys.all, "batch", id] as const,
+
+  pudoReturns: (warehouseId?: number) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "pudo-returns", warehouseId] as const)
+      : ([...warehouseKeys.all, "pudo-returns"] as const),
 
   slots: (includeInactive?: boolean) =>
     [...warehouseKeys.all, "slots", includeInactive ?? false] as const,
@@ -175,6 +237,13 @@ export const warehouseKeys = {
       : ([...warehouseKeys.all, "courier-manifest"] as const),
   courierFailureReasons: () =>
     [...warehouseKeys.all, "courier-failure-reasons"] as const,
+
+  // The active-courier roster for a building, with per-warehouse assigned
+  // counts. Keyed per warehouse — the counts differ site to site.
+  couriers: (warehouseId?: number) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "couriers", warehouseId] as const)
+      : ([...warehouseKeys.all, "couriers"] as const),
 };
 
 // Mint an idempotency key once per USER ACTION — e.g. in a `useRef(() =>
@@ -233,6 +302,8 @@ function applyScanEventResult(
   queryClient.invalidateQueries({ queryKey: warehouseKeys.detail(id) });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.events(id) });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.wall() });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.queue() });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.pudoReturns() });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.loadingManifest() });
   queryClient.invalidateQueries({ queryKey: warehouseKeys.returnRecon() });
   queryClient.invalidateQueries({
@@ -312,7 +383,9 @@ function prefillFromMainParcel(parcel: ParcelDetails): ReceivingPrefill {
     barcode: parcel.barcode ?? "",
     tracking_ref: parcel.tracking_number ?? "",
     recipient_name: receiver?.personal?.name ?? "",
-    recipient_phone: normalizeSaudiPhone(receiver?.personal?.phone_number ?? ""),
+    recipient_phone: normalizeSaudiPhone(
+      receiver?.personal?.phone_number ?? "",
+    ),
     address: {
       line1: receiver?.location?.address ?? "",
       district: receiver?.location?.district ?? "",
@@ -433,17 +506,271 @@ export function useGetLoadingManifest(
   });
 }
 
+// Live list of parcels in an operational bucket (retry / rto / …). Polls like
+// the Wall: the retry release cron and other clerks move parcels underneath us.
+export function useListParcels(
+  warehouseId: number | null,
+  filters: WHParcelListFilters,
+) {
+  return useQuery<GetParcelListRes>({
+    queryKey: warehouseKeys.queue(warehouseId ?? undefined, filters),
+    queryFn: () => listParcels(warehouseId!, filters),
+    enabled: !!warehouseId,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    refetchInterval: 15 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// One-shot barcode resolve for scan-to-act screens (the query variant above
+// is for a screen that displays the parcel). The server's 409 for an
+// ambiguous barcode surfaces as this mutation's error.
+export function useResolveBarcode() {
+  return useMutation({
+    mutationFn: ({
+      barcode,
+      warehouseId,
+    }: {
+      barcode: string;
+      warehouseId: number;
+    }) => scanBarcode(barcode, warehouseId),
+    onError: (error: Error) => {
+      toast.error(error?.message || "Barcode not found");
+    },
+  });
+}
+
+// ---- 3PL dispatch ----
+
+export function useGetMerchants() {
+  return useQuery<GetMerchantsRes>({
+    queryKey: warehouseKeys.merchants(),
+    queryFn: getMerchants,
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
+}
+
+export function useGetCarriers() {
+  return useQuery<GetCarriersRes>({
+    queryKey: warehouseKeys.carriers(),
+    queryFn: getCarriers,
+    staleTime: 60 * 1000,
+    retry: 2,
+  });
+}
+
+export function useSaveMerchant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id?: number; data: MerchantWriteData }) =>
+      id ? updateMerchant(id, data) : createMerchant(data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.merchants() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to save merchant");
+    },
+  });
+}
+
+export function useSaveCarrier() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id?: number; data: CarrierWriteData }) =>
+      id ? updateCarrier(id, data) : createCarrier(data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.carriers() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to save carrier");
+    },
+  });
+}
+
+// 3PL intake (E01, flow_type=dispatch). Same idempotency contract as the
+// receiving scan: created:false is a replay and still a success.
+export function useDispatchScan() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: DispatchScanData) => dispatchScan(data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.queue() });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.wall() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to receive parcel");
+    },
+  });
+}
+
+export function useGetBatches(
+  warehouseId: number | null,
+  filters: { carrier_id?: number; state?: WHBatchState } = {},
+) {
+  return useQuery<GetBatchesRes>({
+    queryKey: warehouseKeys.batches(
+      warehouseId ?? undefined,
+      JSON.stringify(filters),
+    ),
+    queryFn: () => getBatches(warehouseId!, filters),
+    enabled: !!warehouseId,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useCreateBatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      warehouseId,
+      data,
+    }: {
+      warehouseId: number;
+      data: BatchCreateData;
+    }) => createBatch(warehouseId, data),
+    onSuccess: (data) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.batches() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to create batch");
+    },
+  });
+}
+
+export function useGetBatch(id: number | null) {
+  return useQuery<GetBatchRes>({
+    queryKey: warehouseKeys.batch(id ?? 0),
+    queryFn: () => getBatch(id!),
+    enabled: id != null && !Number.isNaN(id),
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    retry: 2,
+  });
+}
+
+// D01 — add to / remove from a batch. Refreshes the open batch, the batch
+// lists and the ready_to_dispatch queue.
+export function useSetParcelBatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: BatchMembershipData }) =>
+      setParcelBatch(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.all });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to update batch");
+    },
+  });
+}
+
+// D02 for the whole batch. HTTP 200 even when some parcels fail, so the caller
+// gets the breakdown back and must show `failed` — no error toast for that.
+export function useHandoverBatch() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: BatchHandoverData }) =>
+      handoverBatch(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.all });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to hand over batch");
+    },
+  });
+}
+
+export function useGetPudoReturns(warehouseId: number | null) {
+  return useQuery<GetPudoReturnsRes>({
+    queryKey: warehouseKeys.pudoReturns(warehouseId ?? undefined),
+    queryFn: () => getPudoReturns(warehouseId!),
+    enabled: !!warehouseId,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    refetchInterval: 30 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// R00 — the parcel moves into the RTO queue once this lands.
+export function useReturnReceived() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ReturnReceivedData }) =>
+      returnReceived(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to receive parcel back");
+    },
+  });
+}
+
+// R01 manual RTO.
+export function useSendToRto() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: SendToRtoData }) =>
+      sendToRto(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to send parcel to RTO");
+    },
+  });
+}
+
+// R02 — terminal: the merchant has the box back.
+export function useMarkReturnedToOrigin() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ReturnedToOriginData }) =>
+      markReturnedToOrigin(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to mark parcel returned");
+    },
+  });
+}
+
 export function useGetReturnReconciliation(
   slotId: string,
   date: string,
   warehouseId: number | null,
 ) {
   return useQuery<GetReturnReconciliationRes>({
-    queryKey: warehouseKeys.returnRecon(
-      warehouseId ?? undefined,
-      slotId,
-      date,
-    ),
+    queryKey: warehouseKeys.returnRecon(warehouseId ?? undefined, slotId, date),
     queryFn: () => getReturnReconciliation(slotId, date, warehouseId!),
     enabled: !!slotId && !!date && !!warehouseId,
     staleTime: 0,
@@ -518,6 +845,94 @@ export function useCheckoutParcel() {
   });
 }
 
+// ---- Staff: courier assignment (E03) ----
+
+// The active-courier roster for a building. Catalog-like data (an operator's
+// courier list doesn't change mid-shift), so it uses the 5min/10min settings
+// the other lookup lists share rather than the live-board polling.
+export function useGetCouriers(warehouseId: number | null) {
+  return useQuery<GetCouriersRes>({
+    queryKey: warehouseKeys.couriers(warehouseId ?? undefined),
+    queryFn: () => getCouriers(warehouseId!),
+    enabled: !!warehouseId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// E03 assign/reassign. Same scan-event response and idempotency contract as
+// bin/checkout — the assigned count per courier also shifts, so refresh the
+// roster.
+export function useAssignParcel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AssignParcelData }) =>
+      assignParcel(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to assign courier");
+    },
+  });
+}
+
+// E03 with a null courier — DELETE with a JSON body.
+export function useUnassignParcel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UnassignParcelData }) =>
+      unassignParcel(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      toastScanEventSuccess(data);
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to unassign courier");
+    },
+  });
+}
+
+// Assign one courier to many parcels. Partial success is normal (each parcel
+// is in `assigned` or `failed`, HTTP 200 either way), so the toast reports
+// both counts rather than treating any failure as an error. The single
+// client_event_id is a PREFIX the server expands per parcel, so one mint per
+// user action stays idempotent under retry.
+export function useBulkAssign() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: BulkAssignData) => bulkAssign(data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data) => {
+      if (data.failed_count > 0) {
+        toast.warning(
+          `Assigned ${data.assigned_count}, ${data.failed_count} failed`,
+        );
+      } else {
+        toast.success(`Assigned ${data.assigned_count} parcels`);
+      }
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+      queryClient.invalidateQueries({
+        queryKey: warehouseKeys.loadingManifest(),
+      });
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.wall() });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to assign parcels");
+    },
+  });
+}
+
 export function useDeliverParcel() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -560,7 +975,14 @@ export function useReturnParcel() {
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     onSuccess: (data, variables) => {
-      toastScanEventSuccess(data);
+      // E07 is where the server decides retry vs RTO. The Return desk words
+      // those two outcomes itself (translated), so don't double-toast them.
+      if (
+        data.parcel_status !== "retry_scheduled" &&
+        data.parcel_status !== "rto_pending"
+      ) {
+        toastScanEventSuccess(data);
+      }
       applyScanEventResult(queryClient, variables.id, data.parcel_status);
     },
     onError: (error: Error) => {

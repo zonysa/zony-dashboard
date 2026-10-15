@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContainer } from "@/components/PageContainer";
@@ -37,7 +38,10 @@ type NumberSettingKey =
   | "reminder_timeout_minutes"
   | "max_reminders"
   | "fallback_grace_minutes"
-  | "daily_message_cap";
+  | "daily_message_cap"
+  | "max_delivery_attempts"
+  | "retry_window_hours"
+  | "retry_release_lead_minutes";
 
 type NumberFieldMeta = {
   key: NumberSettingKey;
@@ -57,6 +61,15 @@ const SCHEDULING_FIELDS: NumberFieldMeta[] = [
 const REMINDER_FIELDS: NumberFieldMeta[] = [
   { key: "reminder_timeout_minutes", min: 0 },
   { key: "max_reminders", min: 0 },
+];
+
+// UCC retry/RTO thresholds. max_delivery_attempts drives the automatic
+// retry-vs-RTO decision; the two retry timings shape when a rebooked attempt
+// is released. assignment_required is handled separately (a boolean).
+const RETURN_FIELDS: NumberFieldMeta[] = [
+  { key: "max_delivery_attempts", min: 1 },
+  { key: "retry_window_hours", min: 1 },
+  { key: "retry_release_lead_minutes", min: 0 },
 ];
 
 // docs/warehouse-api.md §5: "safety rails, not preferences." Lowering these
@@ -161,6 +174,31 @@ export default function WarehouseSettingsPage() {
                   value={settings?.[meta.key]}
                 />
               ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {t("warehouseSettings.sections.returns.title")}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {t("warehouseSettings.sections.returns.description")}
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {RETURN_FIELDS.map((meta) => (
+                  <NumberSettingField
+                    key={meta.key}
+                    meta={meta}
+                    value={settings?.[meta.key]}
+                  />
+                ))}
+              </div>
+              <AssignmentRequiredField
+                value={settings?.["assignment_required"]}
+              />
             </CardContent>
           </Card>
 
@@ -279,6 +317,78 @@ function NumberSettingField({
               onClick={handleConfirmLower}
             >
               {t("warehouseSettings.lowerConfirm.confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
+
+// assignment_required is a safety-ish toggle: turning it OFF lets a parcel be
+// checked out without a prior E03 courier assignment, which removes the
+// accountability the assignment gives. Confirm before disabling; enabling is
+// immediate.
+function AssignmentRequiredField({ value: settingValue }: { value: unknown }) {
+  const { t } = useTranslation();
+  const update = useUpdateSetting();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  if (settingValue === undefined) {
+    return <Skeleton className="h-16 w-full" />;
+  }
+
+  const enabled = settingValue === true || settingValue === "true";
+
+  function setEnabled(next: boolean) {
+    if (!next) {
+      setConfirmOpen(true);
+      return;
+    }
+    update.mutate({ key: "assignment_required", value: true });
+  }
+
+  function confirmDisable() {
+    setConfirmOpen(false);
+    update.mutate({ key: "assignment_required", value: false });
+  }
+
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-lg border p-4">
+      <div className="space-y-1">
+        <Label>{t("warehouseSettings.fields.assignment_required.label")}</Label>
+        <p className="text-xs text-muted-foreground">
+          {t("warehouseSettings.fields.assignment_required.description")}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <Checkbox
+          checked={enabled}
+          disabled={update.isPending}
+          onCheckedChange={(v) => setEnabled(v === true)}
+          aria-label={t("warehouseSettings.fields.assignment_required.label")}
+        />
+      </div>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("warehouseSettings.assignmentConfirm.title")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("warehouseSettings.assignmentConfirm.description")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>
+              {t("warehouseSettings.lowerConfirm.cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDisable}
+            >
+              {t("warehouseSettings.assignmentConfirm.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

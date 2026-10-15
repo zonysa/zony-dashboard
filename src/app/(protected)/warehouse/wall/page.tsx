@@ -10,7 +10,7 @@ import { useForm } from "react-hook-form";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
-import { Badge, badgeVariants } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DatePicker } from "@/components/ui/date-picker";
@@ -52,11 +52,13 @@ import {
   useResolvedWarehouseId,
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
+import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
   useBinParcel,
   useGetSlots,
+  useListParcels,
   useGetWall,
   useGetZones,
 } from "@/lib/hooks/useWarehouse";
@@ -64,7 +66,7 @@ import { Permission } from "@/lib/rbac/permissions";
 import {
   BinParcelData,
   binParcelSchema,
-  WHParcelStatus,
+  canEmit,
   WHSlotCatalogEntry,
   WHWallCell,
   WHWallEntry,
@@ -77,40 +79,6 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function todayStr() {
   return format(new Date(), "yyyy-MM-dd");
 }
-
-// E02 (bin) is legal only from these two statuses — see docs/warehouse-api.md
-// §2's transition table. Disable the action everywhere else rather than
-// letting the server 409.
-const BINNABLE_STATUSES = new Set<WHParcelStatus>(["scheduled", "needs_rebin"]);
-
-const STATUS_BADGE: Record<
-  WHParcelStatus,
-  { variant: NonNullable<Parameters<typeof badgeVariants>[0]>["variant"]; className?: string }
-> = {
-  not_received: { variant: "outline" },
-  awaiting_scheduling: { variant: "secondary" },
-  scheduled: { variant: "default" },
-  needs_rebin: {
-    variant: "outline",
-    className:
-      "border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400",
-  },
-  ready_for_dispatch: { variant: "success" },
-  out_for_delivery: { variant: "default" },
-  attempt_failed: { variant: "destructive" },
-  delivered: { variant: "success" },
-  // Still live here: a shop may refuse the box, and it comes back to the
-  // Wall via a return -- unlike delivered/at_pudo below, this is NOT terminal.
-  handed_to_pudo: {
-    variant: "outline",
-    className:
-      "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400",
-  },
-  // Terminal: gone from the Wall's underlying query the moment this fires
-  // (`WHParcelState.status.notin_(TERMINAL_STATUSES)`), so this entry exists
-  // only to satisfy the Record's exhaustiveness -- it should never render.
-  at_pudo: { variant: "success" },
-};
 
 type BinTarget = {
   parcelId: string;
@@ -155,8 +123,21 @@ function WallPageContent() {
   const { data, isLoading, isError } = useGetWall(date, warehouseId);
   const { data: zonesData } = useGetZones(warehouseId);
   const { data: slotsData } = useGetSlots();
+  // RTO / retry / dispatch parcels have no zone or slot, so the grid can't
+  // hold them. Count them per bucket instead (per_page 1 — only `total` is used).
+  const retryQueue = useListParcels(warehouseId, {
+    bucket: "retry_delivery",
+    per_page: 1,
+  });
+  const rtoQueue = useListParcels(warehouseId, { bucket: "rto", per_page: 1 });
+  const dispatchQueue = useListParcels(warehouseId, {
+    bucket: "ready_to_dispatch",
+    per_page: 1,
+  });
 
-  const [cellSelection, setCellSelection] = useState<CellSelection | null>(null);
+  const [cellSelection, setCellSelection] = useState<CellSelection | null>(
+    null,
+  );
   const [binTarget, setBinTarget] = useState<BinTarget | null>(null);
 
   function handleDateSelect(newDate: Date | undefined) {
@@ -170,7 +151,10 @@ function WallPageContent() {
   // sorted so windows read left-to-right chronologically no matter how many
   // are configured.
   const slots = useMemo(
-    () => [...(data?.slots ?? [])].sort((a, b) => a.starts_at.localeCompare(b.starts_at)),
+    () =>
+      [...(data?.slots ?? [])].sort((a, b) =>
+        a.starts_at.localeCompare(b.starts_at),
+      ),
     [data?.slots],
   );
   // Zones are the grid's rows — the zone list, never hardcoded either.
@@ -203,8 +187,12 @@ function WallPageContent() {
     <PageContainer size="xl" className="px-6 py-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">{t("warehouseWall.title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("warehouseWall.subtitle")}</p>
+          <h1 className="text-xl font-semibold text-foreground">
+            {t("warehouseWall.title")}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {t("warehouseWall.subtitle")}
+          </p>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <WarehouseSelect />
@@ -224,6 +212,33 @@ function WallPageContent() {
         </div>
       )}
 
+      <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border bg-muted/30 px-4 py-3 text-sm">
+        <span className="font-medium">
+          {t("warehouseWall.offWall.notOnWall")}
+        </span>
+        <Link
+          href="/warehouse/returns-queue"
+          className="flex items-center gap-2 hover:underline"
+        >
+          {t("warehouseWall.offWall.retry")}
+          <Badge variant="secondary">{retryQueue.data?.total ?? 0}</Badge>
+        </Link>
+        <Link
+          href="/warehouse/returns-queue"
+          className="flex items-center gap-2 hover:underline"
+        >
+          {t("warehouseWall.offWall.rto")}
+          <Badge variant="secondary">{rtoQueue.data?.total ?? 0}</Badge>
+        </Link>
+        <Link
+          href="/warehouse/batches"
+          className="flex items-center gap-2 hover:underline"
+        >
+          {t("warehouseWall.offWall.dispatch")}
+          <Badge variant="secondary">{dispatchQueue.data?.total ?? 0}</Badge>
+        </Link>
+      </div>
+
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>{t("warehouseWall.grid.title")}</CardTitle>
@@ -232,7 +247,9 @@ function WallPageContent() {
           {isLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : zones.length === 0 || slots.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("warehouseWall.grid.empty")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("warehouseWall.grid.empty")}
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-max border-collapse text-sm">
@@ -242,9 +259,14 @@ function WallPageContent() {
                       {t("warehouseWall.grid.zone")}
                     </th>
                     {slots.map((slot) => (
-                      <th key={slot.slot_id} className="min-w-32 p-2 text-center font-medium">
+                      <th
+                        key={slot.slot_id}
+                        className="min-w-32 p-2 text-center font-medium"
+                      >
                         <div>{isRTL ? slot.label_ar : slot.label_en}</div>
-                        <div className="text-xs font-normal text-muted-foreground">{slot.code}</div>
+                        <div className="text-xs font-normal text-muted-foreground">
+                          {slot.code}
+                        </div>
                       </th>
                     ))}
                   </tr>
@@ -252,15 +274,24 @@ function WallPageContent() {
                 <tbody>
                   {zones.map((zone) => (
                     <tr key={zone.id} className="border-t">
-                      <td className="sticky start-0 z-10 bg-card p-2 font-medium">{zone.name}</td>
+                      <td className="sticky start-0 z-10 bg-card p-2 font-medium">
+                        {zone.name}
+                      </td>
                       {slots.map((slot) => {
-                        const cell = cellByKey.get(`${zone.id}-${slot.slot_id}`);
+                        const cell = cellByKey.get(
+                          `${zone.id}-${slot.slot_id}`,
+                        );
                         const rebinCount =
-                          cell?.parcels.filter((p) => p.status === "needs_rebin").length ?? 0;
+                          cell?.parcels.filter(
+                            (p) => p.status === "needs_rebin",
+                          ).length ?? 0;
                         const hasParcels = !!cell && cell.count > 0;
 
                         return (
-                          <td key={slot.slot_id} className="p-2 text-center align-top">
+                          <td
+                            key={slot.slot_id}
+                            className="p-2 text-center align-top"
+                          >
                             <button
                               type="button"
                               disabled={!hasParcels}
@@ -281,11 +312,15 @@ function WallPageContent() {
                                   "border-purple-400 bg-purple-50 dark:bg-purple-950/20",
                               )}
                             >
-                              <span className="text-lg font-semibold">{cell?.count ?? 0}</span>
+                              <span className="text-lg font-semibold">
+                                {cell?.count ?? 0}
+                              </span>
                               {rebinCount > 0 && (
                                 <span className="flex items-center gap-1 text-xs text-purple-700 dark:text-purple-400">
                                   <RefreshCw className="h-3 w-3" />
-                                  {t("warehouseWall.grid.needsRebin", { count: rebinCount })}
+                                  {t("warehouseWall.grid.needsRebin", {
+                                    count: rebinCount,
+                                  })}
                                 </span>
                               )}
                             </button>
@@ -310,7 +345,9 @@ function WallPageContent() {
           {isLoading ? (
             <Skeleton className="h-40 w-full" />
           ) : !data?.awaiting_scheduling?.length ? (
-            <p className="text-sm text-muted-foreground">{t("warehouseWall.awaiting.empty")}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("warehouseWall.awaiting.empty")}
+            </p>
           ) : (
             <Table>
               <TableHeader>
@@ -320,18 +357,26 @@ function WallPageContent() {
                   <TableHead>{t("warehouseWall.table.zone")}</TableHead>
                   <TableHead>{t("warehouseWall.table.status")}</TableHead>
                   <TableHead>{t("warehouseWall.table.bin")}</TableHead>
-                  <TableHead className="text-end">{t("warehouseWall.table.actions")}</TableHead>
+                  <TableHead className="text-end">
+                    {t("warehouseWall.table.actions")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {[...data.awaiting_scheduling]
-                  .sort((a, b) => Number(!!b.stale_slot) - Number(!!a.stale_slot))
+                  .sort(
+                    (a, b) => Number(!!b.stale_slot) - Number(!!a.stale_slot),
+                  )
                   .map((entry) => (
                     <WallEntryRow
                       key={entry.parcel_id}
                       entry={entry}
                       showZone
-                      zoneName={entry.zone_id ? zoneNameById.get(entry.zone_id) : undefined}
+                      zoneName={
+                        entry.zone_id
+                          ? zoneNameById.get(entry.zone_id)
+                          : undefined
+                      }
                       onBin={() => openBinDialog(entry)}
                     />
                   ))}
@@ -349,7 +394,10 @@ function WallPageContent() {
           <DialogHeader>
             <DialogTitle>
               {cellSelection?.zoneName} ·{" "}
-              {cellSelection && (isRTL ? cellSelection.slot.label_ar : cellSelection.slot.label_en)}
+              {cellSelection &&
+                (isRTL
+                  ? cellSelection.slot.label_ar
+                  : cellSelection.slot.label_en)}
             </DialogTitle>
             <DialogDescription>
               {t("warehouseWall.cellDialog.subtitle", {
@@ -365,7 +413,9 @@ function WallPageContent() {
                 <TableHead>{t("warehouseWall.table.recipient")}</TableHead>
                 <TableHead>{t("warehouseWall.table.status")}</TableHead>
                 <TableHead>{t("warehouseWall.table.bin")}</TableHead>
-                <TableHead className="text-end">{t("warehouseWall.table.actions")}</TableHead>
+                <TableHead className="text-end">
+                  {t("warehouseWall.table.actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -404,11 +454,14 @@ function WallEntryRow({
   onBin: () => void;
 }) {
   const { t } = useTranslation();
-  const binnable = BINNABLE_STATUSES.has(entry.status);
-  const statusStyle = STATUS_BADGE[entry.status];
+  const binnable = canEmit(entry.status, "E02");
 
   return (
-    <TableRow className={entry.stale_slot ? "bg-amber-50 dark:bg-amber-950/20" : undefined}>
+    <TableRow
+      className={
+        entry.stale_slot ? "bg-amber-50 dark:bg-amber-950/20" : undefined
+      }
+    >
       <TableCell className="font-mono">
         <Link
           href={`/warehouse/parcels/${entry.parcel_id}`}
@@ -421,9 +474,7 @@ function WallEntryRow({
       {showZone && <TableCell>{zoneName ?? "—"}</TableCell>}
       <TableCell>
         <div className="flex flex-wrap items-center gap-1.5">
-          <Badge variant={statusStyle.variant} className={statusStyle.className}>
-            {t(`warehouseWall.status.${entry.status}`)}
-          </Badge>
+          <WarehouseStatusBadge status={entry.status} />
           {entry.status === "needs_rebin" && (
             <RefreshCw
               className="h-3.5 w-3.5 shrink-0 text-purple-600 dark:text-purple-400"
@@ -441,7 +492,9 @@ function WallEntryRow({
           )}
         </div>
       </TableCell>
-      <TableCell className="font-mono text-muted-foreground">{entry.bin_code ?? "—"}</TableCell>
+      <TableCell className="font-mono text-muted-foreground">
+        {entry.bin_code ?? "—"}
+      </TableCell>
       <TableCell className="text-end">
         <Can do={Permission.MANAGE_WAREHOUSE}>
           <Button
@@ -525,7 +578,8 @@ function BinDialog({
         <DialogHeader>
           <DialogTitle>{t("warehouseWall.binDialog.title")}</DialogTitle>
           <DialogDescription>
-            {target.recipientName} · <span className="font-mono">{target.barcode}</span>
+            {target.recipientName} ·{" "}
+            <span className="font-mono">{target.barcode}</span>
           </DialogDescription>
         </DialogHeader>
 
@@ -533,9 +587,15 @@ function BinDialog({
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {target.lockedSlotId ? (
               <div className="text-sm">
-                <span className="text-muted-foreground">{t("warehouseWall.binDialog.slot")}: </span>
+                <span className="text-muted-foreground">
+                  {t("warehouseWall.binDialog.slot")}:{" "}
+                </span>
                 <span className="font-medium">
-                  {lockedSlot ? (isRTL ? lockedSlot.label_ar : lockedSlot.label_en) : target.lockedSlotId}
+                  {lockedSlot
+                    ? isRTL
+                      ? lockedSlot.label_ar
+                      : lockedSlot.label_en
+                    : target.lockedSlotId}
                 </span>
               </div>
             ) : (
@@ -559,7 +619,11 @@ function BinDialog({
                     >
                       <FormControl>
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={t("warehouseWall.binDialog.slotPlaceholder")} />
+                          <SelectValue
+                            placeholder={t(
+                              "warehouseWall.binDialog.slotPlaceholder",
+                            )}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>

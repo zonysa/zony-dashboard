@@ -169,6 +169,36 @@ function AppSidebarContent() {
           permission: Permission.VIEW_WAREHOUSE,
         },
         {
+          title: t("warehouse.nav.returnsQueue"),
+          url: "/warehouse/returns-queue",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.pudoReturns"),
+          url: "/warehouse/pudo-returns",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.dispatch"),
+          url: "/warehouse/dispatch",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.batches"),
+          url: "/warehouse/batches",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.merchants"),
+          url: "/warehouse/merchants",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
+          title: t("warehouse.nav.carriers"),
+          url: "/warehouse/carriers",
+          permission: Permission.VIEW_WAREHOUSE,
+        },
+        {
           title: t("warehouse.nav.report"),
           url: "/warehouse/report",
           permission: Permission.VIEW_WAREHOUSE_REPORTS,

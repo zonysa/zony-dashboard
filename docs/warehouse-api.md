@@ -4,26 +4,35 @@ Everything built for the warehouse dashboard + courier interface MVP, in one pla
 document a frontend engineer (or a Claude Code session in `zony-dashboard`) should read before
 wiring any screen.
 
-- **This file** → what exists, and the exact HTTP contract. Authoritative for work in this repo.
-- **Design rationale** → backend repo, `CLAUDE.md`, section "The warehouse pilot module"
-- **Deploy / verify / tune** → backend repo, `docs/warehouse-pilot-runbook.md`
+- **Design rationale** → `CLAUDE.md`, section "The warehouse pilot module"
+- **Deploy / verify / tune** → `docs/warehouse-pilot-runbook.md`
+- **This file** → what exists, and the exact HTTP contract
 
-> Snapshot copied from `zony-backend/docs/warehouse-pilot-implementation.md`. If the backend
-> contract changes, re-copy it — don't edit this file, or the two will silently diverge.
+> **Updated for the UCC / 3PL epic (2026-09-22 → 24).** Sections 2 and 4 below describe the
+> original pilot (8 statuses). Section **4.4** is the current model — 19 statuses, courier
+> assignment, retry vs RTO, R00, and 3PL dispatch — and **wins wherever they disagree**.
+> The code (`app/api/v1/warehouse/routes.py`, `app/core/services/warehouse/{status,transitions}.py`) is the spec.
 
 ---
 
 ## 1. What this module is
 
-A 4–6 week field pilot at a **single local transit warehouse**, measuring two things:
+Originally a 4–6 week field pilot at a **single local transit warehouse**, measuring two things:
 
 1. how customers respond to a proposed delivery time slot, and
 2. the first-attempt delivery success rate.
 
-It is a **parallel module**. It shares no tables with the PUDO/points flow, holds no FK into
-`parcels`, and writes to nothing that already existed. The existing admin dashboard, PUDO points
-dashboard, points app, and PUDO flow are untouched — the pilot can be dropped or graduated cleanly
-when it ends.
+**It is now multi-warehouse.** Each building is a `wh_warehouses` row with its own name, address
+and coordinates, assigned to a city and optionally a zone. `wh_parcels` and `wh_zones` belong to
+one warehouse, and the Wall, manifests, reconciliation and slot capacity are all scoped to one.
+The six delivery windows in `wh_slots` stay shared; only their occupancy is counted per building.
+
+It is still a **parallel module**. It holds no FK into `parcels` and writes to nothing in the PUDO
+flow. The one deliberate outbound reference is `wh_warehouses.city_id` / `zone_id` / `manager_id`,
+which point at `cities`, `zones` and `users` so that a warehouse and a PUDO point can be located
+in one vocabulary — `wh_events.actor_user_id` was already a FK into `users`. Those are read-only
+lookups, so the "drop the module cleanly" property survives: its `downgrade()` removes every
+`wh_*` table and touches nothing else.
 
 ### The one constraint that drives the whole design
 
@@ -367,7 +376,7 @@ Deliberately three actions. A courier sees only parcels in their own van (enforc
 |---|---|---|
 | GET | `/courier/manifest/<slot_id>?date=YYYY-MM-DD` | **Action 1** — load manifest |
 | POST | `/courier/parcels/<id>/checkout` | E04 — take custody |
-| POST | `/courier/parcels/<id>/deliver` | **Action 2** — E05, requires the code |
+| POST | `/courier/parcels/<id>/deliver` | **Action 2** — resolved server-side: E05 to the customer (requires the code), E08 to the parcel's PUDO, E07 back after a failed attempt |
 | POST | `/courier/parcels/<id>/fail` | **Action 3** — E06, requires a reason |
 | POST | `/courier/parcels/<id>/return` | E07 |
 | GET | `/courier/failure-reasons` | the approved list — never free-text |
@@ -431,6 +440,79 @@ Only the fields above are returned — an unauthenticated endpoint keyed by a fo
 not become an information leak.
 
 ---
+
+### 4.4 UCC / 3PL update (current model)
+
+All routes are under `/warehouse`, STAFF (`admin`, `supervisor`, `warehouse_clerk`) unless noted.
+Every write needs `client_event_id`; `created:false` in the response means it was a replay.
+
+**Statuses (19).** `not_received`, `awaiting_scheduling`, `scheduled`, `needs_rebin`,
+`ready_for_delivery` (was `ready_for_dispatch`), `assigned`, `retry_scheduled`, `out_for_delivery`,
+`attempt_failed`, `delivered`, `handed_to_pudo`, `at_pudo`, `rto_pending`, `rto_assigned`, `rto_out`,
+`returned_to_origin`, `ready_to_dispatch`, `batched`, `dispatched`.
+
+**Event codes added:** `E03` assign courier, `S01` system retry release, `R00` PUDO box back at the
+warehouse, `R01` manual RTO, `R02` returned to merchant, `D01` batch add/remove, `D02` batch handover.
+
+**Legal transitions**
+
+| status | allowed codes |
+|---|---|
+| not_received | E01 |
+| awaiting_scheduling | T01, R01 |
+| scheduled, needs_rebin | T01, E02, R01 |
+| ready_for_delivery | T01, E03, E04, R01 |
+| assigned | E03, E04, R01 |
+| retry_scheduled | S01, R01 |
+| out_for_delivery | E05, E06, E08 |
+| attempt_failed | E07 |
+| handed_to_pudo | E07, E09 |
+| delivered | R00 |
+| at_pudo | R00 |
+| rto_pending | E03, R02 |
+| rto_assigned | E03, E04 |
+| rto_out | E06, R02 |
+| ready_to_dispatch | D01 |
+| batched | D01, D02 |
+| returned_to_origin, dispatched | — (only X01 voids) |
+
+**Rules that changed**
+- **Checkout (E04) needs a prior E03** while setting `assignment_required` is true (the default); it
+  409s otherwise. The staff checkout body takes no `courier_id` — the courier comes from the assignment.
+- **E07 decides retry vs RTO on the server** from `max_delivery_attempts`, `retry_window_hours` and
+  `retry_release_lead_minutes`. A cron (`flask warehouse-release-retries`) raises S01 to release a retry.
+- `ucc_bucket` on a parcel is one of `ready_for_delivery`, `retry_delivery`, `rto`, `ready_to_dispatch`, or `null`.
+
+**Parcel payload additions** (every parcel-bearing endpoint): `flow_type` (`delivery|dispatch|return`),
+`assigned_courier_id`, `assigned_at`, `assigned_by`, `failed_attempts`, `ucc_bucket`, `return_type`,
+`is_rto`, `retry_hold`, `batch_id`, `dispatched_at`; plus `merchant_id`, `carrier_id`, `return_address`.
+
+**Endpoints**
+
+| method | path | purpose |
+|---|---|---|
+| GET | `/couriers?warehouse_id=` | couriers a clerk may assign to |
+| POST | `/parcels/<id>/assign` | E03 — body `{courier_id, client_event_id}` |
+| DELETE | `/parcels/<id>/assign` | undo E03 — JSON body `{client_event_id}` |
+| POST | `/assignments/bulk` | `{courier_id, parcel_ids (1–100), client_event_id}` — one prefix, server derives per-parcel keys; partial success is normal |
+| POST | `/parcels/<id>/rto` | R01 — `{return_type: max_attempts\|window_expired\|pudo_return\|customer_return\|merchant_recall}` |
+| POST | `/parcels/<id>/returned-to-origin` | R02 — optional `notes` |
+| GET | `/pudo-returns` | uncollected `at_pudo` boxes, oldest first |
+| POST | `/parcels/<id>/return-received` | R00 |
+| POST | `/receiving/dispatch-scan` | 3PL intake: `{barcode, merchant_id, carrier_id}` → `ready_to_dispatch` |
+| GET/POST/PATCH | `/merchants`, `/merchants/<id>` | merchant CRUD (writes: admin/supervisor) |
+| GET/POST/PATCH | `/carriers`, `/carriers/<id>` | carrier CRUD (writes: admin/supervisor) |
+| GET/POST | `/batches` | list (`carrier_id`, `state` filters) / create `{carrier_id, code?}` |
+| **GET** | **`/batches/<id>`** | **batch + its parcels** → `{batch, parcels[]}`. Membership is `batch_id` on the projection; D02 does not clear it, so a handed-over batch still lists what left on it. 403 for a clerk pinned to another warehouse |
+| POST | `/parcels/<id>/batch` | D01 — `{batch_id}` to join/move, `{batch_id: null}` to leave |
+| POST | `/batches/<id>/handover` | D02 for every parcel; response has `handed_over[]`/`failed[]` and counts. The batch is sealed even when some parcels fail |
+| **GET** | **`/parcels`** | **queue read** — `bucket`, `status` (repeatable), `batch_id`, `assigned_courier_id`, `flow_type`, `page`, `per_page` (max 100, default 50) → `{parcels[], total, page, per_page}`. Scoped to the caller's warehouse (`warehouse_id` for admin/supervisor). Oldest first. 400 on an unknown bucket/status/flow_type |
+
+**Settings added:** `max_delivery_attempts` (3), `retry_window_hours` (72), `retry_release_lead_minutes` (60),
+`assignment_required` (true). `PUT /settings/<key>` does not validate values — clients must.
+
+**Known gaps:** the courier app cannot close an RTO leg (`/courier/.../deliver` 409s on `rto_out`);
+`retry_window_hours` is measured from the E07 scan; `/slots` has no per-day occupancy.
 
 ## 5. Runtime settings (no redeploy)
 

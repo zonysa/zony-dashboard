@@ -141,6 +141,34 @@ export const ROUTE_PERMISSIONS: RoutePermissionConfig[] = [
     permission: Permission.VIEW_WAREHOUSE,
   },
   {
+    path: "/warehouse/returns-queue",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/pudo-returns",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/dispatch",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/batches",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/batches/[id]",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/merchants",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
+    path: "/warehouse/carriers",
+    permission: Permission.VIEW_WAREHOUSE,
+  },
+  {
     path: "/warehouse/parcels/[id]",
     permission: Permission.VIEW_WAREHOUSE,
   },

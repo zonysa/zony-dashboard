@@ -215,7 +215,13 @@
       "loading": "Loading",
       "return": "Return desk",
       "report": "Report",
-      "warehouses": "Warehouses"
+      "warehouses": "Warehouses",
+      "returnsQueue": "Returns queue",
+      "pudoReturns": "PUDO returns",
+      "dispatch": "Dispatch intake",
+      "batches": "Batches",
+      "merchants": "Merchants",
+      "carriers": "Carriers"
     },
     "hub": {
       "today": "Today · {{date}}",
@@ -1324,12 +1330,21 @@
       "awaiting_scheduling": "Awaiting scheduling",
       "scheduled": "Scheduled",
       "needs_rebin": "Needs rebin",
-      "ready_for_dispatch": "Ready for dispatch",
+      "ready_for_delivery": "Ready for delivery",
+      "assigned": "Assigned to courier",
+      "retry_scheduled": "Retry scheduled",
       "out_for_delivery": "Out for delivery",
       "attempt_failed": "Attempt failed",
       "delivered": "Delivered",
       "handed_to_pudo": "Handed to PUDO point",
-      "at_pudo": "At PUDO point"
+      "at_pudo": "At PUDO point",
+      "rto_pending": "Return pending",
+      "rto_assigned": "Return assigned",
+      "rto_out": "Return out",
+      "returned_to_origin": "Returned to merchant",
+      "ready_to_dispatch": "Ready to dispatch",
+      "batched": "In batch",
+      "dispatched": "Dispatched"
     },
     "stale": "Stale",
     "needsRebinHint": "Customer moved their slot after this box was binned — it's physically in the wrong bin.",
@@ -1347,6 +1362,12 @@
       "submit": "Confirm bin",
       "submitting": "Binning...",
       "slotRequired": "Pick a slot. This parcel has no confirmed slot yet."
+    },
+    "offWall": {
+      "notOnWall": "Not on the wall",
+      "retry": "Retry",
+      "rto": "Return to merchant",
+      "dispatch": "Ready to dispatch"
     }
   },
   "warehouseLoading": {
@@ -1356,6 +1377,8 @@
     "datePickerPlaceholder": "Pick a date",
     "loadError": "Something went wrong loading the manifest.",
     "checkoutNotAllowed": "Checkout isn't available for this parcel's current status.",
+    "assignFirst": "Assign a courier before checking this parcel out.",
+    "unassigned": "Unassigned",
     "manifest": {
       "title": "Staged Manifest",
       "pickSlot": "Pick a slot to see its staged manifest.",
@@ -1368,10 +1391,15 @@
       "status": "Status",
       "bin": "Bin",
       "actions": "Actions",
-      "destination": "Destination"
+      "destination": "Destination",
+      "courier": "Courier"
     },
     "actions": {
       "checkout": "Checkout",
+      "assign": "Assign",
+      "reassign": "Reassign",
+      "unassign": "Unassign",
+      "assignSelected": "Assign selected",
       "cancel": "Cancel"
     },
     "checkoutDialog": {
@@ -1379,12 +1407,254 @@
       "courier": "Courier",
       "courierPlaceholder": "Select a courier",
       "loadingCouriers": "Loading couriers...",
+      "assignedCourier": "Assigned courier",
       "notes": "Notes (optional)",
       "submit": "Confirm checkout",
       "submitting": "Checking out..."
     },
+    "assignDialog": {
+      "title": "Assign courier (E03)",
+      "bulkTitle": "Assign {count} parcels",
+      "courier": "Courier",
+      "courierPlaceholder": "Select a courier",
+      "loadingCouriers": "Loading couriers...",
+      "assignedCount": "{count} assigned",
+      "notes": "Notes (optional)",
+      "submit": "Confirm assignment",
+      "submitting": "Assigning...",
+      "unassignSubmit": "Remove assignment",
+      "unassigning": "Removing..."
+    },
     "destination": {
       "customer": "Home"
+    }
+  },
+  "warehouseQueue": {
+    "title": "Returns queue",
+    "subtitle": "Parcels waiting for a retry, or on their way back to the merchant.",
+    "loadError": "Something went wrong loading the queue.",
+    "held": "Held",
+    "noSlot": "Not booked",
+    "unassigned": "Unassigned",
+    "prev": "Previous",
+    "next": "Next",
+    "tabs": {
+      "retry": "Retry",
+      "rto": "Return to merchant"
+    },
+    "retry": {
+      "title": "Retry delivery",
+      "hint": "Released automatically shortly before the booked slot — nothing to do here.",
+      "empty": "No parcels waiting for a retry."
+    },
+    "rto": {
+      "title": "Return to merchant",
+      "hint": "Assign a courier, check the box out, then mark it returned. A counter pickup can be marked returned directly.",
+      "empty": "No parcels waiting to go back."
+    },
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "status": "Status",
+      "attempts": "Failed attempts",
+      "nextSlot": "Next slot",
+      "reason": "Reason",
+      "merchant": "Merchant",
+      "returnAddress": "Return address",
+      "courier": "Courier",
+      "actions": "Actions"
+    },
+    "returnTypes": {
+      "max_attempts": "Max attempts reached",
+      "window_expired": "Retry window expired",
+      "pudo_return": "Uncollected at PUDO",
+      "customer_return": "Customer return",
+      "merchant_recall": "Merchant recall"
+    },
+    "actions": {
+      "returned": "Returned to merchant"
+    },
+    "returnedDialog": {
+      "title": "Returned to merchant (R02)",
+      "body": "Confirm the box is back with the merchant. This closes the parcel and can't be undone except by voiding the event.",
+      "notes": "Notes (optional)",
+      "submit": "Confirm returned",
+      "submitting": "Saving..."
+    },
+    "rtoDialog": {
+      "title": "Send to return (R01)",
+      "reason": "Reason",
+      "reasonPlaceholder": "Select a reason",
+      "submit": "Send to return",
+      "submitting": "Sending..."
+    }
+  },
+  "warehousePudoReturns": {
+    "title": "PUDO returns",
+    "subtitle": "Boxes left uncollected at a PUDO shop, oldest first. Confirm each one when it is physically back.",
+    "loadError": "Something went wrong loading the list.",
+    "empty": "Nothing is waiting to come back from a PUDO shop.",
+    "table": {
+      "barcode": "Barcode",
+      "recipient": "Recipient",
+      "pudo": "PUDO point",
+      "daysAt": "Days at PUDO",
+      "actions": "Actions"
+    },
+    "days": "{count} d",
+    "unknownPudo": "Unknown",
+    "actions": {
+      "received": "Received back at warehouse"
+    },
+    "dialog": {
+      "title": "Received back (R00)",
+      "body": "Confirm this box is physically back at the warehouse. It then joins the return-to-merchant queue.",
+      "notes": "Notes (optional)",
+      "submit": "Confirm received",
+      "submitting": "Saving..."
+    }
+  },
+  "warehouseMerchants": {
+    "title": "Merchants",
+    "subtitle": "Shippers whose boxes come in for 3PL dispatch. The return address is where their returns go back to.",
+    "loadError": "Something went wrong loading merchants.",
+    "empty": "No merchants yet.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "table": {
+      "name": "Name",
+      "contact": "Contact",
+      "phone": "Phone",
+      "city": "City",
+      "returnAddress": "Return address",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "New merchant",
+      "edit": "Edit"
+    },
+    "dialog": {
+      "createTitle": "New merchant",
+      "editTitle": "Edit merchant",
+      "subtitle": "The return address is the default for every return of this merchant's parcels.",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "fields": {
+      "name": "Name",
+      "contact": "Contact name",
+      "phone": "Phone (5XXXXXXXX)",
+      "city": "City",
+      "cityPlaceholder": "Select a city",
+      "returnAddress": "Return address",
+      "returnAddressHint": "Optional. Where returned boxes go.",
+      "line1": "Street / building",
+      "district": "District",
+      "addressCity": "City",
+      "active": "Active"
+    }
+  },
+  "warehouseCarriers": {
+    "title": "Carriers",
+    "subtitle": "Third-party carriers that take batches from the warehouse.",
+    "loadError": "Something went wrong loading carriers.",
+    "empty": "No carriers yet.",
+    "active": "Active",
+    "inactive": "Inactive",
+    "table": {
+      "code": "Code",
+      "name": "Name",
+      "phone": "Phone",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "create": "New carrier",
+      "edit": "Edit"
+    },
+    "dialog": {
+      "createTitle": "New carrier",
+      "editTitle": "Edit carrier",
+      "subtitle": "The code is the short handle printed on labels.",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "fields": {
+      "code": "Code",
+      "name": "Name",
+      "phone": "Phone (5XXXXXXXX)",
+      "active": "Active"
+    }
+  },
+  "warehouseDispatch": {
+    "title": "Dispatch intake",
+    "subtitle": "Scan merchant boxes in for a carrier. Merchant and carrier stay set between scans.",
+    "merchant": "Merchant",
+    "merchantPlaceholder": "Select a merchant",
+    "carrier": "Carrier",
+    "carrierPlaceholder": "Select a carrier",
+    "barcodePlaceholder": "Scan or type a barcode",
+    "receive": "Receive",
+    "receiving": "Receiving...",
+    "pickFirst": "Pick a merchant and a carrier first.",
+    "recent": "Received this session",
+    "recentEmpty": "Nothing scanned yet."
+  },
+  "warehouseBatches": {
+    "title": "Batches",
+    "subtitle": "Pallets of dispatch boxes going to one carrier.",
+    "loadError": "Something went wrong loading batches.",
+    "empty": "No batches match.",
+    "back": "All batches",
+    "allCarriers": "All carriers",
+    "allStates": "All states",
+    "state": {
+      "open": "Open",
+      "sealed": "Sealed",
+      "handed_over": "Handed over"
+    },
+    "actions": {
+      "create": "New batch"
+    },
+    "table": {
+      "batch": "Batch",
+      "carrier": "Carrier",
+      "state": "State",
+      "created": "Created",
+      "handedOverTo": "Handed over to"
+    },
+    "createDialog": {
+      "title": "New batch",
+      "subtitle": "Open a batch for one carrier, then scan boxes into it.",
+      "carrierPlaceholder": "Select a carrier",
+      "codePlaceholder": "Pallet code (optional)",
+      "submit": "Create batch",
+      "creating": "Creating..."
+    },
+    "detail": {
+      "loadError": "Something went wrong loading this batch.",
+      "handedTo": "handed over to {name}",
+      "handover": "Hand over",
+      "parcels": "Parcels",
+      "empty": "No parcels in this batch.",
+      "barcode": "Barcode",
+      "merchant": "Merchant",
+      "status": "Status",
+      "actions": "Actions",
+      "scanPlaceholder": "Scan a barcode to add it",
+      "add": "Add",
+      "remove": "Remove"
+    },
+    "handoverDialog": {
+      "title": "Hand over batch (D02)",
+      "body": "Hand {count} parcels to the carrier and seal the batch.",
+      "resultSubtitle": "The batch is sealed, but some parcels did not go.",
+      "summary": "{ok} handed over, {failed} failed.",
+      "toPlaceholder": "Handed over to (name, optional)",
+      "submit": "Hand over",
+      "submitting": "Handing over...",
+      "close": "Close"
     }
   },
   "warehouseReturn": {
@@ -1428,6 +1698,10 @@
     "needs": {
       "reason": "Record a failure reason",
       "return_scan": "Return scan"
+    },
+    "outcome": {
+      "retryScheduled": "Retry booked — the parcel goes back out on its next slot.",
+      "rtoPending": "Going back to the merchant — see the Returns queue."
     }
   },
   "warehouseCourier": {
@@ -1534,6 +1808,10 @@
       "reminders": {
         "title": "Reminders"
       },
+      "returns": {
+        "title": "Retries & returns",
+        "description": "Thresholds that drive the automatic retry-vs-return decision after a failed attempt, and whether a courier must be assigned before checkout."
+      },
       "messageTemplates": {
         "title": "Message templates",
         "description": "Nested per channel and purpose. Unknown placeholders render empty rather than raising an error."
@@ -1576,9 +1854,30 @@
         "label": "Daily message cap",
         "description": "Hard stop — maximum messages sent to one parcel's customer per day."
       },
+      "max_delivery_attempts": {
+        "label": "Max delivery attempts",
+        "description": "After this many failed attempts, a parcel is sent to return instead of being rebooked."
+      },
+      "retry_window_hours": {
+        "label": "Retry window (hours)",
+        "description": "If the next available slot is further out than this, the parcel is returned rather than retried."
+      },
+      "retry_release_lead_minutes": {
+        "label": "Retry release lead (minutes)",
+        "description": "How long before a rebooked slot starts that a held retry is released back into the queue."
+      },
+      "assignment_required": {
+        "label": "Require courier assignment before checkout",
+        "description": "When on, a parcel must be assigned to a courier (E03) before it can be checked out. Turning it off lets any courier be named at checkout instead."
+      },
       "message_templates": {
         "invalidJson": "This isn't valid JSON — fix it before saving."
       }
+    },
+    "assignmentConfirm": {
+      "title": "Turn off required assignment?",
+      "description": "Parcels will be checkoutable without first assigning a courier, removing the accountability the assignment step gives. Are you sure?",
+      "confirm": "Turn it off"
     },
     "placeholders": {
       "title": "Placeholder reference",
@@ -1666,31 +1965,48 @@
       "E01": "Received at warehouse",
       "T01": "Customer confirmed slot",
       "E02": "Placed into bin",
+      "E03": "Courier assigned",
       "E04": "Checked out with courier",
       "E05": "Delivered",
       "E06": "Delivery attempt failed",
       "E07": "Returned to warehouse",
       "E08": "Handed to PUDO point",
       "E09": "PUDO point confirmed receipt",
+      "S01": "Retry released",
+      "R00": "Return received from PUDO",
+      "R01": "Sent to return",
+      "R02": "Returned to merchant",
+      "D01": "Added to dispatch batch",
+      "D02": "Handed to carrier",
       "X01": "Event voided"
     },
     "eventDescriptions": {
       "E01": "Staff scanned the parcel in at receiving.",
       "T01": "Customer confirmed or changed their delivery slot via the public link.",
       "E02": "Staff placed the parcel into its slot's bin.",
+      "E03": "A courier was assigned to carry this parcel before checkout.",
       "E04": "A courier took custody of the parcel.",
       "E05": "The parcel was handed to the customer.",
       "E06": "The courier reported a failed delivery attempt.",
       "E07": "The parcel came back to the warehouse.",
       "E08": "A courier dropped the parcel at a PUDO point — not yet confirmed by the shop.",
       "E09": "The PUDO point signed for the parcel. It now belongs to the PUDO flow, and the customer was texted a collection code.",
+      "S01": "The system released a held retry back into the queue.",
+      "R00": "An uncollected PUDO box was taken back into the warehouse for return.",
+      "R01": "Staff sent the parcel onto the return-to-merchant leg.",
+      "R02": "The parcel was handed back to the merchant.",
+      "D01": "The parcel was added to a 3PL dispatch batch.",
+      "D02": "The batch was handed to the carrier.",
       "X01": "An admin or supervisor voided a prior event as a correction."
     },
     "actions": {
       "resendCode": "Resend delivery code",
       "handover": "Hand to PUDO point",
       "void": "Void",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "assign": "Assign courier",
+      "sendToRto": "Send to return",
+      "returned": "Returned to merchant"
     },
     "resendDialog": {
       "title": "Resend delivery code",
@@ -1716,6 +2032,32 @@
       "reasonPlaceholder": "e.g. mis-scan at receiving",
       "submit": "Void event",
       "submitting": "Voiding..."
+    },
+    "routing": {
+      "flowCard": "Routing",
+      "flow": "Flow",
+      "bucket": "Queue",
+      "failedAttempts": "Failed attempts",
+      "returnType": "Return reason",
+      "retryHold": "Retry hold",
+      "assignedCourier": "Assigned courier",
+      "merchant": "Merchant",
+      "carrier": "Carrier",
+      "batch": "Batch",
+      "returnAddress": "Return address",
+      "none": "—",
+      "flows": {
+        "delivery": "Delivery",
+        "dispatch": "3PL dispatch",
+        "return": "Return"
+      },
+      "buckets": {
+        "ready_for_delivery": "Ready for delivery",
+        "retry_delivery": "Retry",
+        "rto": "Return to merchant",
+        "ready_to_dispatch": "Ready to dispatch"
+      },
+      "held": "Held until release"
     }
   },
   "warehouseSelect": {
