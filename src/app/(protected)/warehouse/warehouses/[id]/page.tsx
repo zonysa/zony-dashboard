@@ -52,6 +52,7 @@ import { useGetCities } from "@/lib/hooks/useCity";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   useAssignWarehouseStaff,
+  useGetSettings,
   useGetWarehouse,
   useGetWarehouseStaff,
   useGetWarehouseStaffCandidates,
@@ -137,6 +138,16 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
   const { control, handleSubmit, reset, watch, setValue } = form;
   const cityId = watch("city_id");
 
+  // The global customer_slot_choice, to say what "follow global" means now.
+  const { data: settingsData } = useGetSettings();
+  const globalSlotChoice = settingsData?.settings?.["customer_slot_choice"];
+  const globalSlotChoiceLabel =
+    globalSlotChoice === undefined
+      ? "…"
+      : globalSlotChoice === true || globalSlotChoice === "true"
+        ? t("warehouseBuildings.slotChoice.on")
+        : t("warehouseBuildings.slotChoice.off");
+
   const { data: citiesData } = useGetCities();
   const { data: zonesData } = useGetZones(
     cityId ? { cityId: Number(cityId) } : undefined,
@@ -182,6 +193,7 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
       status: warehouse.status,
       city_id: warehouse.city_id,
       zone_id: warehouse.zone_id,
+      customer_slot_choice: warehouse.customer_slot_choice ?? null,
     });
   }, [warehouse, reset]);
 
@@ -376,6 +388,50 @@ function EditWarehouseCard({ warehouseId }: { warehouseId: number }) {
                 )}
               />
             </div>
+
+            <FormField
+              control={control}
+              name="customer_slot_choice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {t("warehouseBuildings.slotChoice.label")}
+                  </FormLabel>
+                  <Select
+                    // Select values are strings; null (follow global) is "inherit".
+                    onValueChange={(v) =>
+                      field.onChange(v === "inherit" ? null : v === "on")
+                    }
+                    value={
+                      field.value == null ? "inherit" : field.value ? "on" : "off"
+                    }
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full sm:w-1/2">
+                        <SelectValue />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="inherit">
+                        {t("warehouseBuildings.slotChoice.inherit", {
+                          value: globalSlotChoiceLabel,
+                        })}
+                      </SelectItem>
+                      <SelectItem value="on">
+                        {t("warehouseBuildings.slotChoice.on")}
+                      </SelectItem>
+                      <SelectItem value="off">
+                        {t("warehouseBuildings.slotChoice.off")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {t("warehouseBuildings.slotChoice.hint")}
+                  </p>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <Can do={Permission.EDIT_WAREHOUSE_SETTINGS}>
               <Button type="submit" disabled={updateWarehouse.isPending}>

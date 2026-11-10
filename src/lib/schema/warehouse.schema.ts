@@ -263,6 +263,12 @@ export interface WHWarehouse {
   city_id: number;
   zone_id: number | null;
   manager_id: string | null;
+  // Per-building override of the global `customer_slot_choice` setting:
+  // may this warehouse's customers choose/change their slot via the link?
+  // null = follow the global setting.
+  customer_slot_choice: boolean | null;
+  // What actually applies once a null override falls back to the global.
+  customer_slot_choice_effective?: boolean;
   // Resolved server-side so a list doesn't need a second lookup per row.
   city_name: string | null;
   zone_name: string | null;
@@ -1150,6 +1156,8 @@ export const warehouseCreateSchema = z.object({
   city_id: z.number().int().positive("City is required"),
   zone_id: z.number().int().positive().nullable().optional(),
   manager_id: z.string().nullable().optional(),
+  // null = follow the global customer_slot_choice setting.
+  customer_slot_choice: z.boolean().nullable().optional(),
 });
 export type WarehouseCreateData = z.infer<typeof warehouseCreateSchema>;
 
