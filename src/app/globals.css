@@ -238,6 +238,13 @@ html[dir="rtl"] * {
   text-align: inherit;
 }
 
+/* Respect explicit dir="ltr" (emails, phones, passwords) inside RTL pages —
+   otherwise the blanket rule above overrides the attribute. */
+html[dir="rtl"] [dir="ltr"],
+html[dir="rtl"] [dir="ltr"] * {
+  direction: ltr;
+}
+
 html[dir="ltr"] {
   direction: ltr;
 }

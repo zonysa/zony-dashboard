@@ -37,7 +37,7 @@ export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const router = useRouter();
 
   const [showPassword, setShowPassword] = useState(false);
@@ -312,6 +312,7 @@ export function SignupForm({
                           dir="ltr"
                           {...field}
                           type={showPassword ? "text" : "password"}
+                          className={isRTL ? "pl-10" : "pr-10"}
                           placeholder={t("forms.placeholders.enterPassword")}
                           disabled={registerMutation.isPending}
                         />
@@ -319,7 +320,7 @@ export function SignupForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute top-0 h-full px-3 py-2 hover:bg-transparent ${isRTL ? "left-0" : "right-0"}`}
                           onClick={() => setShowPassword(!showPassword)}
                           disabled={registerMutation.isPending}
                         >
@@ -376,6 +377,7 @@ export function SignupForm({
                           dir="ltr"
                           {...field}
                           type={showConfirmPassword ? "text" : "password"}
+                          className={isRTL ? "pl-10" : "pr-10"}
                           placeholder={t("forms.placeholders.enterPassword")}
                           disabled={registerMutation.isPending}
                         />
@@ -383,7 +385,7 @@ export function SignupForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute top-0 h-full px-3 py-2 hover:bg-transparent ${isRTL ? "left-0" : "right-0"}`}
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
