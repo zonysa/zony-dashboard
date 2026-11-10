@@ -5,6 +5,7 @@ import {
   BarChart3,
   Boxes,
   Building2,
+  CalendarClock,
   ClipboardCheck,
   Grid3x3,
   Info,
@@ -268,9 +269,14 @@ function BucketCard({
 
 /**
  * The pilot's state machine, rendered as the thing an operator actually asks:
- * "I scanned the box in — now what?" The answer for step 2 is "nothing, it's the
- * customer's move", which is exactly where people get stuck, so it's called out
- * rather than left as a gap between two staff screens.
+ * "I scanned the box in — now what?"
+ *
+ * Step 2 (T01) is the system's, not anyone's screen: with the backend's
+ * `auto_assign_slot` setting on (the default), the receiving scan itself raises
+ * T01 for the next open slot and E02 into its bin, so the box never waits on
+ * the customer — they can still move it via the link. Only when that setting is
+ * off, or every slot is full, does a box sit in awaiting_scheduling instead.
+ * E03 is shown as its own step because E04 is refused without it.
  *
  * Codes and ordering come from docs/warehouse-api.md §2.
  */
@@ -295,12 +301,12 @@ function LifecycleStrip() {
       href: "/warehouse/receiving",
     },
     {
-      key: "confirm",
+      key: "slot",
       code: "T01",
-      icon: UserCheck,
-      title: t("warehouse.hub.flow.confirm"),
-      description: t("warehouse.hub.flow.confirmDesc"),
-      actor: t("warehouse.hub.flow.customerStep"),
+      icon: CalendarClock,
+      title: t("warehouse.hub.flow.slot"),
+      description: t("warehouse.hub.flow.slotDesc"),
+      actor: t("warehouse.hub.flow.systemStep"),
     },
     {
       key: "bin",
@@ -309,6 +315,14 @@ function LifecycleStrip() {
       title: t("warehouse.hub.flow.bin"),
       description: t("warehouse.hub.flow.binDesc"),
       href: "/warehouse/wall",
+    },
+    {
+      key: "assign",
+      code: "E03",
+      icon: UserCheck,
+      title: t("warehouse.hub.flow.assign"),
+      description: t("warehouse.hub.flow.assignDesc"),
+      href: "/warehouse/loading",
     },
     {
       key: "load",
@@ -334,7 +348,7 @@ function LifecycleStrip() {
         <p className="text-sm text-muted-foreground">{t("warehouse.hub.flow.subtitle")}</p>
       </CardHeader>
       <CardContent>
-        <ol className="grid gap-3 md:grid-cols-5">
+        <ol className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
           {steps.map((step, i) => {
             const body = (
               <div
