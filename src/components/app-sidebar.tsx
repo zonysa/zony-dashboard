@@ -21,22 +21,16 @@ import {
   PackageCheck,
 } from "lucide-react";
 
-import { useRouter } from "next/navigation";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuthStore, useUser } from "@/lib/stores/auth-store";
+import { useAuthStore } from "@/lib/stores/auth-store";
 import { Permission } from "@/lib/rbac/permissions";
 import { LogoutDialog } from "./LogoutDialog";
 import { useState } from "react";
@@ -47,18 +41,10 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 // Inner component that uses useSidebar hook
 function AppSidebarContent() {
   const { t } = useTranslation();
-  const router = useRouter();
-  const user = useUser();
 
   const hasPermission = useAuthStore((state) => state.hasPermission);
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const { state } = useSidebar();
-
-  const userDisplayName =
-    `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.username;
-  const userInitials =
-    `${user?.first_name?.[0] || ""}${user?.last_name?.[0] || ""}`.toUpperCase() ||
-    userDisplayName?.[0]?.toUpperCase();
 
   const navItems = [
     {
@@ -275,36 +261,6 @@ function AppSidebarContent() {
         <NavMain items={filteredNavItems} />
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter className="relative z-10 shadow-[0_-4px_6px_-4px_rgba(0,0,0,0.12)]">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              className="cursor-pointer"
-              onClick={() => router.push("/profile")}
-            >
-              <Avatar className="w-[28px] h-[28px] border border-gray-800 shrink-0">
-                <AvatarImage alt={userDisplayName} />
-                <AvatarFallback className="text-[11px]">
-                  {userInitials || "U"}
-                </AvatarFallback>
-              </Avatar>
-              {state === "expanded" && (
-                <div className="flex flex-col items-start overflow-hidden">
-                  <span className="truncate text-sm font-medium leading-tight">
-                    {userDisplayName}
-                  </span>
-                  {user?.email && (
-                    <span className="truncate text-xs text-muted-foreground leading-tight">
-                      {user.email}
-                    </span>
-                  )}
-                </div>
-              )}
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
       <SidebarRail />
       <LogoutDialog
         open={logoutDialogOpen}

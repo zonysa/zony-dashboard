@@ -19,6 +19,8 @@ import NotificationsSheet from "./NotificationsSheet";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import CreateUserSheet from "./CreateUserSheet";
 import { useLanguage, useSetLanguage } from "@/lib/stores/user-preferences-store";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useUser } from "@/lib/stores/auth-store";
 
 interface BreadcrumbSegment {
   label: string;
@@ -35,6 +37,13 @@ function Header() {
   const { t } = useTranslation();
   const language = useLanguage();
   const setLanguage = useSetLanguage();
+  const user = useUser();
+
+  const userDisplayName =
+    `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || user?.username;
+  const userInitials =
+    `${user?.first_name?.[0] || ""}${user?.last_name?.[0] || ""}`.toUpperCase() ||
+    userDisplayName?.[0]?.toUpperCase();
 
   const toggleLanguage = () => {
     setLanguage(language === "en" ? "ar" : "en");
@@ -184,6 +193,20 @@ function Header() {
           width={22}
           height={22}
         />
+        <button
+          type="button"
+          onClick={() => router.push("/profile")}
+          className="cursor-pointer shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label={userDisplayName || "Profile"}
+          title={userDisplayName}
+        >
+          <Avatar className="w-8 h-8 border border-gray-800">
+            <AvatarImage alt={userDisplayName} />
+            <AvatarFallback className="text-xs">
+              {userInitials || "U"}
+            </AvatarFallback>
+          </Avatar>
+        </button>
       </div>
       <NotificationsSheet
         open={notificationsOpen}
