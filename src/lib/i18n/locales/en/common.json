@@ -1356,7 +1356,20 @@
     "binNotAllowed": "Binning isn't available for this parcel's current status.",
     "actions": {
       "bin": "Bin",
+      "schedule": "Schedule",
+      "reschedule": "Reschedule",
       "cancel": "Cancel"
+    },
+    "scheduleDialog": {
+      "title": "Schedule parcel",
+      "titleReschedule": "Reschedule parcel",
+      "slot": "Delivery slot",
+      "slotPlaceholder": "Pick a day and slot",
+      "none": "No open slots in the scheduling window.",
+      "full": "full",
+      "hint": "Sets the slot and bins the box in one step. The customer gets a text with the new time (no delivery code).",
+      "submit": "Schedule and bin",
+      "submitting": "Scheduling..."
     },
     "binDialog": {
       "title": "Bin parcel (E02)",

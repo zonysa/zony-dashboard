@@ -356,6 +356,28 @@ export interface GetSlotsRes {
   slots: WHSlotCatalogEntry[];
 }
 
+// GET /warehouse/slots/available — the (slot, day) pairs staff may schedule
+// into at one warehouse, with that warehouse's load for the day. The same
+// list the customer link offers. `capacity` is advisory: a full slot can
+// still be chosen.
+export interface WHAvailableSlot {
+  slot_id: number;
+  code: string;
+  label_ar: string;
+  label_en: string;
+  date: string;
+  starts_at: string;
+  ends_at: string;
+  booked: number;
+  capacity: number | null;
+  over_capacity: boolean;
+}
+
+export interface GetAvailableSlotsRes {
+  status: "success";
+  available_slots: WHAvailableSlot[];
+}
+
 export interface WHFailureReason {
   reason_code: string;
   name_ar: string;
@@ -934,6 +956,27 @@ export const binParcelSchema = z.object({
   notes: z.string().max(500).optional(),
 });
 export type BinParcelData = z.infer<typeof binParcelSchema>;
+
+// Staff schedule by hand: T01 + E02 in one call, then the server texts the
+// customer the time. The E02 reuses client_event_id + "-bin", hence the
+// shorter cap than the other scans.
+export const scheduleParcelSchema = z.object({
+  client_event_id: z.string().min(8).max(60),
+  slot_id: z.number().int().positive(),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+export type ScheduleParcelData = z.infer<typeof scheduleParcelSchema>;
+
+export interface WHScheduleParcelRes {
+  status: "success";
+  message: string;
+  created: boolean;
+  slot: WHAvailableSlot;
+  parcel_status: WHParcelStatus;
+  message_sent: boolean;
+  message_channel: string | null;
+  message_status: string | null;
+}
 
 // Checkout (E04). `courier_id` is OPTIONAL as of the UCC epic: when the parcel
 // was already assigned (E03), the server takes the courier from the assignment
