@@ -33,7 +33,7 @@ export function ResetPasswordForm({
   const searchParams = useSearchParams();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const token = searchParams.get("token") || "";
 
@@ -116,6 +116,7 @@ export function ResetPasswordForm({
                           {...field}
                           id="newPassword"
                           type={showNewPassword ? "text" : "password"}
+                          className={isRTL ? "pl-10" : "pr-10"}
                           placeholder={t(
                             "auth.resetPassword.newPasswordPlaceholder"
                           )}
@@ -125,7 +126,7 @@ export function ResetPasswordForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute top-0 h-full px-3 py-2 hover:bg-transparent ${isRTL ? "left-0" : "right-0"}`}
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           disabled={resetPasswordMutation.isPending}
                         >
@@ -186,6 +187,7 @@ export function ResetPasswordForm({
                           {...field}
                           id="confirmPassword"
                           type={showConfirmPassword ? "text" : "password"}
+                          className={isRTL ? "pl-10" : "pr-10"}
                           placeholder={t(
                             "auth.resetPassword.confirmPasswordPlaceholder"
                           )}
@@ -195,7 +197,7 @@ export function ResetPasswordForm({
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                          className={`absolute top-0 h-full px-3 py-2 hover:bg-transparent ${isRTL ? "left-0" : "right-0"}`}
                           onClick={() =>
                             setShowConfirmPassword(!showConfirmPassword)
                           }
