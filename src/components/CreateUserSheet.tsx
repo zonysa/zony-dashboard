@@ -298,11 +298,11 @@ const CreateUserSheet = ({
                           dir="ltr"
                           type={showPassword ? "text" : "password"}
                           placeholder={t("forms.placeholders.enterPassword")}
-                          className="pr-28"
+                          className="pr-28 rtl:pr-3 rtl:pl-28"
                           {...field}
                         />
                         <div
-                          className="absolute right-0 top-0 flex h-full items-center"
+                          className="absolute end-0 top-0 flex h-full items-center"
                         >
                           <Button
                             type="button"

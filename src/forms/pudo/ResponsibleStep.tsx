@@ -142,6 +142,7 @@ export const ResponsiblePersonStep: React.FC<StepComponentProps> = ({
                       dir="ltr"
                       {...field}
                       type={showPassword ? "text" : "password"}
+                      className="pr-10 rtl:pr-3 rtl:pl-10"
                       placeholder="Enter Password"
                       // disabled={loginMutation.isPending}
                     />
@@ -149,7 +150,7 @@ export const ResponsiblePersonStep: React.FC<StepComponentProps> = ({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      className="absolute end-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
