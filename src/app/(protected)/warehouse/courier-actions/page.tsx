@@ -19,14 +19,6 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
   CheckoutDialog,
   courierLabel,
   DeliverDialog,
@@ -240,40 +232,16 @@ function CourierActionsContent() {
                   {t("warehouseCourierActions.empty")}
                 </p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>
-                        {t("warehouseCourierActions.table.barcode")}
-                      </TableHead>
-                      <TableHead>
-                        {t("warehouseCourierActions.table.recipient")}
-                      </TableHead>
-                      <TableHead>
-                        {t("warehouseCourierActions.table.destination")}
-                      </TableHead>
-                      <TableHead>
-                        {t("warehouseCourierActions.table.status")}
-                      </TableHead>
-                      <TableHead>
-                        {t("warehouseCourierActions.table.attempts")}
-                      </TableHead>
-                      <TableHead className="text-end">
-                        {t("warehouseCourierActions.table.actions")}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {parcels.map((p) => (
-                      <CourierParcelRow
-                        key={p.id}
-                        parcel={p}
-                        pudoNameById={pudoNameById}
-                        onOpen={(kind) => setDialog({ kind, parcel: p })}
-                      />
-                    ))}
-                  </TableBody>
-                </Table>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {parcels.map((p) => (
+                    <CourierParcelCard
+                      key={p.id}
+                      parcel={p}
+                      pudoNameById={pudoNameById}
+                      onOpen={(kind) => setDialog({ kind, parcel: p })}
+                    />
+                  ))}
+                </div>
               )}
 
               {lastPage > 1 && (
@@ -350,7 +318,7 @@ function CourierActionsContent() {
   );
 }
 
-function CourierParcelRow({
+function CourierParcelCard({
   parcel: p,
   pudoNameById,
   onOpen,
@@ -383,68 +351,75 @@ function CourierParcelRow({
   }
 
   return (
-    <TableRow>
-      <TableCell className="font-mono">
+    <div className="flex flex-col gap-3 rounded-lg border p-4">
+      <div className="flex items-start justify-between gap-2">
         <Link
           href={`/warehouse/parcels/${p.id}`}
-          className="underline-offset-2 hover:underline"
+          className="font-mono text-sm font-medium underline-offset-2 hover:underline"
         >
           {p.barcode}
         </Link>
-      </TableCell>
-      <TableCell>{p.recipient_name}</TableCell>
-      <TableCell>
-        {plannedPudo != null
-          ? (pudoNameById.get(plannedPudo) ?? `PUDO #${plannedPudo}`)
-          : t("warehouseCourierActions.home")}
-      </TableCell>
-      <TableCell>
         <WarehouseStatusBadge status={p.status} />
-      </TableCell>
-      <TableCell>{p.failed_attempts}</TableCell>
-      <TableCell className="text-end">
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {canEmit(p.status, "E04") && (
-            <Button size="sm" onClick={() => onOpen("checkout")}>
-              {t("warehouseCourierActions.actions.checkout")}
-            </Button>
-          )}
-          {isOut && plannedPudo == null && canEmit(p.status, "E05") && (
-            <Button size="sm" onClick={() => onOpen("deliver")}>
-              {t("warehouseCourierActions.actions.deliver")}
-            </Button>
-          )}
-          {isOut && canEmit(p.status, "E08") && (
-            <Button
-              size="sm"
-              variant={plannedPudo != null ? "default" : "outline"}
-              onClick={() => onOpen("handover")}
-            >
-              {t("warehouseCourierActions.actions.handover")}
-            </Button>
-          )}
-          {canEmit(p.status, "R02") && (
-            <Button size="sm" onClick={() => onOpen("returned")}>
-              {t("warehouseCourierActions.actions.returned")}
-            </Button>
-          )}
-          {canEmit(p.status, "E06") && (
-            <Button size="sm" variant="outline" onClick={() => onOpen("fail")}>
-              {t("warehouseCourierActions.actions.fail")}
-            </Button>
-          )}
-          {canEmit(p.status, "E07") && (
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={returnParcel.isPending}
-              onClick={handleReturn}
-            >
-              {t("warehouseCourierActions.actions.returnToWarehouse")}
-            </Button>
-          )}
-        </div>
-      </TableCell>
-    </TableRow>
+      </div>
+      <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+        <dt className="text-muted-foreground">
+          {t("warehouseCourierActions.table.recipient")}
+        </dt>
+        <dd className="truncate">{p.recipient_name}</dd>
+        <dt className="text-muted-foreground">
+          {t("warehouseCourierActions.table.destination")}
+        </dt>
+        <dd className="truncate">
+          {plannedPudo != null
+            ? (pudoNameById.get(plannedPudo) ?? `PUDO #${plannedPudo}`)
+            : t("warehouseCourierActions.home")}
+        </dd>
+        <dt className="text-muted-foreground">
+          {t("warehouseCourierActions.table.attempts")}
+        </dt>
+        <dd>{p.failed_attempts}</dd>
+      </dl>
+      <div className="mt-auto flex flex-wrap items-center gap-2 border-t pt-3">
+        {canEmit(p.status, "E04") && (
+          <Button size="sm" onClick={() => onOpen("checkout")}>
+            {t("warehouseCourierActions.actions.checkout")}
+          </Button>
+        )}
+        {isOut && plannedPudo == null && canEmit(p.status, "E05") && (
+          <Button size="sm" onClick={() => onOpen("deliver")}>
+            {t("warehouseCourierActions.actions.deliver")}
+          </Button>
+        )}
+        {isOut && canEmit(p.status, "E08") && (
+          <Button
+            size="sm"
+            variant={plannedPudo != null ? "default" : "outline"}
+            onClick={() => onOpen("handover")}
+          >
+            {t("warehouseCourierActions.actions.handover")}
+          </Button>
+        )}
+        {canEmit(p.status, "R02") && (
+          <Button size="sm" onClick={() => onOpen("returned")}>
+            {t("warehouseCourierActions.actions.returned")}
+          </Button>
+        )}
+        {canEmit(p.status, "E06") && (
+          <Button size="sm" variant="outline" onClick={() => onOpen("fail")}>
+            {t("warehouseCourierActions.actions.fail")}
+          </Button>
+        )}
+        {canEmit(p.status, "E07") && (
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={returnParcel.isPending}
+            onClick={handleReturn}
+          >
+            {t("warehouseCourierActions.actions.returnToWarehouse")}
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }
