@@ -244,6 +244,8 @@
         "receiveDesc": "Scan the box in at the counter",
         "slot": "Slot assigned",
         "slotDesc": "Set at receiving to the next open slot — the customer can still change it via the link",
+        "slotDescFixed": "Set at receiving to the next open slot — final at this warehouse; the customer's SMS has no link",
+        "slotDescNeutral": "Set at receiving to the next open slot",
         "bin": "Bin",
         "binDesc": "Put the box in the bin the receiving scan showed",
         "assign": "Assign courier",

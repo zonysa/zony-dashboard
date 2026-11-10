@@ -29,7 +29,7 @@ import {
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { useListParcels } from "@/lib/hooks/useWarehouse";
+import { useGetWarehouse, useListParcels } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
 import { WHUccBucket } from "@/lib/schema/warehouse.schema";
 import { cn } from "@/lib/utils";
@@ -179,7 +179,7 @@ export default function WarehouseHubPage() {
         ))}
       </div>
 
-      <LifecycleStrip />
+      <LifecycleStrip warehouseId={warehouseId} />
 
       <h2 className="mb-3 mt-8 text-sm font-medium text-foreground">
         {t("warehouse.hub.cards.title")}
@@ -274,14 +274,27 @@ function BucketCard({
  * Step 2 (T01) is the system's, not anyone's screen: with the backend's
  * `auto_assign_slot` setting on (the default), the receiving scan itself raises
  * T01 for the next open slot and E02 into its bin, so the box never waits on
- * the customer — they can still move it via the link. Only when that setting is
- * off, or every slot is full, does a box sit in awaiting_scheduling instead.
+ * the customer. Whether the customer may still move it via the link is the
+ * selected warehouse's `customer_slot_choice_effective` (global setting or the
+ * building's own override), so step 2's text follows that. A box sits in
+ * awaiting_scheduling only when auto-assign is off at a choice-allowed
+ * warehouse, or every slot is full.
  * E03 is shown as its own step because E04 is refused without it.
  *
  * Codes and ordering come from docs/warehouse-api.md §2.
  */
-function LifecycleStrip() {
+function LifecycleStrip({ warehouseId }: { warehouseId: number | null }) {
   const { t, isRTL } = useTranslation();
+  // Readable by every staff role (unlike /warehouse/settings), and the server
+  // has already resolved the override against the global value.
+  const { data: warehouseData } = useGetWarehouse(warehouseId);
+  const slotChoice = warehouseData?.warehouse.customer_slot_choice_effective;
+  const slotDescKey =
+    slotChoice === undefined
+      ? "warehouse.hub.flow.slotDescNeutral"
+      : slotChoice
+        ? "warehouse.hub.flow.slotDesc"
+        : "warehouse.hub.flow.slotDescFixed";
 
   const steps: {
     key: string;
@@ -305,7 +318,7 @@ function LifecycleStrip() {
       code: "T01",
       icon: CalendarClock,
       title: t("warehouse.hub.flow.slot"),
-      description: t("warehouse.hub.flow.slotDesc"),
+      description: t(slotDescKey),
       actor: t("warehouse.hub.flow.systemStep"),
     },
     {
