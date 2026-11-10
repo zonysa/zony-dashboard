@@ -10,6 +10,8 @@ import {
   AcceptHandoverData,
   AssignParcelData,
   BinParcelData,
+  GetAvailableSlotsRes,
+  ScheduleParcelData,
   CourierStopAction,
   GetCourierPlacesRes,
   BatchCreateData,
@@ -72,6 +74,8 @@ import {
   assignParcel,
   assignWarehouseStaff,
   binParcel,
+  getAvailableSlots,
+  scheduleParcel,
   getCourierPlaces,
   createBatch,
   createCarrier,
@@ -192,6 +196,11 @@ export const warehouseKeys = {
 
   slots: (includeInactive?: boolean) =>
     [...warehouseKeys.all, "slots", includeInactive ?? false] as const,
+  // Per warehouse: the load figures are that building's own.
+  availableSlots: (warehouseId?: number) =>
+    warehouseId
+      ? ([...warehouseKeys.all, "availableSlots", warehouseId] as const)
+      : ([...warehouseKeys.all, "availableSlots"] as const),
   // wh_zones belong to one building and codes repeat across buildings, so
   // this must be keyed per warehouse too.
   zones: (warehouseId?: number) =>
@@ -855,6 +864,47 @@ export function useBinParcel() {
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to bin parcel");
     },
+  });
+}
+
+// Staff schedule by hand (T01 + E02). The server texts the customer the time
+// after both events commit; a provider failure doesn't fail the request, so
+// say so instead of a plain success toast.
+export function useScheduleParcel() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ScheduleParcelData }) =>
+      scheduleParcel(id, data),
+    retry: 2,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+    onSuccess: (data, variables) => {
+      if (data.created && !data.message_sent) {
+        toast.warning(data.message, {
+          description: "The customer could not be notified.",
+        });
+      } else {
+        toast.success(data.message);
+      }
+      applyScanEventResult(queryClient, variables.id, data.parcel_status);
+      queryClient.invalidateQueries({
+        queryKey: warehouseKeys.availableSlots(),
+      });
+    },
+    onError: (error: Error) => {
+      toast.error(error?.message || "Failed to schedule parcel");
+    },
+  });
+}
+
+export function useGetAvailableSlots(warehouseId: number | null) {
+  return useQuery<GetAvailableSlotsRes>({
+    queryKey: warehouseKeys.availableSlots(warehouseId ?? undefined),
+    queryFn: () => getAvailableSlots(warehouseId!),
+    enabled: !!warehouseId,
+    // Load changes with every booking; keep it fresh while a dialog is open.
+    staleTime: 30 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 }
 

@@ -57,16 +57,19 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
   mintClientEventId,
   useBinParcel,
+  useGetAvailableSlots,
   useGetSlots,
   useListParcels,
   useGetWall,
   useGetZones,
+  useScheduleParcel,
 } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
 import {
   BinParcelData,
   binParcelSchema,
   canEmit,
+  WHAvailableSlot,
   WHSlotCatalogEntry,
   WHWallCell,
   WHWallEntry,
@@ -85,6 +88,14 @@ type BinTarget = {
   barcode: string;
   recipientName: string;
   lockedSlotId?: number;
+};
+
+type ScheduleTarget = {
+  parcelId: string;
+  barcode: string;
+  recipientName: string;
+  // A box already in a bin is being moved, not scheduled for the first time.
+  reschedule: boolean;
 };
 
 type CellSelection = {
@@ -139,6 +150,9 @@ function WallPageContent() {
     null,
   );
   const [binTarget, setBinTarget] = useState<BinTarget | null>(null);
+  const [scheduleTarget, setScheduleTarget] = useState<ScheduleTarget | null>(
+    null,
+  );
 
   function handleDateSelect(newDate: Date | undefined) {
     if (!newDate) return;
@@ -180,6 +194,15 @@ function WallPageContent() {
       barcode: entry.barcode,
       recipientName: entry.recipient_name,
       lockedSlotId,
+    });
+  }
+
+  function openScheduleDialog(entry: WHWallEntry) {
+    setScheduleTarget({
+      parcelId: entry.parcel_id,
+      barcode: entry.barcode,
+      recipientName: entry.recipient_name,
+      reschedule: entry.status !== "awaiting_scheduling",
     });
   }
 
@@ -378,6 +401,7 @@ function WallPageContent() {
                           : undefined
                       }
                       onBin={() => openBinDialog(entry)}
+                      onSchedule={() => openScheduleDialog(entry)}
                     />
                   ))}
               </TableBody>
@@ -424,6 +448,10 @@ function WallPageContent() {
                   key={entry.parcel_id}
                   entry={entry}
                   onBin={() => openBinDialog(entry, cellSelection.slot.slot_id)}
+                  onSchedule={() => {
+                    setCellSelection(null);
+                    openScheduleDialog(entry);
+                  }}
                 />
               ))}
             </TableBody>
@@ -438,6 +466,14 @@ function WallPageContent() {
           onClose={() => setBinTarget(null)}
         />
       )}
+
+      {scheduleTarget && (
+        <ScheduleDialog
+          target={scheduleTarget}
+          warehouseId={warehouseId}
+          onClose={() => setScheduleTarget(null)}
+        />
+      )}
     </PageContainer>
   );
 }
@@ -447,14 +483,20 @@ function WallEntryRow({
   showZone,
   zoneName,
   onBin,
+  onSchedule,
 }: {
   entry: WHWallEntry;
   showZone?: boolean;
   zoneName?: string;
   onBin: () => void;
+  onSchedule: () => void;
 }) {
   const { t } = useTranslation();
   const binnable = canEmit(entry.status, "E02");
+  // A box that can't be binned yet but can take a T01 — awaiting a slot, or
+  // already binned and being moved — gets Schedule instead of a dead Bin.
+  // Scheduling binds the slot AND bins it, and texts the customer the time.
+  const schedulable = !binnable && canEmit(entry.status, "T01");
 
   return (
     <TableRow
@@ -497,16 +539,29 @@ function WallEntryRow({
       </TableCell>
       <TableCell className="text-end">
         <Can do={Permission.MANAGE_WAREHOUSE}>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            disabled={!binnable}
-            title={binnable ? undefined : t("warehouseWall.binNotAllowed")}
-            onClick={onBin}
-          >
-            {t("warehouseWall.actions.bin")}
-          </Button>
+          {schedulable ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={onSchedule}
+            >
+              {entry.status === "awaiting_scheduling"
+                ? t("warehouseWall.actions.schedule")
+                : t("warehouseWall.actions.reschedule")}
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              disabled={!binnable}
+              title={binnable ? undefined : t("warehouseWall.binNotAllowed")}
+              onClick={onBin}
+            >
+              {t("warehouseWall.actions.bin")}
+            </Button>
+          )}
         </Can>
       </TableCell>
     </TableRow>
@@ -682,6 +737,126 @@ function BinDialog({
             </DialogFooter>
           </form>
         </Form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Staff schedule by hand: one pick of (slot, day) → T01 + E02 server-side, then
+// the customer is texted the time (with the change link only where customers
+// may choose). The only way out of awaiting_scheduling without the customer's
+// link — e.g. at a warehouse that doesn't let customers choose, when every
+// slot was full at receiving.
+function ScheduleDialog({
+  target,
+  warehouseId,
+  onClose,
+}: {
+  target: ScheduleTarget;
+  warehouseId: number | null;
+  onClose: () => void;
+}) {
+  const { t, isRTL } = useTranslation();
+  const schedule = useScheduleParcel();
+  const { data, isLoading } = useGetAvailableSlots(warehouseId);
+  // Minted once per dialog, so a retry of the same pick stays idempotent.
+  const [clientEventId] = useState(() => mintClientEventId());
+  const [choice, setChoice] = useState<string | undefined>(undefined);
+
+  const options = data?.available_slots ?? [];
+  const keyOf = (o: WHAvailableSlot) => `${o.slot_id}|${o.date}`;
+  const selected = options.find((o) => keyOf(o) === choice);
+
+  async function onSubmit() {
+    if (!selected) return;
+    try {
+      await schedule.mutateAsync({
+        id: target.parcelId,
+        data: {
+          client_event_id: clientEventId,
+          slot_id: selected.slot_id,
+          date: selected.date,
+        },
+      });
+      onClose();
+    } catch (err) {
+      // useScheduleParcel's onError already toasts the server message.
+      console.error("Schedule action failed:", err);
+    }
+  }
+
+  return (
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {target.reschedule
+              ? t("warehouseWall.scheduleDialog.titleReschedule")
+              : t("warehouseWall.scheduleDialog.title")}
+          </DialogTitle>
+          <DialogDescription>
+            {target.recipientName} ·{" "}
+            <span className="font-mono">{target.barcode}</span>
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">
+            {t("warehouseWall.scheduleDialog.slot")}
+          </label>
+          {isLoading ? (
+            <Skeleton className="h-9 w-full" />
+          ) : !options.length ? (
+            <p className="text-sm text-muted-foreground">
+              {t("warehouseWall.scheduleDialog.none")}
+            </p>
+          ) : (
+            <Select value={choice} onValueChange={setChoice}>
+              <SelectTrigger className="w-full">
+                <SelectValue
+                  placeholder={t("warehouseWall.scheduleDialog.slotPlaceholder")}
+                />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((o) => {
+                  const full = !!o.capacity && o.booked >= o.capacity;
+                  return (
+                    <SelectItem key={keyOf(o)} value={keyOf(o)}>
+                      {o.date} · {isRTL ? o.label_ar : o.label_en}{" "}
+                      <span className="text-muted-foreground tabular-nums">
+                        ({o.booked}
+                        {o.capacity ? `/${o.capacity}` : ""})
+                      </span>
+                      {full && (
+                        <span className="ms-1 text-amber-700 dark:text-amber-400">
+                          {t("warehouseWall.scheduleDialog.full")}
+                        </span>
+                      )}
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t("warehouseWall.scheduleDialog.hint")}
+          </p>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onClose}>
+            {t("warehouseWall.actions.cancel")}
+          </Button>
+          <Button
+            type="button"
+            disabled={!selected || schedule.isPending}
+            onClick={onSubmit}
+          >
+            {schedule.isPending
+              ? t("warehouseWall.scheduleDialog.submitting")
+              : t("warehouseWall.scheduleDialog.submit")}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
