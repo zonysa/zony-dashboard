@@ -151,14 +151,19 @@ export default function WarehouseSettingsPage() {
             <CardHeader>
               <CardTitle>{t("warehouseSettings.sections.scheduling.title")}</CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              {SCHEDULING_FIELDS.map((meta) => (
-                <NumberSettingField
-                  key={meta.key}
-                  meta={meta}
-                  value={settings?.[meta.key]}
-                />
-              ))}
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                {SCHEDULING_FIELDS.map((meta) => (
+                  <NumberSettingField
+                    key={meta.key}
+                    meta={meta}
+                    value={settings?.[meta.key]}
+                  />
+                ))}
+              </div>
+              <CustomerSlotChoiceField
+                value={settings?.["customer_slot_choice"]}
+              />
             </CardContent>
           </Card>
 
@@ -321,6 +326,40 @@ function NumberSettingField({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+    </div>
+  );
+}
+
+// customer_slot_choice: may customers pick/change their slot via the SMS link?
+// This is the GLOBAL default; each warehouse can override it on its own page.
+// No confirm step either way -- unlike assignment_required, neither direction
+// removes a safety check, it only changes what the customer is offered.
+function CustomerSlotChoiceField({ value: settingValue }: { value: unknown }) {
+  const { t } = useTranslation();
+  const update = useUpdateSetting();
+
+  if (settingValue === undefined) {
+    return <Skeleton className="h-16 w-full" />;
+  }
+
+  const enabled = settingValue === true || settingValue === "true";
+
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-lg border p-4">
+      <div className="space-y-1">
+        <Label>{t("warehouseSettings.fields.customer_slot_choice.label")}</Label>
+        <p className="text-xs text-muted-foreground">
+          {t("warehouseSettings.fields.customer_slot_choice.description")}
+        </p>
+      </div>
+      <Checkbox
+        checked={enabled}
+        disabled={update.isPending}
+        onCheckedChange={(v) =>
+          update.mutate({ key: "customer_slot_choice", value: v === true })
+        }
+        aria-label={t("warehouseSettings.fields.customer_slot_choice.label")}
+      />
     </div>
   );
 }

@@ -239,13 +239,17 @@
       "flow": {
         "title": "How a box moves through the pilot",
         "subtitle": "Status is derived from the event log — every step below appends an event, nothing is edited in place.",
-        "customerStep": "Customer",
+        "systemStep": "Automatic",
         "receive": "Receive",
         "receiveDesc": "Scan the box in at the counter",
-        "confirm": "Customer confirms slot",
-        "confirmDesc": "Customer only, via the public slot link — no staff screen",
+        "slot": "Slot assigned",
+        "slotDesc": "Set at receiving to the next open slot — the customer can still change it via the link",
+        "slotDescFixed": "Set at receiving to the next open slot — final at this warehouse; the customer's SMS has no link",
+        "slotDescNeutral": "Set at receiving to the next open slot",
         "bin": "Bin",
-        "binDesc": "Place it in the confirmed slot's bin",
+        "binDesc": "Put the box in the bin the receiving scan showed",
+        "assign": "Assign courier",
+        "assignDesc": "Plan the box onto a courier's round — required before loading",
         "load": "Load",
         "loadDesc": "Check it out with a courier",
         "deliver": "Deliver",
@@ -1925,6 +1929,10 @@
         "label": "Require courier assignment before checkout",
         "description": "When on, a parcel must be assigned to a courier (E03) before it can be checked out. Turning it off lets any courier be named at checkout instead."
       },
+      "customer_slot_choice": {
+        "label": "Customer can choose the delivery slot",
+        "description": "When on, the customer gets a link to pick or change their delivery slot. When off, the slot assigned at receiving is final and the SMS has no link. This is the default for every warehouse; a warehouse can override it on its own page."
+      },
       "message_templates": {
         "invalidJson": "This isn't valid JSON — fix it before saving."
       }
@@ -2120,6 +2128,13 @@
     "none": "No warehouse available. Ask an admin to assign you to one."
   },
   "warehouseBuildings": {
+    "slotChoice": {
+      "label": "Customer can choose the delivery slot",
+      "inherit": "Follow global setting ({{value}})",
+      "on": "On",
+      "off": "Off",
+      "hint": "Off = the slot assigned at receiving is final and the customer's SMS has no link. Staff can still change the slot."
+    },
     "title": "Warehouses",
     "subtitle": "The buildings Zony receives, stages and dispatches parcels from.",
     "loadError": "Could not load warehouses.",

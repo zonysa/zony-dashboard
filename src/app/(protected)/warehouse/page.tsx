@@ -5,6 +5,7 @@ import {
   BarChart3,
   Boxes,
   Building2,
+  CalendarClock,
   ClipboardCheck,
   Grid3x3,
   Info,
@@ -28,7 +29,7 @@ import {
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
-import { useListParcels } from "@/lib/hooks/useWarehouse";
+import { useGetWarehouse, useListParcels } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
 import { WHUccBucket } from "@/lib/schema/warehouse.schema";
 import { cn } from "@/lib/utils";
@@ -178,7 +179,7 @@ export default function WarehouseHubPage() {
         ))}
       </div>
 
-      <LifecycleStrip />
+      <LifecycleStrip warehouseId={warehouseId} />
 
       <h2 className="mb-3 mt-8 text-sm font-medium text-foreground">
         {t("warehouse.hub.cards.title")}
@@ -268,14 +269,32 @@ function BucketCard({
 
 /**
  * The pilot's state machine, rendered as the thing an operator actually asks:
- * "I scanned the box in — now what?" The answer for step 2 is "nothing, it's the
- * customer's move", which is exactly where people get stuck, so it's called out
- * rather than left as a gap between two staff screens.
+ * "I scanned the box in — now what?"
+ *
+ * Step 2 (T01) is the system's, not anyone's screen: with the backend's
+ * `auto_assign_slot` setting on (the default), the receiving scan itself raises
+ * T01 for the next open slot and E02 into its bin, so the box never waits on
+ * the customer. Whether the customer may still move it via the link is the
+ * selected warehouse's `customer_slot_choice_effective` (global setting or the
+ * building's own override), so step 2's text follows that. A box sits in
+ * awaiting_scheduling only when auto-assign is off at a choice-allowed
+ * warehouse, or every slot is full.
+ * E03 is shown as its own step because E04 is refused without it.
  *
  * Codes and ordering come from docs/warehouse-api.md §2.
  */
-function LifecycleStrip() {
+function LifecycleStrip({ warehouseId }: { warehouseId: number | null }) {
   const { t, isRTL } = useTranslation();
+  // Readable by every staff role (unlike /warehouse/settings), and the server
+  // has already resolved the override against the global value.
+  const { data: warehouseData } = useGetWarehouse(warehouseId);
+  const slotChoice = warehouseData?.warehouse.customer_slot_choice_effective;
+  const slotDescKey =
+    slotChoice === undefined
+      ? "warehouse.hub.flow.slotDescNeutral"
+      : slotChoice
+        ? "warehouse.hub.flow.slotDesc"
+        : "warehouse.hub.flow.slotDescFixed";
 
   const steps: {
     key: string;
@@ -295,12 +314,12 @@ function LifecycleStrip() {
       href: "/warehouse/receiving",
     },
     {
-      key: "confirm",
+      key: "slot",
       code: "T01",
-      icon: UserCheck,
-      title: t("warehouse.hub.flow.confirm"),
-      description: t("warehouse.hub.flow.confirmDesc"),
-      actor: t("warehouse.hub.flow.customerStep"),
+      icon: CalendarClock,
+      title: t("warehouse.hub.flow.slot"),
+      description: t(slotDescKey),
+      actor: t("warehouse.hub.flow.systemStep"),
     },
     {
       key: "bin",
@@ -309,6 +328,14 @@ function LifecycleStrip() {
       title: t("warehouse.hub.flow.bin"),
       description: t("warehouse.hub.flow.binDesc"),
       href: "/warehouse/wall",
+    },
+    {
+      key: "assign",
+      code: "E03",
+      icon: UserCheck,
+      title: t("warehouse.hub.flow.assign"),
+      description: t("warehouse.hub.flow.assignDesc"),
+      href: "/warehouse/loading",
     },
     {
       key: "load",
@@ -334,7 +361,7 @@ function LifecycleStrip() {
         <p className="text-sm text-muted-foreground">{t("warehouse.hub.flow.subtitle")}</p>
       </CardHeader>
       <CardContent>
-        <ol className="grid gap-3 md:grid-cols-5">
+        <ol className="grid gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
           {steps.map((step, i) => {
             const body = (
               <div
