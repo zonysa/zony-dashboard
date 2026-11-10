@@ -1,13 +1,7 @@
 "use client";
 
 import { useTranslation } from "react-i18next";
-import { languages, languageNames, type Language } from "@/lib/i18n/config";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { languages, languageNames } from "@/lib/i18n/config";
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
 import { useLanguage, useSetLanguage } from "@/lib/stores/user-preferences-store";
@@ -17,29 +11,17 @@ export function LanguageSwitcher() {
   const currentLang = useLanguage();
   const setLanguage = useSetLanguage();
 
-  const changeLanguage = (lang: Language) => {
-    setLanguage(lang);
-  };
+  const otherLang = languages.find((lang) => lang !== currentLang) ?? languages[0];
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
-          <Globe className="h-[1.2rem] w-[1.2rem]" />
-          <span className="sr-only">{t("selectLanguage")}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {languages.map((lang) => (
-          <DropdownMenuItem
-            key={lang}
-            onClick={() => changeLanguage(lang)}
-            className={currentLang === lang ? "bg-accent" : ""}
-          >
-            {languageNames[lang]}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <Button
+      variant="outline"
+      onClick={() => setLanguage(otherLang)}
+      lang={otherLang}
+      aria-label={t("selectLanguage")}
+    >
+      <Globe className="h-4 w-4" />
+      {languageNames[otherLang]}
+    </Button>
   );
 }
