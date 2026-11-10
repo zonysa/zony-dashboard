@@ -10,6 +10,8 @@ import {
   AcceptHandoverData,
   AssignParcelData,
   BinParcelData,
+  CourierStopAction,
+  GetCourierPlacesRes,
   BatchCreateData,
   BatchHandoverData,
   BatchMembershipData,
@@ -70,6 +72,7 @@ import {
   assignParcel,
   assignWarehouseStaff,
   binParcel,
+  getCourierPlaces,
   createBatch,
   createCarrier,
   createMerchant,
@@ -225,6 +228,16 @@ export const warehouseKeys = {
   pendingHandovers: (pudoId?: number) =>
     [...warehouseKeys.all, "pending-handovers", pudoId ?? "all"] as const,
 
+  // One courier's stops across both flows (not per warehouse).
+  courierPlaces: (courierId?: string, direction?: string) =>
+    courierId
+      ? ([
+          ...warehouseKeys.all,
+          "courier-places",
+          courierId,
+          direction ?? "all",
+        ] as const)
+      : ([...warehouseKeys.all, "courier-places"] as const),
   courierManifest: (warehouseId?: number, slotId?: string, date?: string) =>
     warehouseId && slotId && date
       ? ([
@@ -309,6 +322,7 @@ function applyScanEventResult(
   queryClient.invalidateQueries({
     queryKey: warehouseKeys.courierManifest(),
   });
+  queryClient.invalidateQueries({ queryKey: warehouseKeys.courierPlaces() });
 }
 
 // `created: false` (a deduplicated retry) still lands here, in onSuccess —
@@ -508,6 +522,22 @@ export function useGetLoadingManifest(
 
 // Live list of parcels in an operational bucket (retry / rto / …). Polls like
 // the Wall: the retry release cron and other clerks move parcels underneath us.
+export function useGetCourierPlaces(
+  courierId: string | null,
+  direction?: CourierStopAction,
+) {
+  return useQuery<GetCourierPlacesRes>({
+    queryKey: warehouseKeys.courierPlaces(courierId ?? undefined, direction),
+    queryFn: () => getCourierPlaces(courierId!, direction),
+    enabled: !!courierId,
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    refetchInterval: 15 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
 export function useListParcels(
   warehouseId: number | null,
   filters: WHParcelListFilters,

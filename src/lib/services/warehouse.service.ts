@@ -9,7 +9,9 @@ import {
   BatchMembershipData,
   BulkAssignRes,
   CarrierWriteData,
+  CourierStopAction,
   CreateBatchRes,
+  GetCourierPlacesRes,
   DispatchScanData,
   DispatchScanRes,
   GetBatchesRes,
@@ -137,6 +139,19 @@ export const getCouriers = async (
   return apiCall({
     method: "GET",
     url: `/warehouse/couriers?warehouse_id=${warehouseId}`,
+  });
+};
+
+// Not under /warehouse: a courier's day spans every warehouse and the PUDO
+// flow, so this takes no warehouse_id.
+export const getCourierPlaces = async (
+  courierId: string,
+  direction?: CourierStopAction,
+): Promise<GetCourierPlacesRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/couriers/${encodeURIComponent(courierId)}/places`,
+    params: direction ? { direction } : undefined,
   });
 };
 

@@ -35,6 +35,7 @@ import {
   ParcelTarget,
   ReturnedDialog,
 } from "@/components/warehouse/WarehouseDialogs";
+import { CourierRoute } from "@/components/warehouse/CourierRoute";
 import {
   useResolvedWarehouseId,
   WarehouseSelect,
@@ -48,7 +49,11 @@ import {
   useListParcels,
   useReturnParcel,
 } from "@/lib/hooks/useWarehouse";
-import { canEmit, WHParcel, WHParcelStatus } from "@/lib/schema/warehouse.schema";
+import {
+  canEmit,
+  WHParcel,
+  WHParcelStatus,
+} from "@/lib/schema/warehouse.schema";
 
 // Admin stand-in for the courier app. Every action here goes through the
 // STAFF /warehouse/* endpoints, never /courier/* (courier-role only, and it
@@ -220,80 +225,83 @@ function CourierActionsContent() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between gap-4">
-            <CardTitle>{courierLabel(courier)}</CardTitle>
-            <Badge variant="secondary">{total}</Badge>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-64 w-full" />
-            ) : !parcels.length ? (
-              <p className="text-sm text-muted-foreground">
-                {t("warehouseCourierActions.empty")}
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>
-                      {t("warehouseCourierActions.table.barcode")}
-                    </TableHead>
-                    <TableHead>
-                      {t("warehouseCourierActions.table.recipient")}
-                    </TableHead>
-                    <TableHead>
-                      {t("warehouseCourierActions.table.destination")}
-                    </TableHead>
-                    <TableHead>
-                      {t("warehouseCourierActions.table.status")}
-                    </TableHead>
-                    <TableHead>
-                      {t("warehouseCourierActions.table.attempts")}
-                    </TableHead>
-                    <TableHead className="text-end">
-                      {t("warehouseCourierActions.table.actions")}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {parcels.map((p) => (
-                    <CourierParcelRow
-                      key={p.id}
-                      parcel={p}
-                      pudoNameById={pudoNameById}
-                      onOpen={(kind) => setDialog({ kind, parcel: p })}
-                    />
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+        <div className="space-y-6">
+          <CourierRoute courierId={courier.user_id} />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between gap-4">
+              <CardTitle>{courierLabel(courier)}</CardTitle>
+              <Badge variant="secondary">{total}</Badge>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <Skeleton className="h-64 w-full" />
+              ) : !parcels.length ? (
+                <p className="text-sm text-muted-foreground">
+                  {t("warehouseCourierActions.empty")}
+                </p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>
+                        {t("warehouseCourierActions.table.barcode")}
+                      </TableHead>
+                      <TableHead>
+                        {t("warehouseCourierActions.table.recipient")}
+                      </TableHead>
+                      <TableHead>
+                        {t("warehouseCourierActions.table.destination")}
+                      </TableHead>
+                      <TableHead>
+                        {t("warehouseCourierActions.table.status")}
+                      </TableHead>
+                      <TableHead>
+                        {t("warehouseCourierActions.table.attempts")}
+                      </TableHead>
+                      <TableHead className="text-end">
+                        {t("warehouseCourierActions.table.actions")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {parcels.map((p) => (
+                      <CourierParcelRow
+                        key={p.id}
+                        parcel={p}
+                        pudoNameById={pudoNameById}
+                        onOpen={(kind) => setDialog({ kind, parcel: p })}
+                      />
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
 
-            {lastPage > 1 && (
-              <div className="mt-4 flex items-center justify-end gap-3 text-sm">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={page <= 1}
-                  onClick={() => setPage((n) => n - 1)}
-                >
-                  {t("warehouseQueue.prev")}
-                </Button>
-                <span className="text-muted-foreground">
-                  {page} / {lastPage}
-                </span>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={page >= lastPage}
-                  onClick={() => setPage((n) => n + 1)}
-                >
-                  {t("warehouseQueue.next")}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              {lastPage > 1 && (
+                <div className="mt-4 flex items-center justify-end gap-3 text-sm">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={page <= 1}
+                    onClick={() => setPage((n) => n - 1)}
+                  >
+                    {t("warehouseQueue.prev")}
+                  </Button>
+                  <span className="text-muted-foreground">
+                    {page} / {lastPage}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={page >= lastPage}
+                    onClick={() => setPage((n) => n + 1)}
+                  >
+                    {t("warehouseQueue.next")}
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {dialog?.kind === "checkout" && (
@@ -421,11 +429,7 @@ function CourierParcelRow({
             </Button>
           )}
           {canEmit(p.status, "E06") && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => onOpen("fail")}
-            >
+            <Button size="sm" variant="outline" onClick={() => onOpen("fail")}>
               {t("warehouseCourierActions.actions.fail")}
             </Button>
           )}
