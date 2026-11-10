@@ -1535,6 +1535,7 @@
         "customer": "عميل",
         "pudo": "نقطة PUDO",
         "warehouse": "مستودع",
+        "merchant": "التاجر (إرجاع)",
         "unassigned": "غير محدد"
       }
     }

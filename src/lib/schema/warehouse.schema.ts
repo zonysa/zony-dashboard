@@ -657,7 +657,12 @@ export interface GetCouriersRes {
 
 export type CourierStopAction = "pickup" | "deliver";
 export type CourierStopPlaceType =
-  "customer" | "pudo" | "warehouse" | "unassigned";
+  | "customer"
+  | "pudo"
+  | "warehouse"
+  // Return-to-merchant (rto_out): the merchant who shipped it.
+  | "merchant"
+  | "unassigned";
 
 export interface CourierStopPlace {
   name: string | null;

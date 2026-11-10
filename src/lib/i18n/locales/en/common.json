@@ -1539,6 +1539,7 @@
         "customer": "Customer",
         "pudo": "PUDO point",
         "warehouse": "Warehouse",
+        "merchant": "Merchant (return)",
         "unassigned": "Unassigned"
       }
     }

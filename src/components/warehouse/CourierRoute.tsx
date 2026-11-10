@@ -15,6 +15,7 @@ import {
   CourierStop,
   CourierStopAction,
   CourierStopParcel,
+  CourierStopPlaceType,
 } from "@/lib/schema/warehouse.schema";
 
 // The courier's whole day, as their app shows it: every stop across both
@@ -32,6 +33,16 @@ const PUDO_FLOW_STATUSES: readonly string[] = [
   "expired",
   "expired_received",
 ];
+
+// Labels we have; anything newer from the server shows as its raw value
+// rather than a missing-key string.
+const PLACE_TYPES: readonly string[] = [
+  "customer",
+  "pudo",
+  "warehouse",
+  "merchant",
+  "unassigned",
+] satisfies CourierStopPlaceType[];
 
 export function CourierRoute({ courierId }: { courierId: string }) {
   const { t } = useTranslation();
@@ -116,7 +127,9 @@ function StopRow({ stop, index }: { stop: CourierStop; index: number }) {
             {t(`warehouseCourierActions.route.direction.${stop.action}`)}
           </Badge>
           <Badge variant="outline">
-            {t(`warehouseCourierActions.route.placeType.${stop.place_type}`)}
+            {PLACE_TYPES.includes(stop.place_type)
+              ? t(`warehouseCourierActions.route.placeType.${stop.place_type}`)
+              : stop.place_type}
           </Badge>
           <span className="font-medium">
             {place?.name ?? t("warehouseCourierActions.route.noPlace")}
