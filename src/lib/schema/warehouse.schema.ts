@@ -650,6 +650,76 @@ export interface GetCouriersRes {
   count: number;
 }
 
+// ---- One courier's day: GET /couriers/<user_id>/places (admin/supervisor) ----
+// The exact stops the courier's own app gets from /courier/places, across
+// BOTH parcel flows (warehouse `wh_*` and the PUDO-flow `parcels`) and every
+// warehouse. Stops are grouped by place, not by parcel.
+
+export type CourierStopAction = "pickup" | "deliver";
+export type CourierStopPlaceType =
+  | "customer"
+  | "pudo"
+  | "warehouse"
+  // Return-to-merchant (rto_out): the merchant who shipped it.
+  | "merchant"
+  | "unassigned";
+
+export interface CourierStopPlace {
+  name: string | null;
+  phone_number: string | null;
+  address: string | null;
+  coordinates: { latitude: number; longitude: number } | null;
+}
+
+// Two shapes: a warehouse slot window (`slot_code`) or a home-delivery
+// appointment (`date`). Both carry from/to times.
+export interface CourierStopWindow {
+  slot_code?: string;
+  date?: string;
+  from_time: string | null;
+  to_time: string | null;
+}
+
+export type CourierStopParcel =
+  | {
+      source: "warehouse";
+      id: string;
+      tracking_ref: string | null;
+      barcode: string;
+      status: WHParcelStatus;
+      recipient_name: string | null;
+    }
+  | {
+      source: "parcels";
+      id: number;
+      tracking_number: string | null;
+      barcode: string | null;
+      status: string;
+    };
+
+export interface CourierStop {
+  action: CourierStopAction;
+  place_type: CourierStopPlaceType;
+  place: CourierStopPlace | null;
+  window: CourierStopWindow | null;
+  parcels: CourierStopParcel[];
+  parcel_count: number;
+}
+
+export interface GetCourierPlacesRes {
+  status: "success";
+  courier: {
+    user_id: string;
+    username: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    phone_number: string | null;
+    is_active: boolean;
+  };
+  stops: CourierStop[];
+  total_stops: number;
+}
+
 // POST /warehouse/assignments/bulk — partial success is normal: each parcel
 // lands in `assigned` or `failed`, and the call is 200 even if some fail.
 export interface BulkAssignRes {

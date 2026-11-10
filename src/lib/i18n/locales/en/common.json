@@ -1523,6 +1523,25 @@
       "notes": "Notes (optional)",
       "submit": "Confirm delivery",
       "submitting": "Confirming..."
+    },
+    "route": {
+      "title": "Today's route",
+      "hint": "Every stop on this courier's app — all warehouses and PUDO-flow parcels, grouped by place.",
+      "loadError": "Something went wrong loading this courier's route.",
+      "empty": "No stops right now.",
+      "noPlace": "No destination chosen yet",
+      "direction": {
+        "all": "All",
+        "pickup": "Pick up",
+        "deliver": "Drop off"
+      },
+      "placeType": {
+        "customer": "Customer",
+        "pudo": "PUDO point",
+        "warehouse": "Warehouse",
+        "merchant": "Merchant (return)",
+        "unassigned": "Unassigned"
+      }
     }
   },
   "warehousePudoReturns": {
