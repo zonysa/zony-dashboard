@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useGetClient } from "@/lib/hooks/useClient";
+import { Row } from "@tanstack/react-table";
+import { useGetClient, useGetClientParcels } from "@/lib/hooks/useClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +19,11 @@ import {
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Client } from "@/lib/schema/client.schema";
 import { PageContainer } from "@/components/PageContainer";
+import { DataTable } from "@/components/tables/data-table";
+import { Columns as ParcelColumns } from "@/components/tables/columns/parcels-columns";
+import { ParcelDetails } from "@/lib/schema/parcel.schema";
+
+const PARCELS_PER_PAGE = 20;
 
 // Helper function to get status variant
 const getStatusVariant = (status: string) => {
@@ -41,6 +48,19 @@ export default function ClientDetailPage() {
   const clientId = params.id as string;
 
   const { data, isLoading, error } = useGetClient(clientId);
+
+  const [parcelsPage, setParcelsPage] = useState(1);
+  const { data: parcels, isLoading: parcelsLoading } = useGetClientParcels(
+    clientId,
+    parcelsPage,
+    PARCELS_PER_PAGE,
+  );
+
+  const handleParcelClick = (row: Row<ParcelDetails>) => {
+    if (row.original.tracking_number) {
+      router.push(`/parcels/${row.original.tracking_number}`);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -276,6 +296,32 @@ export default function ClientDetailPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Parcels */}
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {t("clients.sections.parcels")}
+            {parcels?.total_parcels !== undefined && (
+              <span className="ms-2 text-sm font-normal text-muted-foreground">
+                ({parcels.total_parcels})
+              </span>
+            )}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={ParcelColumns({ t })}
+            data={parcels?.parcels || []}
+            onRowClick={handleParcelClick}
+            pageCount={parcels?.total_pages ?? 0}
+            pageIndex={parcelsPage - 1}
+            onPageChange={(pageIndex) => setParcelsPage(pageIndex + 1)}
+            totalResults={parcels?.total_parcels}
+            isLoading={parcelsLoading}
+          />
+        </CardContent>
+      </Card>
     </PageContainer>
   );
 }

@@ -133,7 +133,8 @@
     "sections": {
       "clientInfo": "Client Information",
       "financialInfo": "Financial Information",
-      "statistics": "Statistics"
+      "statistics": "Statistics",
+      "parcels": "Parcels"
     },
     "labels": {
       "client": "Client",

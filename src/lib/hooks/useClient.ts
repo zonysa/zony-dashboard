@@ -18,7 +18,8 @@ export const clientKeys = {
   list: (filters: string) => [...clientKeys.lists(), { filters }] as const,
   details: () => [...clientKeys.all, "detail"] as const,
   detail: (id: string) => [...clientKeys.details(), id] as const,
-  parcels: (id: string) => [...clientKeys.all, "parcels", id] as const,
+  parcels: (id: string, page = 1, limit = 20) =>
+    [...clientKeys.all, "parcels", id, { page, limit }] as const,
 };
 
 // Get all clients
@@ -45,10 +46,15 @@ export function useGetClient(id: string, enabled = true) {
 }
 
 // Get Client Parcels
-export function useGetClientParcels(id: string, enabled = true) {
+export function useGetClientParcels(
+  id: string,
+  page = 1,
+  limit = 20,
+  enabled = true,
+) {
   return useQuery({
-    queryKey: clientKeys.parcels(id),
-    queryFn: () => getClientParcels(id),
+    queryKey: clientKeys.parcels(id, page, limit),
+    queryFn: () => getClientParcels(id, page, limit),
     enabled: !!id && enabled,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,

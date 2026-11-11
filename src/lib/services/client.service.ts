@@ -36,10 +36,19 @@ export const getClient = async (id: string): Promise<ClientResponse> => {
 };
 
 // Get Client Parcels
-export const getClientParcels = async (id: string): Promise<getParcelsRes> => {
+export const getClientParcels = async (
+  id: string,
+  page = 1,
+  limit = 20,
+): Promise<getParcelsRes> => {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    // Backend reads `per_page`, not `limit`.
+    per_page: limit.toString(),
+  });
   const response = await apiCall<getParcelsRes>({
     method: "GET",
-    url: `/clients/${id}/parcels`,
+    url: `/clients/${id}/parcels?${params.toString()}`,
   });
   return response;
 };
