@@ -134,7 +134,8 @@
     "sections": {
       "clientInfo": "معلومات العميل",
       "financialInfo": "المعلومات المالية",
-      "statistics": "الإحصائيات"
+      "statistics": "الإحصائيات",
+      "parcels": "الطرود"
     },
     "labels": {
       "client": "عميل",
