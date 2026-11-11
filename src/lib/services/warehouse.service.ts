@@ -1,3 +1,4 @@
+import { GetCustomerMessagesRes } from "../schema/parcel.schema";
 import {
   AcceptHandoverData,
   AcceptHandoverRes,
@@ -411,6 +412,13 @@ export const getParcelEvents = async (
   id: string,
 ): Promise<GetParcelEventsRes> => {
   return apiCall({ method: "GET", url: `/warehouse/parcels/${id}/events` });
+};
+
+// Texts sent to the parcel's customer (delivery code masked server-side)
+export const getWHParcelMessages = async (
+  id: string,
+): Promise<GetCustomerMessagesRes> => {
+  return apiCall({ method: "GET", url: `/warehouse/parcels/${id}/messages` });
 };
 
 export const voidEvent = async (

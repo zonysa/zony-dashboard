@@ -988,7 +988,8 @@
       "partnerInfo": "Partner Info",
       "pudos": "PUDOs",
       "clientInfo": "Client Info",
-      "responsible": "Responsible Person"
+      "responsible": "Responsible Person",
+      "customerMessages": "Messages"
     },
     "sections": {
       "branchInfo": "Branch Info",
@@ -2232,6 +2233,41 @@
       "submitting": "Confirming...",
       "doneTitle": "Confirmed",
       "doneExplanation": "The customer has been texted a collection code. Their tracking number:"
+    }
+  },
+  "customerMessages": {
+    "title": "Customer messages",
+    "subtitle": "Every text sent to this parcel's customer, as they received it.",
+    "empty": "No messages have been sent to the customer yet.",
+    "loadError": "Couldn't load the customer's messages.",
+    "maskedNote": "Delivery and receiving codes are hidden as ••••.",
+    "noCopy": "Sent before message copies were kept — the text isn't available.",
+    "respondedAt": "Customer responded {{time}}",
+    "attempt": "Attempt {{n}}",
+    "error": "Error: {{error}}",
+    "channels": {
+      "sms": "SMS",
+      "whatsapp": "WhatsApp"
+    },
+    "statuses": {
+      "queued": "Queued",
+      "sent": "Sent",
+      "delivered": "Delivered",
+      "undelivered": "Not delivered",
+      "rejected": "Rejected",
+      "failed": "Failed"
+    },
+    "purposes": {
+      "slot_proposal": "Choose a delivery time",
+      "slot_confirmed": "Delivery time set",
+      "slot_assigned": "Delivery time assigned",
+      "received": "Parcel received",
+      "reminder": "Reminder",
+      "slot_scheduled": "Scheduled by staff (customer can change)",
+      "slot_scheduled_final": "Scheduled by staff",
+      "PUDO_received": "Ready for pickup",
+      "courier_received": "On its way",
+      "customer_received": "Collected"
     }
   }
 }

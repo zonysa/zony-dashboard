@@ -39,6 +39,8 @@ export enum Permission {
   EDIT_PARCELS = "edit:parcels",
   DELETE_PARCELS = "delete:parcels",
   TRACK_PARCELS = "track:parcels",
+  // Texts sent to a PUDO parcel's customer. Backend: admin + supervisor.
+  VIEW_PARCEL_MESSAGES = "view:parcel_messages",
   ASSIGN_PARCELS = "assign:parcels",
   PRINT_PARCELS = "print:parcels",
 
@@ -134,6 +136,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EDIT_PARCELS,
     Permission.DELETE_PARCELS,
     Permission.TRACK_PARCELS,
+    Permission.VIEW_PARCEL_MESSAGES,
     Permission.ASSIGN_PARCELS,
     Permission.PRINT_PARCELS,
     Permission.VIEW_CLIENTS,
@@ -227,6 +230,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     Permission.EDIT_PARCELS,
     Permission.DELETE_PARCELS,
     Permission.TRACK_PARCELS,
+    Permission.VIEW_PARCEL_MESSAGES,
     Permission.ASSIGN_PARCELS,
     Permission.PRINT_PARCELS,
     Permission.VIEW_CLIENTS,

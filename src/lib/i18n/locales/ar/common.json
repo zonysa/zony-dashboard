@@ -987,7 +987,8 @@
       "partnerInfo": "معلومات الشريك",
       "pudos": "PUDOs",
       "clientInfo": "معلومات العميل",
-      "responsible": "الشخص المسؤول"
+      "responsible": "الشخص المسؤول",
+      "customerMessages": "الرسائل"
     },
     "sections": {
       "branchInfo": "معلومات الفرع",
@@ -2228,6 +2229,41 @@
       "submitting": "جارٍ التأكيد...",
       "doneTitle": "تم التأكيد",
       "doneExplanation": "أُرسل للعميل رمز استلام عبر رسالة نصية. رقم تتبعه:"
+    }
+  },
+  "customerMessages": {
+    "title": "رسائل العميل",
+    "subtitle": "كل رسالة أُرسلت إلى عميل هذا الطرد كما وصلته.",
+    "empty": "لم تُرسل أي رسائل إلى العميل بعد.",
+    "loadError": "تعذّر تحميل رسائل العميل.",
+    "maskedNote": "رموز التسليم والاستلام مخفية بالشكل ••••.",
+    "noCopy": "أُرسلت قبل حفظ نسخ الرسائل — النص غير متاح.",
+    "respondedAt": "ردّ العميل {{time}}",
+    "attempt": "المحاولة {{n}}",
+    "error": "خطأ: {{error}}",
+    "channels": {
+      "sms": "رسالة نصية",
+      "whatsapp": "واتساب"
+    },
+    "statuses": {
+      "queued": "في الانتظار",
+      "sent": "أُرسلت",
+      "delivered": "وصلت",
+      "undelivered": "لم تصل",
+      "rejected": "مرفوضة",
+      "failed": "فشلت"
+    },
+    "purposes": {
+      "slot_proposal": "اختيار موعد التوصيل",
+      "slot_confirmed": "تم تحديد موعد التوصيل",
+      "slot_assigned": "تم تعيين موعد التوصيل",
+      "received": "تم استلام الطرد",
+      "reminder": "تذكير",
+      "slot_scheduled": "جدوله الموظف (يمكن للعميل تغييره)",
+      "slot_scheduled_final": "جدوله الموظف",
+      "PUDO_received": "جاهز للاستلام",
+      "courier_received": "في الطريق",
+      "customer_received": "تم الاستلام"
     }
   }
 }

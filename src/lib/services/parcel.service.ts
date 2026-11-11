@@ -2,6 +2,7 @@ import {
   CreateParcelRes,
   GetParcelRes,
   GetParcelTrackingRes,
+  GetCustomerMessagesRes,
   getParcelsRes,
   GetParcelFeedRes,
   parcelFeedFilterOptions,
@@ -104,6 +105,16 @@ export const getParcelTracking = async (
   return apiCall({
     method: "GET",
     url: `/parcels/${id}/tracking`,
+  });
+};
+
+// Texts sent to the parcel's customer (codes masked server-side)
+export const getParcelMessages = async (
+  id: string
+): Promise<GetCustomerMessagesRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/parcels/${id}/messages`,
   });
 };
 

@@ -23,6 +23,7 @@ import { notFound, useParams } from "next/navigation";
 
 import { Can } from "@/components/auth/Can";
 import { PageContainer } from "@/components/PageContainer";
+import { CustomerMessages } from "@/components/parcels/CustomerMessages";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -54,6 +55,7 @@ import {
   useGetCouriers,
   useGetParcel,
   useGetParcelEvents,
+  useGetWHParcelMessages,
   useResendCode,
   useVoidEvent,
 } from "@/lib/hooks/useWarehouse";
@@ -94,6 +96,11 @@ export default function WarehouseParcelDetailPage() {
     useGetParcel(parcelId);
   const { data: eventsRes, isLoading: eventsLoading, isError: eventsError } =
     useGetParcelEvents(parcelId);
+  const {
+    data: messagesRes,
+    isLoading: messagesLoading,
+    isError: messagesError,
+  } = useGetWHParcelMessages(parcelId);
   // Names for whichever PUDO ids this parcel's status/dialog need — its
   // planned destination, and once handed over, the shop it actually went to.
   // Empty for a warehouse clerk, who may not list PUDOs; ids show bare then.
@@ -393,6 +400,22 @@ export default function WarehouseParcelDetailPage() {
                   ))}
                 </ol>
               )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("customerMessages.title")}</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {t("customerMessages.subtitle")}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <CustomerMessages
+                messages={messagesRes?.messages ?? []}
+                isLoading={messagesLoading}
+                isError={messagesError}
+              />
             </CardContent>
           </Card>
         </div>
