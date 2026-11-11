@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run dev      # Start dev server (Next.js + Turbopack), http://localhost:3000
+npm run dev      # Start dev server (Next.js + Turbopack), http://localhost:5173
 npm run build    # Production build (Turbopack)
 npm run start    # Serve a production build
 npm run lint     # ESLint (next/core-web-vitals + next/typescript configs)
