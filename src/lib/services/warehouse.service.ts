@@ -5,6 +5,9 @@ import {
   AssignParcelData,
   AssignWarehouseStaffRes,
   BinParcelData,
+  GetAvailableSlotsRes,
+  ScheduleParcelData,
+  WHScheduleParcelRes,
   BulkAssignData,
   BatchHandoverData,
   BatchMembershipData,
@@ -119,6 +122,26 @@ export const binParcel = async (
   data: BinParcelData,
 ): Promise<WHScanEventRes> => {
   return apiCall({ method: "POST", url: `/warehouse/parcels/${id}/bin`, data });
+};
+
+export const scheduleParcel = async (
+  id: string,
+  data: ScheduleParcelData,
+): Promise<WHScheduleParcelRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/warehouse/parcels/${id}/schedule`,
+    data,
+  });
+};
+
+export const getAvailableSlots = async (
+  warehouseId: number,
+): Promise<GetAvailableSlotsRes> => {
+  return apiCall({
+    method: "GET",
+    url: `/warehouse/slots/available?warehouse_id=${warehouseId}`,
+  });
 };
 
 export const checkoutParcel = async (
