@@ -31,10 +31,11 @@ export default function Page() {
 
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search, 400);
 
   const query: parcelFeedFilterOptions = {
-    page: 1,
+    page,
     limit: 50,
     flow: "all",
     // Barcode is the one identifier both flows carry, so it is what a single
@@ -73,6 +74,18 @@ export default function Page() {
     },
   ];
 
+  // Any change to what is being queried has to send us back to page 1 —
+  // staying on page 4 of the old result set would show an empty table.
+  const handleFilterChange = (newFilters: Record<string, string>) => {
+    setFilters(newFilters);
+    setPage(1);
+  };
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
   const handleRowClick = (row: Row<ParcelFeedRow>) => {
     const parcel = row.original;
     // The two flows have separate detail screens keyed differently: the PUDO
@@ -98,8 +111,12 @@ export default function Page() {
         searchPlaceholder={t("parcelFeed.searchPlaceholder")}
         onRowClick={handleRowClick}
         serverSide={true}
-        onFilterChange={setFilters}
-        onSearchChange={setSearch}
+        onFilterChange={handleFilterChange}
+        onSearchChange={handleSearchChange}
+        pageCount={parcels?.total_pages ?? 0}
+        pageIndex={page - 1}
+        onPageChange={(pageIndex) => setPage(pageIndex + 1)}
+        totalResults={parcels?.total_parcels}
         isLoading={isLoading}
       />
     </PageContainer>
