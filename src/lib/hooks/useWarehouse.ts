@@ -103,6 +103,7 @@ import {
   getLoadingManifest,
   getParcel,
   getParcelEvents,
+  getWHParcelMessages,
   getPendingHandovers,
   getPudoReturns,
   getReport,
@@ -133,7 +134,10 @@ import {
 } from "@/lib/services/warehouse.service";
 import { ApiError } from "@/lib/services/apiClient";
 import { getParcelById, getParcels } from "@/lib/services/parcel.service";
-import { ParcelDetails } from "@/lib/schema/parcel.schema";
+import {
+  GetCustomerMessagesRes,
+  ParcelDetails,
+} from "@/lib/schema/parcel.schema";
 import { parcelKeys } from "@/lib/hooks/useParcel";
 import { normalizeSaudiPhone } from "@/lib/validators/phone";
 
@@ -146,6 +150,10 @@ export const warehouseKeys = {
   details: () => [...warehouseKeys.all, "detail"] as const,
   detail: (id: string) => [...warehouseKeys.details(), id] as const,
   events: (id: string) => [...warehouseKeys.detail(id), "events"] as const,
+  // Under detail(id) so every scan's invalidation of the parcel refreshes it
+  // too — a scan or a code resend may have just texted the customer.
+  messages: (id: string) =>
+    [...warehouseKeys.detail(id), "messages"] as const,
   barcode: (barcode: string) =>
     [...warehouseKeys.all, "barcode", barcode] as const,
 
@@ -831,6 +839,18 @@ export function useGetParcelEvents(id: string, enabled = true) {
   return useQuery<GetParcelEventsRes>({
     queryKey: warehouseKeys.events(id),
     queryFn: () => getParcelEvents(id),
+    enabled: !!id && enabled,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+export function useGetWHParcelMessages(id: string, enabled = true) {
+  return useQuery<GetCustomerMessagesRes>({
+    queryKey: warehouseKeys.messages(id),
+    queryFn: () => getWHParcelMessages(id),
     enabled: !!id && enabled,
     staleTime: 0,
     gcTime: 5 * 60 * 1000,

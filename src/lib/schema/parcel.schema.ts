@@ -410,3 +410,30 @@ export type CreateParcelFormData = z.infer<typeof createParcelSchema>;
 export type ParcelPartyFormData = z.infer<typeof parcelPartySchema>;
 export type DimensionsFormData = z.infer<typeof dimensionsSchema>;
 export type ParcelContentFormData = z.infer<typeof parcelContentSchema>;
+
+// --- texts sent to the customer ---------------------------------------------
+//
+// One shape for both flows (`/parcels/:id/messages` and
+// `/warehouse/parcels/:id/messages`). `body` is the text as sent with any
+// delivery/receiving code replaced by "••••" — the backend never stores the
+// real code alongside it. Fields only one flow records are optional.
+export interface CustomerMessage {
+  id: string;
+  channel: "sms" | "whatsapp" | string;
+  /** Why it was sent: a PUDO parcel status, or a warehouse message purpose. */
+  purpose: string;
+  /** PUDO: sent | failed. Warehouse: queued | sent | delivered | undelivered | rejected. */
+  status: string;
+  /** Null on warehouse messages sent before the backend kept a copy. */
+  body: string | null;
+  sent_at: string | null;
+  error?: string | null;
+  attempt_no?: number;
+  delivered_at?: string | null;
+  responded_at?: string | null;
+}
+
+export interface GetCustomerMessagesRes {
+  status: "success";
+  messages: CustomerMessage[];
+}

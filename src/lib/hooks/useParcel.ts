@@ -1,6 +1,7 @@
 import {
   GetParcelRes,
   GetParcelTrackingRes,
+  GetCustomerMessagesRes,
   getParcelsRes,
   GetParcelFeedRes,
   parcelFeedFilterOptions,
@@ -17,6 +18,7 @@ import {
   getParcelFeed,
   getParcels,
   getParcelTracking,
+  getParcelMessages,
   updateParcel,
 } from "../services/parcel.service";
 import Error from "next/error";
@@ -31,6 +33,7 @@ export const parcelKeys = {
   detailByTrackingNumber: (trackingNumber: string) =>
     [...parcelKeys.details(), "byTrackingNumber", trackingNumber] as const,
   tracking: (id: string) => [...parcelKeys.detail(id), "tracking"] as const,
+  messages: (id: string) => [...parcelKeys.detail(id), "messages"] as const,
 };
 
 export function useCreateParcel() {
@@ -121,6 +124,19 @@ export function useGetParcelTracking(id: string, enabled = true) {
     queryFn: () => getParcelTracking(id),
     enabled: !!id && enabled,
     staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// Texts sent to the parcel's customer
+export function useGetParcelMessages(id: string, enabled = true) {
+  return useQuery<GetCustomerMessagesRes>({
+    queryKey: parcelKeys.messages(id),
+    queryFn: () => getParcelMessages(id),
+    enabled: !!id && enabled,
+    staleTime: 60 * 1000,
     gcTime: 10 * 60 * 1000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),

@@ -6,9 +6,20 @@ import DataItem from "@/components/ui/DataItem";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useGetParcelByTrackingNumber,
+  useGetParcelMessages,
   useGetParcelTracking,
 } from "@/lib/hooks/useParcel";
-import { ArrowRight, Box, Clock, Package, Printer, Store, Truck, User } from "lucide-react";
+import {
+  ArrowRight,
+  Box,
+  Clock,
+  MessageSquare,
+  Package,
+  Printer,
+  Store,
+  Truck,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { useTranslation } from "@/lib/hooks/useTranslation";
@@ -16,6 +27,8 @@ import { Can } from "@/components/auth/Can";
 import { Permission } from "@/lib/rbac/permissions";
 import { PageContainer } from "@/components/PageContainer";
 import { ParcelTrackingTimeline } from "@/components/parcels/ParcelTrackingTimeline";
+import { CustomerMessages } from "@/components/parcels/CustomerMessages";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
@@ -54,6 +67,14 @@ export default function Page() {
     isLoading: isTrackingLoading,
     isError: isTrackingError,
   } = useGetParcelTracking(parcelId, !!parcelId);
+  // Gate the fetch, not just the tab: the endpoint 403s for other roles.
+  const { hasPermission } = usePermissions();
+  const canViewMessages = hasPermission(Permission.VIEW_PARCEL_MESSAGES);
+  const {
+    data: messages,
+    isLoading: isMessagesLoading,
+    isError: isMessagesError,
+  } = useGetParcelMessages(parcelId, !!parcelId && canViewMessages);
 
   // Handle missing tracking number after all hooks are called
   if (!trackingNumber) {
@@ -81,6 +102,9 @@ export default function Page() {
             <TabsTrigger value="info">{t("detailPages.tabs.parcelInfo")}</TabsTrigger>
             <Can do={Permission.TRACK_PARCELS}>
               <TabsTrigger value="tracking">{t("detailPages.tabs.parcelTracking")}</TabsTrigger>
+            </Can>
+            <Can do={Permission.VIEW_PARCEL_MESSAGES}>
+              <TabsTrigger value="messages">{t("detailPages.tabs.customerMessages")}</TabsTrigger>
             </Can>
           </div>
         </TabsList>
@@ -415,6 +439,25 @@ export default function Page() {
                   events={tracking?.events ?? []}
                   isLoading={isTrackingLoading}
                   isError={isTrackingError}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Can>
+        <Can do={Permission.VIEW_PARCEL_MESSAGES}>
+          <TabsContent value="messages" className="py-10 px-6">
+            <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
+              <DataItem
+                isHeading={true}
+                label={t("customerMessages.title")}
+                value={t("customerMessages.subtitle")}
+                icon={MessageSquare}
+              />
+              <CardContent className="flex-1">
+                <CustomerMessages
+                  messages={messages?.messages ?? []}
+                  isLoading={isMessagesLoading}
+                  isError={isMessagesError}
                 />
               </CardContent>
             </Card>
