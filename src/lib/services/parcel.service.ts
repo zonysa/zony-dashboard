@@ -69,6 +69,15 @@ export const getParcelFeed = async (
   if (filters?.limit) params.append("per_page", filters.limit.toString());
   if (filters?.barcode) params.append("barcode", filters.barcode);
   if (filters?.route) params.append("route", filters.route);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.city) params.append("city", filters.city);
+  if (filters?.source) params.append("source", filters.source);
+  if (filters?.start_date) params.append("start_date", filters.start_date);
+  if (filters?.end_date) params.append("end_date", filters.end_date);
+  if (filters?.received_start_date)
+    params.append("received_start_date", filters.received_start_date);
+  if (filters?.received_end_date)
+    params.append("received_end_date", filters.received_end_date);
 
   return apiCall({
     method: "GET",

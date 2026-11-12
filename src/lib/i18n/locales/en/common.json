@@ -109,6 +109,10 @@
     "place": "Place",
     "recipient": "Recipient",
     "searchPlaceholder": "Search by barcode...",
+    "allSources": "All sources",
+    "createdDate": "Date",
+    "receiptDate": "Receipt date",
+    "anyDate": "Any date",
     "flows": {
       "pudo": "PUDO",
       "warehouse": "Warehouse"

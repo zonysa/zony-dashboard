@@ -245,7 +245,18 @@ export type GetParcelFeedRes = {
   status: "success" | "error";
   total_pages: number;
   total_parcels: number;
+  /**
+   * Statuses and cities present across every row the caller may see, before
+   * filtering — the feed spans two status vocabularies, so the filter
+   * dropdowns are built from this rather than a hand-kept list.
+   */
+  facets?: ParcelFeedFacets;
 };
+
+export interface ParcelFeedFacets {
+  statuses: string[];
+  cities: string[];
+}
 
 export interface parcelFeedFilterOptions {
   page?: number;
@@ -255,6 +266,18 @@ export interface parcelFeedFilterOptions {
   /** "all" merges both flows; "warehouse" is the warehouse module alone. */
   flow?: "all" | "warehouse";
   route?: ParcelRoute;
+  /** Exact match on the status the row displays (either flow's vocabulary). */
+  status?: string;
+  /** Case-insensitive match on the row's city name. */
+  city?: string;
+  /** Narrows the merged rows by their `flow`; unlike `flow`, keeps the row shape. */
+  source?: ParcelFlow;
+  /** Inclusive created-date range, `yyyy-MM-dd` local days. */
+  start_date?: string;
+  end_date?: string;
+  /** Inclusive receipt-date range on `received_at`; unreceived rows never match. */
+  received_start_date?: string;
+  received_end_date?: string;
 }
 
 // Filter

@@ -110,6 +110,10 @@
     "place": "المكان",
     "recipient": "المستلم",
     "searchPlaceholder": "بحث بالباركود...",
+    "allSources": "كل المصادر",
+    "createdDate": "التاريخ",
+    "receiptDate": "تاريخ الاستلام",
+    "anyDate": "أي تاريخ",
     "flows": {
       "pudo": "نقطة استلام",
       "warehouse": "مستودع"

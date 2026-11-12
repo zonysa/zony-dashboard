@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
@@ -11,8 +11,10 @@ import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useGetParcelFeed } from "@/lib/hooks/useParcel";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import {
+  ParcelFeedFacets,
   ParcelFeedRow,
   parcelFeedFilterOptions,
+  ParcelFlow,
   ParcelRoute,
 } from "@/lib/schema/parcel.schema";
 
@@ -42,14 +44,30 @@ export default function Page() {
     // search box can honestly match on.
     barcode: debouncedSearch || undefined,
     route: (filters.route as ParcelRoute) || undefined,
+    status: filters.status || undefined,
+    city: filters.city || undefined,
+    source: (filters.source as ParcelFlow) || undefined,
+    // DataTable's dateRange filters emit `${key}_from` / `${key}_to`.
+    start_date: filters.created_from || undefined,
+    end_date: filters.created_to || undefined,
+    received_start_date: filters.received_from || undefined,
+    received_end_date: filters.received_to || undefined,
   };
 
   const { data: parcels, isLoading } = useGetParcelFeed(query);
 
-  // Only route is offered. The old client/city/zone filters were PUDO-only
-  // fields, so on a merged list they would silently drop every warehouse row —
-  // worse than not offering them. They come back if the backend learns to map
-  // them onto both flows.
+  // Status and city options come from the feed itself: the two flows have
+  // different status vocabularies, and a warehouse row's city can be a
+  // free-text address snapshot, so no fixed list would match the rows. The
+  // server computes these before filtering, so they don't shrink as filters
+  // apply — held here so the dropdowns don't empty while a new page loads.
+  const [facets, setFacets] = useState<ParcelFeedFacets>();
+  useEffect(() => {
+    if (parcels?.facets) setFacets(parcels.facets);
+  }, [parcels?.facets]);
+
+  // Every filter here matches a value both flows carry. Client/zone stay out:
+  // they are PUDO-only fields and would silently drop every warehouse row.
   const filterConfigs = [
     {
       key: "route",
@@ -71,6 +89,49 @@ export default function Page() {
         },
         { label: t("parcelFeed.routes.unknown"), value: "unknown" },
       ],
+    },
+    {
+      key: "status",
+      label: t("table.status"),
+      placeholder: t("table.allStatus"),
+      options: (facets?.statuses ?? []).map((status) => ({
+        // Same label the Status column shows for it.
+        label: t(
+          `parcelTracking.eventCodes.${status}`,
+          status.replace(/_/g, " "),
+        ),
+        value: status,
+      })),
+    },
+    {
+      key: "city",
+      label: t("table.city"),
+      placeholder: t("table.allCities"),
+      options: (facets?.cities ?? []).map((city) => ({
+        label: city,
+        value: city,
+      })),
+    },
+    {
+      key: "source",
+      label: t("parcelFeed.flow"),
+      placeholder: t("parcelFeed.allSources"),
+      options: (["pudo", "warehouse"] as const).map((flow) => ({
+        label: t(`parcelFeed.flows.${flow}`),
+        value: flow,
+      })),
+    },
+    {
+      key: "created",
+      type: "dateRange" as const,
+      label: t("parcelFeed.createdDate"),
+      placeholder: t("parcelFeed.anyDate"),
+    },
+    {
+      key: "received",
+      type: "dateRange" as const,
+      label: t("parcelFeed.receiptDate"),
+      placeholder: t("parcelFeed.anyDate"),
     },
   ];
 
