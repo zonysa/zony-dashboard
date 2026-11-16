@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { registerSchema } from "./auth.schema";
+import type { ListStats } from "./api.types";
 
 // Get Partner Response
 export interface PartnerDetails {
@@ -24,6 +25,7 @@ export interface PartnerDetails {
 // Get Partners Response
 export interface GetPartnersRes {
   partners: PartnerDetails[];
+  stats?: ListStats;
   total: number;
   page: number;
   limit: number;

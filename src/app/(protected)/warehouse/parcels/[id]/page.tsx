@@ -8,7 +8,7 @@ import {
   Boxes,
   CheckCircle2,
   Clock,
-  MapPin,
+  MessageSquare,
   Package,
   PackageCheck,
   RotateCcw,
@@ -16,6 +16,7 @@ import {
   Store,
   Truck,
   Undo2,
+  User,
   UserCheck,
   XCircle,
 } from "lucide-react";
@@ -26,7 +27,8 @@ import { PageContainer } from "@/components/PageContainer";
 import { CustomerMessages } from "@/components/parcels/CustomerMessages";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import DataItem from "@/components/ui/DataItem";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +39,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   AssignDialog,
@@ -45,6 +48,10 @@ import {
   ReturnedDialog,
   SendToRtoDialog,
 } from "@/components/warehouse/WarehouseDialogs";
+import {
+  HiddenDeliveryCodeNotice,
+  MaskedDeliveryCode,
+} from "@/components/warehouse/MaskedDeliveryCode";
 import { useResolvedWarehouseId } from "@/components/warehouse/WarehouseSelect";
 import { WarehouseStatusBadge } from "@/components/warehouse/WarehouseStatusBadge";
 import { cn } from "@/lib/utils";
@@ -90,7 +97,7 @@ const EVENT_ICON: Record<WHEventCode, React.ElementType> = {
 export default function WarehouseParcelDetailPage() {
   const params = useParams();
   const parcelId = (params.id as string) || "";
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const { data: parcelRes, isLoading: parcelLoading, isError: parcelError } =
     useGetParcel(parcelId);
@@ -135,28 +142,40 @@ export default function WarehouseParcelDetailPage() {
 
   const isLoading = parcelLoading || eventsLoading;
 
+  // Same shape as the PUDO parcel page (/parcels/[trackingNumber]): a title
+  // row with the actions, then tabs whose sections are rows of "heading on
+  // the start side, values on the end side".
+  const field = (label: string, value: string) => (
+    <DataItem label={label} value={value} />
+  );
+  const courierName = (() => {
+    if (!parcel?.assigned_courier_id) return "—";
+    const c = couriers.find((x) => x.user_id === parcel.assigned_courier_id);
+    return c ? courierLabel(c) : parcel.assigned_courier_id;
+  })();
+  const joinAddress = (a?: { line1?: string; district?: string; city?: string } | null) =>
+    [a?.line1, a?.district, a?.city].filter(Boolean).join(", ") || "—";
+
   return (
-    <PageContainer size="lg" className="px-6 py-10">
+    <PageContainer size="xl" className="flex flex-col gap-6 py-10">
       {(parcelError || eventsError) && (
-        <div className="mb-6 rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm text-destructive">
+        <div className="mx-6 rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm text-destructive">
           {t("warehouseParcel.loadError")}
         </div>
       )}
 
       {isLoading ? (
-        <div className="space-y-6">
+        <div className="space-y-6 px-6">
           <Skeleton className="h-40 w-full" />
           <Skeleton className="h-96 w-full" />
         </div>
       ) : !parcel ? (
-        <p className="text-sm text-muted-foreground">{t("warehouseParcel.notFound")}</p>
+        <p className="px-6 text-sm text-muted-foreground">{t("warehouseParcel.notFound")}</p>
       ) : (
-        <div className="space-y-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+        <>
+          <div className="flex w-full flex-wrap items-center justify-between gap-4 px-6">
             <div>
-              <h1 className="font-mono text-xl font-semibold text-foreground">
-                {parcel.barcode}
-              </h1>
+              <h1 className="font-mono text-lg font-semibold">{parcel.barcode}</h1>
               <p className="text-sm text-muted-foreground">{parcel.recipient_name}</p>
             </div>
             <Can do={Permission.MANAGE_WAREHOUSE}>
@@ -193,232 +212,222 @@ export default function WarehouseParcelDetailPage() {
                     {t("warehouseParcel.actions.returned")}
                   </Button>
                 )}
-                <Button type="button" variant="outline" onClick={() => setResendOpen(true)}>
-                  {t("warehouseParcel.actions.resendCode")}
-                </Button>
+                {/* A booked box has no delivery code yet: it is issued when
+                    the box is scanned in at Receiving. */}
+                {parcel.status !== "not_received" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setResendOpen(true)}
+                  >
+                    {t("warehouseParcel.actions.resendCode")}
+                  </Button>
+                )}
               </div>
             </Can>
           </div>
 
-          {/* The derived status, framed as the fold's output — not a stored
-              field. It's rendered above the log but explicitly described as
-              coming from it, per docs/warehouse-api.md §1: "never cache a
-              status and never compute one client-side." */}
-          <Card className="border-2">
-            <CardContent className="flex flex-wrap items-center justify-between gap-4 pt-6">
-              <div>
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                  {t("warehouseParcel.derivedStatus.label")}
-                </p>
-                <div className="mt-1">
-                  <WarehouseStatusBadge
-                    status={parcel.status}
-                    className="px-3 py-1 text-sm"
-                  />
-                </div>
+          <Tabs defaultValue="info" dir={isRTL ? "rtl" : "ltr"} className="w-full">
+            <TabsList className="flex justify-start bg-transparent px-6 gap-2">
+              <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
+                <TabsTrigger value="info">{t("detailPages.tabs.parcelInfo")}</TabsTrigger>
+                <TabsTrigger value="tracking">
+                  {t("detailPages.tabs.parcelTracking")}
+                </TabsTrigger>
+                <TabsTrigger value="messages">
+                  {t("detailPages.tabs.customerMessages")}
+                </TabsTrigger>
               </div>
-              <p className="max-w-sm text-xs text-muted-foreground">
-                {t("warehouseParcel.derivedStatus.explanation")}
-              </p>
-              <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-4">
-                <InfoStat label={t("warehouseParcel.fields.epoch")} value={String(parcel.epoch)} />
-                <InfoStat
-                  label={t("warehouseParcel.fields.attemptNumber")}
-                  value={String(parcel.attempt_number)}
-                />
-                <InfoStat
-                  label={t("warehouseParcel.fields.binCode")}
-                  value={parcel.bin_code ?? "—"}
-                />
-                <InfoStat
-                  label={t("warehouseParcel.fields.customerInteracted")}
-                  value={
-                    parcel.customer_interacted
-                      ? t("warehouseParcel.fields.yes")
-                      : t("warehouseParcel.fields.no")
-                  }
-                />
-                {parcel.pudo_id != null && (
-                  <InfoStat
-                    label={t("warehouseParcel.fields.handedToPudo")}
-                    value={pudoNameById.get(parcel.pudo_id) ?? `#${parcel.pudo_id}`}
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
+            </TabsList>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("warehouseParcel.routing.flowCard")}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <InfoStat
-                label={t("warehouseParcel.routing.flow")}
-                value={
-                  parcel.flow_type
-                    ? t(`warehouseParcel.routing.flows.${parcel.flow_type}`)
-                    : "—"
-                }
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.bucket")}
-                value={
-                  parcel.ucc_bucket
-                    ? t(`warehouseParcel.routing.buckets.${parcel.ucc_bucket}`)
-                    : "—"
-                }
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.failedAttempts")}
-                value={String(parcel.failed_attempts)}
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.retryHold")}
-                value={
-                  parcel.retry_hold
-                    ? t("warehouseParcel.routing.held")
-                    : "—"
-                }
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.returnType")}
-                value={
-                  parcel.return_type
-                    ? t(
-                        `warehouseQueue.returnTypes.${parcel.return_type as SendToRtoData["return_type"]}`,
-                      )
-                    : "—"
-                }
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.assignedCourier")}
-                value={
-                  parcel.assigned_courier_id
-                    ? (() => {
-                        const c = couriers.find(
-                          (x) => x.user_id === parcel.assigned_courier_id,
-                        );
-                        return c ? courierLabel(c) : parcel.assigned_courier_id;
-                      })()
-                    : "—"
-                }
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.merchant")}
-                value={parcel.merchant_id != null ? `#${parcel.merchant_id}` : "—"}
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.carrier")}
-                value={parcel.carrier_id != null ? `#${parcel.carrier_id}` : "—"}
-              />
-              <InfoStat
-                label={t("warehouseParcel.routing.batch")}
-                value={parcel.batch_id != null ? `#${parcel.batch_id}` : "—"}
-              />
-              {parcel.return_address && (
-                <div className="col-span-2 sm:col-span-3">
-                  <InfoStat
-                    label={t("warehouseParcel.routing.returnAddress")}
-                    value={
-                      [
-                        parcel.return_address.line1,
-                        parcel.return_address.district,
-                        parcel.return_address.city,
-                      ]
-                        .filter(Boolean)
-                        .join(", ") || "—"
-                    }
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            <TabsContent value="info" className="py-10">
+              <div className="flex flex-col gap-6">
+                {/* The derived status — the event log's output, never a
+                    stored field (docs/warehouse-api.md §1). */}
+                <SectionRow
+                  title={t("warehouseParcel.derivedStatus.label")}
+                  description={t("warehouseParcel.sections.statusDescription")}
+                  icon={Package}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="flex flex-col justify-start gap-1">
+                      <span className="text-gray-500 text-sm">
+                        {t("warehouseParcel.derivedStatus.label")}
+                      </span>
+                      <WarehouseStatusBadge
+                        status={parcel.status}
+                        className="w-fit px-3 py-1 text-sm"
+                      />
+                    </div>
+                    {field(t("warehouseParcel.fields.binCode"), parcel.bin_code ?? "—")}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field(
+                      t("warehouseParcel.fields.attemptNumber"),
+                      String(parcel.attempt_number),
+                    )}
+                    {field(t("warehouseParcel.fields.epoch"), String(parcel.epoch))}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field(
+                      t("warehouseParcel.fields.customerInteracted"),
+                      parcel.customer_interacted
+                        ? t("warehouseParcel.fields.yes")
+                        : t("warehouseParcel.fields.no"),
+                    )}
+                    {parcel.pudo_id != null &&
+                      field(
+                        t("warehouseParcel.fields.handedToPudo"),
+                        pudoNameById.get(parcel.pudo_id) ?? `#${parcel.pudo_id}`,
+                      )}
+                  </div>
+                </SectionRow>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("warehouseParcel.details.title")}</CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <InfoStat
-                label={t("warehouseParcel.fields.recipientPhone")}
-                value={parcel.recipient_phone}
-              />
-              <InfoStat
-                label={t("warehouseParcel.fields.trackingRef")}
-                value={parcel.tracking_ref ?? "—"}
-              />
-              <InfoStat
-                label={t("warehouseParcel.fields.zone")}
-                value={parcel.zone_id != null ? String(parcel.zone_id) : "—"}
-              />
-              <InfoStat
-                label={t("warehouseParcel.fields.experimentArm")}
-                value={parcel.experiment_arm}
-              />
-              <InfoStat
-                label={t("warehouseParcel.fields.createdAt")}
-                value={parcel.created_at}
-              />
-              <div className="flex items-start gap-2 sm:col-span-2">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                <InfoStat
-                  label={t("warehouseParcel.fields.address")}
-                  value={
-                    [parcel.address.line1, parcel.address.district, parcel.address.city]
-                      .filter(Boolean)
-                      .join(", ") || "—"
-                  }
-                />
-              </div>
-            </CardContent>
-          </Card>
+                <SectionRow
+                  title={t("warehouseParcel.routing.flowCard")}
+                  description={t("warehouseParcel.sections.routingDescription")}
+                  icon={Truck}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field(
+                      t("warehouseParcel.routing.flow"),
+                      parcel.flow_type
+                        ? t(`warehouseParcel.routing.flows.${parcel.flow_type}`)
+                        : "—",
+                    )}
+                    {field(
+                      t("warehouseParcel.routing.bucket"),
+                      parcel.ucc_bucket
+                        ? t(`warehouseParcel.routing.buckets.${parcel.ucc_bucket}`)
+                        : "—",
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field(t("warehouseParcel.routing.assignedCourier"), courierName)}
+                    {field(
+                      t("warehouseParcel.routing.failedAttempts"),
+                      String(parcel.failed_attempts),
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field(
+                      t("warehouseParcel.routing.retryHold"),
+                      parcel.retry_hold ? t("warehouseParcel.routing.held") : "—",
+                    )}
+                    {field(
+                      t("warehouseParcel.routing.returnType"),
+                      parcel.return_type
+                        ? t(
+                            `warehouseQueue.returnTypes.${parcel.return_type as SendToRtoData["return_type"]}`,
+                          )
+                        : "—",
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {field(
+                      t("warehouseParcel.routing.merchant"),
+                      parcel.merchant_id != null ? `#${parcel.merchant_id}` : "—",
+                    )}
+                    {field(
+                      t("warehouseParcel.routing.carrier"),
+                      parcel.carrier_id != null ? `#${parcel.carrier_id}` : "—",
+                    )}
+                    {field(
+                      t("warehouseParcel.routing.batch"),
+                      parcel.batch_id != null ? `#${parcel.batch_id}` : "—",
+                    )}
+                  </div>
+                  {parcel.return_address &&
+                    field(
+                      t("warehouseParcel.routing.returnAddress"),
+                      joinAddress(parcel.return_address),
+                    )}
+                </SectionRow>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("warehouseParcel.timeline.title")}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {t("warehouseParcel.timeline.subtitle")}
-              </p>
-            </CardHeader>
-            <CardContent>
-              {events.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t("warehouseParcel.timeline.empty")}
-                </p>
-              ) : (
-                <ol className="space-y-0">
-                  {events.map((event, idx) => (
-                    <TimelineRow
-                      key={event.id}
-                      event={event}
-                      isLast={idx === events.length - 1}
-                      isVoided={voidedEventIds.has(event.id)}
-                      onVoid={() => setVoidTarget(event)}
-                      pudoNameById={pudoNameById}
+                <SectionRow
+                  title={t("warehouseParcel.details.title")}
+                  description={t("warehouseParcel.sections.detailsDescription")}
+                  icon={User}
+                >
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <DataItem
+                      label={t("warehouseParcel.fields.recipientName")}
+                      value={parcel.recipient_name}
+                      valueClassName="text-primary"
                     />
-                  ))}
-                </ol>
-              )}
-            </CardContent>
-          </Card>
+                    {field(
+                      t("warehouseParcel.fields.recipientPhone"),
+                      parcel.recipient_phone,
+                    )}
+                  </div>
+                  {field(t("warehouseParcel.fields.address"), joinAddress(parcel.address))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field(
+                      t("warehouseParcel.fields.plannedPudo"),
+                      parcel.destination_pudo_id != null
+                        ? pudoNameById.get(parcel.destination_pudo_id) ??
+                            `#${parcel.destination_pudo_id}`
+                        : t("warehouseParcel.fields.homeDelivery"),
+                    )}
+                    {field(
+                      t("warehouseParcel.fields.zone"),
+                      parcel.zone_id != null ? String(parcel.zone_id) : "—",
+                    )}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {field(
+                      t("warehouseParcel.fields.trackingRef"),
+                      parcel.tracking_ref ?? "—",
+                    )}
+                    {field(t("warehouseParcel.fields.createdAt"), parcel.created_at)}
+                  </div>
+                  {field(t("warehouseParcel.fields.experimentArm"), parcel.experiment_arm)}
+                </SectionRow>
+              </div>
+            </TabsContent>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("customerMessages.title")}</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                {t("customerMessages.subtitle")}
-              </p>
-            </CardHeader>
-            <CardContent>
-              <CustomerMessages
-                messages={messagesRes?.messages ?? []}
-                isLoading={messagesLoading}
-                isError={messagesError}
-              />
-            </CardContent>
-          </Card>
-        </div>
+            <TabsContent value="tracking" className="py-10">
+              <SectionRow
+                title={t("warehouseParcel.timeline.title")}
+                description={t("warehouseParcel.timeline.subtitle")}
+                icon={Clock}
+              >
+                {events.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    {t("warehouseParcel.timeline.empty")}
+                  </p>
+                ) : (
+                  <ol className="space-y-0">
+                    {events.map((event, idx) => (
+                      <TimelineRow
+                        key={event.id}
+                        event={event}
+                        isLast={idx === events.length - 1}
+                        isVoided={voidedEventIds.has(event.id)}
+                        onVoid={() => setVoidTarget(event)}
+                        pudoNameById={pudoNameById}
+                      />
+                    ))}
+                  </ol>
+                )}
+              </SectionRow>
+            </TabsContent>
+
+            <TabsContent value="messages" className="py-10">
+              <SectionRow
+                title={t("customerMessages.title")}
+                description={t("customerMessages.subtitle")}
+                icon={MessageSquare}
+              >
+                <CustomerMessages
+                  messages={messagesRes?.messages ?? []}
+                  isLoading={messagesLoading}
+                  isError={messagesError}
+                />
+              </SectionRow>
+            </TabsContent>
+          </Tabs>
+        </>
       )}
 
       {parcel && resendOpen && (
@@ -489,12 +498,24 @@ export default function WarehouseParcelDetailPage() {
   );
 }
 
-function InfoStat({ label, value }: { label: string; value: string }) {
+// One section of the info/tracking/messages tabs, in the PUDO parcel page's
+// row style: heading + description on the start side, content on the end side.
+function SectionRow({
+  title,
+  description,
+  icon,
+  children,
+}: {
+  title: string;
+  description: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium text-foreground">{value}</p>
-    </div>
+    <Card className="flex flex-col sm:flex-row border-0 border-b px-6 rounded-none shadow-none">
+      <DataItem isHeading label={title} value={description} icon={icon} />
+      <CardContent className="min-w-0 flex-1 space-y-3">{children}</CardContent>
+    </Card>
   );
 }
 
@@ -619,13 +640,25 @@ function ResendCodeDialog({
   const { t } = useTranslation();
   const resendCode = useResendCode();
   // The new code lives only here, for as long as this dialog is open — the
-  // same show-once, never-store rule as the receiving screen.
-  const [newCode, setNewCode] = useState<string | null>(null);
+  // same show-once, never-store rule as the receiving screen. `done` is
+  // separate from the code: a clerk may get the rotation with no code at all
+  // (clerk_can_see_delivery_code off).
+  const [done, setDone] = useState<{
+    code: string | null;
+    hidden: boolean;
+    messageSent: boolean;
+  } | null>(null);
+  const [revealed, setRevealed] = useState(false);
 
   async function handleConfirm() {
     try {
       const data = await resendCode.mutateAsync(parcelId);
-      setNewCode(data.delivery_code);
+      setRevealed(false);
+      setDone({
+        code: data.delivery_code,
+        hidden: !!data.delivery_code_hidden,
+        messageSent: data.message_sent,
+      });
     } catch (err) {
       // useResendCode's onError already toasts the server message.
       console.error("Resend code failed:", err);
@@ -642,17 +675,19 @@ function ResendCodeDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {newCode ? (
+        {done?.code ? (
           <div className="space-y-2">
             <p className="text-sm text-muted-foreground">
               {t("warehouseParcel.resendDialog.newCode")}
             </p>
-            <div className="rounded-lg border-2 border-amber-500 bg-amber-50 py-6 text-center dark:bg-amber-950/30">
-              <div className="font-mono text-5xl font-bold tracking-[0.3em] text-amber-700 dark:text-amber-400">
-                {newCode}
-              </div>
-            </div>
+            <MaskedDeliveryCode
+              code={done.code}
+              revealed={revealed}
+              onRevealedChange={setRevealed}
+            />
           </div>
+        ) : done ? (
+          <HiddenDeliveryCodeNotice messageSent={done.messageSent} />
         ) : (
           <div className="flex items-start gap-2 rounded-lg border border-amber-500/50 bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-950/30 dark:text-amber-500">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -661,7 +696,7 @@ function ResendCodeDialog({
         )}
 
         <DialogFooter>
-          {newCode ? (
+          {done ? (
             <Button type="button" onClick={onClose}>
               {t("warehouseParcel.resendDialog.done")}
             </Button>

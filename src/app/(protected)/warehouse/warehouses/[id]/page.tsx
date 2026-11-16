@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Info, Plus, Trash2, UserPlus } from "lucide-react";
+import { ArrowLeft, Info, Pencil, Plus, Trash2, UserPlus } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
@@ -10,6 +10,7 @@ import { Can } from "@/components/auth/Can";
 import { RoleGuard } from "@/components/auth/RoleGuard";
 import CreateUserSheet from "@/components/CreateUserSheet";
 import { PageContainer } from "@/components/PageContainer";
+import EditClerkSheet from "@/components/warehouse/EditClerkSheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -456,6 +457,7 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
 
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [createOpen, setCreateOpen] = useState(false);
+  const [editUserId, setEditUserId] = useState<string | null>(null);
   const [removeTarget, setRemoveTarget] = useState<{
     userId: string;
     username: string;
@@ -562,6 +564,11 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
           onCreated={(user) => assign.mutate(user.id)}
         />
 
+        <EditClerkSheet
+          userId={editUserId}
+          onOpenChange={(open) => !open && setEditUserId(null)}
+        />
+
         {isLoading ? (
           <Skeleton className="h-40 w-full" />
         ) : !staff.length ? (
@@ -597,6 +604,20 @@ function StaffRosterCard({ warehouseId }: { warehouseId: number }) {
                     {member.assigned_at}
                   </TableCell>
                   <TableCell className="text-end">
+                    {/* Admin only, like creating one: PATCH /users is an
+                        admin endpoint, while supervisors can open this card. */}
+                    <RoleGuard allowedRoles={["admin"]} fallback={null}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        aria-label={t("warehouseBuildings.staff.edit.action")}
+                        title={t("warehouseBuildings.staff.edit.action")}
+                        onClick={() => setEditUserId(member.user_id)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </RoleGuard>
                     <Can do={Permission.EDIT_WAREHOUSE_SETTINGS}>
                       <Button
                         type="button"

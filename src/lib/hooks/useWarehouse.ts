@@ -124,6 +124,7 @@ import {
   listParcels,
   listWarehouses,
   markReturnedToOrigin,
+  preRegisterParcel,
   receivingScan,
   resendCode,
   returnParcel,
@@ -376,6 +377,27 @@ export function useReceivingScan() {
   });
 }
 
+// Create parcel → "Via warehouse". Not retried: unlike a scan there is no
+// idempotency key, and a retried booking with a generated barcode would
+// create a second parcel. The caller toasts, so the page can word it.
+export function usePreRegisterParcel() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: preRegisterParcel,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: warehouseKeys.all });
+      if (data?.parcel?.id) {
+        queryClient.setQueryData(warehouseKeys.detail(data.parcel.id), {
+          status: "success",
+          message: data.message,
+          parcel: data.parcel,
+        });
+      }
+    },
+  });
+}
+
 // Barcode resolution is a point-in-time lookup performed mid-scan, not data
 // worth caching for reuse — staleTime/gcTime 0 so a second scan of the same
 // barcode always hits the server, never a stale local result.
@@ -458,11 +480,20 @@ export function useReceivingLookup() {
           // Not known to the warehouse yet — the clerk's scanner reads the
           // box's barcode either way, so fall back to the main /parcels
           // system, which filters on exact barcode equality server-side.
-          const res = await getParcels({ barcode: query, limit: 2 });
-          const match = res.parcels?.[0];
-          if (!match) return null;
-          const { parcel } = await getParcelById(String(match.id));
-          return prefillFromMainParcel(parcel);
+          try {
+            const res = await getParcels({ barcode: query, limit: 2 });
+            const match = res.parcels?.[0];
+            if (!match) return null;
+            const { parcel } = await getParcelById(String(match.id));
+            return prefillFromMainParcel(parcel);
+          } catch (mainError) {
+            // The backend refuses /parcels to `warehouse_clerk`. The fallback
+            // is only a convenience: the warehouse already said this is a new
+            // box, so treat it as one rather than failing the lookup.
+            if (mainError instanceof ApiError && mainError.status === 403)
+              return null;
+            throw mainError;
+          }
         }
       }
 
@@ -976,6 +1007,8 @@ export function useAssignParcel() {
       toastScanEventSuccess(data);
       applyScanEventResult(queryClient, variables.id, data.parcel_status);
       queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+      // The Parcels page feed shows the derived status too.
+      queryClient.invalidateQueries({ queryKey: [...parcelKeys.all, "feed"] });
     },
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to assign courier");
@@ -995,6 +1028,8 @@ export function useUnassignParcel() {
       toastScanEventSuccess(data);
       applyScanEventResult(queryClient, variables.id, data.parcel_status);
       queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+      // The Parcels page feed shows the derived status too.
+      queryClient.invalidateQueries({ queryKey: [...parcelKeys.all, "feed"] });
     },
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to unassign courier");

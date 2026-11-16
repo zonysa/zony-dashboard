@@ -3,12 +3,14 @@ import {
   GetParcelRes,
   GetParcelTrackingRes,
   GetCustomerMessagesRes,
+  ResendCustomerMessageRes,
   getParcelsRes,
   GetParcelFeedRes,
   parcelFeedFilterOptions,
   parcelFilterOptions,
   ParcelFormData,
   CreateParcelFormData,
+  AssignParcelCourierData,
 } from "../schema/parcel.schema";
 import { apiCall, ApiError } from "./apiClient";
 
@@ -69,6 +71,16 @@ export const getParcelFeed = async (
   if (filters?.limit) params.append("per_page", filters.limit.toString());
   if (filters?.barcode) params.append("barcode", filters.barcode);
   if (filters?.route) params.append("route", filters.route);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.city) params.append("city", filters.city);
+  if (filters?.source) params.append("source", filters.source);
+  if (filters?.courier_id) params.append("courier_id", filters.courier_id);
+  if (filters?.start_date) params.append("start_date", filters.start_date);
+  if (filters?.end_date) params.append("end_date", filters.end_date);
+  if (filters?.received_start_date)
+    params.append("received_start_date", filters.received_start_date);
+  if (filters?.received_end_date)
+    params.append("received_end_date", filters.received_end_date);
 
   return apiCall({
     method: "GET",
@@ -118,11 +130,34 @@ export const getParcelMessages = async (
   });
 };
 
+// Re-text the customer the message for the parcel's current status
+export const resendParcelMessage = async (
+  id: string
+): Promise<ResendCustomerMessageRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/parcels/${id}/messages/resend`,
+  });
+};
+
 // Update Parcel by ID
 export const updateParcel = async (
   id: string,
   data: Partial<ParcelFormData>
 ) => {
+  return apiCall({
+    method: "PATCH",
+    url: `/parcels/${id}`,
+    data,
+  });
+};
+
+// Assign a courier to a PUDO-flow parcel. Same PATCH as updateParcel, kept
+// separate so the payload can only ever be the courier.
+export const assignParcelCourier = async (
+  id: string,
+  data: AssignParcelCourierData,
+): Promise<GetParcelRes> => {
   return apiCall({
     method: "PATCH",
     url: `/parcels/${id}`,

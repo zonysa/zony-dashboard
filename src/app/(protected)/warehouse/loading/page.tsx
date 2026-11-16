@@ -59,6 +59,7 @@ import {
 } from "@/lib/hooks/useWarehouse";
 import { Permission } from "@/lib/rbac/permissions";
 import {
+  ALL_SLOTS,
   canEmit,
   WHCourier,
   WHLoadingEntry,
@@ -119,10 +120,25 @@ function LoadingPageContent() {
     return map;
   }, [zonesData?.zones]);
 
-  const slotId =
-    slotIdParam && slots.some((s) => String(s.id) === slotIdParam)
-      ? slotIdParam
-      : "";
+  const slotLabelById = useMemo(() => {
+    const map = new Map<number, string>();
+    for (const slot of slots) {
+      map.set(slot.id, isRTL ? slot.label_ar : slot.label_en);
+    }
+    return map;
+  }, [slots, isRTL]);
+
+  // All slots is the default view. A specific slot from the URL waits for the
+  // slot list (to check it exists) rather than flashing the all-slots list
+  // first; one that doesn't exist falls back to all slots.
+  const slotId = !slotIdParam || slotIdParam === ALL_SLOTS
+    ? ALL_SLOTS
+    : !slotsData
+      ? ""
+      : slots.some((s) => String(s.id) === slotIdParam)
+        ? slotIdParam
+        : ALL_SLOTS;
+  const allSlots = slotId === ALL_SLOTS;
 
   const { data, isLoading, isError } = useGetLoadingManifest(
     slotId,
@@ -132,16 +148,19 @@ function LoadingPageContent() {
   const { nameById: pudoNameById } = usePudoNames();
 
   // Grouped by van run — home deliveries first, then each shop together — so
-  // the boxes for one run are loaded side by side. Stable within a run.
-  const parcels = useMemo(
-    () =>
-      [...(data?.parcels ?? [])].sort(
-        (a, b) =>
-          Number(a.destination === "pudo") - Number(b.destination === "pudo") ||
-          (a.destination_pudo_id ?? 0) - (b.destination_pudo_id ?? 0),
-      ),
-    [data?.parcels],
-  );
+  // the boxes for one run are loaded side by side. Stable within a run. Under
+  // "All slots" each slot's runs stay together, in the slots' own order.
+  const parcels = useMemo(() => {
+    const slotOrder = new Map(slots.map((s, i) => [s.id, i]));
+    const slotRank = (id: number | null) =>
+      id == null ? Number.MAX_SAFE_INTEGER : slotOrder.get(id) ?? id;
+    return [...(data?.parcels ?? [])].sort(
+      (a, b) =>
+        slotRank(a.slot_id) - slotRank(b.slot_id) ||
+        Number(a.destination === "pudo") - Number(b.destination === "pudo") ||
+        (a.destination_pudo_id ?? 0) - (b.destination_pudo_id ?? 0),
+    );
+  }, [data?.parcels, slots]);
 
   const [checkoutTarget, setCheckoutTarget] = useState<CheckoutTarget | null>(
     null,
@@ -206,6 +225,9 @@ function LoadingPageContent() {
                 />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value={ALL_SLOTS}>
+                  {t("warehouseLoading.allSlots")}
+                </SelectItem>
                 {slots
                   .filter((slot) => slot.is_active)
                   .map((slot) => (
@@ -248,15 +270,13 @@ function LoadingPageContent() {
           </div>
         </CardHeader>
         <CardContent>
-          {!slotId ? (
-            <p className="text-sm text-muted-foreground">
-              {t("warehouseLoading.manifest.pickSlot")}
-            </p>
-          ) : isLoading ? (
+          {!slotId || isLoading ? (
             <Skeleton className="h-64 w-full" />
           ) : !parcels.length ? (
             <p className="text-sm text-muted-foreground">
-              {t("warehouseLoading.manifest.empty")}
+              {allSlots
+                ? t("warehouseLoading.manifest.emptyAll")
+                : t("warehouseLoading.manifest.empty")}
             </p>
           ) : (
             <Table>
@@ -264,6 +284,9 @@ function LoadingPageContent() {
                 <TableRow>
                   <TableHead className="w-8" />
                   <TableHead>{t("warehouseLoading.table.barcode")}</TableHead>
+                  {allSlots && (
+                    <TableHead>{t("warehouseLoading.table.slot")}</TableHead>
+                  )}
                   <TableHead>{t("warehouseLoading.table.recipient")}</TableHead>
                   <TableHead>
                     {t("warehouseLoading.table.destination")}
@@ -282,6 +305,14 @@ function LoadingPageContent() {
                   <ManifestRow
                     key={entry.parcel_id}
                     entry={entry}
+                    slotName={
+                      allSlots
+                        ? entry.slot_id != null
+                          ? slotLabelById.get(entry.slot_id) ??
+                            `#${entry.slot_id}`
+                          : "—"
+                        : undefined
+                    }
                     pudoName={
                       entry.destination_pudo_id != null
                         ? pudoNameById.get(entry.destination_pudo_id)
@@ -362,6 +393,7 @@ function LoadingPageContent() {
 
 function ManifestRow({
   entry,
+  slotName,
   pudoName,
   zoneName,
   courierName,
@@ -372,6 +404,8 @@ function ManifestRow({
   onAssign,
 }: {
   entry: WHLoadingEntry;
+  // Only under "All slots", where it gets its own column.
+  slotName?: string;
   // Undefined for a role that can't list PUDOs; the bare id shows instead.
   pudoName?: string;
   zoneName?: string;
@@ -402,6 +436,7 @@ function ManifestRow({
         </Can>
       </TableCell>
       <TableCell className="font-mono">{entry.barcode}</TableCell>
+      {slotName !== undefined && <TableCell>{slotName}</TableCell>}
       <TableCell>{entry.recipient_name}</TableCell>
       <TableCell>
         {entry.destination === "pudo" ? (

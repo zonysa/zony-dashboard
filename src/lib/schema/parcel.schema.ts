@@ -1,6 +1,7 @@
 import z from "zod";
 
 import { saudiPhoneSchema } from "@/lib/validators/phone";
+import type { ListStats } from "./api.types";
 
 // The statuses Parcel.status actually takes on the backend (see
 // ParcelUpdateSchema/ParcelPolicy) — not the same set of values as this
@@ -128,6 +129,13 @@ export interface ParcelTrackingEvent {
   occurred_at: string;
   location?: string | null;
   notes?: string | null;
+  /**
+   * Courier-assignment lines only (`courier_assigned`, `courier_claimed`,
+   * `courier_unassigned`), and only for admin and supervisor: the courier and
+   * the person who made the change. `courier_name` is null when unassigned.
+   */
+  courier_name?: string | null;
+  actor_name?: string | null;
 }
 
 // Type for the getParcelTracking API response
@@ -245,7 +253,23 @@ export type GetParcelFeedRes = {
   status: "success" | "error";
   total_pages: number;
   total_parcels: number;
+  /**
+   * Statuses and cities present across every row the caller may see, before
+   * filtering — the feed spans two status vocabularies, so the filter
+   * dropdowns are built from this rather than a hand-kept list.
+   */
+  facets?: ParcelFeedFacets;
+  /**
+   * Counts over every row the caller may see within the requested created-date
+   * period (start_date/end_date); the other filters narrow only the table.
+   */
+  stats?: ListStats;
 };
+
+export interface ParcelFeedFacets {
+  statuses: string[];
+  cities: string[];
+}
 
 export interface parcelFeedFilterOptions {
   page?: number;
@@ -255,6 +279,20 @@ export interface parcelFeedFilterOptions {
   /** "all" merges both flows; "warehouse" is the warehouse module alone. */
   flow?: "all" | "warehouse";
   route?: ParcelRoute;
+  /** Exact match on the status the row displays (either flow's vocabulary). */
+  status?: string;
+  /** Case-insensitive match on the row's city name. */
+  city?: string;
+  /** Narrows the merged rows by their `flow`; unlike `flow`, keeps the row shape. */
+  source?: ParcelFlow;
+  /** Only the parcels carrying this courier (user id), in either flow. */
+  courier_id?: string;
+  /** Inclusive created-date range, `yyyy-MM-dd` local days. */
+  start_date?: string;
+  end_date?: string;
+  /** Inclusive receipt-date range on `received_at`; unreceived rows never match. */
+  received_start_date?: string;
+  received_end_date?: string;
 }
 
 // Filter
@@ -411,6 +449,16 @@ export type ParcelPartyFormData = z.infer<typeof parcelPartySchema>;
 export type DimensionsFormData = z.infer<typeof dimensionsSchema>;
 export type ParcelContentFormData = z.infer<typeof parcelContentSchema>;
 
+// PUDO-flow courier assignment — PATCH /parcels/:id with just `courier_id`
+// (a users.id, max 50 chars server-side). On a `pending` parcel this overrides
+// courier self-claiming: the courier scope shows pending parcels only while
+// courier_id is empty, so the named courier gets it and the others stop seeing
+// it. The UI offers that to admins only (see lib/parcels/courierAssignment).
+export const assignParcelCourierSchema = z.object({
+  courier_id: z.string().min(1, "Select a courier").max(50),
+});
+export type AssignParcelCourierData = z.infer<typeof assignParcelCourierSchema>;
+
 // --- texts sent to the customer ---------------------------------------------
 //
 // One shape for both flows (`/parcels/:id/messages` and
@@ -422,7 +470,7 @@ export interface CustomerMessage {
   channel: "sms" | "whatsapp" | string;
   /** Why it was sent: a PUDO parcel status, or a warehouse message purpose. */
   purpose: string;
-  /** PUDO: sent | failed. Warehouse: queued | sent | delivered | undelivered | rejected. */
+  /** PUDO: sent | failed | skipped (test mode: never sent, body shows the real code). Warehouse: queued | sent | delivered | undelivered | rejected. */
   status: string;
   /** Null on warehouse messages sent before the backend kept a copy. */
   body: string | null;
@@ -436,4 +484,11 @@ export interface CustomerMessage {
 export interface GetCustomerMessagesRes {
   status: "success";
   messages: CustomerMessage[];
+}
+
+export interface ResendCustomerMessageRes {
+  status: "success";
+  message: string;
+  /** The logged copy of what went out; null if the log row couldn't be written. */
+  sent: CustomerMessage | null;
 }

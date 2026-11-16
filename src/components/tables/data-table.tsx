@@ -33,6 +33,8 @@ import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useUserPreferencesStore } from "@/lib/stores/user-preferences-store";
 import { Spinner } from "@/components/ui/spinner";
 import { DatePicker } from "@/components/ui/date-picker";
+import { DateRange, DateRangePicker } from "@/components/ui/date-range-picker";
+import { format } from "date-fns";
 
 interface FilterOption {
   value: string;
@@ -44,7 +46,10 @@ interface FilterConfig {
   label: string;
   placeholder: string;
   options?: FilterOption[];
-  type?: "select" | "date"; // Add type field
+  // "dateRange" is server-side only: it emits `${key}_from` / `${key}_to` as
+  // local-calendar `yyyy-MM-dd` days — not toISOString(), which would turn a
+  // picked midnight in UTC+3 into the previous day.
+  type?: "select" | "date" | "dateRange";
 }
 
 interface DataTableProps<TData, TValue> {
@@ -103,7 +108,12 @@ export function DataTable<TData, TValue>({
 
   // Local filter states for the UI
   const [localFilters, setLocalFilters] = useState<Record<string, string>>({});
-  const [localDateFilters, setLocalDateFilters] = useState<Record<string, Date | undefined>>({});
+  const [localDateFilters, setLocalDateFilters] = useState<
+    Record<string, Date | undefined>
+  >({});
+  const [localRangeFilters, setLocalRangeFilters] = useState<
+    Record<string, DateRange | undefined>
+  >({});
   const [localSearch, setLocalSearch] = useState("");
 
   const table = useReactTable({
@@ -164,6 +174,16 @@ export function DataTable<TData, TValue>({
           allFilters[key] = date.toISOString();
         }
       });
+      Object.entries(localRangeFilters).forEach(([key, range]) => {
+        if (range?.from) {
+          // One click in range mode leaves `to` unset: that means one day.
+          allFilters[`${key}_from`] = format(range.from, "yyyy-MM-dd");
+          allFilters[`${key}_to`] = format(
+            range.to ?? range.from,
+            "yyyy-MM-dd",
+          );
+        }
+      });
 
       onFilterChange?.(allFilters);
     } else {
@@ -191,6 +211,7 @@ export function DataTable<TData, TValue>({
   const clearFilters = () => {
     setLocalFilters({});
     setLocalDateFilters({});
+    setLocalRangeFilters({});
     setLocalSearch("");
     if (serverSide) {
       // Server-side mode: emit empty filters
@@ -217,9 +238,25 @@ export function DataTable<TData, TValue>({
     }));
   };
 
+  const updateLocalRangeFilter = (
+    key: string,
+    range: DateRange | undefined,
+  ) => {
+    setLocalRangeFilters((prev) => ({
+      ...prev,
+      [key]: range,
+    }));
+  };
+
+  const formatRange = (range: DateRange) =>
+    range.to && range.to.getTime() !== range.from!.getTime()
+      ? `${format(range.from!, "d MMM yyyy")} – ${format(range.to, "d MMM yyyy")}`
+      : format(range.from!, "d MMM yyyy");
+
   const hasActiveFilters =
     Object.values(localFilters).some(Boolean) ||
     Object.values(localDateFilters).some(Boolean) ||
+    Object.values(localRangeFilters).some((range) => range?.from) ||
     localSearch;
 
   return (
@@ -258,25 +295,41 @@ export function DataTable<TData, TValue>({
                     <span className="text-sm font-medium whitespace-nowrap">
                       {config.label}
                     </span>
-                    <Select
-                      value={localFilters[config.key] || ""}
-                      onValueChange={(value) =>
-                        updateLocalFilter(config.key, value)
-                      }
-                    >
-                      <SelectTrigger className="w-full sm:w-40">
-                        <SelectValue placeholder={config.placeholder} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(config.options || getUniqueValues(config.key)).map(
-                          (option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              <span className="capitalize">{option.label}</span>
-                            </SelectItem>
-                          )
-                        )}
-                      </SelectContent>
-                    </Select>
+                    {config.type === "dateRange" ? (
+                      <DateRangePicker
+                        range={localRangeFilters[config.key]}
+                        onSelect={(range) =>
+                          updateLocalRangeFilter(config.key, range)
+                        }
+                        placeholder={config.placeholder}
+                        className="sm:w-56"
+                      />
+                    ) : (
+                      <Select
+                        value={localFilters[config.key] || ""}
+                        onValueChange={(value) =>
+                          updateLocalFilter(config.key, value)
+                        }
+                      >
+                        <SelectTrigger className="w-full sm:w-40">
+                          <SelectValue placeholder={config.placeholder} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(config.options || getUniqueValues(config.key)).map(
+                            (option) => (
+                              <SelectItem
+                                key={option.value}
+                                value={option.value}
+                              >
+                                <span className="capitalize">
+                                  {option.label}
+                                </span>
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
                 ))}
             </div>
@@ -311,16 +364,30 @@ export function DataTable<TData, TValue>({
                   Search: {localSearch}
                 </span>
               )}
-              {Object.entries(localFilters).map(([key, value]) =>
-                value ? (
+              {Object.entries(localFilters).map(([key, value]) => {
+                if (!value) return null;
+                const config = filterConfigs.find((c) => c.key === key);
+                return (
+                  <span
+                    key={key}
+                    className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-xs"
+                  >
+                    {config?.label || key}:{" "}
+                    {config?.options?.find((o) => o.value === value)?.label ??
+                      value}
+                  </span>
+                );
+              })}
+              {Object.entries(localRangeFilters).map(([key, range]) =>
+                range?.from ? (
                   <span
                     key={key}
                     className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-xs"
                   >
                     {filterConfigs.find((c) => c.key === key)?.label || key}:{" "}
-                    {value}
+                    {formatRange(range)}
                   </span>
-                ) : null
+                ) : null,
               )}
             </div>
           )}

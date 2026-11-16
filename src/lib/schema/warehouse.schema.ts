@@ -219,7 +219,8 @@ export interface WHWallEntry {
 }
 
 export interface WHWallCell {
-  zone_id: number;
+  // Null for a box received without a zone; the Wall shows it under "No zone".
+  zone_id: number | null;
   slot_id: number;
   count: number;
   parcels: WHWallEntry[];
@@ -394,6 +395,8 @@ export interface GetFailureReasonsRes {
 export interface WHLoadingEntry {
   parcel_id: string;
   barcode: string;
+  // The slot the box is booked into; what tells rows apart under "All slots".
+  slot_id: number | null;
   destination: "customer" | "pudo";
   destination_pudo_id: number | null;
   recipient_name: string;
@@ -408,9 +411,13 @@ export interface WHLoadingEntry {
   assigned_courier_id: string | null;
 }
 
+// The Loading screen's "All slots" choice: the manifest for every slot.
+export const ALL_SLOTS = "all";
+
 export interface GetLoadingManifestRes {
   status: "success";
-  slot_id: number;
+  // Null for the all-slots manifest.
+  slot_id: number | null;
   warehouse_id: number;
   date: string;
   count: number;
@@ -790,6 +797,10 @@ export interface WHReceivingScanRes {
   parcel: WHParcel;
   assigned_slot: WHAssignedSlot | null;
   delivery_code: string | null;
+  // True when the code exists but was withheld from this caller (a clerk at a
+  // warehouse with `clerk_can_see_delivery_code` off), as opposed to a replay
+  // where only the hash is left.
+  delivery_code_hidden?: boolean;
   message_sent: boolean;
   message_channel: string;
   message_status: string;
@@ -800,7 +811,9 @@ export interface WHReceivingScanRes {
 export interface WHResendCodeRes {
   status: "success";
   message: string;
-  delivery_code: string;
+  // null when withheld from a clerk; see WHReceivingScanRes.
+  delivery_code: string | null;
+  delivery_code_hidden?: boolean;
   message_sent: boolean;
   message_channel: string;
   message_status: string;
@@ -926,6 +939,33 @@ export const receivingScanSchema = z.object({
   client_event_id: clientEventIdSchema,
 });
 export type ReceivingScanData = z.infer<typeof receivingScanSchema>;
+
+// Create parcel → "Via warehouse": book a box before it arrives. The server
+// records no event, so the parcel is `not_received` until the receiving scan
+// of its barcode takes it in (and only then issues the delivery code and
+// texts the customer). A blank barcode means the server generates one.
+export const preRegisterSchema = z.object({
+  warehouse_id: z.number().int().positive(),
+  barcode: z.string().max(64).optional(),
+  tracking_ref: z.string().max(64).optional(),
+  recipient_name: z.string().min(1, "Recipient name is required"),
+  recipient_phone: saudiPhoneSchema,
+  address: addressSchema,
+  // Required here, though the API accepts none: a box booked without a zone
+  // has no row on the Wall. Marketplace boxes that arrive with no booking get
+  // their zone at Receiving instead.
+  zone_id: z.number({ error: "Zone is required" }).int().positive(),
+  destination_pudo_id: z.number().int().positive().optional(),
+});
+export type PreRegisterData = z.infer<typeof preRegisterSchema>;
+
+export interface PreRegisterRes {
+  status: "success";
+  message: string;
+  parcel: WHParcel;
+  // True when the server minted the barcode, i.e. the box needs a Zony label.
+  barcode_generated: boolean;
+}
 
 // ---- Receiving-screen lookup ----
 // The receiving form takes one identifier, and which module can answer for it

@@ -1,20 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
+import { CircleAlert, Package, PackageCheck, Truck } from "lucide-react";
 
-import { FeedColumns } from "@/components/tables/columns/parcel-feed-columns";
+import {
+  FeedColumns,
+  parcelStatusLabel,
+  parcelStatusVariant,
+} from "@/components/tables/columns/parcel-feed-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { PageContainer } from "@/components/PageContainer";
+import { StatsCards, percentOf } from "@/components/StatsCards";
+import {
+  Period,
+  PeriodFilter,
+  periodRange,
+} from "@/components/PeriodFilter";
+import type { DateRange } from "@/components/ui/date-range-picker";
+import { FeedAssignDialog } from "@/components/parcels/FeedAssignDialog";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useGetParcelFeed } from "@/lib/hooks/useParcel";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { Permission } from "@/lib/rbac/permissions";
+import type { ListStats } from "@/lib/schema/api.types";
 import {
+  ParcelFeedFacets,
   ParcelFeedRow,
   parcelFeedFilterOptions,
+  ParcelFlow,
   ParcelRoute,
 } from "@/lib/schema/parcel.schema";
+
+/**
+ * Feed status counts summed by meaning, using the same grouping that colours
+ * the Status column — the server sends raw per-status counts because the two
+ * flows' vocabularies are only reconciled here.
+ */
+function countByVariant(stats: ListStats) {
+  const totals = { success: 0, outline: 0, destructive: 0, secondary: 0 };
+  for (const [status, n] of Object.entries(stats.by_status ?? {})) {
+    totals[parcelStatusVariant(status)] += n;
+  }
+  return totals;
+}
 
 /**
  * Every parcel Zony handles, across both flows.
@@ -26,13 +57,42 @@ import {
  * for one flow or the other.
  */
 export default function Page() {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const router = useRouter();
+  const { hasPermission, hasRole } = usePermissions();
+  const canAssignWarehouse = hasPermission(Permission.MANAGE_WAREHOUSE);
+  // Supervisors and clerks see the PUDO button too; only an admin can use it
+  // on a pending parcel (overriding courier self-claiming).
+  const pudoViewer = {
+    isAdmin: hasRole("admin"),
+    canAssign: hasPermission(Permission.ASSIGN_PARCELS),
+  };
+  const showPudoAssign = pudoViewer.canAssign || canAssignWarehouse;
+  // Rendered outside the table: a portalled dialog still bubbles React click
+  // events up its component tree, so inside a row it would trigger row-click.
+  const [assignRow, setAssignRow] = useState<ParcelFeedRow | null>(null);
 
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search, 400);
+
+  // The created-date period above the cards. It scopes both the stat cards
+  // and the table (the backend counts stats inside it); the table's own
+  // filters below narrow only the table.
+  const [period, setPeriod] = useState<Period>("today");
+  const [customRange, setCustomRange] = useState<DateRange>();
+  const range = periodRange(period, customRange);
+
+  const handlePeriodChange = (next: Period) => {
+    setPeriod(next);
+    setPage(1);
+  };
+
+  const handleCustomRangeChange = (next: DateRange | undefined) => {
+    setCustomRange(next);
+    setPage(1);
+  };
 
   const query: parcelFeedFilterOptions = {
     page,
@@ -42,14 +102,30 @@ export default function Page() {
     // search box can honestly match on.
     barcode: debouncedSearch || undefined,
     route: (filters.route as ParcelRoute) || undefined,
+    status: filters.status || undefined,
+    city: filters.city || undefined,
+    source: (filters.source as ParcelFlow) || undefined,
+    start_date: range.start,
+    end_date: range.end,
+    // DataTable's dateRange filters emit `${key}_from` / `${key}_to`.
+    received_start_date: filters.received_from || undefined,
+    received_end_date: filters.received_to || undefined,
   };
 
   const { data: parcels, isLoading } = useGetParcelFeed(query);
 
-  // Only route is offered. The old client/city/zone filters were PUDO-only
-  // fields, so on a merged list they would silently drop every warehouse row —
-  // worse than not offering them. They come back if the backend learns to map
-  // them onto both flows.
+  // Status and city options come from the feed itself: the two flows have
+  // different status vocabularies, and a warehouse row's city can be a
+  // free-text address snapshot, so no fixed list would match the rows. The
+  // server computes these before filtering, so they don't shrink as filters
+  // apply — held here so the dropdowns don't empty while a new page loads.
+  const [facets, setFacets] = useState<ParcelFeedFacets>();
+  useEffect(() => {
+    if (parcels?.facets) setFacets(parcels.facets);
+  }, [parcels?.facets]);
+
+  // Every filter here matches a value both flows carry. Client/zone stay out:
+  // they are PUDO-only fields and would silently drop every warehouse row.
   const filterConfigs = [
     {
       key: "route",
@@ -71,6 +147,42 @@ export default function Page() {
         },
         { label: t("parcelFeed.routes.unknown"), value: "unknown" },
       ],
+    },
+    {
+      key: "status",
+      label: t("table.status"),
+      placeholder: t("table.allStatus"),
+      options: (facets?.statuses ?? []).map((status) => ({
+        // Same label the Status column shows for it.
+        label: parcelStatusLabel(t, status),
+        value: status,
+      })),
+    },
+    {
+      key: "city",
+      label: t("table.city"),
+      placeholder: t("table.allCities"),
+      options: (facets?.cities ?? []).map((city) => ({
+        label: city,
+        value: city,
+      })),
+    },
+    {
+      key: "source",
+      label: t("parcelFeed.flow"),
+      placeholder: t("parcelFeed.allSources"),
+      options: (["pudo", "warehouse"] as const).map((flow) => ({
+        label: t(`parcelFeed.flows.${flow}`),
+        value: flow,
+      })),
+    },
+    // The created date is the period picker above the cards, not a filter
+    // here — it scopes the cards too, which a table filter doesn't.
+    {
+      key: "received",
+      type: "dateRange" as const,
+      label: t("parcelFeed.receiptDate"),
+      placeholder: t("parcelFeed.anyDate"),
     },
   ];
 
@@ -102,8 +214,72 @@ export default function Page() {
 
   return (
     <PageContainer size="xl" className="py-10 px-6">
+      <PeriodFilter
+        className="mb-4"
+        period={period}
+        onPeriodChange={handlePeriodChange}
+        customRange={customRange}
+        onCustomRangeChange={handleCustomRangeChange}
+      />
+      <StatsCards
+        // Remount per period: the cards hold their last stats so a search
+        // doesn't blank them, but another period's numbers must not linger.
+        key={`${range.start ?? ""}:${range.end ?? ""}`}
+        stats={parcels?.stats}
+        isLoading={isLoading}
+        items={(s) => {
+          const byVariant = countByVariant(s);
+          return [
+            {
+              label: t("stats.totalOf", { name: t("parcels.title") }),
+              value: s.total,
+              description: t("stats.byFlow", {
+                pudo: s.by_flow?.pudo ?? 0,
+                warehouse: s.by_flow?.warehouse ?? 0,
+              }),
+              icon: Package,
+            },
+            {
+              label: t("stats.delivered"),
+              value: byVariant.success,
+              description: t("stats.ofTotal", {
+                percent: percentOf(byVariant.success, s.total),
+              }),
+              icon: PackageCheck,
+              tone: "success",
+            },
+            {
+              label: t("stats.inProgress"),
+              value: byVariant.outline,
+              description: t("stats.createdToday", {
+                count: s.created_today ?? 0,
+              }),
+              icon: Truck,
+              tone: "info",
+            },
+            {
+              label: t("stats.needsAttention"),
+              value: byVariant.destructive,
+              description: t("stats.ofTotal", {
+                percent: percentOf(byVariant.destructive, s.total),
+              }),
+              icon: CircleAlert,
+              tone: "danger",
+            },
+          ];
+        }}
+      />
       <DataTable
-        columns={FeedColumns({ t })}
+        columns={FeedColumns({
+          t,
+          language: currentLanguage,
+          assign: {
+            warehouse: canAssignWarehouse,
+            pudo: showPudoAssign,
+            pudoViewer,
+            onAssign: setAssignRow,
+          },
+        })}
         data={parcels?.parcels || []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
@@ -119,6 +295,13 @@ export default function Page() {
         totalResults={parcels?.total_parcels}
         isLoading={isLoading}
       />
+
+      {assignRow && (
+        <FeedAssignDialog
+          row={assignRow}
+          onClose={() => setAssignRow(null)}
+        />
+      )}
     </PageContainer>
   );
 }

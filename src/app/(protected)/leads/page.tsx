@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { PageContainer } from "@/components/PageContainer";
+import { StatsCards, percentOf, statusCount } from "@/components/StatsCards";
+import { CircleCheckBig, Inbox, PhoneCall, Sparkles } from "lucide-react";
 
 export default function Page() {
   const { t } = useTranslation();
@@ -66,6 +68,45 @@ export default function Page() {
 
   return (
     <PageContainer size="xl" className="px-6 py-10">
+      <StatsCards
+        stats={leads?.stats}
+        isLoading={isLoading}
+        items={(s) => [
+          {
+            label: t("stats.totalOf", { name: t("leads.title") }),
+            value: s.total,
+            description: t("stats.newThisMonth", { count: s.new_this_month }),
+            icon: Inbox,
+          },
+          {
+            label: t("stats.newLeads"),
+            value: statusCount(s, "new"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "new"), s.total),
+            }),
+            icon: Sparkles,
+            tone: "info",
+          },
+          {
+            label: t("stats.contacted"),
+            value: statusCount(s, "contacted"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "contacted"), s.total),
+            }),
+            icon: PhoneCall,
+            tone: "warning",
+          },
+          {
+            label: t("stats.converted"),
+            value: statusCount(s, "converted"),
+            description: t("stats.conversionRate", {
+              percent: percentOf(statusCount(s, "converted"), s.total),
+            }),
+            icon: CircleCheckBig,
+            tone: "success",
+          },
+        ]}
+      />
       <DataTable
         columns={columns()}
         data={leads ? leads.leads : []}

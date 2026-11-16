@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DataItem from "@/components/ui/DataItem";
@@ -8,7 +9,19 @@ import {
   useGetParcelByTrackingNumber,
   useGetParcelMessages,
   useGetParcelTracking,
+  useResendParcelMessage,
 } from "@/lib/hooks/useParcel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   ArrowRight,
   Box,
@@ -16,6 +29,7 @@ import {
   MessageSquare,
   Package,
   Printer,
+  Send,
   Store,
   Truck,
   User,
@@ -29,6 +43,9 @@ import { PageContainer } from "@/components/PageContainer";
 import { ParcelTrackingTimeline } from "@/components/parcels/ParcelTrackingTimeline";
 import { CustomerMessages } from "@/components/parcels/CustomerMessages";
 import { usePermissions } from "@/lib/hooks/usePermissions";
+import { AssignCourierButton } from "@/components/parcels/AssignCourierButton";
+import { AssignParcelCourierDialog } from "@/components/parcels/AssignParcelCourierDialog";
+import { pudoAssignAvailability } from "@/lib/parcels/courierAssignment";
 
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
@@ -58,7 +75,7 @@ export default function Page() {
   const params = useParams();
   const trackingNumber = (params.trackingNumber as string) || "";
 
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { data: parcel } = useGetParcelByTrackingNumber(trackingNumber);
   const parcelData = parcel?.parcel;
   const parcelId = parcelData?.id ? String(parcelData.id) : "";
@@ -68,13 +85,15 @@ export default function Page() {
     isError: isTrackingError,
   } = useGetParcelTracking(parcelId, !!parcelId);
   // Gate the fetch, not just the tab: the endpoint 403s for other roles.
-  const { hasPermission } = usePermissions();
+  const { hasPermission, hasRole } = usePermissions();
   const canViewMessages = hasPermission(Permission.VIEW_PARCEL_MESSAGES);
   const {
     data: messages,
     isLoading: isMessagesLoading,
     isError: isMessagesError,
   } = useGetParcelMessages(parcelId, !!parcelId && canViewMessages);
+  const resendMessage = useResendParcelMessage(parcelId);
+  const [assignCourierOpen, setAssignCourierOpen] = useState(false);
 
   // Handle missing tracking number after all hooks are called
   if (!trackingNumber) {
@@ -96,7 +115,9 @@ export default function Page() {
           </Button>
         </Can>
       </div>
-      <Tabs defaultValue="info" className="w-full">
+      {/* Radix Tabs defaults to dir="ltr" and sets it as an attribute, which
+          the global RTL CSS honours — so pass the page direction explicitly. */}
+      <Tabs defaultValue="info" dir={isRTL ? "rtl" : "ltr"} className="w-full">
         <TabsList className="flex justify-start bg-transparent px-6 gap-2">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="info">{t("detailPages.tabs.parcelInfo")}</TabsTrigger>
@@ -343,6 +364,28 @@ export default function Page() {
                 icon={Truck}
               />
               <CardContent className="flex-1 space-y-3">
+                {parcelData && (
+                  <Can
+                    do={[
+                      Permission.ASSIGN_PARCELS,
+                      Permission.MANAGE_WAREHOUSE,
+                    ]}
+                  >
+                    <div className="flex justify-end">
+                      <AssignCourierButton
+                        availability={pudoAssignAvailability(
+                          parcelData.status,
+                          parcelData.courier_id,
+                          {
+                            isAdmin: hasRole("admin"),
+                            canAssign: hasPermission(Permission.ASSIGN_PARCELS),
+                          },
+                        )}
+                        onClick={() => setAssignCourierOpen(true)}
+                      />
+                    </div>
+                  </Can>
+                )}
                 {parcelData?.courier_name ||
                 parcelData?.courier_phone_number ||
                 parcelData?.courier_email ? (
@@ -453,7 +496,47 @@ export default function Page() {
                 value={t("customerMessages.subtitle")}
                 icon={MessageSquare}
               />
-              <CardContent className="flex-1">
+              <CardContent className="min-w-0 flex-1 space-y-4">
+                <Can do={Permission.RESEND_PARCEL_MESSAGES}>
+                  <div className="flex justify-end">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!parcelId || resendMessage.isPending}
+                        >
+                          <Send className="h-4 w-4" />
+                          {t("customerMessages.resend.button")}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {t("customerMessages.resend.confirmTitle")}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("customerMessages.resend.confirmDescription", {
+                              status: parcelData?.status
+                                ? t(`customerMessages.purposes.${parcelData.status}`, {
+                                    defaultValue: parcelData.status.replace(/_/g, " "),
+                                  })
+                                : "",
+                            })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            {t("customerMessages.resend.cancel")}
+                          </AlertDialogCancel>
+                          <AlertDialogAction onClick={() => resendMessage.mutate()}>
+                            {t("customerMessages.resend.confirm")}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </Can>
                 <CustomerMessages
                   messages={messages?.messages ?? []}
                   isLoading={isMessagesLoading}
@@ -464,6 +547,14 @@ export default function Page() {
           </TabsContent>
         </Can>
       </Tabs>
+      {parcelData && assignCourierOpen && (
+        <AssignParcelCourierDialog
+          parcelId={String(parcelData.id)}
+          barcode={parcelData.barcode}
+          currentCourierId={parcelData.courier_id}
+          onClose={() => setAssignCourierOpen(false)}
+        />
+      )}
     </PageContainer>
   );
 }

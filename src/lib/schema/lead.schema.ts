@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { ListStats } from "./api.types";
 
 export const leadSourceTabSchema = z.enum(["store", "partner"]);
 export const leadStatusSchema = z.enum([
@@ -31,6 +32,7 @@ export interface Lead {
 export interface GetLeadsRes {
   leads: Lead[];
   total_leads: number;
+  stats?: ListStats;
   total_pages: number;
   current_page: number;
   next_page: number | null;

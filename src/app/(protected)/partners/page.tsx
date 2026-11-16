@@ -10,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { PageContainer } from "@/components/PageContainer";
+import { StatsCards, percentOf, statusCount } from "@/components/StatsCards";
+import { CircleCheck, CirclePause, Clock, Handshake } from "lucide-react";
 
 export default function Page() {
   const { t } = useTranslation();
@@ -55,6 +57,45 @@ export default function Page() {
 
   return (
     <PageContainer size="xl" className="px-6 py-10">
+      <StatsCards
+        stats={partners?.stats}
+        isLoading={isLoading}
+        items={(s) => [
+          {
+            label: t("stats.totalOf", { name: t("partners.title") }),
+            value: s.total,
+            description: t("stats.newThisMonth", { count: s.new_this_month }),
+            icon: Handshake,
+          },
+          {
+            label: t("stats.active"),
+            value: statusCount(s, "active"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "active"), s.total),
+            }),
+            icon: CircleCheck,
+            tone: "success",
+          },
+          {
+            label: t("stats.inactive"),
+            value: statusCount(s, "inactive"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "inactive"), s.total),
+            }),
+            icon: CirclePause,
+            tone: "warning",
+          },
+          {
+            label: t("stats.pending"),
+            value: statusCount(s, "pending"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "pending"), s.total),
+            }),
+            icon: Clock,
+            tone: "info",
+          },
+        ]}
+      />
       <DataTable
         columns={columns()}
         data={partners ? partners.partners : []}

@@ -4,7 +4,9 @@ import { Fragment } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronRight, Package, Store, Warehouse } from "lucide-react";
 import { TFunction } from "i18next";
+import { isValid, parse } from "date-fns";
 
+import { AssignCourierButton } from "@/components/parcels/AssignCourierButton";
 import { Badge } from "@/components/ui/badge";
 import {
   ParcelFeedRow,
@@ -12,9 +14,97 @@ import {
   ParcelLegPlaceType,
   ParcelRouteSource,
 } from "@/lib/schema/parcel.schema";
+import {
+  feedRowAssignAvailability,
+  feedRowAssignTarget,
+  type PudoAssignViewer,
+} from "@/lib/parcels/courierAssignment";
 
 interface ColumnsProps {
   t: TFunction<"common">;
+  /** i18n language code; picks the date locale. */
+  language?: string;
+  /**
+   * Courier assignment, per flow. The actions column is added only when the
+   * viewer may assign in at least one flow, and a row of a flow they can't
+   * assign in gets no button at all (rather than a disabled one).
+   */
+  assign?: {
+    /** MANAGE_WAREHOUSE — E03 on warehouse rows. */
+    warehouse: boolean;
+    /** Show the button on PUDO-flow rows (courier_id). */
+    pudo: boolean;
+    /** Who is looking — only an admin can override a pending claim. */
+    pudoViewer: PudoAssignViewer;
+    onAssign: (row: ParcelFeedRow) => void;
+  };
+}
+
+/**
+ * A feed row's status, in the reader's language. The column mixes two closed
+ * vocabularies that never share a key — the PUDO flow's stored statuses and
+ * the warehouse module's derived ones — and each already has its labels in
+ * the locale files, so look in both. Humanised key as the last resort, never
+ * a missing-translation path.
+ */
+export function parcelStatusLabel(t: TFunction<"common">, status: string) {
+  return t(
+    [`parcelTracking.eventCodes.${status}`, `warehouseWall.status.${status}`],
+    {
+      defaultValue: status.replace(/_/g, " "),
+    },
+  );
+}
+
+/**
+ * What a feed status means, as a Badge variant: `success` delivered,
+ * `outline` moving, `destructive` needs attention, `secondary` anything else.
+ * Both flows' statuses land in one column and they are different vocabularies
+ * — `pending` is a PUDO status, `out_for_delivery` a derived warehouse one —
+ * so this is the one place that groups them; the Parcels page's stat cards
+ * count by the same grouping.
+ */
+export function parcelStatusVariant(status: string) {
+  switch (status) {
+    case "customer_received":
+    case "delivered":
+      return "success" as const;
+    case "courier_received":
+    case "waiting_confirmation":
+    case "PUDO_received":
+    case "out_for_delivery":
+    case "ready_for_dispatch":
+      return "outline" as const;
+    case "expired":
+    case "expired_received":
+    case "attempt_failed":
+      return "destructive" as const;
+    default:
+      return "secondary" as const;
+  }
+}
+
+/**
+ * The backend sends `2026-11-12 11:09:29 PM` (ParcelFeedRowSchema's format):
+ * Riyadh wall-clock time with no offset. Parsed as a naive local time and
+ * formatted back without a time zone, so the wall time shown is exactly the
+ * one stored. Gregorian with Latin digits in Arabic too — `ar` alone would
+ * pick Arabic-Indic digits, out of step with the barcodes and counts beside it.
+ */
+export function formatFeedDateTime(value: string | null, language?: string) {
+  if (!value) return null;
+  const date = parse(value, "yyyy-MM-dd hh:mm:ss a", new Date());
+  if (!isValid(date)) return value;
+  return new Intl.DateTimeFormat(
+    language === "ar" ? "ar-u-ca-gregory-nu-latn" : "en-US",
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    },
+  ).format(date);
 }
 
 const LEG_ICON: Record<ParcelLegPlaceType, typeof Package> = {
@@ -23,7 +113,7 @@ const LEG_ICON: Record<ParcelLegPlaceType, typeof Package> = {
   customer: Package,
 };
 
-export const FeedColumns = ({ t }: ColumnsProps) => {
+export const FeedColumns = ({ t, language, assign }: ColumnsProps) => {
   const columns: ColumnDef<ParcelFeedRow>[] = [
     {
       // Barcode, not tracking number: it is the only identifier both flows
@@ -51,9 +141,7 @@ export const FeedColumns = ({ t }: ColumnsProps) => {
     {
       accessorKey: "route",
       header: t("parcelFeed.type"),
-      cell: ({ row }) => (
-        <RouteCell row={row.original} t={t} />
-      ),
+      cell: ({ row }) => <RouteCell row={row.original} t={t} />,
     },
     {
       accessorKey: "flow",
@@ -71,36 +159,11 @@ export const FeedColumns = ({ t }: ColumnsProps) => {
         const status = row.original.status;
         if (!status) return <span className="text-muted-foreground">—</span>;
 
-        // Both flows' statuses land in this column and they are different
-        // vocabularies — `pending` is a PUDO status, `out_for_delivery` a
-        // derived warehouse one. Colour by meaning, and fall back to the
+        // Colour by meaning (see parcelStatusVariant), and fall back to the
         // humanised key rather than showing a missing-translation string.
-        const variant = (() => {
-          switch (status) {
-            case "customer_received":
-            case "delivered":
-              return "success" as const;
-            case "courier_received":
-            case "waiting_confirmation":
-            case "PUDO_received":
-            case "out_for_delivery":
-            case "ready_for_dispatch":
-              return "outline" as const;
-            case "expired":
-            case "expired_received":
-            case "attempt_failed":
-              return "destructive" as const;
-            default:
-              return "secondary" as const;
-          }
-        })();
-
         return (
-          <Badge variant={variant}>
-            {t(
-              `parcelTracking.eventCodes.${status}`,
-              status.replace(/_/g, " "),
-            )}
+          <Badge variant={parcelStatusVariant(status)}>
+            {parcelStatusLabel(t, status)}
           </Badge>
         );
       },
@@ -148,11 +211,30 @@ export const FeedColumns = ({ t }: ColumnsProps) => {
       header: t("table.date"),
       cell: ({ row }) => (
         <div className="text-sm text-muted-foreground">
-          {row.original.created_at ?? "—"}
+          {formatFeedDateTime(row.original.created_at, language) ?? "—"}
         </div>
       ),
     },
   ];
+
+  if (assign && (assign.warehouse || assign.pudo)) {
+    columns.push({
+      id: "actions",
+      header: t("table.actions"),
+      cell: ({ row }) => {
+        const { flow } = feedRowAssignTarget(row.original);
+        if (!assign[flow]) return null;
+        // Shown disabled, with the reason, when the row isn't at an
+        // assignable stage — an empty cell read as a missing feature.
+        return (
+          <AssignCourierButton
+            availability={feedRowAssignAvailability(row.original, assign.pudoViewer)}
+            onClick={() => assign.onAssign(row.original)}
+          />
+        );
+      },
+    });
+  }
 
   return columns;
 };
@@ -179,7 +261,7 @@ function RouteCell({ row, t }: { row: ParcelFeedRow; t: TFunction<"common"> }) {
               {index > 0 && (
                 <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/40" />
               )}
-              <LegChip leg={leg} />
+              <LegChip leg={leg} t={t} />
             </Fragment>
           ))}
         </div>
@@ -211,9 +293,12 @@ function RouteCell({ row, t }: { row: ParcelFeedRow; t: TFunction<"common"> }) {
 }
 
 /** One leg's icon, dimmed for a planned (not-yet-happened) leg. */
-function LegChip({ leg }: { leg: ParcelLeg }) {
+function LegChip({ leg, t }: { leg: ParcelLeg; t: TFunction<"common"> }) {
   const Icon = LEG_ICON[leg.place_type] ?? Package;
   const isObserved = leg.source === "observed";
+  // A planned leg to a not-yet-chosen shop has no name; say what kind of
+  // place it is rather than leaking the raw `place_type` key.
+  const label = leg.place_name ?? t(`parcelFeed.places.${leg.place_type}`);
   return (
     <Icon
       className={`h-3.5 w-3.5 shrink-0 ${
@@ -223,9 +308,9 @@ function LegChip({ leg }: { leg: ParcelLeg }) {
       }`}
       // Native title tooltip: cheap and accessible, no extra component needed
       // for something this secondary.
-      aria-label={leg.place_name ?? leg.place_type}
+      aria-label={label}
     >
-      <title>{leg.place_name ?? leg.place_type}</title>
+      <title>{label}</title>
     </Icon>
   );
 }

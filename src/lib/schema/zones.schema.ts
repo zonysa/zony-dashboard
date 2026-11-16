@@ -1,4 +1,5 @@
 import z from "zod";
+import type { ListStats } from "./api.types";
 
 export const ZONE_STATUS = {
   ACTIVE: "active",
@@ -52,6 +53,7 @@ export interface GetZonesRes {
   prev_page: number | null;
   total_zones: number;
   total_pages: number;
+  stats?: ListStats;
 }
 
 export interface GetZoneRes {

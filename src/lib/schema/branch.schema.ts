@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { passwordSchema, registerSchema } from "./auth.schema";
+import type { ListStats } from "./api.types";
 
 export const ResponsibleSchema = z.object({
   id: z.string().uuid(),
@@ -10,6 +11,7 @@ export const ResponsibleSchema = z.object({
 // Get Branches
 export interface GetBranchesRes {
   pudos: Branch[];
+  stats?: ListStats;
   total: number;
   page: number;
   limit: number;

@@ -8,8 +8,29 @@ import { useGetKPIEvaluations } from "@/lib/hooks/useKpi";
 import { useGetTickets } from "@/lib/hooks/useTicket";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { PageContainer } from "@/components/PageContainer";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/stores/auth-store";
+import { getHomeRoute } from "@/lib/rbac/roles";
 
 export default function Page() {
+  const role = useAuthStore((state) => state.user?.role);
+  const home = getHomeRoute(role);
+  const router = useRouter();
+
+  // A role with its own home (a warehouse clerk's warehouse) never sees the
+  // platform overview — sent there from links to "/", Access Denied's button,
+  // the 404 page and old bookmarks alike.
+  useEffect(() => {
+    if (home !== "/") router.replace(home);
+  }, [home, router]);
+
+  if (home !== "/") return null;
+
+  return <Overview />;
+}
+
+function Overview() {
   const { data, isLoading } = useGetKPIEvaluations();
   const { data: tickets } = useGetTickets();
   const { t } = useTranslation();

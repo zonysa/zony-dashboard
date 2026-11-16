@@ -9,6 +9,8 @@ import {
   RotateCcw,
   Store,
   Truck,
+  UserCheck,
+  UserMinus,
 } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,6 +30,10 @@ const EVENT_ICON: Record<string, React.ElementType> = {
   customer_received: CheckCircle2,
   expired: AlertTriangle,
   expired_received: RotateCcw,
+  // Not statuses: who the parcel was handed to (see ParcelCourierAssignment).
+  courier_assigned: UserCheck,
+  courier_claimed: UserCheck,
+  courier_unassigned: UserMinus,
 };
 
 interface ParcelTrackingTimelineProps {
@@ -91,7 +97,13 @@ function TimelineRow({
 }) {
   const { t } = useTranslation();
   const Icon = EVENT_ICON[event.code] || Package;
-  const description = t(`parcelTracking.eventDescriptions.${event.code}`, "");
+  // courier_name / actor_name fill the assignment lines' {{courier}} and
+  // {{actor}}; other lines have no such placeholders.
+  const description = t(`parcelTracking.eventDescriptions.${event.code}`, {
+    defaultValue: "",
+    courier: event.courier_name ?? "",
+    actor: event.actor_name ?? "",
+  });
 
   return (
     <li className="relative flex gap-4 pb-6 last:pb-0">

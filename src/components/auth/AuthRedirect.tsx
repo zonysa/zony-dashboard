@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { getHomeRoute } from "@/lib/rbac/roles";
 
 interface AuthRedirectProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const logout = useAuthStore((state) => state.logout);
+  const role = useAuthStore((state) => state.user?.role);
 
   useEffect(() => {
     // Check for token in localStorage
@@ -29,11 +31,11 @@ export function AuthRedirect({ children }: AuthRedirectProps) {
       return;
     }
 
-    // If user is authenticated and has a token, redirect to dashboard
+    // If user is authenticated and has a token, redirect to their home
     if (token && isAuthenticated && isInitialized) {
-      router.replace("/");
+      router.replace(getHomeRoute(role));
     }
-  }, [isAuthenticated, isInitialized, router, logout]);
+  }, [isAuthenticated, isInitialized, router, logout, role]);
 
   // Show loading while checking auth status
   if (!isInitialized) {

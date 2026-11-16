@@ -17,6 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageContainer } from "@/components/PageContainer";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { StatsCards, percentOf, statusCount } from "@/components/StatsCards";
+import { CircleCheck, CirclePause, Map as MapIcon } from "lucide-react";
 
 export default function Page() {
   const [filters, setFilters] = useState<GetZonesFilter>({});
@@ -110,6 +112,36 @@ export default function Page() {
         </TabsList>
 
         <TabsContent value="zones" className="mt-6">
+          <StatsCards
+            stats={zones?.stats}
+            isLoading={zonesLoading}
+            items={(s) => [
+              {
+                label: t("stats.totalOf", { name: t("zones.title") }),
+                value: s.total,
+                description: t("stats.newThisMonth", { count: s.new_this_month }),
+                icon: MapIcon,
+              },
+              {
+                label: t("stats.active"),
+                value: statusCount(s, "active"),
+                description: t("stats.ofTotal", {
+                  percent: percentOf(statusCount(s, "active"), s.total),
+                }),
+                icon: CircleCheck,
+                tone: "success",
+              },
+              {
+                label: t("stats.inactive"),
+                value: statusCount(s, "inactive"),
+                description: t("stats.ofTotal", {
+                  percent: percentOf(statusCount(s, "inactive"), s.total),
+                }),
+                icon: CirclePause,
+                tone: "warning",
+              },
+            ]}
+          />
           <DataTable
             columns={columns()}
             data={zones ? zones.zones : []}

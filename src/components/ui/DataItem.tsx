@@ -57,7 +57,7 @@ export default function DataItem({
 
   if (isHeading) {
     return (
-      <CardHeader className="w-1/4 flex flex-col items-start justify-start pe-0 px-2">
+      <CardHeader className="w-full sm:w-1/4 shrink-0 flex flex-col items-start justify-start pe-0 px-2">
         <CardTitle className="flex items-center gap-2">
           <Icon className={cn("w-4 h-4 text-primary", iconClassName)} />
           {label}

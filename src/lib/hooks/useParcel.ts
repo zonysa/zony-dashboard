@@ -7,10 +7,13 @@ import {
   parcelFeedFilterOptions,
   parcelFilterOptions,
   ParcelFormData,
+  AssignParcelCourierData,
 } from "@/lib/schema/parcel.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "./useTranslation";
 import {
+  assignParcelCourier,
   createParcel,
   deleteParcel,
   getParcelById,
@@ -19,6 +22,7 @@ import {
   getParcels,
   getParcelTracking,
   getParcelMessages,
+  resendParcelMessage,
   updateParcel,
 } from "../services/parcel.service";
 import Error from "next/error";
@@ -143,6 +147,30 @@ export function useGetParcelMessages(id: string, enabled = true) {
   });
 }
 
+// Re-text the customer. Refetch the log on failure too: a failed send is
+// logged as a "failed" row the user should see.
+export function useResendParcelMessage(id: string) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: () => resendParcelMessage(id),
+    onSuccess: (data) => {
+      toast.success(
+        data.sent?.status === "skipped"
+          ? t("customerMessages.resend.skipped")
+          : t("customerMessages.resend.success")
+      );
+    },
+    onError: (error) => {
+      toast.error(error?.message || t("customerMessages.resend.error"));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: parcelKeys.messages(id) });
+    },
+  });
+}
+
 // Update parcel mutation
 export function useUpdateParcel() {
   const queryClient = useQueryClient();
@@ -160,6 +188,28 @@ export function useUpdateParcel() {
     },
     onError: (error) => {
       toast.error(error?.message || "Failed to update parcel");
+    },
+  });
+}
+
+// Assign a courier to a PUDO-flow parcel. Refreshes every detail cache
+// (by id and by tracking number both live under details()) and the merged
+// Parcels feed, whose row shows the courier's status next.
+export function useAssignParcelCourier() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AssignParcelCourierData }) =>
+      assignParcelCourier(id, data),
+    onSuccess: () => {
+      toast.success(t("parcelCourierAssign.success"));
+      queryClient.invalidateQueries({ queryKey: parcelKeys.details() });
+      queryClient.invalidateQueries({ queryKey: parcelKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: [...parcelKeys.all, "feed"] });
+    },
+    onError: (error) => {
+      toast.error(error?.message || t("parcelCourierAssign.error"));
     },
   });
 }

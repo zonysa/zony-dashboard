@@ -18,6 +18,7 @@ const STATUS_VARIANT: Record<
   undelivered: "destructive",
   rejected: "destructive",
   failed: "destructive",
+  skipped: "secondary",
 };
 
 interface CustomerMessagesProps {
@@ -83,7 +84,7 @@ function MessageRow({ message }: { message: CustomerMessage }) {
   const humanize = (value: string) => value.replace(/_/g, " ");
 
   return (
-    <li className="space-y-2 rounded-lg border p-4">
+    <li className="min-w-0 space-y-2 rounded-lg border p-4">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <MessageSquare className="h-4 w-4 text-muted-foreground" />
         <span className="font-medium">
@@ -128,7 +129,7 @@ function MessageRow({ message }: { message: CustomerMessage }) {
         // whatever the dashboard's own language is.
         <p
           dir="auto"
-          className="whitespace-pre-wrap break-words rounded-md bg-muted px-3 py-2 text-sm"
+          className="whitespace-pre-wrap [overflow-wrap:anywhere] rounded-md bg-muted px-3 py-2 text-sm"
         >
           {message.body}
         </p>

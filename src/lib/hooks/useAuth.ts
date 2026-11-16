@@ -25,6 +25,7 @@ import {
   VerifyOtpResponse,
 } from "../schema/auth.schema";
 import { useAuthStore } from "@/lib/stores/auth-store";
+import { getHomeRoute } from "@/lib/rbac/roles";
 
 // Query keys
 export const userKeys = {
@@ -113,8 +114,8 @@ export function useLogin() {
         },
       });
 
-      // Redirect to dashboard
-      router.push("/");
+      // Redirect to the role's home (the dashboard, or a clerk's warehouse)
+      router.push(getHomeRoute(user?.role));
     },
     onError: (error: Error) => {
       console.error("Login failed:", error);

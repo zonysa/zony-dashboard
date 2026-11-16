@@ -174,13 +174,44 @@ function WallPageContent() {
   // Zones are the grid's rows — the zone list, never hardcoded either.
   const zones = useMemo(() => zonesData?.zones ?? [], [zonesData?.zones]);
 
+  // A box whose zone isn't one of this warehouse's zones (none was picked, or
+  // the building has no zones yet) still has a slot, so it gets a "No zone"
+  // row rather than vanishing from the Wall. Its cells are merged into it.
+  const NO_ZONE = "none";
   const cellByKey = useMemo(() => {
+    const known = new Set(zones.map((z) => z.id));
     const map = new Map<string, WHWallCell>();
     for (const cell of data?.cells ?? []) {
-      map.set(`${cell.zone_id}-${cell.slot_id}`, cell);
+      const zoneKey =
+        cell.zone_id != null && known.has(cell.zone_id)
+          ? String(cell.zone_id)
+          : NO_ZONE;
+      const key = `${zoneKey}-${cell.slot_id}`;
+      const prev = map.get(key);
+      map.set(
+        key,
+        prev
+          ? {
+              ...prev,
+              count: prev.count + cell.count,
+              parcels: [...prev.parcels, ...cell.parcels],
+            }
+          : cell,
+      );
     }
     return map;
-  }, [data?.cells]);
+  }, [data?.cells, zones]);
+
+  const gridRows = useMemo(() => {
+    const rows = zones.map((z) => ({ key: String(z.id), name: z.name }));
+    const hasUnzoned = [...cellByKey.keys()].some((k) =>
+      k.startsWith(`${NO_ZONE}-`),
+    );
+    if (hasUnzoned) {
+      rows.push({ key: NO_ZONE, name: t("warehouseWall.grid.noZone") });
+    }
+    return rows;
+  }, [zones, cellByKey, t]);
 
   const zoneNameById = useMemo(() => {
     const map = new Map<number, string>();
@@ -269,7 +300,7 @@ function WallPageContent() {
         <CardContent>
           {isLoading ? (
             <Skeleton className="h-64 w-full" />
-          ) : zones.length === 0 || slots.length === 0 ? (
+          ) : gridRows.length === 0 || slots.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {t("warehouseWall.grid.empty")}
             </p>
@@ -295,14 +326,14 @@ function WallPageContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {zones.map((zone) => (
-                    <tr key={zone.id} className="border-t">
+                  {gridRows.map((zone) => (
+                    <tr key={zone.key} className="border-t">
                       <td className="sticky start-0 z-10 bg-card p-2 font-medium">
                         {zone.name}
                       </td>
                       {slots.map((slot) => {
                         const cell = cellByKey.get(
-                          `${zone.id}-${slot.slot_id}`,
+                          `${zone.key}-${slot.slot_id}`,
                         );
                         const rebinCount =
                           cell?.parcels.filter(

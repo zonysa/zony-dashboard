@@ -12,6 +12,8 @@ import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PageContainer } from "@/components/PageContainer";
+import { StatsCards, percentOf, statusCount } from "@/components/StatsCards";
+import { Ban, CircleCheck, CirclePause, Store } from "lucide-react";
 
 export default function Page() {
   const [filters, setFilters] = useState<BranchFilterOptions>({});
@@ -99,6 +101,45 @@ export default function Page() {
 
   return (
     <PageContainer size="xl" className="py-10 px-6">
+      <StatsCards
+        stats={branches?.stats}
+        isLoading={isLoading}
+        items={(s) => [
+          {
+            label: t("stats.totalOf", { name: t("pudos.title") }),
+            value: s.total,
+            description: t("stats.newThisMonth", { count: s.new_this_month }),
+            icon: Store,
+          },
+          {
+            label: t("stats.active"),
+            value: statusCount(s, "active"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "active"), s.total),
+            }),
+            icon: CircleCheck,
+            tone: "success",
+          },
+          {
+            label: t("stats.inactive"),
+            value: statusCount(s, "inactive"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "inactive"), s.total),
+            }),
+            icon: CirclePause,
+            tone: "warning",
+          },
+          {
+            label: t("stats.suspended"),
+            value: statusCount(s, "suspended"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "suspended"), s.total),
+            }),
+            icon: Ban,
+            tone: "danger",
+          },
+        ]}
+      />
       <DataTable
         columns={columns}
         data={branches?.pudos || []}
