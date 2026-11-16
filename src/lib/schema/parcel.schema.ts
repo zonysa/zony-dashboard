@@ -275,6 +275,8 @@ export interface parcelFeedFilterOptions {
   city?: string;
   /** Narrows the merged rows by their `flow`; unlike `flow`, keeps the row shape. */
   source?: ParcelFlow;
+  /** Only the parcels carrying this courier (user id), in either flow. */
+  courier_id?: string;
   /** Inclusive created-date range, `yyyy-MM-dd` local days. */
   start_date?: string;
   end_date?: string;

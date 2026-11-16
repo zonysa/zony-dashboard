@@ -74,6 +74,7 @@ export const getParcelFeed = async (
   if (filters?.status) params.append("status", filters.status);
   if (filters?.city) params.append("city", filters.city);
   if (filters?.source) params.append("source", filters.source);
+  if (filters?.courier_id) params.append("courier_id", filters.courier_id);
   if (filters?.start_date) params.append("start_date", filters.start_date);
   if (filters?.end_date) params.append("end_date", filters.end_date);
   if (filters?.received_start_date)

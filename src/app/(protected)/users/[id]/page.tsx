@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PageContainer } from "@/components/PageContainer";
+import { CourierParcelsCard } from "@/components/users/CourierParcelsCard";
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
@@ -309,6 +310,8 @@ export default function UserDetailPage() {
           </div>
         </CardContent>
       </Card>
+
+      {user.role === "courier" && <CourierParcelsCard courierId={user.id} />}
     </PageContainer>
   );
 }

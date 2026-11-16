@@ -90,8 +90,9 @@ export function useUpdateUser(id: string) {
   });
 }
 
-// Delete user
-export function useDeleteUser() {
+// Delete user. Lands on the users list by default; a caller already on a list
+// (the Couriers table) passes `redirect: false` to stay where it is.
+export function useDeleteUser({ redirect = true }: { redirect?: boolean } = {}) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -100,8 +101,7 @@ export function useDeleteUser() {
     onSuccess: () => {
       // Invalidate users list
       queryClient.invalidateQueries({ queryKey: userKeys.lists() });
-      // Redirect to users list
-      router.push("/users");
+      if (redirect) router.push("/users");
     },
     onError: (error) => {
       console.error("Delete user error:", error);

@@ -234,7 +234,20 @@
     "title": "Customer Service"
   },
   "couriers": {
-    "title": "Courier"
+    "title": "Courier",
+    "edit": {
+      "title": "Edit courier",
+      "description": "Update this courier's account details.",
+      "success": "Courier updated",
+      "error": "Couldn't update the courier"
+    },
+    "delete": {
+      "title": "Delete courier?",
+      "description": "{{name}} will be permanently removed. This can't be undone.",
+      "success": "Courier deleted",
+      "error": "Couldn't delete the courier",
+      "deleting": "Deleting..."
+    }
   },
   "warehouse": {
     "title": "Warehouse",
@@ -323,7 +336,9 @@
     "sections": {
       "personalInfo": "Personal Information",
       "locationInfo": "Location Information",
-      "accountInfo": "Account Information"
+      "accountInfo": "Account Information",
+      "courierParcels": "Parcels",
+      "courierParcelsEmpty": "No parcels assigned to this courier."
     },
     "labels": {
       "email": "Email",

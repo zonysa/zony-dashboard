@@ -14,10 +14,22 @@ import { useDebounce } from "@/lib/hooks/useDebounce";
 import { PageContainer } from "@/components/PageContainer";
 import { StatsCards, percentOf, statusCount } from "@/components/StatsCards";
 import { Truck, UserCheck, UserX } from "lucide-react";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { EditCourierSheet } from "@/components/users/EditCourierSheet";
+import { DeleteCourierDialog } from "@/components/users/DeleteCourierDialog";
 
 function Page() {
   const router = useRouter();
   const { t } = useTranslation();
+  // PATCH/DELETE /users are admin-only on the backend, so only they get the
+  // buttons (supervisors hold MANAGE_COURIER but would only get a 403).
+  const { hasRole } = usePermissions();
+  const isAdmin = hasRole("admin");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
   const [filters, setFilters] = useState<userFilterOptions>({
     role_id: 6,
@@ -121,7 +133,18 @@ function Page() {
         ]}
       />
       <DataTable
-        columns={columns()}
+        columns={columns({
+          onEdit: isAdmin ? (c) => setEditId(c.id) : undefined,
+          onDelete: isAdmin
+            ? (c) =>
+                setDeleteTarget({
+                  id: c.id,
+                  name:
+                    [c.first_name, c.last_name].filter(Boolean).join(" ") ||
+                    c.username,
+                })
+            : undefined,
+        })}
         data={couriers?.users ?? []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
@@ -132,6 +155,14 @@ function Page() {
         onFilterChange={handleFilterChange}
         onSearchChange={handleSearchChange}
         isLoading={isLoading}
+      />
+      <EditCourierSheet
+        userId={editId}
+        onOpenChange={(open) => !open && setEditId(null)}
+      />
+      <DeleteCourierDialog
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
       />
     </PageContainer>
   );
