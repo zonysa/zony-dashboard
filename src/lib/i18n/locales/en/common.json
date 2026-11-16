@@ -239,7 +239,9 @@
       "title": "Edit courier",
       "description": "Update this courier's account details.",
       "success": "Courier updated",
-      "error": "Couldn't update the courier"
+      "error": "Couldn't update the courier",
+      "passwordSection": "Password",
+      "passwordHint": "Leave blank to keep the current password. Share a new one with the courier securely."
     },
     "delete": {
       "title": "Delete courier?",
@@ -2359,5 +2361,13 @@
     "byFlow": "PUDO {{pudo}} · Warehouse {{warehouse}}",
     "open": "Open",
     "resolved": "Resolved"
+  },
+  "period": {
+    "today": "Today",
+    "week": "This week",
+    "month": "This month",
+    "custom": "Custom",
+    "all": "All time",
+    "pickRange": "Pick a date range"
   }
 }

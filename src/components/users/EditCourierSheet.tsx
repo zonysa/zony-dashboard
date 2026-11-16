@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Copy, Eye, EyeOff, RefreshCw } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import z from "zod";
@@ -36,8 +37,8 @@ import {
   toOptionalE164SaudiPhone,
 } from "@/lib/validators/phone";
 
-// Same field rules as creating a user. No password: a courier's is theirs to
-// reset, not something to set from a table. No `is_active`: PATCH /users
+// Same field rules as creating a user, except the password: blank keeps the
+// current one, anything else replaces it. No `is_active`: PATCH /users
 // rejects it as an unknown field.
 const editCourierSchema = z.object({
   first_name: z.string().trim().min(1, "First name is required"),
@@ -45,7 +46,23 @@ const editCourierSchema = z.object({
   username: optionalUsernameSchema,
   email: z.string().trim().email("Please enter a valid email address"),
   phone_number: optionalSaudiPhoneSchema,
+  password: z.union([
+    z.literal(""),
+    z.string().min(8, "Password must be at least 8 characters"),
+  ]),
 });
+
+const PASSWORD_CHARSET =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+
+function generateSecurePassword(length = 12) {
+  const randomValues = new Uint32Array(length);
+  crypto.getRandomValues(randomValues);
+  return Array.from(
+    randomValues,
+    (value) => PASSWORD_CHARSET[value % PASSWORD_CHARSET.length],
+  ).join("");
+}
 type EditCourierInput = z.input<typeof editCourierSchema>;
 type EditCourierData = z.output<typeof editCourierSchema>;
 
@@ -62,6 +79,7 @@ const EMPTY_VALUES: EditCourierInput = {
   username: "",
   email: "",
   phone_number: "",
+  password: "",
 };
 
 /**
@@ -77,6 +95,7 @@ export function EditCourierSheet({
   onOpenChange: (open: boolean) => void;
 }) {
   const { t, isRTL } = useTranslation();
+  const [showPassword, setShowPassword] = useState(false);
   const { data, isLoading, isError } = useGetUser(userId ?? "");
   const user = data?.user;
   const updateUser = useUpdateUser(userId ?? "");
@@ -108,8 +127,29 @@ export function EditCourierSheet({
       phone_number: user.phone_number
         ? normalizeSaudiPhone(user.phone_number)
         : "",
+      password: "",
     });
+    setShowPassword(false);
   }, [user, reset]);
+
+  function handleGeneratePassword() {
+    form.setValue("password", generateSecurePassword(), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setShowPassword(true);
+  }
+
+  async function handleCopyPassword() {
+    const password = form.getValues("password");
+    if (!password) return;
+    try {
+      await navigator.clipboard.writeText(password);
+      toast.success(t("forms.actions.copied"));
+    } catch {
+      toast.error(t("forms.actions.copyFailed"));
+    }
+  }
 
   async function onSubmit(values: EditCourierData) {
     if (!userId) return;
@@ -124,6 +164,7 @@ export function EditCourierSheet({
         ...(values.phone_number
           ? { phone_number: toOptionalE164SaudiPhone(values.phone_number) }
           : {}),
+        ...(values.password ? { password: values.password } : {}),
       });
       toast.success(t("couriers.edit.success"));
       onOpenChange(false);
@@ -164,7 +205,7 @@ export function EditCourierSheet({
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <FormField
                   control={control}
@@ -250,6 +291,82 @@ export function EditCourierSheet({
                   </FormItem>
                 )}
               />
+
+              <div className="space-y-4 border-t pt-4">
+                <h3 className="text-base font-semibold text-foreground">
+                  {t("couriers.edit.passwordSection")}
+                </h3>
+                <FormField
+                  control={control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        {t("forms.fields.newPassword")}{" "}
+                        {t("forms.fields.optional")}
+                      </FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            dir="ltr"
+                            type={showPassword ? "text" : "password"}
+                            autoComplete="new-password"
+                            placeholder={t(
+                              "forms.placeholders.enterNewPassword",
+                            )}
+                            className="pr-28 rtl:pl-28 rtl:pr-3"
+                            {...field}
+                          />
+                          <div className="absolute end-0 top-0 flex h-full items-center">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-full px-2 hover:bg-transparent"
+                              title={t("forms.actions.generatePassword")}
+                              onClick={handleGeneratePassword}
+                            >
+                              <RefreshCw className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-full px-2 hover:bg-transparent"
+                              title={t("forms.actions.copyPassword")}
+                              onClick={handleCopyPassword}
+                            >
+                              <Copy className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-full px-2 hover:bg-transparent"
+                              title={
+                                showPassword
+                                  ? t("forms.actions.hidePassword")
+                                  : t("forms.actions.showPassword")
+                              }
+                              onClick={() => setShowPassword((v) => !v)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        {t("couriers.edit.passwordHint")}
+                      </p>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
               <SheetFooter className="w-full gap-2 border-t px-0 pt-6 sm:flex-row">
                 <Button

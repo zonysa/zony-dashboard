@@ -1,16 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useGetUser } from "@/lib/hooks/useUsers";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Mail, Phone, Calendar, MapPin, Building2 } from "lucide-react";
+import { ArrowLeft, User, Mail, Phone, Calendar, MapPin, Building2, Pencil } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PageContainer } from "@/components/PageContainer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CourierParcelsCard } from "@/components/users/CourierParcelsCard";
+import { EditCourierSheet } from "@/components/users/EditCourierSheet";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 
 // Helper function to format date
 const formatDate = (dateString: string) => {
@@ -28,8 +32,11 @@ const formatDate = (dateString: string) => {
 export default function UserDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const userId = params.id as string;
+  // PATCH /users is admin-only on the backend, so only they get the button.
+  const { hasRole } = usePermissions();
+  const [editOpen, setEditOpen] = useState(false);
 
   const { data, isLoading, error } = useGetUser(userId);
 
@@ -70,34 +77,8 @@ export default function UserDetailPage() {
   const fullName = `${user.first_name} ${user.last_name}`;
   const initials = `${user.first_name?.[0] || ""}${user.last_name?.[0] || ""}`.toUpperCase();
 
-  return (
-    <PageContainer className="px-4 py-10 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={user.avatar || undefined} alt={fullName} />
-              <AvatarFallback>{initials}</AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="text-2xl font-bold">{fullName}</h1>
-              <p className="text-sm text-muted-foreground">@{user.username}</p>
-            </div>
-          </div>
-        </div>
-        <Badge variant={user.is_active ? "success" : "destructive"}>
-          {user.is_active ? t("status.active") : t("status.inactive")}
-        </Badge>
-      </div>
-
+  const info = (
+    <>
       {/* Personal Information */}
       <Card>
         <CardHeader>
@@ -310,8 +291,72 @@ export default function UserDetailPage() {
           </div>
         </CardContent>
       </Card>
+    </>
+  );
 
-      {user.role === "courier" && <CourierParcelsCard courierId={user.id} />}
+  return (
+    <PageContainer className="px-4 py-10 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={user.avatar || undefined} alt={fullName} />
+              <AvatarFallback>{initials}</AvatarFallback>
+            </Avatar>
+            <div>
+              <h1 className="text-2xl font-bold">{fullName}</h1>
+              <p className="text-sm text-muted-foreground">@{user.username}</p>
+            </div>
+          </div>
+        </div>
+        <Badge variant={user.is_active ? "success" : "destructive"}>
+          {user.is_active ? t("status.active") : t("status.inactive")}
+        </Badge>
+      </div>
+
+
+      {user.role === "courier" ? (
+        // Radix Tabs defaults to dir="ltr"; pass the page direction (see the
+        // parcel detail page).
+        <Tabs defaultValue="info" dir={isRTL ? "rtl" : "ltr"} className="w-full">
+          <TabsList className="flex justify-start bg-transparent gap-2">
+            <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
+              <TabsTrigger value="info">{t("detailPages.tabs.info")}</TabsTrigger>
+              <TabsTrigger value="parcels">
+                {t("detailPages.tabs.parcels")}
+              </TabsTrigger>
+            </div>
+          </TabsList>
+          <TabsContent value="info" className="space-y-6 py-6">
+            {hasRole("admin") && (
+              <div className="flex justify-end">
+                <Button variant="outline" onClick={() => setEditOpen(true)}>
+                  <Pencil className="h-4 w-4" />
+                  {t("common.edit")}
+                </Button>
+              </div>
+            )}
+            {info}
+          </TabsContent>
+          <TabsContent value="parcels" className="py-6">
+            <CourierParcelsCard courierId={user.id} />
+          </TabsContent>
+          <EditCourierSheet
+            userId={editOpen ? user.id : null}
+            onOpenChange={setEditOpen}
+          />
+        </Tabs>
+      ) : (
+        info
+      )}
     </PageContainer>
   );
 }

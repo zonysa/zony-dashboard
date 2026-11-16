@@ -4,9 +4,14 @@ import { useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
+import {
+  Period,
+  PeriodFilter,
+  periodRange,
+} from "@/components/PeriodFilter";
 import { FeedColumns } from "@/components/tables/columns/parcel-feed-columns";
 import { DataTable } from "@/components/tables/data-table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DateRange } from "@/components/ui/date-range-picker";
 import { useGetParcelFeed } from "@/lib/hooks/useParcel";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { ParcelFeedRow } from "@/lib/schema/parcel.schema";
@@ -15,16 +20,23 @@ const PER_PAGE = 10;
 
 /**
  * The parcels a courier carries, from the Parcels feed narrowed to them —
- * PUDO parcels assigned to them and warehouse parcels checked out to them.
- * Same row and columns as the Parcels page, minus the assign action.
+ * PUDO parcels assigned to them and warehouse parcels checked out to them —
+ * within a created-date period. Same row and columns as the Parcels page,
+ * minus the assign action.
  */
 export function CourierParcelsCard({ courierId }: { courierId: string }) {
   const { t, currentLanguage } = useTranslation();
   const router = useRouter();
   const [page, setPage] = useState(1);
+  // A courier's history, not today's queue: start from everything.
+  const [period, setPeriod] = useState<Period>("all");
+  const [customRange, setCustomRange] = useState<DateRange | undefined>();
+  const range = periodRange(period, customRange);
 
   const { data, isLoading } = useGetParcelFeed({
     courier_id: courierId,
+    start_date: range.start,
+    end_date: range.end,
     page,
     limit: PER_PAGE,
   });
@@ -41,29 +53,36 @@ export function CourierParcelsCard({ courierId }: { courierId: string }) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{t("users.sections.courierParcels")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {!isLoading && !data?.parcels.length ? (
-          <p className="text-sm text-muted-foreground">
-            {t("users.sections.courierParcelsEmpty")}
-          </p>
-        ) : (
-          <DataTable
-            columns={FeedColumns({ t, language: currentLanguage })}
-            data={data?.parcels ?? []}
-            onRowClick={handleRowClick}
-            serverSide={true}
-            pageCount={data?.total_pages ?? 0}
-            pageIndex={page - 1}
-            onPageChange={(pageIndex) => setPage(pageIndex + 1)}
-            totalResults={data?.total_parcels}
-            isLoading={isLoading}
-          />
-        )}
-      </CardContent>
-    </Card>
+    <div className="flex flex-col gap-4">
+      <PeriodFilter
+        period={period}
+        onPeriodChange={(p) => {
+          setPeriod(p);
+          setPage(1);
+        }}
+        customRange={customRange}
+        onCustomRangeChange={(r) => {
+          setCustomRange(r);
+          setPage(1);
+        }}
+      />
+      {!isLoading && !data?.parcels.length ? (
+        <p className="text-sm text-muted-foreground">
+          {t("users.sections.courierParcelsEmpty")}
+        </p>
+      ) : (
+        <DataTable
+          columns={FeedColumns({ t, language: currentLanguage })}
+          data={data?.parcels ?? []}
+          onRowClick={handleRowClick}
+          serverSide={true}
+          pageCount={data?.total_pages ?? 0}
+          pageIndex={page - 1}
+          onPageChange={(pageIndex) => setPage(pageIndex + 1)}
+          totalResults={data?.total_parcels}
+          isLoading={isLoading}
+        />
+      )}
+    </div>
   );
 }
