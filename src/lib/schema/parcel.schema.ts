@@ -252,7 +252,10 @@ export type GetParcelFeedRes = {
    * dropdowns are built from this rather than a hand-kept list.
    */
   facets?: ParcelFeedFacets;
-  /** Counts over every row the caller may see, before filtering. */
+  /**
+   * Counts over every row the caller may see within the requested created-date
+   * period (start_date/end_date); the other filters narrow only the table.
+   */
   stats?: ListStats;
 };
 

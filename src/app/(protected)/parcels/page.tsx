@@ -13,6 +13,12 @@ import {
 import { DataTable } from "@/components/tables/data-table";
 import { PageContainer } from "@/components/PageContainer";
 import { StatsCards, percentOf } from "@/components/StatsCards";
+import {
+  Period,
+  PeriodFilter,
+  periodRange,
+} from "@/components/PeriodFilter";
+import type { DateRange } from "@/components/ui/date-range-picker";
 import { FeedAssignDialog } from "@/components/parcels/FeedAssignDialog";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useGetParcelFeed } from "@/lib/hooks/useParcel";
@@ -71,6 +77,23 @@ export default function Page() {
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebounce(search, 400);
 
+  // The created-date period above the cards. It scopes both the stat cards
+  // and the table (the backend counts stats inside it); the table's own
+  // filters below narrow only the table.
+  const [period, setPeriod] = useState<Period>("today");
+  const [customRange, setCustomRange] = useState<DateRange>();
+  const range = periodRange(period, customRange);
+
+  const handlePeriodChange = (next: Period) => {
+    setPeriod(next);
+    setPage(1);
+  };
+
+  const handleCustomRangeChange = (next: DateRange | undefined) => {
+    setCustomRange(next);
+    setPage(1);
+  };
+
   const query: parcelFeedFilterOptions = {
     page,
     limit: 50,
@@ -82,9 +105,9 @@ export default function Page() {
     status: filters.status || undefined,
     city: filters.city || undefined,
     source: (filters.source as ParcelFlow) || undefined,
+    start_date: range.start,
+    end_date: range.end,
     // DataTable's dateRange filters emit `${key}_from` / `${key}_to`.
-    start_date: filters.created_from || undefined,
-    end_date: filters.created_to || undefined,
     received_start_date: filters.received_from || undefined,
     received_end_date: filters.received_to || undefined,
   };
@@ -153,12 +176,8 @@ export default function Page() {
         value: flow,
       })),
     },
-    {
-      key: "created",
-      type: "dateRange" as const,
-      label: t("parcelFeed.createdDate"),
-      placeholder: t("parcelFeed.anyDate"),
-    },
+    // The created date is the period picker above the cards, not a filter
+    // here — it scopes the cards too, which a table filter doesn't.
     {
       key: "received",
       type: "dateRange" as const,
@@ -195,7 +214,17 @@ export default function Page() {
 
   return (
     <PageContainer size="xl" className="py-10 px-6">
+      <PeriodFilter
+        className="mb-4"
+        period={period}
+        onPeriodChange={handlePeriodChange}
+        customRange={customRange}
+        onCustomRangeChange={handleCustomRangeChange}
+      />
       <StatsCards
+        // Remount per period: the cards hold their last stats so a search
+        // doesn't blank them, but another period's numbers must not linger.
+        key={`${range.start ?? ""}:${range.end ?? ""}`}
         stats={parcels?.stats}
         isLoading={isLoading}
         items={(s) => {
