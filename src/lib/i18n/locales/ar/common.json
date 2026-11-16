@@ -2069,7 +2069,10 @@
       "PUDO_received": "وصلت إلى نقطة الاستلام",
       "customer_received": "تم التوصيل",
       "expired": "انتهت مهلة الاستلام",
-      "expired_received": "تم استرجاع الطرد المنتهي"
+      "expired_received": "تم استرجاع الطرد المنتهي",
+      "courier_assigned": "تم تعيين مندوب",
+      "courier_claimed": "استلمها المندوب بنفسه",
+      "courier_unassigned": "تمت إزالة المندوب"
     },
     "eventDescriptions": {
       "pending": "تم تسجيل الطرد وهو بانتظار الاستلام.",
@@ -2078,7 +2081,10 @@
       "PUDO_received": "وصل الطرد إلى نقطة الاستلام.",
       "customer_received": "تم استلام الطرد من قبل العميل.",
       "expired": "انتهت مهلة الاستلام قبل استلام الطرد.",
-      "expired_received": "تم استرجاع الطرد المنتهية صلاحيته."
+      "expired_received": "تم استرجاع الطرد المنتهية صلاحيته.",
+      "courier_assigned": "تم تعيين {{courier}} لهذا الطرد بواسطة {{actor}}.",
+      "courier_claimed": "قام {{courier}} باستلام هذا الطرد بنفسه.",
+      "courier_unassigned": "قام {{actor}} بإزالة المندوب من هذا الطرد."
     }
   },
   "warehouseParcel": {

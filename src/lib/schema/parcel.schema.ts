@@ -129,6 +129,13 @@ export interface ParcelTrackingEvent {
   occurred_at: string;
   location?: string | null;
   notes?: string | null;
+  /**
+   * Courier-assignment lines only (`courier_assigned`, `courier_claimed`,
+   * `courier_unassigned`), and only for admin and supervisor: the courier and
+   * the person who made the change. `courier_name` is null when unassigned.
+   */
+  courier_name?: string | null;
+  actor_name?: string | null;
 }
 
 // Type for the getParcelTracking API response

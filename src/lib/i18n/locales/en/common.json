@@ -2073,7 +2073,10 @@
       "PUDO_received": "Arrived at Pickup Point",
       "customer_received": "Delivered",
       "expired": "Pickup Window Expired",
-      "expired_received": "Expired Parcel Collected"
+      "expired_received": "Expired Parcel Collected",
+      "courier_assigned": "Courier Assigned",
+      "courier_claimed": "Claimed by Courier",
+      "courier_unassigned": "Courier Removed"
     },
     "eventDescriptions": {
       "pending": "The parcel is registered and waiting to be picked up.",
@@ -2082,7 +2085,10 @@
       "PUDO_received": "The parcel arrived at the pickup point.",
       "customer_received": "The parcel was received by the customer.",
       "expired": "The pickup window expired before the parcel was collected.",
-      "expired_received": "The expired parcel was collected back."
+      "expired_received": "The expired parcel was collected back.",
+      "courier_assigned": "{{courier}} was assigned to this parcel by {{actor}}.",
+      "courier_claimed": "{{courier}} claimed this parcel.",
+      "courier_unassigned": "{{actor}} took the courier off this parcel."
     }
   },
   "warehouseParcel": {
