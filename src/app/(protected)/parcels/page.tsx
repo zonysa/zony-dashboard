@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 
-import { FeedColumns } from "@/components/tables/columns/parcel-feed-columns";
+import {
+  FeedColumns,
+  parcelStatusLabel,
+} from "@/components/tables/columns/parcel-feed-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { PageContainer } from "@/components/PageContainer";
 import { FeedAssignDialog } from "@/components/parcels/FeedAssignDialog";
@@ -31,7 +34,7 @@ import {
  * for one flow or the other.
  */
 export default function Page() {
-  const { t } = useTranslation();
+  const { t, currentLanguage } = useTranslation();
   const router = useRouter();
   const { hasPermission } = usePermissions();
   const canAssign = hasPermission(Permission.MANAGE_WAREHOUSE);
@@ -104,10 +107,7 @@ export default function Page() {
       placeholder: t("table.allStatus"),
       options: (facets?.statuses ?? []).map((status) => ({
         // Same label the Status column shows for it.
-        label: t(
-          `parcelTracking.eventCodes.${status}`,
-          status.replace(/_/g, " "),
-        ),
+        label: parcelStatusLabel(t, status),
         value: status,
       })),
     },
@@ -174,6 +174,7 @@ export default function Page() {
       <DataTable
         columns={FeedColumns({
           t,
+          language: currentLanguage,
           onAssign: canAssign ? setAssignRow : undefined,
         })}
         data={parcels?.parcels || []}

@@ -124,6 +124,11 @@
       "warehouse_pudo_customer": "Via warehouse, then PUDO",
       "unknown": "Not recorded"
     },
+    "places": {
+      "warehouse": "Warehouse",
+      "pudo": "PUDO point",
+      "customer": "Customer"
+    },
     "routeSource": {
       "observed": "scanned",
       "planned": "planned"

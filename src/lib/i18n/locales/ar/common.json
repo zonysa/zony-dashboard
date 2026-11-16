@@ -125,6 +125,11 @@
       "warehouse_pudo_customer": "عبر المستودع ثم نقطة استلام",
       "unknown": "غير مسجل"
     },
+    "places": {
+      "warehouse": "مستودع",
+      "pudo": "نقطة استلام",
+      "customer": "العميل"
+    },
     "routeSource": {
       "observed": "تم مسحه",
       "planned": "مخطط"
