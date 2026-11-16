@@ -2266,6 +2266,16 @@
     "respondedAt": "Customer responded {{time}}",
     "attempt": "Attempt {{n}}",
     "error": "Error: {{error}}",
+    "resend": {
+      "button": "Resend message",
+      "confirmTitle": "Resend the message to the customer?",
+      "confirmDescription": "The customer will get the text for the parcel's current status ({{status}}) again, including the receiving code if it has one.",
+      "confirm": "Resend",
+      "cancel": "Cancel",
+      "success": "Message resent to the customer.",
+      "skipped": "Test mode: the message was logged but not sent.",
+      "error": "Couldn't resend the message."
+    },
     "channels": {
       "sms": "SMS",
       "whatsapp": "WhatsApp"
@@ -2276,7 +2286,8 @@
       "delivered": "Delivered",
       "undelivered": "Not delivered",
       "rejected": "Rejected",
-      "failed": "Failed"
+      "failed": "Failed",
+      "skipped": "Not sent (test mode)"
     },
     "purposes": {
       "slot_proposal": "Choose a delivery time",

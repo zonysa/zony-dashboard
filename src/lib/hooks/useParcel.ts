@@ -10,6 +10,7 @@ import {
 } from "@/lib/schema/parcel.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useTranslation } from "./useTranslation";
 import {
   createParcel,
   deleteParcel,
@@ -19,6 +20,7 @@ import {
   getParcels,
   getParcelTracking,
   getParcelMessages,
+  resendParcelMessage,
   updateParcel,
 } from "../services/parcel.service";
 import Error from "next/error";
@@ -140,6 +142,30 @@ export function useGetParcelMessages(id: string, enabled = true) {
     gcTime: 10 * 60 * 1000,
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+}
+
+// Re-text the customer. Refetch the log on failure too: a failed send is
+// logged as a "failed" row the user should see.
+export function useResendParcelMessage(id: string) {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: () => resendParcelMessage(id),
+    onSuccess: (data) => {
+      toast.success(
+        data.sent?.status === "skipped"
+          ? t("customerMessages.resend.skipped")
+          : t("customerMessages.resend.success")
+      );
+    },
+    onError: (error) => {
+      toast.error(error?.message || t("customerMessages.resend.error"));
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: parcelKeys.messages(id) });
+    },
   });
 }
 

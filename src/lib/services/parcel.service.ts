@@ -3,6 +3,7 @@ import {
   GetParcelRes,
   GetParcelTrackingRes,
   GetCustomerMessagesRes,
+  ResendCustomerMessageRes,
   getParcelsRes,
   GetParcelFeedRes,
   parcelFeedFilterOptions,
@@ -124,6 +125,16 @@ export const getParcelMessages = async (
   return apiCall({
     method: "GET",
     url: `/parcels/${id}/messages`,
+  });
+};
+
+// Re-text the customer the message for the parcel's current status
+export const resendParcelMessage = async (
+  id: string
+): Promise<ResendCustomerMessageRes> => {
+  return apiCall({
+    method: "POST",
+    url: `/parcels/${id}/messages/resend`,
   });
 };
 

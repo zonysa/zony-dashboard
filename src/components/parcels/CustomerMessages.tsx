@@ -18,6 +18,7 @@ const STATUS_VARIANT: Record<
   undelivered: "destructive",
   rejected: "destructive",
   failed: "destructive",
+  skipped: "secondary",
 };
 
 interface CustomerMessagesProps {

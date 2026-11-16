@@ -445,7 +445,7 @@ export interface CustomerMessage {
   channel: "sms" | "whatsapp" | string;
   /** Why it was sent: a PUDO parcel status, or a warehouse message purpose. */
   purpose: string;
-  /** PUDO: sent | failed. Warehouse: queued | sent | delivered | undelivered | rejected. */
+  /** PUDO: sent | failed | skipped (test mode: never sent, body shows the real code). Warehouse: queued | sent | delivered | undelivered | rejected. */
   status: string;
   /** Null on warehouse messages sent before the backend kept a copy. */
   body: string | null;
@@ -459,4 +459,11 @@ export interface CustomerMessage {
 export interface GetCustomerMessagesRes {
   status: "success";
   messages: CustomerMessage[];
+}
+
+export interface ResendCustomerMessageRes {
+  status: "success";
+  message: string;
+  /** The logged copy of what went out; null if the log row couldn't be written. */
+  sent: CustomerMessage | null;
 }

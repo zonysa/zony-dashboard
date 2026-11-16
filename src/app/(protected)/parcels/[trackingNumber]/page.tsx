@@ -8,7 +8,19 @@ import {
   useGetParcelByTrackingNumber,
   useGetParcelMessages,
   useGetParcelTracking,
+  useResendParcelMessage,
 } from "@/lib/hooks/useParcel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   ArrowRight,
   Box,
@@ -16,6 +28,7 @@ import {
   MessageSquare,
   Package,
   Printer,
+  Send,
   Store,
   Truck,
   User,
@@ -58,7 +71,7 @@ export default function Page() {
   const params = useParams();
   const trackingNumber = (params.trackingNumber as string) || "";
 
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
   const { data: parcel } = useGetParcelByTrackingNumber(trackingNumber);
   const parcelData = parcel?.parcel;
   const parcelId = parcelData?.id ? String(parcelData.id) : "";
@@ -75,6 +88,7 @@ export default function Page() {
     isLoading: isMessagesLoading,
     isError: isMessagesError,
   } = useGetParcelMessages(parcelId, !!parcelId && canViewMessages);
+  const resendMessage = useResendParcelMessage(parcelId);
 
   // Handle missing tracking number after all hooks are called
   if (!trackingNumber) {
@@ -96,7 +110,9 @@ export default function Page() {
           </Button>
         </Can>
       </div>
-      <Tabs defaultValue="info" className="w-full">
+      {/* Radix Tabs defaults to dir="ltr" and sets it as an attribute, which
+          the global RTL CSS honours — so pass the page direction explicitly. */}
+      <Tabs defaultValue="info" dir={isRTL ? "rtl" : "ltr"} className="w-full">
         <TabsList className="flex justify-start bg-transparent px-6 gap-2">
           <div className="w-full flex justify-start bg-gray-50 px-2 py-2 gap-2 rounded-[10px] overflow-x-auto">
             <TabsTrigger value="info">{t("detailPages.tabs.parcelInfo")}</TabsTrigger>
@@ -453,7 +469,47 @@ export default function Page() {
                 value={t("customerMessages.subtitle")}
                 icon={MessageSquare}
               />
-              <CardContent className="flex-1">
+              <CardContent className="flex-1 space-y-4">
+                <Can do={Permission.RESEND_PARCEL_MESSAGES}>
+                  <div className="flex justify-end">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!parcelId || resendMessage.isPending}
+                        >
+                          <Send className="h-4 w-4" />
+                          {t("customerMessages.resend.button")}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            {t("customerMessages.resend.confirmTitle")}
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {t("customerMessages.resend.confirmDescription", {
+                              status: parcelData?.status
+                                ? t(`customerMessages.purposes.${parcelData.status}`, {
+                                    defaultValue: parcelData.status.replace(/_/g, " "),
+                                  })
+                                : "",
+                            })}
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>
+                            {t("customerMessages.resend.cancel")}
+                          </AlertDialogCancel>
+                          <AlertDialogAction onClick={() => resendMessage.mutate()}>
+                            {t("customerMessages.resend.confirm")}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </Can>
                 <CustomerMessages
                   messages={messages?.messages ?? []}
                   isLoading={isMessagesLoading}
