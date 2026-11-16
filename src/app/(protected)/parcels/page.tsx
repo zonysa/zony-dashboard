@@ -3,19 +3,23 @@
 import { useEffect, useState } from "react";
 import { Row } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
+import { CircleAlert, Package, PackageCheck, Truck } from "lucide-react";
 
 import {
   FeedColumns,
   parcelStatusLabel,
+  parcelStatusVariant,
 } from "@/components/tables/columns/parcel-feed-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { PageContainer } from "@/components/PageContainer";
+import { StatsCards, percentOf } from "@/components/StatsCards";
 import { FeedAssignDialog } from "@/components/parcels/FeedAssignDialog";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useGetParcelFeed } from "@/lib/hooks/useParcel";
 import { usePermissions } from "@/lib/hooks/usePermissions";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { Permission } from "@/lib/rbac/permissions";
+import type { ListStats } from "@/lib/schema/api.types";
 import {
   ParcelFeedFacets,
   ParcelFeedRow,
@@ -23,6 +27,19 @@ import {
   ParcelFlow,
   ParcelRoute,
 } from "@/lib/schema/parcel.schema";
+
+/**
+ * Feed status counts summed by meaning, using the same grouping that colours
+ * the Status column — the server sends raw per-status counts because the two
+ * flows' vocabularies are only reconciled here.
+ */
+function countByVariant(stats: ListStats) {
+  const totals = { success: 0, outline: 0, destructive: 0, secondary: 0 };
+  for (const [status, n] of Object.entries(stats.by_status ?? {})) {
+    totals[parcelStatusVariant(status)] += n;
+  }
+  return totals;
+}
 
 /**
  * Every parcel Zony handles, across both flows.
@@ -171,6 +188,51 @@ export default function Page() {
 
   return (
     <PageContainer size="xl" className="py-10 px-6">
+      <StatsCards
+        stats={parcels?.stats}
+        isLoading={isLoading}
+        items={(s) => {
+          const byVariant = countByVariant(s);
+          return [
+            {
+              label: t("stats.totalOf", { name: t("parcels.title") }),
+              value: s.total,
+              description: t("stats.byFlow", {
+                pudo: s.by_flow?.pudo ?? 0,
+                warehouse: s.by_flow?.warehouse ?? 0,
+              }),
+              icon: Package,
+            },
+            {
+              label: t("stats.delivered"),
+              value: byVariant.success,
+              description: t("stats.ofTotal", {
+                percent: percentOf(byVariant.success, s.total),
+              }),
+              icon: PackageCheck,
+              tone: "success",
+            },
+            {
+              label: t("stats.inProgress"),
+              value: byVariant.outline,
+              description: t("stats.createdToday", {
+                count: s.created_today ?? 0,
+              }),
+              icon: Truck,
+              tone: "info",
+            },
+            {
+              label: t("stats.needsAttention"),
+              value: byVariant.destructive,
+              description: t("stats.ofTotal", {
+                percent: percentOf(byVariant.destructive, s.total),
+              }),
+              icon: CircleAlert,
+              tone: "danger",
+            },
+          ];
+        }}
+      />
       <DataTable
         columns={FeedColumns({
           t,

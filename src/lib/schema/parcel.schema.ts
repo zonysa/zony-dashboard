@@ -1,6 +1,7 @@
 import z from "zod";
 
 import { saudiPhoneSchema } from "@/lib/validators/phone";
+import type { ListStats } from "./api.types";
 
 // The statuses Parcel.status actually takes on the backend (see
 // ParcelUpdateSchema/ParcelPolicy) — not the same set of values as this
@@ -251,6 +252,8 @@ export type GetParcelFeedRes = {
    * dropdowns are built from this rather than a hand-kept list.
    */
   facets?: ParcelFeedFacets;
+  /** Counts over every row the caller may see, before filtering. */
+  stats?: ListStats;
 };
 
 export interface ParcelFeedFacets {

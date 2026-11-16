@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { ListStats } from "./api.types";
 
 // Client status enum
 export const ClientStatus = z.enum(["active", "inactive", "suspended"]);
@@ -72,7 +73,9 @@ export interface ClientFilterOptions {
 // Types
 export type Client = z.infer<typeof clientSchema>;
 export type ClientFormData = z.infer<typeof clientFormSchema>;
-export type ClientsResponse = z.infer<typeof clientsResponseSchema>;
+export type ClientsResponse = z.infer<typeof clientsResponseSchema> & {
+  stats?: ListStats;
+};
 export type ClientResponse = z.infer<typeof clientResponseSchema>;
 export type ClientStatusType = z.infer<typeof ClientStatus>;
 export type ClientTypeEnum = z.infer<typeof ClientType>;

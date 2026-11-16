@@ -58,6 +58,34 @@ export function parcelStatusLabel(t: TFunction<"common">, status: string) {
 }
 
 /**
+ * What a feed status means, as a Badge variant: `success` delivered,
+ * `outline` moving, `destructive` needs attention, `secondary` anything else.
+ * Both flows' statuses land in one column and they are different vocabularies
+ * — `pending` is a PUDO status, `out_for_delivery` a derived warehouse one —
+ * so this is the one place that groups them; the Parcels page's stat cards
+ * count by the same grouping.
+ */
+export function parcelStatusVariant(status: string) {
+  switch (status) {
+    case "customer_received":
+    case "delivered":
+      return "success" as const;
+    case "courier_received":
+    case "waiting_confirmation":
+    case "PUDO_received":
+    case "out_for_delivery":
+    case "ready_for_dispatch":
+      return "outline" as const;
+    case "expired":
+    case "expired_received":
+    case "attempt_failed":
+      return "destructive" as const;
+    default:
+      return "secondary" as const;
+  }
+}
+
+/**
  * The backend sends `2026-11-12 11:09:29 PM` (ParcelFeedRowSchema's format):
  * Riyadh wall-clock time with no offset. Parsed as a naive local time and
  * formatted back without a time zone, so the wall time shown is exactly the
@@ -132,31 +160,13 @@ export const FeedColumns = ({ t, language, onAssign }: ColumnsProps) => {
         const status = row.original.status;
         if (!status) return <span className="text-muted-foreground">—</span>;
 
-        // Both flows' statuses land in this column and they are different
-        // vocabularies — `pending` is a PUDO status, `out_for_delivery` a
-        // derived warehouse one. Colour by meaning, and fall back to the
+        // Colour by meaning (see parcelStatusVariant), and fall back to the
         // humanised key rather than showing a missing-translation string.
-        const variant = (() => {
-          switch (status) {
-            case "customer_received":
-            case "delivered":
-              return "success" as const;
-            case "courier_received":
-            case "waiting_confirmation":
-            case "PUDO_received":
-            case "out_for_delivery":
-            case "ready_for_dispatch":
-              return "outline" as const;
-            case "expired":
-            case "expired_received":
-            case "attempt_failed":
-              return "destructive" as const;
-            default:
-              return "secondary" as const;
-          }
-        })();
-
-        return <Badge variant={variant}>{parcelStatusLabel(t, status)}</Badge>;
+        return (
+          <Badge variant={parcelStatusVariant(status)}>
+            {parcelStatusLabel(t, status)}
+          </Badge>
+        );
       },
     },
     {

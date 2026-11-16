@@ -1,4 +1,5 @@
 import z from "zod";
+import type { ListStats } from "./api.types";
 
 // User details type
 export type UserDetails = {
@@ -55,6 +56,7 @@ export type GetUsersRes = {
   total_pages: number;
   total_users: number;
   users: UserDetails[];
+  stats?: ListStats;
 };
 
 export type GetSupervisorsRes = Omit<GetUsersRes, "users" | "total_users"> & {

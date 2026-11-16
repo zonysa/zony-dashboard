@@ -11,6 +11,8 @@ import { useState } from "react";
 import { userFilterOptions } from "@/lib/schema/user.schema";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { PageContainer } from "@/components/PageContainer";
+import { StatsCards, percentOf, statusCount } from "@/components/StatsCards";
+import { UserCog, UserCheck, UserX } from "lucide-react";
 
 export default function Page() {
   const { t } = useTranslation();
@@ -90,6 +92,36 @@ export default function Page() {
 
   return (
     <PageContainer size="xl" className="py-10 px-6">
+      <StatsCards
+        stats={users?.stats}
+        isLoading={isLoading}
+        items={(s) => [
+          {
+            label: t("stats.totalOf", { name: t("supervisors.title") }),
+            value: s.total,
+            description: t("stats.newThisMonth", { count: s.new_this_month }),
+            icon: UserCog,
+          },
+          {
+            label: t("stats.active"),
+            value: statusCount(s, "active"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "active"), s.total),
+            }),
+            icon: UserCheck,
+            tone: "success",
+          },
+          {
+            label: t("stats.inactive"),
+            value: statusCount(s, "inactive"),
+            description: t("stats.ofTotal", {
+              percent: percentOf(statusCount(s, "inactive"), s.total),
+            }),
+            icon: UserX,
+            tone: "warning",
+          },
+        ]}
+      />
       <DataTable
         columns={columns()}
         data={users ? users.users : []}

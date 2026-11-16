@@ -2306,5 +2306,25 @@
       "courier_received": "On its way",
       "customer_received": "Collected"
     }
+  },
+  "stats": {
+    "totalOf": "Total {{name}}",
+    "newThisMonth": "+{{count}} this month",
+    "ofTotal": "{{percent}}% of total",
+    "active": "Active",
+    "inactive": "Inactive",
+    "suspended": "Suspended",
+    "pending": "Pending",
+    "newLeads": "New",
+    "contacted": "Contacted",
+    "converted": "Converted",
+    "conversionRate": "{{percent}}% conversion rate",
+    "delivered": "Delivered",
+    "inProgress": "In progress",
+    "needsAttention": "Needs attention",
+    "createdToday": "{{count}} created today",
+    "byFlow": "PUDO {{pudo}} · Warehouse {{warehouse}}",
+    "open": "Open",
+    "resolved": "Resolved"
   }
 }

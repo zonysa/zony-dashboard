@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { ListStats } from "./api.types";
 
 // Customer data in ticket
 export interface CustomerData {
@@ -49,6 +50,7 @@ export interface TicketDetails {
 export interface GetTicketsRes {
   tickets: TicketDetails[];
   total_tickets: number;
+  stats?: ListStats;
   current_page: number;
   total_pages: number;
   next_page: number | null;

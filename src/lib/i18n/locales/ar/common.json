@@ -2302,5 +2302,25 @@
       "courier_received": "في الطريق",
       "customer_received": "تم الاستلام"
     }
+  },
+  "stats": {
+    "totalOf": "إجمالي {{name}}",
+    "newThisMonth": "+{{count}} هذا الشهر",
+    "ofTotal": "{{percent}}% من الإجمالي",
+    "active": "نشط",
+    "inactive": "غير نشط",
+    "suspended": "معلق",
+    "pending": "قيد الانتظار",
+    "newLeads": "جديد",
+    "contacted": "تم التواصل",
+    "converted": "تم التحويل",
+    "conversionRate": "معدل التحويل {{percent}}%",
+    "delivered": "تم التسليم",
+    "inProgress": "قيد التنفيذ",
+    "needsAttention": "تحتاج متابعة",
+    "createdToday": "{{count}} أُنشئت اليوم",
+    "byFlow": "نقاط الاستلام {{pudo}} · المستودع {{warehouse}}",
+    "open": "مفتوحة",
+    "resolved": "تم الحل"
   }
 }
