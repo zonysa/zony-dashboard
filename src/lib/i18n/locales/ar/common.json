@@ -128,6 +128,10 @@
     "routeSource": {
       "observed": "تم مسحه",
       "planned": "مخطط"
+    },
+    "actions": {
+      "assignCourier": "إسناد مندوب",
+      "reassignCourier": "إعادة إسناد المندوب"
     }
   },
   "clients": {

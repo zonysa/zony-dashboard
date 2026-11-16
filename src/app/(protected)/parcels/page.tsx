@@ -7,9 +7,12 @@ import { useRouter } from "next/navigation";
 import { FeedColumns } from "@/components/tables/columns/parcel-feed-columns";
 import { DataTable } from "@/components/tables/data-table";
 import { PageContainer } from "@/components/PageContainer";
+import { FeedAssignDialog } from "@/components/parcels/FeedAssignDialog";
 import { useDebounce } from "@/lib/hooks/useDebounce";
 import { useGetParcelFeed } from "@/lib/hooks/useParcel";
+import { usePermissions } from "@/lib/hooks/usePermissions";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { Permission } from "@/lib/rbac/permissions";
 import {
   ParcelFeedFacets,
   ParcelFeedRow,
@@ -30,6 +33,11 @@ import {
 export default function Page() {
   const { t } = useTranslation();
   const router = useRouter();
+  const { hasPermission } = usePermissions();
+  const canAssign = hasPermission(Permission.MANAGE_WAREHOUSE);
+  // Rendered outside the table: a portalled dialog still bubbles React click
+  // events up its component tree, so inside a row it would trigger row-click.
+  const [assignRow, setAssignRow] = useState<ParcelFeedRow | null>(null);
 
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [search, setSearch] = useState("");
@@ -164,7 +172,10 @@ export default function Page() {
   return (
     <PageContainer size="xl" className="py-10 px-6">
       <DataTable
-        columns={FeedColumns({ t })}
+        columns={FeedColumns({
+          t,
+          onAssign: canAssign ? setAssignRow : undefined,
+        })}
         data={parcels?.parcels || []}
         enableFiltering={true}
         filterConfigs={filterConfigs}
@@ -180,6 +191,13 @@ export default function Page() {
         totalResults={parcels?.total_parcels}
         isLoading={isLoading}
       />
+
+      {assignRow && (
+        <FeedAssignDialog
+          row={assignRow}
+          onClose={() => setAssignRow(null)}
+        />
+      )}
     </PageContainer>
   );
 }

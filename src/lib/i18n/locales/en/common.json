@@ -127,6 +127,10 @@
     "routeSource": {
       "observed": "scanned",
       "planned": "planned"
+    },
+    "actions": {
+      "assignCourier": "Assign courier",
+      "reassignCourier": "Reassign courier"
     }
   },
   "clients": {

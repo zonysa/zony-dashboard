@@ -6,15 +6,36 @@ import { ChevronRight, Package, Store, Warehouse } from "lucide-react";
 import { TFunction } from "i18next";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   ParcelFeedRow,
   ParcelLeg,
   ParcelLegPlaceType,
   ParcelRouteSource,
 } from "@/lib/schema/parcel.schema";
+import { canEmit, WHParcelStatus } from "@/lib/schema/warehouse.schema";
 
 interface ColumnsProps {
   t: TFunction<"common">;
+  /**
+   * Opens courier assignment for a row. Pass it only when the viewer may
+   * assign (MANAGE_WAREHOUSE) — without it the actions column is left out.
+   */
+  onAssign?: (row: ParcelFeedRow) => void;
+}
+
+/**
+ * Whether a feed row can take an E03 courier assignment. Only warehouse rows:
+ * the PUDO flow has no assignment step. And only from the statuses the
+ * warehouse transition table allows (ready_for_delivery/assigned and their
+ * RTO equivalents) — the server still has the final say.
+ */
+export function canAssignFeedRow(row: ParcelFeedRow) {
+  return (
+    row.flow === "warehouse" &&
+    !!row.status &&
+    canEmit(row.status as WHParcelStatus, "E03")
+  );
 }
 
 const LEG_ICON: Record<ParcelLegPlaceType, typeof Package> = {
@@ -23,7 +44,7 @@ const LEG_ICON: Record<ParcelLegPlaceType, typeof Package> = {
   customer: Package,
 };
 
-export const FeedColumns = ({ t }: ColumnsProps) => {
+export const FeedColumns = ({ t, onAssign }: ColumnsProps) => {
   const columns: ColumnDef<ParcelFeedRow>[] = [
     {
       // Barcode, not tracking number: it is the only identifier both flows
@@ -153,6 +174,35 @@ export const FeedColumns = ({ t }: ColumnsProps) => {
       ),
     },
   ];
+
+  if (onAssign) {
+    columns.push({
+      id: "actions",
+      header: t("table.actions"),
+      cell: ({ row }) => {
+        if (!canAssignFeedRow(row.original)) return null;
+        const reassign =
+          row.original.status === "assigned" ||
+          row.original.status === "rto_assigned";
+        return (
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={(e) => {
+              // The row itself navigates to the parcel's detail screen.
+              e.stopPropagation();
+              onAssign(row.original);
+            }}
+          >
+            {reassign
+              ? t("parcelFeed.actions.reassignCourier")
+              : t("parcelFeed.actions.assignCourier")}
+          </Button>
+        );
+      },
+    });
+  }
 
   return columns;
 };

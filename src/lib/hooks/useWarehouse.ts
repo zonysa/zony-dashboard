@@ -976,6 +976,8 @@ export function useAssignParcel() {
       toastScanEventSuccess(data);
       applyScanEventResult(queryClient, variables.id, data.parcel_status);
       queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+      // The Parcels page feed shows the derived status too.
+      queryClient.invalidateQueries({ queryKey: [...parcelKeys.all, "feed"] });
     },
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to assign courier");
@@ -995,6 +997,8 @@ export function useUnassignParcel() {
       toastScanEventSuccess(data);
       applyScanEventResult(queryClient, variables.id, data.parcel_status);
       queryClient.invalidateQueries({ queryKey: warehouseKeys.couriers() });
+      // The Parcels page feed shows the derived status too.
+      queryClient.invalidateQueries({ queryKey: [...parcelKeys.all, "feed"] });
     },
     onError: (error: Error) => {
       toast.error(error?.message || "Failed to unassign courier");
