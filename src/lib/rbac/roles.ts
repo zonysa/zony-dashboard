@@ -69,6 +69,18 @@ export function normalizeRole(role: string): UserRole {
   return roleMap[normalized] || "customer"; // Default to most restrictive
 }
 
+// Where a role lands after login and when it opens "/". Most roles get the
+// main dashboard; a warehouse clerk works one building and has nothing on the
+// platform-wide overview, so their home is that building's warehouse hub.
+const ROLE_HOME_ROUTES: Partial<Record<UserRole, string>> = {
+  warehouse_clerk: "/warehouse",
+};
+
+export function getHomeRoute(role: string | null | undefined): string {
+  if (!role) return "/";
+  return ROLE_HOME_ROUTES[normalizeRole(role)] ?? "/";
+}
+
 // Helper function to get role display name
 export function getRoleName(role: string): string {
   const normalized = normalizeRole(role);

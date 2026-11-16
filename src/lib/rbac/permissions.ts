@@ -210,10 +210,11 @@ export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   // No *_WAREHOUSE_SETTINGS: those gate the buildings list, the edit form and
   // the staff roster, and a clerk assigning themselves elsewhere would undo
   // the pinning. No PUDO or parcel access either -- that is the partner side.
+  //
+  // No VIEW_DASHBOARD either: the platform overview at "/" means nothing to
+  // someone pinned to one building, so it's hidden from their sidebar and
+  // their home is the warehouse hub instead (getHomeRoute in roles.ts).
   warehouse_clerk: [
-    // Every role holds this, courier and customer included -- it gates the
-    // dashboard shell and the landing page, not anything privileged.
-    Permission.VIEW_DASHBOARD,
     Permission.VIEW_WAREHOUSE,
     Permission.MANAGE_WAREHOUSE,
     Permission.VIEW_PROFILE,
