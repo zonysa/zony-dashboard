@@ -870,7 +870,29 @@
       "description": "Fill in the parcel details below to create a new delivery order.",
       "success": "Parcel created successfully",
       "error": "Failed to create parcel: {error}",
-      "assignment": "Assignment"
+      "assignment": "Assignment",
+      "route": {
+        "label": "Delivery route",
+        "normal": "Normal",
+        "normalHint": "A courier collects from the sender and delivers to a pickup shop.",
+        "warehouse": "Via warehouse (UCC)",
+        "warehouseHint": "The merchant drops the box at a Zony warehouse, which delivers it."
+      },
+      "warehouse": {
+        "description": "Register the parcel now; it is taken in when the box is scanned at Receiving.",
+        "sectionTitle": "Warehouse",
+        "sectionDescription": "The warehouse where the merchant will drop the box off.",
+        "barcode": "Box barcode (optional)",
+        "barcodeHint": "Use the label already on the box. Leave blank to get a Zony barcode to write or print on it.",
+        "destination": "Pickup shop (optional)",
+        "destinationHome": "Home delivery",
+        "success": "Parcel registered. It will be taken in when the box is scanned at Receiving.",
+        "successGenerated": "Parcel registered with barcode {{barcode}}. Label the box with it before drop-off.",
+        "zone": "Delivery zone",
+        "zonePlaceholder": "Select a zone",
+        "zoneHint": "The area of the city the box goes to. It decides the box's row on the Wall.",
+        "noZones": "This warehouse has no zones yet, so a box can't be booked to it."
+      }
     },
     "createCity": {
       "title": "Create New City",
@@ -1325,8 +1347,9 @@
       "notFoundBarcode": "No warehouse parcel with that barcode — this is a new box, fill the details in below.",
       "notFoundTracking": "No parcel with that tracking reference — fill the details in below.",
       "failed": "Lookup failed. Try again, or fill the details in by hand.",
+      "noMainAccess": "Looking up tracking references in the main system isn't available for your account — fill the details in below.",
       "barcodeStillNeeded": "The lookup didn't return a barcode — scan or type the one on the box.",
-      "sourceWarehouse": "Filled from a parcel already in the warehouse. Check it against the box before receiving.",
+      "sourceWarehouse": "Filled from a parcel registered at this warehouse. Check it against the box before receiving.",
       "sourceParcels": "Filled from the main parcels system. Check it against the box before receiving."
     },
     "actions": {
@@ -1362,6 +1385,7 @@
     "grid": {
       "title": "Zone × Slot Grid",
       "zone": "Zone",
+      "noZone": "No zone",
       "empty": "No zones or slots are configured yet.",
       "needsRebin": "Rebin ×{{count}}"
     },
@@ -1442,6 +1466,7 @@
     "title": "Loading",
     "subtitle": "Staged manifest for a slot — checkout parcels to a courier.",
     "slotPlaceholder": "Select a slot",
+    "allSlots": "All slots",
     "datePickerPlaceholder": "Pick a date",
     "loadError": "Something went wrong loading the manifest.",
     "checkoutNotAllowed": "Checkout isn't available for this parcel's current status.",
@@ -1450,7 +1475,8 @@
     "manifest": {
       "title": "Staged Manifest",
       "pickSlot": "Pick a slot to see its staged manifest.",
-      "empty": "Nothing staged for this slot yet."
+      "empty": "Nothing staged for this slot yet.",
+      "emptyAll": "Nothing staged in any slot yet."
     },
     "table": {
       "barcode": "Barcode",
@@ -1460,7 +1486,8 @@
       "bin": "Bin",
       "actions": "Actions",
       "destination": "Destination",
-      "courier": "Courier"
+      "courier": "Courier",
+      "slot": "Slot"
     },
     "actions": {
       "checkout": "Checkout",
@@ -1937,6 +1964,10 @@
       "messageTemplates": {
         "title": "Message templates",
         "description": "Nested per channel and purpose. Unknown placeholders render empty rather than raising an error."
+      },
+      "deliveryCode": {
+        "title": "Delivery code",
+        "description": "The delivery code is the customer's proof that they received the parcel. Anyone who knows it can complete a delivery without the customer."
       }
     },
     "fields": {
@@ -1998,6 +2029,10 @@
       },
       "message_templates": {
         "invalidJson": "This isn't valid JSON — fix it before saving."
+      },
+      "clerk_can_see_delivery_code": {
+        "label": "Show delivery code to warehouse clerks",
+        "description": "When on, clerks see the code (masked until they tap Show) at receiving and when resending it. When off, only the customer gets it; admins and supervisors still see it."
       }
     },
     "assignmentConfirm": {
@@ -2071,9 +2106,17 @@
       "trackingRef": "Tracking reference",
       "zone": "Zone",
       "experimentArm": "Experiment arm",
-      "createdAt": "Received at",
+      "createdAt": "Registered at",
       "address": "Address",
-      "handedToPudo": "Handed to PUDO point"
+      "handedToPudo": "Handed to PUDO point",
+      "recipientName": "Recipient name",
+      "plannedPudo": "Planned pickup shop",
+      "homeDelivery": "Home delivery"
+    },
+    "sections": {
+      "statusDescription": "Where the parcel is now, worked out from its event log.",
+      "routingDescription": "Which flow and queue it is in, and who it is planned for.",
+      "detailsDescription": "Who receives it and where it is going."
     },
     "timeline": {
       "title": "Audit log",
@@ -2261,7 +2304,17 @@
         "title": "Remove from this warehouse?",
         "description": "{{name}} will be locked out of the warehouse screens until they are assigned to a building again."
       },
-      "createClerk": "Create warehouse clerk"
+      "createClerk": "Create warehouse clerk",
+      "edit": {
+        "action": "Edit clerk",
+        "title": "Edit warehouse clerk",
+        "description": "Update this clerk's account details. Changes apply to their login straight away.",
+        "loadError": "Couldn't load this clerk's account.",
+        "passwordSection": "Password",
+        "passwordHint": "Leave blank to keep the current password.",
+        "success": "Clerk updated",
+        "error": "Failed to update clerk"
+      }
     }
   },
   "warehousePudoHandovers": {
@@ -2369,5 +2422,12 @@
     "custom": "Custom",
     "all": "All time",
     "pickRange": "Pick a date range"
+  },
+  "warehouseDeliveryCode": {
+    "show": "Show code",
+    "hide": "Hide code",
+    "masked": "Delivery code is hidden. Show it only when you need it.",
+    "hiddenSent": "The delivery code was sent to the customer. Clerks don't see it at this warehouse.",
+    "hiddenNotSent": "The text to the customer failed, and clerks can't see the code here. Ask a supervisor to resend the code from the parcel page."
   }
 }

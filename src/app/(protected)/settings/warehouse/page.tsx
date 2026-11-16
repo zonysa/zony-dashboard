@@ -207,6 +207,22 @@ export default function WarehouseSettingsPage() {
             </CardContent>
           </Card>
 
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                {t("warehouseSettings.sections.deliveryCode.title")}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                {t("warehouseSettings.sections.deliveryCode.description")}
+              </p>
+            </CardHeader>
+            <CardContent>
+              <ClerkCodeVisibilityField
+                value={settings?.["clerk_can_see_delivery_code"]}
+              />
+            </CardContent>
+          </Card>
+
           <MessageTemplatesCard value={settings?.["message_templates"]} />
         </div>
       )}
@@ -359,6 +375,42 @@ function CustomerSlotChoiceField({ value: settingValue }: { value: unknown }) {
           update.mutate({ key: "customer_slot_choice", value: v === true })
         }
         aria-label={t("warehouseSettings.fields.customer_slot_choice.label")}
+      />
+    </div>
+  );
+}
+
+// clerk_can_see_delivery_code: whether warehouse clerks are given the
+// plaintext code at receiving and on a rotation. Enforced by the backend (a
+// clerk's response carries no code when off), not just hidden here. Admin and
+// supervisor always see it, so a failed message can still be recovered.
+function ClerkCodeVisibilityField({ value: settingValue }: { value: unknown }) {
+  const { t } = useTranslation();
+  const update = useUpdateSetting();
+
+  if (settingValue === undefined) {
+    return <Skeleton className="h-16 w-full" />;
+  }
+
+  const enabled = settingValue === true || settingValue === "true";
+
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-lg border p-4">
+      <div className="space-y-1">
+        <Label>
+          {t("warehouseSettings.fields.clerk_can_see_delivery_code.label")}
+        </Label>
+        <p className="text-xs text-muted-foreground">
+          {t("warehouseSettings.fields.clerk_can_see_delivery_code.description")}
+        </p>
+      </div>
+      <Checkbox
+        checked={enabled}
+        disabled={update.isPending}
+        onCheckedChange={(v) =>
+          update.mutate({ key: "clerk_can_see_delivery_code", value: v === true })
+        }
+        aria-label={t("warehouseSettings.fields.clerk_can_see_delivery_code.label")}
       />
     </div>
   );

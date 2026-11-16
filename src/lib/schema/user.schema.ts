@@ -1,5 +1,7 @@
 import z from "zod";
+import { optionalSaudiPhoneSchema } from "@/lib/validators/phone";
 import type { ListStats } from "./api.types";
+import { optionalUsernameSchema } from "./auth.schema";
 
 // User details type
 export type UserDetails = {
@@ -130,6 +132,25 @@ export const userSchema = z.object({
 });
 
 export type UserFormData = z.infer<typeof userSchema>;
+
+// Admin editing a staff account (e.g. a warehouse clerk from a building's
+// roster). Same field rules as CreateUserSheet, except the password: blank
+// keeps the current one, anything else replaces it. No `is_active`: PATCH
+// /users rejects it as an unknown field.
+export const editStaffUserSchema = z.object({
+  first_name: z.string().trim().min(1, "First name is required"),
+  last_name: z.string().trim().min(1, "Last name is required"),
+  username: optionalUsernameSchema,
+  email: z.string().trim().email("Please enter a valid email address"),
+  phone_number: optionalSaudiPhoneSchema,
+  password: z.union([
+    z.literal(""),
+    z.string().min(8, "Password must be at least 8 characters"),
+  ]),
+});
+
+export type EditStaffUserFormInput = z.input<typeof editStaffUserSchema>;
+export type EditStaffUserFormData = z.output<typeof editStaffUserSchema>;
 
 // Table type (for displaying in DataTable)
 export type UserTable = UserDetails;

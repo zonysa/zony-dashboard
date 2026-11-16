@@ -38,6 +38,7 @@ import {
   GetCourierManifestRes,
   GetCouriersRes,
   GetFailureReasonsRes,
+  ALL_SLOTS,
   GetLoadingManifestRes,
   GetParcelEventsRes,
   GetParcelListRes,
@@ -56,6 +57,8 @@ import {
   GetWarehouseStaffRes,
   GetZonesRes,
   HandoverParcelData,
+  PreRegisterData,
+  PreRegisterRes,
   ReceivingScanData,
   ReturnedToOriginData,
   ReturnReceivedData,
@@ -80,6 +83,13 @@ export const receivingScan = async (
   data: ReceivingScanData,
 ): Promise<WHReceivingScanRes> => {
   return apiCall({ method: "POST", url: "/warehouse/receiving/scan", data });
+};
+
+// Book a parcel before the box arrives (Create parcel → "Via warehouse").
+export const preRegisterParcel = async (
+  data: PreRegisterData,
+): Promise<PreRegisterRes> => {
+  return apiCall({ method: "POST", url: "/warehouse/parcels", data });
 };
 
 // Every read below is scoped to one building. The server requires it for
@@ -113,7 +123,8 @@ export const getLoadingManifest = async (
 ): Promise<GetLoadingManifestRes> => {
   return apiCall({
     method: "GET",
-    url: `/warehouse/loading/${slotId}?date=${date}&warehouse_id=${warehouseId}`,
+    // "all" is every slot at once: the same endpoint without a slot segment.
+    url: `/warehouse/loading${slotId === ALL_SLOTS ? "" : `/${slotId}`}?date=${date}&warehouse_id=${warehouseId}`,
   });
 };
 

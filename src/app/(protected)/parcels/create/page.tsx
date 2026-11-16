@@ -28,13 +28,102 @@ import { PageContainer } from "@/components/PageContainer";
 import { PartySection } from "@/forms/parcel/PartySection";
 import { PartyPersonalSection } from "@/forms/parcel/PartyPersonalSection";
 import { ParcelContentSection } from "@/forms/parcel/ParcelContentSection";
+import { WarehouseParcelForm } from "@/forms/parcel/WarehouseParcelForm";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { Permission } from "@/lib/rbac/permissions";
 import { toE164SaudiPhone } from "@/lib/validators/phone";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+// "normal": courier collects from the sender and takes it to a pickup shop.
+// "warehouse": the merchant drops the box at a UCC warehouse, which delivers.
+type DeliveryRoute = "normal" | "warehouse";
+
 export default function Page() {
+  const { hasPermission } = usePermissions();
+  // Booking a warehouse parcel is a warehouse-staff action (the endpoint is
+  // admin/supervisor/warehouse_clerk), so couriers and customers never see
+  // the choice and always get the normal form.
+  const canUseWarehouse = hasPermission(Permission.MANAGE_WAREHOUSE);
+  const [route, setRoute] = useState<DeliveryRoute>("normal");
+
+  return (
+    <PageContainer size="xl" className="px-6 py-10">
+      {canUseWarehouse && (
+        <DeliveryRouteSwitch value={route} onChange={setRoute} />
+      )}
+      {canUseWarehouse && route === "warehouse" ? (
+        <WarehouseParcelForm />
+      ) : (
+        <NormalParcelForm />
+      )}
+    </PageContainer>
+  );
+}
+
+function DeliveryRouteSwitch({
+  value,
+  onChange,
+}: {
+  value: DeliveryRoute;
+  onChange: (route: DeliveryRoute) => void;
+}) {
+  const { t } = useTranslation();
+  const options: { route: DeliveryRoute; label: string; hint: string }[] = [
+    {
+      route: "normal",
+      label: t("dialogs.createParcel.route.normal"),
+      hint: t("dialogs.createParcel.route.normalHint"),
+    },
+    {
+      route: "warehouse",
+      label: t("dialogs.createParcel.route.warehouse"),
+      hint: t("dialogs.createParcel.route.warehouseHint"),
+    },
+  ];
+
+  return (
+    <div className="mb-8 space-y-2">
+      <p className="text-sm font-medium text-foreground">
+        {t("dialogs.createParcel.route.label")}
+      </p>
+      <div
+        role="radiogroup"
+        aria-label={t("dialogs.createParcel.route.label")}
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2"
+      >
+        {options.map((option) => {
+          const selected = option.route === value;
+          return (
+            <button
+              key={option.route}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onChange(option.route)}
+              className={`rounded-lg border p-4 text-start transition-colors ${
+                selected
+                  ? "border-primary bg-primary/5 ring-1 ring-primary"
+                  : "border-border hover:bg-muted/50"
+              }`}
+            >
+              <div className="text-sm font-semibold text-foreground">
+                {option.label}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">
+                {option.hint}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function NormalParcelForm() {
   const { t } = useTranslation();
   const router = useRouter();
   const user = useUser();
@@ -173,7 +262,7 @@ export default function Page() {
   }
 
   return (
-    <PageContainer size="xl" className="px-6 py-10">
+    <>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -282,6 +371,6 @@ export default function Page() {
           </div>
         </form>
       </Form>
-    </PageContainer>
+    </>
   );
 }

@@ -47,7 +47,12 @@ import {
   useResolvedWarehouseId,
   WarehouseSelect,
 } from "@/components/warehouse/WarehouseSelect";
+import {
+  HiddenDeliveryCodeNotice,
+  MaskedDeliveryCode,
+} from "@/components/warehouse/MaskedDeliveryCode";
 import { useTranslation } from "@/lib/hooks/useTranslation";
+import { ApiError } from "@/lib/services/apiClient";
 import {
   mintClientEventId,
   useGetZones,
@@ -99,6 +104,8 @@ export default function ReceivingPage() {
   const lookup = useReceivingLookup();
 
   const [result, setResult] = useState<WHReceivingScanRes | null>(null);
+  // The code starts masked every time one arrives; see MaskedDeliveryCode.
+  const [codeRevealed, setCodeRevealed] = useState(false);
 
   // Which identifier the clerk is typing. One visible field, not two: the box
   // in their hand carries one or the other, and asking for both up front is
@@ -186,6 +193,14 @@ export default function ReceivingPage() {
         },
         onError: (error) => {
           setLookupTried(true);
+          // Tracking references live only in the main /parcels system, which
+          // the backend refuses to `warehouse_clerk`. Not a failure the clerk
+          // can retry — point them at the form instead of "Access forbidden".
+          if (error instanceof ApiError && error.status === 403) {
+            toast.info(t("warehouseReceiving.lookup.noMainAccess"));
+            setFocus("recipient_name");
+            return;
+          }
           toast.error(error?.message || t("warehouseReceiving.lookup.failed"));
         },
       },
@@ -219,6 +234,7 @@ export default function ReceivingPage() {
     try {
       await receivingScan.mutateAsync(payload, {
         onSuccess: (data) => {
+          setCodeRevealed(false);
           setResult(data);
         },
       });
@@ -231,6 +247,7 @@ export default function ReceivingPage() {
 
   function handleDismissResult() {
     setResult(null);
+    setCodeRevealed(false);
     form.reset(buildDefaultValues(warehouseId));
     setLookupTried(false);
     setPrefillSource(null);
@@ -245,8 +262,18 @@ export default function ReceivingPage() {
     if (!result) return;
     resendCode.mutate(result.parcel.id, {
       onSuccess: (data) => {
+        setCodeRevealed(false);
         setResult((prev) =>
-          prev ? { ...prev, delivery_code: data.delivery_code } : prev,
+          prev
+            ? {
+                ...prev,
+                delivery_code: data.delivery_code,
+                delivery_code_hidden: data.delivery_code_hidden,
+                message_sent: data.message_sent,
+                message_channel: data.message_channel,
+                message_status: data.message_status,
+              }
+            : prev,
         );
       },
     });
@@ -605,10 +632,17 @@ export default function ReceivingPage() {
         >
           <DialogHeader>
             <DialogTitle>{t("warehouseReceiving.codeDialog.title")}</DialogTitle>
-            <DialogDescription className="flex items-start gap-2 text-amber-600 dark:text-amber-500">
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{t("warehouseReceiving.codeDialog.warning")}</span>
-            </DialogDescription>
+            {result?.delivery_code ? (
+              <DialogDescription className="flex items-start gap-2 text-amber-600 dark:text-amber-500">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{t("warehouseReceiving.codeDialog.warning")}</span>
+              </DialogDescription>
+            ) : (
+              // Radix wants a description; there's no code to warn about.
+              <DialogDescription className="sr-only">
+                {t("warehouseReceiving.codeDialog.title")}
+              </DialogDescription>
+            )}
           </DialogHeader>
 
           {result && (
@@ -644,11 +678,15 @@ export default function ReceivingPage() {
               </div>
 
               {result.delivery_code ? (
-                <div className="rounded-lg border-2 border-amber-500 bg-amber-50 py-6 text-center dark:bg-amber-950/30">
-                  <div className="font-mono text-5xl font-bold tracking-[0.3em] text-amber-700 dark:text-amber-400">
-                    {result.delivery_code}
-                  </div>
-                </div>
+                <MaskedDeliveryCode
+                  code={result.delivery_code}
+                  revealed={codeRevealed}
+                  onRevealedChange={setCodeRevealed}
+                />
+              ) : result.delivery_code_hidden ? (
+                // Withheld by the clerk_can_see_delivery_code setting: the
+                // customer has it (or a supervisor must resend it).
+                <HiddenDeliveryCodeNotice messageSent={result.message_sent} />
               ) : (
                 <div className="space-y-2 rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-sm">
                   <p>{t("warehouseReceiving.codeDialog.codeUnavailable")}</p>
@@ -682,7 +720,9 @@ export default function ReceivingPage() {
           )}
 
           <DialogFooter className="gap-2 sm:justify-between">
-            {result?.delivery_code && (
+            {/* Printing needs the code on screen first, so a slip is never
+                produced for a code nobody chose to reveal. */}
+            {result?.delivery_code && codeRevealed && (
               <Button type="button" variant="outline" onClick={handlePrint}>
                 <Printer className="h-4 w-4" />
                 {t("warehouseReceiving.actions.print")}
@@ -695,7 +735,7 @@ export default function ReceivingPage() {
         </DialogContent>
       </Dialog>
 
-      {result?.delivery_code && (
+      {result?.delivery_code && codeRevealed && (
         <div className="wh-code-print-area hidden flex-col items-center justify-center gap-4 p-6 text-center print:flex">
           <div className="text-lg font-semibold">
             {t("warehouseReceiving.printSlip.title")}

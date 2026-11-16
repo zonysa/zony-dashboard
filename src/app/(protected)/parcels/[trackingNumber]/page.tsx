@@ -496,7 +496,7 @@ export default function Page() {
                 value={t("customerMessages.subtitle")}
                 icon={MessageSquare}
               />
-              <CardContent className="flex-1 space-y-4">
+              <CardContent className="min-w-0 flex-1 space-y-4">
                 <Can do={Permission.RESEND_PARCEL_MESSAGES}>
                   <div className="flex justify-end">
                     <AlertDialog>
