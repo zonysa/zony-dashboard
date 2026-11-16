@@ -437,6 +437,16 @@ export type ParcelPartyFormData = z.infer<typeof parcelPartySchema>;
 export type DimensionsFormData = z.infer<typeof dimensionsSchema>;
 export type ParcelContentFormData = z.infer<typeof parcelContentSchema>;
 
+// PUDO-flow courier assignment — PATCH /parcels/:id with just `courier_id`
+// (a users.id, max 50 chars server-side). On a `pending` parcel this overrides
+// courier self-claiming: the courier scope shows pending parcels only while
+// courier_id is empty, so the named courier gets it and the others stop seeing
+// it. The UI offers that to admins only (see lib/parcels/courierAssignment).
+export const assignParcelCourierSchema = z.object({
+  courier_id: z.string().min(1, "Select a courier").max(50),
+});
+export type AssignParcelCourierData = z.infer<typeof assignParcelCourierSchema>;
+
 // --- texts sent to the customer ---------------------------------------------
 //
 // One shape for both flows (`/parcels/:id/messages` and

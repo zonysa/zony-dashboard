@@ -135,8 +135,26 @@
     },
     "actions": {
       "assignCourier": "Assign courier",
-      "reassignCourier": "Reassign courier"
+      "reassignCourier": "Reassign courier",
+      "unavailable": {
+        "notReadyYet": "Available once the parcel is ready for delivery",
+        "pudoClaimsPending": "Couriers claim pending parcels themselves in the courier app",
+        "notAtThisStage": "A courier can't be assigned at this stage"
+      }
     }
+  },
+  "parcelCourierAssign": {
+    "title": "Assign courier",
+    "description": "The courier you pick is assigned to this parcel directly, overriding courier self-claiming.",
+    "courier": "Courier",
+    "courierPlaceholder": "Select a courier",
+    "loadingCouriers": "Loading couriers...",
+    "noCouriers": "No active couriers",
+    "submit": "Confirm assignment",
+    "submitting": "Assigning...",
+    "cancel": "Cancel",
+    "success": "Courier assigned",
+    "error": "Failed to assign courier"
   },
   "clients": {
     "title": "Client",

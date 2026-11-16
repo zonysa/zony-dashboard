@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import DataItem from "@/components/ui/DataItem";
@@ -42,6 +43,9 @@ import { PageContainer } from "@/components/PageContainer";
 import { ParcelTrackingTimeline } from "@/components/parcels/ParcelTrackingTimeline";
 import { CustomerMessages } from "@/components/parcels/CustomerMessages";
 import { usePermissions } from "@/lib/hooks/usePermissions";
+import { AssignCourierButton } from "@/components/parcels/AssignCourierButton";
+import { AssignParcelCourierDialog } from "@/components/parcels/AssignParcelCourierDialog";
+import { pudoAssignAvailability } from "@/lib/parcels/courierAssignment";
 
 // Helper function to format date
 const formatDate = (dateString: string | null) => {
@@ -81,7 +85,7 @@ export default function Page() {
     isError: isTrackingError,
   } = useGetParcelTracking(parcelId, !!parcelId);
   // Gate the fetch, not just the tab: the endpoint 403s for other roles.
-  const { hasPermission } = usePermissions();
+  const { hasPermission, hasRole } = usePermissions();
   const canViewMessages = hasPermission(Permission.VIEW_PARCEL_MESSAGES);
   const {
     data: messages,
@@ -89,6 +93,7 @@ export default function Page() {
     isError: isMessagesError,
   } = useGetParcelMessages(parcelId, !!parcelId && canViewMessages);
   const resendMessage = useResendParcelMessage(parcelId);
+  const [assignCourierOpen, setAssignCourierOpen] = useState(false);
 
   // Handle missing tracking number after all hooks are called
   if (!trackingNumber) {
@@ -359,6 +364,28 @@ export default function Page() {
                 icon={Truck}
               />
               <CardContent className="flex-1 space-y-3">
+                {parcelData && (
+                  <Can
+                    do={[
+                      Permission.ASSIGN_PARCELS,
+                      Permission.MANAGE_WAREHOUSE,
+                    ]}
+                  >
+                    <div className="flex justify-end">
+                      <AssignCourierButton
+                        availability={pudoAssignAvailability(
+                          parcelData.status,
+                          parcelData.courier_id,
+                          {
+                            isAdmin: hasRole("admin"),
+                            canAssign: hasPermission(Permission.ASSIGN_PARCELS),
+                          },
+                        )}
+                        onClick={() => setAssignCourierOpen(true)}
+                      />
+                    </div>
+                  </Can>
+                )}
                 {parcelData?.courier_name ||
                 parcelData?.courier_phone_number ||
                 parcelData?.courier_email ? (
@@ -520,6 +547,14 @@ export default function Page() {
           </TabsContent>
         </Can>
       </Tabs>
+      {parcelData && assignCourierOpen && (
+        <AssignParcelCourierDialog
+          parcelId={String(parcelData.id)}
+          barcode={parcelData.barcode}
+          currentCourierId={parcelData.courier_id}
+          onClose={() => setAssignCourierOpen(false)}
+        />
+      )}
     </PageContainer>
   );
 }

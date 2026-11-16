@@ -7,11 +7,13 @@ import {
   parcelFeedFilterOptions,
   parcelFilterOptions,
   ParcelFormData,
+  AssignParcelCourierData,
 } from "@/lib/schema/parcel.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useTranslation } from "./useTranslation";
 import {
+  assignParcelCourier,
   createParcel,
   deleteParcel,
   getParcelById,
@@ -186,6 +188,28 @@ export function useUpdateParcel() {
     },
     onError: (error) => {
       toast.error(error?.message || "Failed to update parcel");
+    },
+  });
+}
+
+// Assign a courier to a PUDO-flow parcel. Refreshes every detail cache
+// (by id and by tracking number both live under details()) and the merged
+// Parcels feed, whose row shows the courier's status next.
+export function useAssignParcelCourier() {
+  const queryClient = useQueryClient();
+  const { t } = useTranslation();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: AssignParcelCourierData }) =>
+      assignParcelCourier(id, data),
+    onSuccess: () => {
+      toast.success(t("parcelCourierAssign.success"));
+      queryClient.invalidateQueries({ queryKey: parcelKeys.details() });
+      queryClient.invalidateQueries({ queryKey: parcelKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: [...parcelKeys.all, "feed"] });
+    },
+    onError: (error) => {
+      toast.error(error?.message || t("parcelCourierAssign.error"));
     },
   });
 }

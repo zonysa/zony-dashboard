@@ -6,39 +6,38 @@ import { ChevronRight, Package, Store, Warehouse } from "lucide-react";
 import { TFunction } from "i18next";
 import { isValid, parse } from "date-fns";
 
+import { AssignCourierButton } from "@/components/parcels/AssignCourierButton";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   ParcelFeedRow,
   ParcelLeg,
   ParcelLegPlaceType,
   ParcelRouteSource,
 } from "@/lib/schema/parcel.schema";
-import { canEmit, WHParcelStatus } from "@/lib/schema/warehouse.schema";
+import {
+  feedRowAssignAvailability,
+  feedRowAssignTarget,
+  type PudoAssignViewer,
+} from "@/lib/parcels/courierAssignment";
 
 interface ColumnsProps {
   t: TFunction<"common">;
   /** i18n language code; picks the date locale. */
   language?: string;
   /**
-   * Opens courier assignment for a row. Pass it only when the viewer may
-   * assign (MANAGE_WAREHOUSE) — without it the actions column is left out.
+   * Courier assignment, per flow. The actions column is added only when the
+   * viewer may assign in at least one flow, and a row of a flow they can't
+   * assign in gets no button at all (rather than a disabled one).
    */
-  onAssign?: (row: ParcelFeedRow) => void;
-}
-
-/**
- * Whether a feed row can take an E03 courier assignment. Only warehouse rows:
- * the PUDO flow has no assignment step. And only from the statuses the
- * warehouse transition table allows (ready_for_delivery/assigned and their
- * RTO equivalents) — the server still has the final say.
- */
-export function canAssignFeedRow(row: ParcelFeedRow) {
-  return (
-    row.flow === "warehouse" &&
-    !!row.status &&
-    canEmit(row.status as WHParcelStatus, "E03")
-  );
+  assign?: {
+    /** MANAGE_WAREHOUSE — E03 on warehouse rows. */
+    warehouse: boolean;
+    /** Show the button on PUDO-flow rows (courier_id). */
+    pudo: boolean;
+    /** Who is looking — only an admin can override a pending claim. */
+    pudoViewer: PudoAssignViewer;
+    onAssign: (row: ParcelFeedRow) => void;
+  };
 }
 
 /**
@@ -114,7 +113,7 @@ const LEG_ICON: Record<ParcelLegPlaceType, typeof Package> = {
   customer: Package,
 };
 
-export const FeedColumns = ({ t, language, onAssign }: ColumnsProps) => {
+export const FeedColumns = ({ t, language, assign }: ColumnsProps) => {
   const columns: ColumnDef<ParcelFeedRow>[] = [
     {
       // Barcode, not tracking number: it is the only identifier both flows
@@ -218,30 +217,20 @@ export const FeedColumns = ({ t, language, onAssign }: ColumnsProps) => {
     },
   ];
 
-  if (onAssign) {
+  if (assign && (assign.warehouse || assign.pudo)) {
     columns.push({
       id: "actions",
       header: t("table.actions"),
       cell: ({ row }) => {
-        if (!canAssignFeedRow(row.original)) return null;
-        const reassign =
-          row.original.status === "assigned" ||
-          row.original.status === "rto_assigned";
+        const { flow } = feedRowAssignTarget(row.original);
+        if (!assign[flow]) return null;
+        // Shown disabled, with the reason, when the row isn't at an
+        // assignable stage — an empty cell read as a missing feature.
         return (
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={(e) => {
-              // The row itself navigates to the parcel's detail screen.
-              e.stopPropagation();
-              onAssign(row.original);
-            }}
-          >
-            {reassign
-              ? t("parcelFeed.actions.reassignCourier")
-              : t("parcelFeed.actions.assignCourier")}
-          </Button>
+          <AssignCourierButton
+            availability={feedRowAssignAvailability(row.original, assign.pudoViewer)}
+            onClick={() => assign.onAssign(row.original)}
+          />
         );
       },
     });

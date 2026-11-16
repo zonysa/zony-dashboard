@@ -10,7 +10,34 @@ import { AssignDialog } from "@/components/warehouse/WarehouseDialogs";
 import { useResolvedWarehouseId } from "@/components/warehouse/WarehouseSelect";
 import { useTranslation } from "@/lib/hooks/useTranslation";
 import { useGetCouriers, useGetParcel } from "@/lib/hooks/useWarehouse";
+import { AssignParcelCourierDialog } from "@/components/parcels/AssignParcelCourierDialog";
+import { feedRowAssignTarget } from "@/lib/parcels/courierAssignment";
 import { ParcelFeedRow } from "@/lib/schema/parcel.schema";
+
+/**
+ * Courier assignment opened from a Parcels feed row, in whichever flow the
+ * row is assigned through (see feedRowAssignTarget).
+ */
+export function FeedAssignDialog({
+  row,
+  onClose,
+}: {
+  row: ParcelFeedRow;
+  onClose: () => void;
+}) {
+  const target = feedRowAssignTarget(row);
+  if (target.flow === "pudo") {
+    return (
+      <AssignParcelCourierDialog
+        parcelId={target.parcelId}
+        barcode={row.barcode}
+        currentCourierId={row.courier_id}
+        onClose={onClose}
+      />
+    );
+  }
+  return <WarehouseFeedAssignDialog row={row} onClose={onClose} />;
+}
 
 /**
  * E03 courier assignment, opened from a warehouse row of the Parcels feed.
@@ -24,7 +51,7 @@ import { ParcelFeedRow } from "@/lib/schema/parcel.schema";
  * Couriers come from the selected warehouse, as on the warehouse parcel
  * screen — a parcel record doesn't name its building.
  */
-export function FeedAssignDialog({
+function WarehouseFeedAssignDialog({
   row,
   onClose,
 }: {

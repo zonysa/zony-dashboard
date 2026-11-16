@@ -10,6 +10,7 @@ import {
   parcelFilterOptions,
   ParcelFormData,
   CreateParcelFormData,
+  AssignParcelCourierData,
 } from "../schema/parcel.schema";
 import { apiCall, ApiError } from "./apiClient";
 
@@ -143,6 +144,19 @@ export const updateParcel = async (
   id: string,
   data: Partial<ParcelFormData>
 ) => {
+  return apiCall({
+    method: "PATCH",
+    url: `/parcels/${id}`,
+    data,
+  });
+};
+
+// Assign a courier to a PUDO-flow parcel. Same PATCH as updateParcel, kept
+// separate so the payload can only ever be the courier.
+export const assignParcelCourier = async (
+  id: string,
+  data: AssignParcelCourierData,
+): Promise<GetParcelRes> => {
   return apiCall({
     method: "PATCH",
     url: `/parcels/${id}`,

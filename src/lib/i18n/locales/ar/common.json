@@ -136,8 +136,26 @@
     },
     "actions": {
       "assignCourier": "إسناد مندوب",
-      "reassignCourier": "إعادة إسناد المندوب"
+      "reassignCourier": "إعادة إسناد المندوب",
+      "unavailable": {
+        "notReadyYet": "متاح بعد أن يصبح الطرد جاهزًا للتوصيل",
+        "pudoClaimsPending": "يستلم المندوبون الطرود المعلّقة بأنفسهم من تطبيق المندوب",
+        "notAtThisStage": "لا يمكن إسناد مندوب في هذه المرحلة"
+      }
     }
+  },
+  "parcelCourierAssign": {
+    "title": "إسناد مندوب",
+    "description": "يُسند الطرد مباشرةً إلى المندوب المختار بدلًا من استلامه بنفسه.",
+    "courier": "المندوب",
+    "courierPlaceholder": "اختر مندوبًا",
+    "loadingCouriers": "جاري تحميل المندوبين...",
+    "noCouriers": "لا يوجد مندوبون نشطون",
+    "submit": "تأكيد الإسناد",
+    "submitting": "جاري الإسناد...",
+    "cancel": "إلغاء",
+    "success": "تم إسناد المندوب",
+    "error": "تعذّر إسناد المندوب"
   },
   "clients": {
     "title": "العملاء",

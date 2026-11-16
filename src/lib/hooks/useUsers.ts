@@ -27,10 +27,11 @@ export const userKeys = {
 };
 
 // Get all users
-export function useGetUsers(filters?: userFilterOptions) {
+export function useGetUsers(filters?: userFilterOptions, enabled = true) {
   return useQuery<GetUsersRes, Error>({
     queryKey: userKeys.list(JSON.stringify(filters) || ""),
     queryFn: () => getUsers(filters),
+    enabled,
     staleTime: 5 * 60 * 1000, // Keep fresh for 5 minutes
     gcTime: 10 * 60 * 1000, // Cache for 10 minutes
     retry: 3,

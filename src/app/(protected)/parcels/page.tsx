@@ -53,8 +53,15 @@ function countByVariant(stats: ListStats) {
 export default function Page() {
   const { t, currentLanguage } = useTranslation();
   const router = useRouter();
-  const { hasPermission } = usePermissions();
-  const canAssign = hasPermission(Permission.MANAGE_WAREHOUSE);
+  const { hasPermission, hasRole } = usePermissions();
+  const canAssignWarehouse = hasPermission(Permission.MANAGE_WAREHOUSE);
+  // Supervisors and clerks see the PUDO button too; only an admin can use it
+  // on a pending parcel (overriding courier self-claiming).
+  const pudoViewer = {
+    isAdmin: hasRole("admin"),
+    canAssign: hasPermission(Permission.ASSIGN_PARCELS),
+  };
+  const showPudoAssign = pudoViewer.canAssign || canAssignWarehouse;
   // Rendered outside the table: a portalled dialog still bubbles React click
   // events up its component tree, so inside a row it would trigger row-click.
   const [assignRow, setAssignRow] = useState<ParcelFeedRow | null>(null);
@@ -237,7 +244,12 @@ export default function Page() {
         columns={FeedColumns({
           t,
           language: currentLanguage,
-          onAssign: canAssign ? setAssignRow : undefined,
+          assign: {
+            warehouse: canAssignWarehouse,
+            pudo: showPudoAssign,
+            pudoViewer,
+            onAssign: setAssignRow,
+          },
         })}
         data={parcels?.parcels || []}
         enableFiltering={true}
